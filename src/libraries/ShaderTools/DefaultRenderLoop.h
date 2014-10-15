@@ -8,6 +8,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+static const int width = 1280;
+static const int height = 720;
+static GLFWwindow *window;
+
 class DefaultRenderLoop
 {
 public:
@@ -22,9 +26,6 @@ public:
 		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
-	const int width = 1280;
-	const int height = 720;
-	GLFWwindow *window;
 
 	void start(void (*renderLoop)()) {
 	    glEnable(GL_TEXTURE_2D);
@@ -44,7 +45,7 @@ public:
 };
 
 static auto defaultRenderLoop = new DefaultRenderLoop();
-static void start(void (*renderLoop)()) {
+static void renderLoop(void (*renderLoop)()) {
 	defaultRenderLoop->start(renderLoop);
 }
 

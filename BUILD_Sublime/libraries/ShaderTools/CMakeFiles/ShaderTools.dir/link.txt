@@ -1,2 +1,0 @@
-/usr/bin/ar cr ../../lib/libShaderTools.a  CMakeFiles/ShaderTools.dir/ShaderProgram.cpp.o CMakeFiles/ShaderTools.dir/VertexArrayObject.cpp.o CMakeFiles/ShaderTools.dir/VertexArrayObjects/Quad.cpp.o CMakeFiles/ShaderTools.dir/RenderPass.cpp.o
-/usr/bin/ranlib ../../lib/libShaderTools.a

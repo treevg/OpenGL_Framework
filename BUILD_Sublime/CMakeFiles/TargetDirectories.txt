@@ -1,4 +1,0 @@
-/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/shaders/CMakeFiles/SHADERS.dir
-/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/libraries/ShaderTools/CMakeFiles/ShaderTools.dir
-/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/executables/test_multipass/CMakeFiles/test_multipass.dir
-/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/executables/test_shader_program/CMakeFiles/test_shader_program.dir

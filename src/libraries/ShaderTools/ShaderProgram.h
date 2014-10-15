@@ -34,19 +34,16 @@ public:
 	void printInputInfo();
 	void printOutputInfo();
 
-private:
-	GLuint shaderProgramHandle;
-
 	struct Info{
 		GLenum type;
 		GLuint location;
-		std::string out() {
-			return std::to_string(location) + " haha";
-		}
 	};
 	std::map<std::string, Info> uniformMap;
 	std::map<std::string, Info> inputMap;
 	std::map<std::string, Info> outputMap;
+
+private:
+	GLuint shaderProgramHandle;
 
 	bool hasEnding (std::string const &fullString, std::string const &ending);
 	void attachShader(std::string filename);
