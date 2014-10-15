@@ -1,0 +1,35 @@
+{
+	"folders":
+	[
+		{
+			"path": "../src"
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "ShaderTools - all",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "all"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "ShaderTools - clean",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "clean"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "ShaderTools - ShaderTools",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "ShaderTools"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "ShaderTools - ShaderTools/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "ShaderTools/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		}
+	]
+	}

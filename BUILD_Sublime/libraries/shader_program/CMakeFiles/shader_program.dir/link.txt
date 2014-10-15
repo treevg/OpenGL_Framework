@@ -1,0 +1,2 @@
+/usr/bin/ar cr ../../lib/libshader_program.a  CMakeFiles/shader_program.dir/ShaderProgram.cpp.o
+/usr/bin/ranlib ../../lib/libshader_program.a

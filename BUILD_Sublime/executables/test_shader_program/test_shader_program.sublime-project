@@ -1,0 +1,35 @@
+{
+	"folders":
+	[
+		{
+			"path": "../src"
+		}
+	],
+	"build_systems":
+	[
+		{
+			"name": "test_shader_program - all",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "all"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "test_shader_program - clean",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "clean"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "test_shader_program - test_shader_program",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "test_shader_program"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		},
+		{
+			"name": "test_shader_program - test_shader_program/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "test_shader_program/fast"],
+			"working_dir": "${project_path}",
+			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
+		}
+	]
+	}
