@@ -116,30 +116,30 @@ ShaderTools/fast:
 .PHONY : ShaderTools/fast
 
 #=============================================================================
-# Target rules for targets named test_multipass
+# Target rules for targets named Test_ShaderTools_Multipass
 
 # Build rule for target.
-test_multipass: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_multipass
-.PHONY : test_multipass
+Test_ShaderTools_Multipass: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Test_ShaderTools_Multipass
+.PHONY : Test_ShaderTools_Multipass
 
 # fast build rule for target.
-test_multipass/fast:
-	$(MAKE) -f executables/test_multipass/CMakeFiles/test_multipass.dir/build.make executables/test_multipass/CMakeFiles/test_multipass.dir/build
-.PHONY : test_multipass/fast
+Test_ShaderTools_Multipass/fast:
+	$(MAKE) -f executables/Test_ShaderTools_Multipass/CMakeFiles/Test_ShaderTools_Multipass.dir/build.make executables/Test_ShaderTools_Multipass/CMakeFiles/Test_ShaderTools_Multipass.dir/build
+.PHONY : Test_ShaderTools_Multipass/fast
 
 #=============================================================================
-# Target rules for targets named test_shader_program
+# Target rules for targets named Test_ShaderTools_Minimal
 
 # Build rule for target.
-test_shader_program: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 test_shader_program
-.PHONY : test_shader_program
+Test_ShaderTools_Minimal: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 Test_ShaderTools_Minimal
+.PHONY : Test_ShaderTools_Minimal
 
 # fast build rule for target.
-test_shader_program/fast:
-	$(MAKE) -f executables/test_shader_program/CMakeFiles/test_shader_program.dir/build.make executables/test_shader_program/CMakeFiles/test_shader_program.dir/build
-.PHONY : test_shader_program/fast
+Test_ShaderTools_Minimal/fast:
+	$(MAKE) -f executables/Test_ShaderTools_Minimal/CMakeFiles/Test_ShaderTools_Minimal.dir/build.make executables/Test_ShaderTools_Minimal/CMakeFiles/Test_ShaderTools_Minimal.dir/build
+.PHONY : Test_ShaderTools_Minimal/fast
 
 #=============================================================================
 # Target rules for targets named SHADERS
@@ -163,8 +163,8 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... ShaderTools"
-	@echo "... test_multipass"
-	@echo "... test_shader_program"
+	@echo "... Test_ShaderTools_Multipass"
+	@echo "... Test_ShaderTools_Minimal"
 	@echo "... SHADERS"
 .PHONY : help
 

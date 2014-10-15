@@ -44,26 +44,26 @@
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
 		},
 		{
-			"name": "test_multipass - test_multipass",
-			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "test_multipass"],
+			"name": "Test_ShaderTools_Multipass - Test_ShaderTools_Multipass",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "Test_ShaderTools_Multipass"],
 			"working_dir": "${project_path}",
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
 		},
 		{
-			"name": "test_multipass - test_multipass/fast",
-			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "test_multipass/fast"],
+			"name": "Test_ShaderTools_Multipass - Test_ShaderTools_Multipass/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "Test_ShaderTools_Multipass/fast"],
 			"working_dir": "${project_path}",
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
 		},
 		{
-			"name": "test_shader_program - test_shader_program",
-			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "test_shader_program"],
+			"name": "Test_ShaderTools_Minimal - Test_ShaderTools_Minimal",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "Test_ShaderTools_Minimal"],
 			"working_dir": "${project_path}",
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
 		},
 		{
-			"name": "test_shader_program - test_shader_program/fast",
-			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "test_shader_program/fast"],
+			"name": "Test_ShaderTools_Minimal - Test_ShaderTools_Minimal/fast",
+			"cmd": ["/usr/bin/make", "-f", "Makefile", "VERBOSE=1", "Test_ShaderTools_Minimal/fast"],
 			"working_dir": "${project_path}",
 			"file_regex": "^(..[^:]*):([0-9]+):?([0-9]+)?:? (.*)$"
 		},

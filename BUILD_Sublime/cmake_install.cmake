@@ -35,8 +35,8 @@ endif()
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/libraries/ShaderTools/cmake_install.cmake")
-  include("/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/executables/test_multipass/cmake_install.cmake")
-  include("/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/executables/test_shader_program/cmake_install.cmake")
+  include("/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/executables/Test_ShaderTools_Multipass/cmake_install.cmake")
+  include("/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/executables/Test_ShaderTools_Minimal/cmake_install.cmake")
   include("/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/shaders/cmake_install.cmake")
 
 endif()

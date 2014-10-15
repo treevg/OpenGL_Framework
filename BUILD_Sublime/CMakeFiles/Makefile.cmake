@@ -20,8 +20,8 @@ set(CMAKE_MAKEFILE_DEPENDS
   "/home/lochmann/projects/OpenGL_Framework/src/cmake/FindOpenGL3.cmake"
   "/home/lochmann/projects/OpenGL_Framework/src/cmake/doxygen.cmake"
   "/home/lochmann/projects/OpenGL_Framework/src/cmake/macros.cmake"
-  "/home/lochmann/projects/OpenGL_Framework/src/executables/test_multipass/CMakeLists.txt"
-  "/home/lochmann/projects/OpenGL_Framework/src/executables/test_shader_program/CMakeLists.txt"
+  "/home/lochmann/projects/OpenGL_Framework/src/executables/Test_ShaderTools_Minimal/CMakeLists.txt"
+  "/home/lochmann/projects/OpenGL_Framework/src/executables/Test_ShaderTools_Multipass/CMakeLists.txt"
   "/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/CMakeLists.txt"
   "/home/lochmann/projects/OpenGL_Framework/src/shaders/CMakeLists.txt"
   "/usr/share/cmake-3.0/Modules/CMakeCInformation.cmake"
@@ -53,15 +53,15 @@ set(CMAKE_MAKEFILE_OUTPUTS
 set(CMAKE_MAKEFILE_PRODUCTS
   "CMakeFiles/CMakeDirectoryInformation.cmake"
   "libraries/ShaderTools/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "executables/test_multipass/CMakeFiles/CMakeDirectoryInformation.cmake"
-  "executables/test_shader_program/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "executables/Test_ShaderTools_Multipass/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "executables/Test_ShaderTools_Minimal/CMakeFiles/CMakeDirectoryInformation.cmake"
   "shaders/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
 set(CMAKE_DEPEND_INFO_FILES
   "libraries/ShaderTools/CMakeFiles/ShaderTools.dir/DependInfo.cmake"
-  "executables/test_multipass/CMakeFiles/test_multipass.dir/DependInfo.cmake"
-  "executables/test_shader_program/CMakeFiles/test_shader_program.dir/DependInfo.cmake"
+  "executables/Test_ShaderTools_Multipass/CMakeFiles/Test_ShaderTools_Multipass.dir/DependInfo.cmake"
+  "executables/Test_ShaderTools_Minimal/CMakeFiles/Test_ShaderTools_Minimal.dir/DependInfo.cmake"
   "shaders/CMakeFiles/SHADERS.dir/DependInfo.cmake"
   )

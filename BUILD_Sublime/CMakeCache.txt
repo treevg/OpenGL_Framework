@@ -234,6 +234,18 @@ ShaderTools_LIB_DEPENDS:STATIC=general;/usr/lib64/libSM.so;general;/usr/lib64/li
 //Value Computed by CMake
 ShaderTools_SOURCE_DIR:STATIC=/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools
 
+//Value Computed by CMake
+Test_ShaderTools_Minimal_BINARY_DIR:STATIC=/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/executables/Test_ShaderTools_Minimal
+
+//Value Computed by CMake
+Test_ShaderTools_Minimal_SOURCE_DIR:STATIC=/home/lochmann/projects/OpenGL_Framework/src/executables/Test_ShaderTools_Minimal
+
+//Value Computed by CMake
+Test_ShaderTools_Multipass_BINARY_DIR:STATIC=/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/executables/Test_ShaderTools_Multipass
+
+//Value Computed by CMake
+Test_ShaderTools_Multipass_SOURCE_DIR:STATIC=/home/lochmann/projects/OpenGL_Framework/src/executables/Test_ShaderTools_Multipass
+
 //Path to a file.
 X11_ICE_INCLUDE_PATH:PATH=/usr/include
 

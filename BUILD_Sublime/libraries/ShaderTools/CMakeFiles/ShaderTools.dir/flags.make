@@ -4,5 +4,5 @@
 # compile CXX with /usr/bin/c++
 CXX_FLAGS =  -std=c++0x -I/home/lochmann/projects/OpenGL_Framework/src/libraries   
 
-CXX_DEFINES = -DGLEW_STATIC -DGLFW_INCLUDE_GLCOREARB -DRESOURCES_PATH=\"/home/lochmann/projects/OpenGL_Framework/src/../resources/\" -DSHADERS_PATH=\"/home/lochmann/projects/OpenGL_Framework/src/shaders/\"
+CXX_DEFINES = -DGLEW_STATIC -DGLFW_INCLUDE_GLCOREARB -DRESOURCES_PATH=\"/home/lochmann/projects/OpenGL_Framework/src/../resources\" -DSHADERS_PATH=\"/home/lochmann/projects/OpenGL_Framework/src/shaders\"
 

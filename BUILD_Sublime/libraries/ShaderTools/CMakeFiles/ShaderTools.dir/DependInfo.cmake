@@ -16,8 +16,8 @@ set(CMAKE_CXX_COMPILER_ID "GNU")
 set(CMAKE_TARGET_DEFINITIONS
   "GLEW_STATIC"
   "GLFW_INCLUDE_GLCOREARB"
-  "RESOURCES_PATH=\"/home/lochmann/projects/OpenGL_Framework/src/../resources/\""
-  "SHADERS_PATH=\"/home/lochmann/projects/OpenGL_Framework/src/shaders/\""
+  "RESOURCES_PATH=\"/home/lochmann/projects/OpenGL_Framework/src/../resources\""
+  "SHADERS_PATH=\"/home/lochmann/projects/OpenGL_Framework/src/shaders\""
   )
 
 # Targets to which this target links.

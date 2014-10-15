@@ -4,11 +4,11 @@
 
 auto pass0 = new RenderPass(
     new Quad(), 
-    new ShaderProgram({"Test_ShaderTools/test.vert", "Test_ShaderTools/test.frag"}));
+    new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"}));
 
 auto pass1 = new RenderPass(
     new Quad(), 
-    new ShaderProgram({"Test_ShaderTools/test.vert", "Test_ShaderTools/test.frag"}));
+    new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"}));
 
 float size = 0.5;
 float lum = 0.5;
