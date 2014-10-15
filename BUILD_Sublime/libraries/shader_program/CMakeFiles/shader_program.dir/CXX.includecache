@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/lochmann/projects/OpenGL_Framework/src/libraries/shader_program/ShaderProgram.cpp
+ShaderProgram.h
+/home/lochmann/projects/OpenGL_Framework/src/libraries/shader_program/ShaderProgram.h
+
+/home/lochmann/projects/OpenGL_Framework/src/libraries/shader_program/ShaderProgram.h
+GL/glew.h
+-
+iostream
+-
+stdio.h
+-
+string
+-
+string.h
+-
+vector
+-
+fstream
+-
+glm/ext.hpp
+-
+map
+-
+

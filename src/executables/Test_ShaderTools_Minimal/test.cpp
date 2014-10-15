@@ -2,7 +2,7 @@
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 
-auto sp = new ShaderProgram({"test.vert", "test.frag"});
+auto sp = new ShaderProgram({"Test_ShaderTools/test.vert", "Test_ShaderTools/test.frag"});
 
 auto pass = new RenderPass(
     new Quad(), 

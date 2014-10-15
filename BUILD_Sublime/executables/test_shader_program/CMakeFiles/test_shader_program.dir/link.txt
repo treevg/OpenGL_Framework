@@ -1,0 +1,1 @@
+/usr/bin/c++    -std=c++0x    CMakeFiles/test_shader_program.dir/test.cpp.o  -o ../../bin/test_shader_program -rdynamic -lSM -lICE -lX11 -lXext -lXrandr -lXxf86vm -lXi -lpthread ../../lib/libShaderTools.a -lglfw -lGLEW -lGL -lSM -lICE -lX11 -lXext -lXrandr -lXxf86vm -lXi -lpthread -lglfw -lGLEW -lGL 
