@@ -36,9 +36,9 @@ int main(int argc, char *argv[]) {
         float delta = 0.0;
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) delta = 0.01;
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) delta = -0.01;
-        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) lum1  = glm::clamp(lum1 + delta, 0.0f, 1.0f);
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) lum1 = glm::clamp(lum1 + delta, 0.0f, 1.0f);
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) lum2 = glm::clamp(lum2 + delta, 0.0f, 1.0f);
-        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) lum3  = glm::clamp(lum3 + delta, 0.0f, 1.0f);
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) lum3 = glm::clamp(lum3 + delta, 0.0f, 1.0f);
 
         pass1
         -> clear(0, 0, 0, 0)
