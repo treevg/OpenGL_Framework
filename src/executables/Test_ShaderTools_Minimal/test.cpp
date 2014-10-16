@@ -18,10 +18,10 @@ int main(int argc, char *argv[]) {
     sp -> printOutputInfo();
 
     renderLoop([]{
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = std::max(size - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = std::min(size + 0.001, 1.);
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = std::max(lum - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = std::min(lum + 0.001, 1.);
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.001, 0.);
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.001, 1.);
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.001, 0.);
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.001, 1.);
 
         pass
         -> clear(0, 0, 0, 0)
