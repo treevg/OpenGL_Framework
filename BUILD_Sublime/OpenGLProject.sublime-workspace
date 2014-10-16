@@ -4,12 +4,32 @@
 		"selected_items":
 		[
 			[
-				"gener",
-				"generateUnitQuad"
+				"sam",
+				"samplerMap"
+			],
+			[
+				"sampler",
+				"sampler2D"
 			],
 			[
 				"pass",
-				"passCol"
+				"pass0"
+			],
+			[
+				"fra",
+				"fragPosition"
+			],
+			[
+				"co",
+				"color"
+			],
+			[
+				"vec",
+				"vec4"
+			],
+			[
+				"gener",
+				"generateUnitQuad"
 			],
 			[
 				"GL_",
@@ -46,10 +66,6 @@
 			[
 				"diff",
 				"diffuseWarp"
-			],
-			[
-				"vec",
-				"vec2"
 			],
 			[
 				"war",
@@ -498,22 +514,6 @@
 			[
 				"GLF",
 				"GLFW"
-			],
-			[
-				"pro",
-				"projOld"
-			],
-			[
-				"sho",
-				"showInitialGuess"
-			],
-			[
-				"show",
-				"showInitialGuessLocation"
-			],
-			[
-				"com",
-				"compose2"
 			]
 		]
 	},
@@ -669,7 +669,41 @@
 	},
 	"file_history":
 	[
+		"/home/lochmann/projects/OpenGL_Framework/src/shaders/Test_ShaderTools/compositiong.frag",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/DefaultRenderLoop.h",
+		"/home/lochmann/projects/OpenGL_Framework/src/shaders/Test_ShaderTools/sampler.frag",
+		"/home/lochmann/projects/OpenGL_Framework/src/executables/Test_ShaderTools_Minimal/test.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/shaders/Test_ShaderTools/test.vert",
+		"/home/lochmann/projects/OpenGL_Framework/src/shaders/Test_ShaderTools/test.frag",
+		"/home/lochmann/projects/OpenGL_Framework/src/shaders/ShaderToolsTest/test.vert",
+		"/home/lochmann/projects/OpenGL_Framework/src/shaders/ShaderToolsTest/test.frag",
+		"/home/lochmann/projects/OpenGL_Framework/src/executables/TestShaderTools_Multipass/test.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/executables/test_shader_program/test.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/executables/test_multipass/test.cpp",
 		"/home/lochmann/projects/OpenGL_Framework/src/shaders/test.vert",
+		"/home/lochmann/projects/OpenGL_Framework/src/shaders/test.frag",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/FrameBufferObject.h",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/FrameBufferObject.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/ShaderProgram.h",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/RenderPass.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObjects/FrameBufferObject.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObjects/FrameBufferObject.h",
+		"/home/lochmann/.config/sublime-text-2/Packages/User/Preferences.sublime-settings",
+		"/home/lochmann/.config/sublime-text-2/Packages/Default/Preferences.sublime-settings",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObjects/Quad.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObject.h",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObject.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/DefaultRenderLoop.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/CMake Warning (dev) at cmake/DefaultLibrary.cmake",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/ShaderProgram.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/OpenGLProject.sublime-project",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/RenderPass.h",
+		"/home/lochmann/projects/OpenGL_Framework/BUILD_Sublime/bin/test_shader_program",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObjects/Quad.h",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObjects/Rectangle.h",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObjects/Rectangle.cpp",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObject/Rectangle.h",
+		"/home/lochmann/projects/OpenGL_Framework/src/libraries/ShaderTools/VertexArrayObject/VertexArrayObject.cpp",
 		"/home/lochmann/projects/OpenGL_Framework/src/libraries/shader_program/ShaderProgram.cpp",
 		"/home/lochmann/projects/OpenGL_Framework/src/libraries/shader_program/ShaderProgram.h",
 		"/home/lochmann/projects/OpenGL_Framework/src/CMakeLists.txt",
@@ -755,7 +789,6 @@
 		"/home/lochmann/projects/glFramework/src/shaders/CurvatureReflectionWarpingShaderProgram/warping.comp",
 		"/home/lochmann/.config/sublime-text-2/Packages/User/C++.sublime-settings",
 		"/home/lochmann/.config/sublime-text-2/Packages/User/GLSL.sublime-settings",
-		"/home/lochmann/.config/sublime-text-2/Packages/Default/Preferences.sublime-settings",
 		"/home/lochmann/.config/sublime-text-2/Packages/SublimeAStyleFormatter/AStyleFormatterLib/Options.py",
 		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PixelWarping/HoleFillingShaderProgram.cpp",
 		"/home/lochmann/.bashrc",
@@ -763,40 +796,7 @@
 		"/usr/include/glm/detail/func_common.inl",
 		"/home/lochmann/ownCloud/Shared/CVTag 2014/SmartCity/demo.json",
 		"/home/lochmann/ownCloud/Shared/CVTag 2014/ShipHappens/demo.json",
-		"/home/lochmann/ownCloud/Shared/CVTag 2014/SchauGenau/demo.json",
-		"/home/lochmann/ownCloud/Shared/CVTag 2014/AutonomerBagger/demo.json",
-		"/home/lochmann/projects/glFramework/src/shaders/test_OptimizedWarping/mipmap.frag.glsl",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/IterativeWarping/ReflectionWarpingShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PixelWarping/ReflectionWarpingShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/IterativeWarping/GatheringGroundtruthShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/IterativeWarping/GatheringGroundtruthShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/BUILD/myFile.txt",
-		"/home/lochmann/projects/glFramework/BUILD/devil-ilut",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PositionFromDepthShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/AllFromDepthShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/src/shaders/AllFromDepthShaderProgram/convert.frag",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/AllFromDepthShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/GaussianDepthAwareShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/GaussianDephthAwareShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/GaussianDephthAwareShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PixelWarping/CompositingShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PixelWarping/HoleFillingShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/DepthFromPositionShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/shaders/AllFromDepthShaderProgram/warping.frag",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/SplatGatherWarping/AllFromDepthShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/SplatGatherWarping/AllFromDepthShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/src/executables/test_OptimizedWarping/main.cpp",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PixelWarping/RefractionSplattingWarpingShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PixelWarping/RefractionSplattingWarpingShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/IterativeWarping/RefractionWarpingShaderProgram.cpp",
-		"/home/lochmann/projects/projektpraktikum_WS1314/VRPP-source/src/shaders/GBuffer/GBuffer.frag",
-		"/home/lochmann/projects/projektpraktikum_WS1314/VRPP-source/src/executables/GBuffer/main.cpp",
-		"/home/lochmann/projects/glFramework/src/shaders/GatherWarpingShaderProgram/warping_thinned.frag",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/SplatGatherWarping/UVWarpingShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/SplatGatherWarping/UVWarpingShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PixelWarping/UVWarpingShaderProgram.cpp",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/PixelWarping/UVWarpingShaderProgram.h",
-		"/home/lochmann/projects/glFramework/src/libraries/RemoteGI_Tools/IterativeWarping/RefractionWarpingShaderProgram.h"
+		"/home/lochmann/ownCloud/Shared/CVTag 2014/SchauGenau/demo.json"
 	],
 	"find":
 	{
@@ -817,6 +817,39 @@
 		"case_sensitive": true,
 		"find_history":
 		[
+			"size",
+			"sampler",
+			"pass0",
+			"pass1",
+			"0",
+			"vao",
+			"fbo",
+			"sp",
+			"fbo",
+			"vao",
+			"sp",
+			".at(name)",
+			"Test_Shader",
+			"test.",
+			"defaultRenderLoop->",
+			"&uniformMap",
+			"&",
+			"uniformMap",
+			".location",
+			"for",
+			"lum",
+			"void",
+			"REND",
+			"pass0",
+			"[name].location",
+			"[name]",
+			"name]",
+			"it->",
+			"RECTANGLE_H",
+			"Rectangle",
+			"VertexArrayObject",
+			"VERTEX_ARRAY_OBJECT",
+			"VertexArrayObject",
 			"void",
 			"}",
 			": ",
@@ -911,40 +944,7 @@
 			"KEY_N",
 			"15",
 			"hhf",
-			"15",
-			"5,",
-			" 4",
-			"_15",
-			"[i]",
-			"newIndex",
-			"atoi(argv[1]) / 10",
-			"_13",
-			"15",
-			"gaussi",
-			"atoi(argv[1]) / 10 + 1",
-			"length",
-			"mv",
-			"argv[1]",
-			"end",
-			"start",
-			"ce_13",
-			"mv_upsampled",
-			"ce_15",
-			"mv[",
-			"e_16",
-			"13",
-			"_15",
-			"e_13",
-			"mv[",
-			"12",
-			"gaussian->getOutTexture()",
-			"(),\n",
-			"gaussian->getOutTexture(),",
-			"gaussian->getOutTexture()",
-			"gaussian->",
-			"14",
-			"12",
-			"normalsTexture[oldIndex]"
+			"15"
 		],
 		"highlight": true,
 		"in_selection": false,
@@ -999,7 +999,7 @@
 	"menu_visible": true,
 	"output.exec":
 	{
-		"height": 332.0
+		"height": 262.0
 	},
 	"replace":
 	{

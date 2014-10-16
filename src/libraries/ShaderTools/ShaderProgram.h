@@ -17,6 +17,8 @@ class ShaderProgram {
 public:
 	ShaderProgram(std::vector<std::string> attachShaders);
 	void use();
+	ShaderProgram* texture(std::string name, GLuint textureHandle);
+	ShaderProgram* texture(std::string name, GLuint textureHandle, GLuint samplerHandle);
 	ShaderProgram* update(std::string name, bool value);
 	ShaderProgram* update(std::string name, int value);
 	ShaderProgram* update(std::string name, float value);
@@ -44,6 +46,7 @@ public:
 
 private:
 	GLuint shaderProgramHandle;
+	int currentTextureUnit;
 
 	bool hasEnding (std::string const &fullString, std::string const &ending);
 	void attachShader(std::string filename);

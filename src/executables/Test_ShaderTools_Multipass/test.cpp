@@ -2,38 +2,70 @@
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 
-auto pass0 = new RenderPass(
-    new Quad(), 
-    new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"}));
+auto quadVAO = new Quad();
+auto singleColorSP = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
 
 auto pass1 = new RenderPass(
-    new Quad(), 
-    new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"}));
+    quadVAO, 
+    singleColorSP,
+    width, height);
 
-float size = 0.5;
-float lum = 0.5;
+auto pass2 = new RenderPass(
+    quadVAO, 
+    singleColorSP,
+    width, height);
+
+auto pass3 = new RenderPass(
+    quadVAO, 
+    singleColorSP,
+    width, height);
+
+auto compSP = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/compositing.frag"});
+auto compositing = new RenderPass(
+    quadVAO, 
+    compSP);
+
+float lum1 = 0.5;
+float lum2 = 0.5;
+float lum3 = 0.5;
 
 int main(int argc, char *argv[]) {
-    pass0->autoGenerateFrameBufferObject(width, height);
+    compSP->printUniformInfo();
 
     renderLoop([]{
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = std::max(size - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = std::min(size + 0.001, 1.);
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = std::max(lum - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = std::min(lum + 0.001, 1.);
-
-        pass0
-        -> update("color", glm::vec4(1,0,0,1))
-        -> update("scale", size)
-        -> update("luminance", lum)
-        -> run();
+        float delta = 0.0;
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) delta = 0.01;
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) delta = -0.01;
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) lum1  = glm::clamp(lum1 + delta, 0.0f, 1.0f);
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) lum2 = glm::clamp(lum2 + delta, 0.0f, 1.0f);
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) lum3  = glm::clamp(lum3 + delta, 0.0f, 1.0f);
 
         pass1
         -> update("color", glm::vec4(1,0,0,1))
-        -> update("scale", size)
-        -> update("luminance", lum)
+        -> update("scale", 0.9)
+        -> update("luminance", lum1)
+        -> clear(0, 0, 0, 0)
         -> run();
-        // -> update("inTex", pass0->get("color"))
-        // -> run();
+
+        pass2
+        -> update("color", glm::vec4(0,1,0,1))
+        -> update("scale", 0.9)
+        -> update("luminance", lum2)
+        -> clear(0, 0, 0, 0)
+        -> run();
+
+        pass3
+        -> update("color", glm::vec4(0,0,1,1))
+        -> update("scale", 0.9)
+        -> update("luminance", lum3)
+        -> clear(0, 0, 0, 0)
+        -> run();
+
+        compositing
+        -> texture("tex1", pass1->get("fragColor"))
+        -> texture("tex2", pass2->get("fragColor"))
+        -> texture("tex3", pass3->get("fragColor"))
+        -> update("scale", 0.9)
+        -> run();
     });
 }

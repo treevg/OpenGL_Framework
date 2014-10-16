@@ -7,20 +7,27 @@
 class RenderPass
 {
 public:
-	RenderPass(VertexArrayObject* vao, ShaderProgram* sp);
-	RenderPass(VertexArrayObject* vao, ShaderProgram* sp, FrameBufferObject* fbo);
+	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
+	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
+	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 	void run();
 	void autoGenerateFrameBufferObject(int width, int height);
+	GLuint get(std::string name);
+
+	RenderPass* clear(float r, float g, float b, float a);
+	RenderPass* texture(std::string name, GLuint textureID);
+	RenderPass* texture(std::string name, GLuint textureID, GLuint samplerID);
 
 	template <class T>
 	RenderPass* update(std::string name, T value) {
-		sp->update(name, value);
+		shaderProgram->update(name, value);
 		return this;
 	}
+
+	ShaderProgram* shaderProgram;
+	VertexArrayObject* vertexArrayObject;
+	FrameBufferObject* frameBufferObject;
 protected:
-	ShaderProgram* sp;
-	VertexArrayObject* vao;
-	FrameBufferObject* fbo;
 };
 
 #endif // RENDER_PASS_H

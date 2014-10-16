@@ -18,72 +18,92 @@ ShaderProgram::ShaderProgram(vector<string> attachShaders) {
 }
 
 void ShaderProgram::use() {
+	currentTextureUnit = 0;
 	glUseProgram(shaderProgramHandle);
+}
+
+ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle) {
+	glUseProgram(shaderProgramHandle);
+	glUniform1i(uniformMap[name].location, currentTextureUnit);
+	glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
+    glBindTexture(GL_TEXTURE_2D, textureHandle);
+	currentTextureUnit++;
+	return this;
+}
+
+ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
+	glUseProgram(shaderProgramHandle);
+	glUniform1i(uniformMap[name].location, currentTextureUnit);
+	glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
+    glBindTexture(GL_TEXTURE_2D, textureHandle);
+    glBindSampler(currentTextureUnit, samplerHandle);
+	currentTextureUnit++;
+	return this;
 }
 
 ShaderProgram* ShaderProgram::update(string name, bool value) {
 	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap.at(name).location, value);
+	glUniform1i(uniformMap[name].location, value);
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, int value) {
 	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap.at(name).location, value);
+	glUniform1i(uniformMap[name].location, value);
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, float value) {
 	glUseProgram(shaderProgramHandle);
-	glUniform1f(uniformMap.at(name).location, value);
+	glUniform1f(uniformMap[name].location, value);
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, double value) {
 	glUseProgram(shaderProgramHandle);
-	glUniform1f(uniformMap.at(name).location, value);
+	glUniform1f(uniformMap[name].location, value);
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, ivec2 vector) {
 	glUseProgram(shaderProgramHandle);
-	glUniform2iv(uniformMap.at(name).location, 1, glm::value_ptr(vector));
+	glUniform2iv(uniformMap[name].location, 1, glm::value_ptr(vector));
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, ivec3 vector) {
 	glUseProgram(shaderProgramHandle);
-	glUniform3iv(uniformMap.at(name).location, 1, glm::value_ptr(vector));
+	glUniform3iv(uniformMap[name].location, 1, glm::value_ptr(vector));
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, ivec4 vector) {
 	glUseProgram(shaderProgramHandle);
-	glUniform4iv(uniformMap.at(name).location, 1, glm::value_ptr(vector));
+	glUniform4iv(uniformMap[name].location, 1, glm::value_ptr(vector));
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, vec2 vector) {
 	glUseProgram(shaderProgramHandle);
-	glUniform2fv(uniformMap.at(name).location, 1, glm::value_ptr(vector));
+	glUniform2fv(uniformMap[name].location, 1, glm::value_ptr(vector));
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, vec3 vector) {
 	glUseProgram(shaderProgramHandle);
-	glUniform3fv(uniformMap.at(name).location, 1, glm::value_ptr(vector));
+	glUniform3fv(uniformMap[name].location, 1, glm::value_ptr(vector));
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, vec4 vector) {
 	glUseProgram(shaderProgramHandle);
-	glUniform4fv(uniformMap.at(name).location, 1, glm::value_ptr(vector));
+	glUniform4fv(uniformMap[name].location, 1, glm::value_ptr(vector));
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, mat2 matrix) {
 	glUseProgram(shaderProgramHandle);
-	glUniformMatrix2fv(uniformMap.at(name).location, 1, GL_FALSE, glm::value_ptr(matrix));
+	glUniformMatrix2fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, mat3 matrix) {
 	glUseProgram(shaderProgramHandle);
-	glUniformMatrix3fv(uniformMap.at(name).location, 1, GL_FALSE, glm::value_ptr(matrix));
+	glUniformMatrix3fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, mat4 matrix) {
 	glUseProgram(shaderProgramHandle);
-	glUniformMatrix4fv(uniformMap.at(name).location, 1, GL_FALSE, glm::value_ptr(matrix));
+	glUniformMatrix4fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
 	return this;
 }
 

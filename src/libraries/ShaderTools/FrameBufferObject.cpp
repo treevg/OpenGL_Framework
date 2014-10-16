@@ -32,3 +32,15 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 void FrameBufferObject::bind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
 }
+
+FrameBufferObject* FrameBufferObject::clear(float r, float g, float b, float a) {
+	bind();
+	glClearColor(r, g, b, a);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glClearColor(0, 0, 0, 0);
+	return this;
+}
+
+GLuint FrameBufferObject::get(std::string name) {
+	return textureMap[name];
+}
