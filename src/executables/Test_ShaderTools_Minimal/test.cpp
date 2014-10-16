@@ -24,6 +24,7 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = std::min(lum + 0.001, 1.);
 
         pass
+        -> clear(0, 0, 0, 0)
         -> update("color", glm::vec4(1,0,0,1))
         -> update("scale", size)
         -> update("luminance", lum)

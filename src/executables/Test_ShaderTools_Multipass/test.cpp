@@ -41,27 +41,28 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) lum3  = glm::clamp(lum3 + delta, 0.0f, 1.0f);
 
         pass1
+        -> clear(0, 0, 0, 01)
         -> update("color", glm::vec4(1,0,0,1))
         -> update("scale", 0.9)
         -> update("luminance", lum1)
-        -> clear(0, 0, 0, 0)
         -> run();
 
         pass2
+        -> clear(0, 0, 0, 0)
         -> update("color", glm::vec4(0,1,0,1))
         -> update("scale", 0.9)
         -> update("luminance", lum2)
-        -> clear(0, 0, 0, 0)
         -> run();
 
         pass3
+        -> clear(0, 0, 0, 0)
         -> update("color", glm::vec4(0,0,1,1))
         -> update("scale", 0.9)
         -> update("luminance", lum3)
-        -> clear(0, 0, 0, 0)
         -> run();
 
         compositing
+        -> clear(0, 0, 0, 0)
         -> texture("tex1", pass1->get("fragColor"))
         -> texture("tex2", pass2->get("fragColor"))
         -> texture("tex3", pass3->get("fragColor"))

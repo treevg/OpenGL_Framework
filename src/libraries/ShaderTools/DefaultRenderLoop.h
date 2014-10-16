@@ -23,7 +23,6 @@ public:
 	    glfwMakeContextCurrent(window);
 
 	    glewInit();
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 
@@ -31,8 +30,6 @@ public:
 	    glEnable(GL_TEXTURE_2D);
 
 		while ( !glfwWindowShouldClose(window)) {
-	        glClear(GL_COLOR_BUFFER_BIT);
-
 	        renderLoop();
 
 	        glfwSwapBuffers(window);
