@@ -44,3 +44,4 @@ FrameBufferObject* FrameBufferObject::clear(float r, float g, float b, float a) 
 GLuint FrameBufferObject::get(std::string name) {
 	return textureMap[name];
 }
+
