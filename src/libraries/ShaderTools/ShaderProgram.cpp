@@ -265,7 +265,8 @@ string ShaderProgram::getTypeString(GLenum type) {
 	case 35679: 
 		return "sampler3D";
 	}
-	return std::to_string(type);
+	return "unknown";
+	//std::to_string(type);
 }
 
 
