@@ -3,6 +3,7 @@
 in vec4 pos;
 
 uniform float scale;
+
 out vec4 passPosition;
 
 void main() {
