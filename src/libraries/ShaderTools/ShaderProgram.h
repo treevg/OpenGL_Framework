@@ -15,10 +15,11 @@
 
 class ShaderProgram {
 public:
+	ShaderProgram();
 	ShaderProgram(std::vector<std::string> attachShaders);
 	void use();
-	ShaderProgram* texture(std::string name, GLuint textureHandle);
-	ShaderProgram* texture(std::string name, GLuint textureHandle, GLuint samplerHandle);
+	virtual ShaderProgram* texture(std::string name, GLuint textureHandle);
+	virtual ShaderProgram* texture(std::string name, GLuint textureHandle, GLuint samplerHandle);
 	ShaderProgram* update(std::string name, bool value);
 	ShaderProgram* update(std::string name, int value);
 	ShaderProgram* update(std::string name, float value);
@@ -44,12 +45,12 @@ public:
 	std::map<std::string, Info> inputMap;
 	std::map<std::string, Info> outputMap;
 
-private:
+protected:
 	GLuint shaderProgramHandle;
 	int currentTextureUnit;
 
 	bool hasEnding (std::string const &fullString, std::string const &ending);
-	void attachShader(std::string filename);
+	virtual void attachShader(std::string filename);
 	void attachShader(GLenum shaderType, std::string filename);
 	std::string loadShaderSource(std::string filename);
 	void printShaderProgramInfoLog();

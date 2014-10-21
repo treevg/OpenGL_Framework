@@ -13,17 +13,24 @@ float size = 0.5;
 float lum = 0.5;
 glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.25);  // vec4(.x, .y, .z, rad)
 
+float lastTime, currentTime;
 
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
+    lastTime = glfwGetTime();
+
     renderLoop([]{
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.001, 1.);
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.001, 1.);
+        currentTime = glfwGetTime();
+        float deltaT = currentTime - lastTime;
+        lastTime = currentTime;
+
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.5 * deltaT, 1.);
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
 
         pass
         -> clear(0, 0, 0, 0)

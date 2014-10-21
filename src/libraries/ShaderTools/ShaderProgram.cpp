@@ -3,6 +3,9 @@
 using namespace std;
 using namespace glm;
 
+ShaderProgram::ShaderProgram(){
+}
+
 ShaderProgram::ShaderProgram(vector<string> attachShaders) {
     shaderProgramHandle = glCreateProgram();
 
