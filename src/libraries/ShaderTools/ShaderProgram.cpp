@@ -26,87 +26,177 @@ void ShaderProgram::use() {
 }
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap[name].location, currentTextureUnit);
-	glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
-    glBindTexture(GL_TEXTURE_2D, textureHandle);
-	currentTextureUnit++;
-	return this;
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform sampler2D " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(it->second.location, currentTextureUnit);
+		glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
+	    glBindTexture(GL_TEXTURE_2D, textureHandle);
+		currentTextureUnit++;
+		return this;
+	}
 }
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap[name].location, currentTextureUnit);
-	glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
-    glBindTexture(GL_TEXTURE_2D, textureHandle);
-    glBindSampler(currentTextureUnit, samplerHandle);
-	currentTextureUnit++;
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform sampler2D " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(it->second.location, currentTextureUnit);
+		glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
+	    glBindTexture(GL_TEXTURE_2D, textureHandle);
+	    glBindSampler(currentTextureUnit, samplerHandle);
+		currentTextureUnit++;
+	}
 	return this;
 }
 
 ShaderProgram* ShaderProgram::update(string name, bool value) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap[name].location, value);
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform bool " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(it->second.location, value);
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, int value) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap[name].location, value);
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform int " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(it->second.location, value);
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, float value) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1f(uniformMap[name].location, value);
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform float " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform1f(it->second.location, value);
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, double value) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1f(uniformMap[name].location, value);
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform double " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform1f(it->second.location, value);
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, ivec2 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform2iv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform ivec2 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform2iv(it->second.location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, ivec3 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform3iv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform ivec3 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform3iv(it->second.location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, ivec4 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform4iv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform ivec4 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform4iv(it->second.location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, vec2 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform2fv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform vec2 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform2fv(it->second.location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, vec3 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform3fv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform vec3 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform3fv(it->second.location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, vec4 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform4fv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform vec4 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniform4fv(it->second.location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, mat2 matrix) {
-	glUseProgram(shaderProgramHandle);
-	glUniformMatrix2fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform mat2 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniformMatrix2fv(it->second.location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, mat3 matrix) {
-	glUseProgram(shaderProgramHandle);
-	glUniformMatrix3fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform mat3 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniformMatrix3fv(it->second.location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 	return this;
 }
 ShaderProgram* ShaderProgram::update(string name, mat4 matrix) {
-	glUseProgram(shaderProgramHandle);
-	glUniformMatrix4fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
+	auto it = uniformMap.find(name);
+	if (it == uniformMap.end()) {
+		cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform mat4 " << name << "\" is not set or has been removed by the GLSL compiler" << endl << endl;
+	} else {
+		glUseProgram(shaderProgramHandle);
+		glUniformMatrix4fv(it->second.location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 	return this;
 }
 
@@ -154,8 +244,8 @@ void ShaderProgram::attachShader(GLenum shaderType, string filename) {
     GLint rvalue;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &rvalue);
     if (!rvalue) {
-        cerr << "ERROR IN SHADER PROGRAM " << shaderProgramHandle << ": Unable to compile ";
-        cerr << filename << endl;
+        cerr << "ERROR IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+        << "Unable to compile " << filename << endl;
         exit(30);
     }
     glAttachShader(shaderProgramHandle, shader);
@@ -177,7 +267,8 @@ string ShaderProgram::loadShaderSource(string filename) {
     }
     else
     {
-        cerr<< "ERROR IN SHADER PROGRAM " << shaderProgramHandle << ": Unable to read shader source code from " << filename << endl;
+        cerr<< "ERROR IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+        <<"Unable to read shader source code from " << filename << endl;
     }
 
     return shaderSrc;

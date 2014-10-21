@@ -35,7 +35,8 @@ int main(int argc, char *argv[]) {
         pass
         -> clear(0, 0, 0, 0)
         -> update("color", glm::vec4(1,0,0,1))
-		-> update("sphere1", sphere1)
+        -> update("sphere1", sphere1)
+		-> update("nicht_gesetzte_uniform", glm::vec4(1, 3, 3, 7))
         -> update("scale", size)
         -> update("luminance", lum)
         -> run();
