@@ -1,4 +1,4 @@
-#version 430
+﻿#version 430
 
 
 uniform vec4 color;
@@ -22,7 +22,10 @@ void main() {
 	//für welches lambda gilt:
 	// cameraPos + ray * lambda == sphere intersect
 
+
 	fragColor = passPosition;
+
+
     fragColor2 = color * luminance + sphere1;
     fragPosition = passPosition;
 }
