@@ -48,8 +48,12 @@ public:
 protected:
 	GLuint shaderProgramHandle;
 	int currentTextureUnit;
+	bool errorOccured = false;
 
-	bool hasEnding (std::string const &fullString, std::string const &ending);
+	void link();
+	Info* checkUpdate(std::string name, std::string type);
+	bool hasValidType(std::string filename, std::string typeLine);
+	bool hasEnding (std::string fullString, std::string ending);
 	virtual void attachShader(std::string filename);
 	void attachShader(GLenum shaderType, std::string filename);
 	std::string loadShaderSource(std::string filename);
