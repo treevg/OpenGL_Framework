@@ -5,7 +5,8 @@ in vec4 gl_FragCoord;
 uniform vec3 iResolution; 	//viewport resolution in pixels
 uniform float iGlobalTime;	//shader playback time in seconds
 
-
+out vec4 fragColor;
+out vec4 fragPosition;
 
 
 
@@ -39,7 +40,7 @@ void main(void)
  vec3 ro = vec3(0.0, 0.0, -3.0);
  vec3 rd = normalize(vec3(uv, 1.0));
  vec3 p = vec3(0.0, 0.0, 0.0);
- float t = sphere(ro, rd, p, 1.0);
+ float t = sphere(ro, rd, p, 0.5);
  vec3 nml = normalize(p - (ro+rd*t));
  vec3 bgCol = background(iGlobalTime, rd);
  rd = reflect(rd, nml);
