@@ -19,7 +19,10 @@ auto pass = new RenderPass(
 
 float size = 0.5;
 float lum = 0.5;
-glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.25);  // vec4(.x, .y, .z, rad)
+
+glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
+glm::vec4 sphere2 = glm::vec4(1.0, 0.5, 0.5, 0.25);
+
 
 float lastTime, currentTime;
 
@@ -50,6 +53,11 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
+    // fill sphere-vector
+    std::vector<glm::vec4> spheres;
+    spheres.push_back(sphere1);
+    spheres.push_back(sphere2);
+
     lastTime = glfwGetTime();
 
     renderLoop([]{
@@ -68,6 +76,7 @@ int main(int argc, char *argv[]) {
 
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
+		//-> update("spheres", spheres)
 
         -> update("color", glm::vec4(1,0,0,1))
         -> update("sphere1", sphere1)
