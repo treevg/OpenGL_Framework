@@ -5,6 +5,7 @@ in vec4 gl_FragCoord;
 uniform vec3 iResolution; 	//viewport resolution in pixels
 uniform float iGlobalTime;	//shader playback time in seconds
 uniform vec4 sphere1;
+uniform vector<vec4> spheres;
 
 
 out vec4 fragColor;
@@ -41,12 +42,21 @@ void main(void)
   vec2(iResolution.x/iResolution.y, 1.0);
  vec3 ro = vec3(0.0, 0.0, -3.0);
  vec3 rd = normalize(vec3(uv, 1.0));
- vec3 p = vec3(0.0, 0.0, 0.0);
+
+for(auto sphere:spheres){
+}
+ 
  float t = sphere(ro, rd, vec3(sphere1.x, sphere1.y, sphere1.z), sphere1.w);
- //float t = sphere(ro, rd, p, 0.5);
- vec3 nml = normalize(p - (ro+rd*t));
+
+
+ //vec3 p = vec3(0.0, 0.0, 0.0);
+ //float t = sphere(ro, rd, p, 0.5); original
+
+ vec3 nml = normalize(vec3(sphere1.x, sphere1.y, sphere1.z) - (ro+rd*t));
  vec3 bgCol = background(iGlobalTime, rd);
  rd = reflect(rd, nml);
  vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
  gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
 }
+
+

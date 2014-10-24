@@ -23,6 +23,7 @@ float lum = 0.5;
 glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
 glm::vec4 sphere2 = glm::vec4(1.0, 0.5, 0.5, 0.25);
 
+std::vector<glm::vec4> spheres;
 
 float lastTime, currentTime;
 
@@ -54,9 +55,9 @@ int main(int argc, char *argv[]) {
     sp -> printOutputInfo();
 
     // fill sphere-vector
-    std::vector<glm::vec4> spheres;
     spheres.push_back(sphere1);
     spheres.push_back(sphere2);
+
 
     lastTime = glfwGetTime();
 
@@ -64,6 +65,8 @@ int main(int argc, char *argv[]) {
         currentTime = glfwGetTime();
         float deltaT = currentTime - lastTime;
         lastTime = currentTime;
+
+
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.5 * deltaT, 1.);
@@ -76,7 +79,7 @@ int main(int argc, char *argv[]) {
 
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
-		//-> update("spheres", spheres)
+		-> update("spheres", &spheres)
 
         -> update("color", glm::vec4(1,0,0,1))
         -> update("sphere1", sphere1)
