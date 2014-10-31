@@ -86,6 +86,16 @@ ShaderProgram* ShaderProgram::update(string name, double value) {
 	}
 	return this;
 }
+// TODO array uniform upload
+
+ShaderProgram* ShaderProgram::update(string name, float value[]) {
+	Info* updateInfo = checkUpdate(name, "float");
+	if (updateInfo != NULL) {
+		glUseProgram(shaderProgramHandle);
+		glUniform4fv(updateInfo->location, 4, value );
+	}
+	return this;
+}
 
 ShaderProgram* ShaderProgram::update(string name, ivec2 vector) {
 	Info* updateInfo = checkUpdate(name, "ivec2");

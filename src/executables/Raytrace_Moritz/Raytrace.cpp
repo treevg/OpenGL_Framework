@@ -1,7 +1,7 @@
 #include "ShaderTools/DefaultRenderLoop.h"
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
-
+#include <array>
 
 
 // fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
@@ -16,14 +16,19 @@ auto pass = new RenderPass(
 //TODO load own spheres / multiple spheres
 //TODO avoid horizonatal line / change background?
 //TODO make lightsource a fix point?
+//TODO getTextures
 
 float size = 0.5;
 float lum = 0.5;
+int arraySize;
+
 
 glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
 glm::vec4 sphere2 = glm::vec4(1.0, 0.5, 0.5, 0.25);
 
-std::vector<glm::vec4> spheres;
+GLfloat spheres[]={
+		0.5, 0.5, 0.0, 0.5
+};
 
 float lastTime, currentTime;
 
@@ -54,10 +59,13 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
-    // fill sphere-vector
-    spheres.push_back(sphere1);
-    spheres.push_back(sphere2);
+    // fill sphere-array
+    //spheres[0]= sphere1;
+   // spheres[1]= sphere2;
 
+
+    //arraySize= sizeof(spheres);
+    arraySize= 4;
 
     lastTime = glfwGetTime();
 
@@ -65,7 +73,6 @@ int main(int argc, char *argv[]) {
         currentTime = glfwGetTime();
         float deltaT = currentTime - lastTime;
         lastTime = currentTime;
-
 
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
@@ -79,10 +86,12 @@ int main(int argc, char *argv[]) {
 
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
-		-> update("spheres", &spheres)
+
+		-> update("spheres", spheres)
+		-> update("arraySize", arraySize)
 
         -> update("color", glm::vec4(1,0,0,1))
-        -> update("sphere1", sphere1)
+        //-> update("sphere1", sphere1)
 		-> update("nicht_gesetzte_uniform", glm::vec4(1, 3, 3, 7))
         -> update("scale", size)
         -> update("luminance", lum)
