@@ -4,8 +4,11 @@ in vec4 gl_FragCoord;
 
 uniform vec3 iResolution; 	//viewport resolution in pixels
 uniform float iGlobalTime;	//shader playback time in seconds
-uniform float spheres[4];
-uniform int arraySize;
+//uniform float spheres;
+//uniform int arraySize;
+
+uniform vec4 sphere1;
+uniform vec4 sphere2;
 
 out vec4 fragColor;
 out vec4 fragPosition;
@@ -41,15 +44,35 @@ void main(void)
 	vec3 ro = vec3(0.0, 0.0, -3.0);
 	vec3 rd = normalize(vec3(uv, 1.0));
 
-for(int i=0; i<(arraySize/4); i++){
+//for(int i=0; i<2; i++){}
 
-	float t = sphere(ro, rd, vec3(spheres[0]), 0.5);
 
-	vec3 nml = normalize(vec3(spheres[0]) - (ro+rd*t));
-
+	float t=0;
+	float t1 = sphere(ro, rd, vec3(sphere1.x,sphere1.y,sphere1.z), sphere1.w);
+	float t2 = sphere(ro, rd, vec3(sphere2.x,sphere2.y,sphere2.z), sphere2.w);
+	
+	if(t1>t2){
+	t=t1;
+	vec3 nml = normalize(vec3(sphere1.x,sphere1.y,sphere1.z) - (ro+rd*t));
 	vec3 bgCol = background(iGlobalTime, rd);
 	rd = reflect(rd, nml);
 	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
 	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
-}
+	}
+
+
+	else{
+
+	t=t2;
+	vec3 nml = normalize(vec3(sphere2.x,sphere2.y,sphere2.z) - (ro+rd*t));
+	vec3 bgCol = background(iGlobalTime, rd);
+	rd = reflect(rd, nml);
+	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
+	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
+	}
+	
+
+	
+
+
 }

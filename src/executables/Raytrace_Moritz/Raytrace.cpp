@@ -26,8 +26,8 @@ int arraySize;
 glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
 glm::vec4 sphere2 = glm::vec4(1.0, 0.5, 0.5, 0.25);
 
-GLfloat spheres[]={
-		0.5, 0.5, 0.0, 0.5
+float spheres[4]={
+		0.25, 0.25, 0.0, 0.5
 };
 
 float lastTime, currentTime;
@@ -64,8 +64,8 @@ int main(int argc, char *argv[]) {
    // spheres[1]= sphere2;
 
 
-    //arraySize= sizeof(spheres);
-    arraySize= 4;
+   arraySize= sizeof(spheres)/sizeof(*spheres);
+
 
     lastTime = glfwGetTime();
 
@@ -87,11 +87,12 @@ int main(int argc, char *argv[]) {
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
 
-		-> update("spheres", spheres)
-		-> update("arraySize", arraySize)
+		//-> update("spheres", spheres) doesnt work properly
+		//-> update("arraySize", arraySize)
 
         -> update("color", glm::vec4(1,0,0,1))
-        //-> update("sphere1", sphere1)
+        -> update("sphere1", sphere1)
+		-> update("sphere2", sphere2)
 		-> update("nicht_gesetzte_uniform", glm::vec4(1, 3, 3, 7))
         -> update("scale", size)
         -> update("luminance", lum)
