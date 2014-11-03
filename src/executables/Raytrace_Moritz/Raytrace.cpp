@@ -1,17 +1,57 @@
 #include "ShaderTools/DefaultRenderLoop.h"
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
+#include <array>
 
-auto sp = new ShaderProgram({"/Test_ShaderTools/Moritz_Ba/raytrace.vert", "/Test_ShaderTools/Moritz_Ba/raytrace.frag"});
+
+// fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
+// original shader was "../Moritz_Ba/raytrace.frag"
+auto sp = new ShaderProgram({"/Test_ShaderTools/Moritz_Ba/raytrace.vert", "/Test_ShaderTools/Moritz_Ba/raytrace2.frag"});
 
 auto pass = new RenderPass(
     new Quad(), 
     sp
 );
 
+//TODO load own spheres / multiple spheres
+//TODO avoid horizonatal line / change background?
+//TODO make lightsource a fix point?
+//TODO getTextures
+
 float size = 0.5;
 float lum = 0.5;
-glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.25);  // vec4(.x, .y, .z, rad)
+int arraySize;
+
+
+glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
+glm::vec4 sphere2 = glm::vec4(1.0, 0.5, 0.5, 0.25);
+
+float spheres[4]={
+		0.25, 0.25, 0.0, 0.5
+};
+
+float lastTime, currentTime;
+
+/*
+glm::mat4 viewMat = {
+		1,	0,	0,	0,
+		0,	1,	0,	0,
+		0,	0,	1,	0,
+		0,	0,	0,	1,
+};
+*/
+
+
+glm::mat4 viewMat       = glm::lookAt(
+    glm::vec3(4,3,3), // Camera is at (4,3,3), in World Space
+    glm::vec3(0,0,0), // and looks at the origin
+    glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+);
+
+
+glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+
+glm::mat4 mvp= projMat * viewMat;
 
 
 int main(int argc, char *argv[]) {
@@ -19,16 +59,41 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
+    // fill sphere-array
+    //spheres[0]= sphere1;
+   // spheres[1]= sphere2;
+
+
+   arraySize= sizeof(spheres)/sizeof(*spheres);
+
+
+    lastTime = glfwGetTime();
+
     renderLoop([]{
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.001, 1.);
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.001, 1.);
+        currentTime = glfwGetTime();
+        float deltaT = currentTime - lastTime;
+        lastTime = currentTime;
+
+
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.5 * deltaT, 1.);
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
 
         pass
         -> clear(0, 0, 0, 0)
+		-> update("mvp" , mvp)
+
+		-> update("iGlobalTime", lastTime)
+		-> update("iResolution", glm::vec3(1280, 720, 1))
+
+		//-> update("spheres", spheres) doesnt work properly
+		//-> update("arraySize", arraySize)
+
         -> update("color", glm::vec4(1,0,0,1))
-		//-> update("sphere1", sphere1)
+        -> update("sphere1", sphere1)
+		-> update("sphere2", sphere2)
+		-> update("nicht_gesetzte_uniform", glm::vec4(1, 3, 3, 7))
         -> update("scale", size)
         -> update("luminance", lum)
         -> run();

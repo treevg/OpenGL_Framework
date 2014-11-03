@@ -15,14 +15,16 @@
 
 class ShaderProgram {
 public:
+	ShaderProgram();
 	ShaderProgram(std::vector<std::string> attachShaders);
 	void use();
-	ShaderProgram* texture(std::string name, GLuint textureHandle);
-	ShaderProgram* texture(std::string name, GLuint textureHandle, GLuint samplerHandle);
+	virtual ShaderProgram* texture(std::string name, GLuint textureHandle);
+	virtual ShaderProgram* texture(std::string name, GLuint textureHandle, GLuint samplerHandle);
 	ShaderProgram* update(std::string name, bool value);
 	ShaderProgram* update(std::string name, int value);
 	ShaderProgram* update(std::string name, float value);
 	ShaderProgram* update(std::string name, double value);
+	ShaderProgram* update(std::string name, float value[]);
 	ShaderProgram* update(std::string name, glm::ivec2 vector);
 	ShaderProgram* update(std::string name, glm::ivec3 vector);
 	ShaderProgram* update(std::string name, glm::ivec4 vector);
@@ -44,12 +46,16 @@ public:
 	std::map<std::string, Info> inputMap;
 	std::map<std::string, Info> outputMap;
 
-private:
+protected:
 	GLuint shaderProgramHandle;
 	int currentTextureUnit;
+	bool errorOccured = false;
 
-	bool hasEnding (std::string const &fullString, std::string const &ending);
-	void attachShader(std::string filename);
+	void link();
+	Info* checkUpdate(std::string name, std::string type);
+	bool hasValidType(std::string filename, std::string typeLine);
+	bool hasEnding (std::string fullString, std::string ending);
+	virtual void attachShader(std::string filename);
 	void attachShader(GLenum shaderType, std::string filename);
 	std::string loadShaderSource(std::string filename);
 	void printShaderProgramInfoLog();

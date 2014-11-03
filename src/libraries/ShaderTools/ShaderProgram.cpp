@@ -1,16 +1,20 @@
 #include "ShaderProgram.h"
+#include <algorithm>
 
 using namespace std;
 using namespace glm;
+
+ShaderProgram::ShaderProgram(){
+}
 
 ShaderProgram::ShaderProgram(vector<string> attachShaders) {
     shaderProgramHandle = glCreateProgram();
 
     for (string s : attachShaders) {
-    	ShaderProgram::attachShader(SHADERS_PATH + s);
+    	attachShader(SHADERS_PATH + s);
     }
 
-    glLinkProgram(shaderProgramHandle);
+    link();
 
     mapShaderProperties(GL_UNIFORM, &uniformMap);
     mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
@@ -23,88 +27,168 @@ void ShaderProgram::use() {
 }
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap[name].location, currentTextureUnit);
-	glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
-    glBindTexture(GL_TEXTURE_2D, textureHandle);
-	currentTextureUnit++;
+	Info* updateInfo = checkUpdate(name, "sampler2D");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(updateInfo->location, currentTextureUnit);
+		glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
+	    glBindTexture(GL_TEXTURE_2D, textureHandle);
+		currentTextureUnit++;
+	}
 	return this;
 }
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap[name].location, currentTextureUnit);
-	glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
-    glBindTexture(GL_TEXTURE_2D, textureHandle);
-    glBindSampler(currentTextureUnit, samplerHandle);
-	currentTextureUnit++;
+	Info* updateInfo = checkUpdate(name, "sampler2D");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(updateInfo->location, currentTextureUnit);
+		glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
+	    glBindTexture(GL_TEXTURE_2D, textureHandle);
+	    glBindSampler(currentTextureUnit, samplerHandle);
+		currentTextureUnit++;
+	}
 	return this;
 }
 
 ShaderProgram* ShaderProgram::update(string name, bool value) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap[name].location, value);
+	Info* updateInfo = checkUpdate(name, "bool");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(updateInfo->location, value);
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, int value) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1i(uniformMap[name].location, value);
+	Info* updateInfo = checkUpdate(name, "int");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(updateInfo->location, value);
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, float value) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1f(uniformMap[name].location, value);
+	Info* updateInfo = checkUpdate(name, "float");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform1f(updateInfo->location, value);
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, double value) {
-	glUseProgram(shaderProgramHandle);
-	glUniform1f(uniformMap[name].location, value);
+	Info* updateInfo = checkUpdate(name, "double");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform1f(updateInfo->location, value);
+	}
 	return this;
 }
+// TODO array uniform upload
+
+ShaderProgram* ShaderProgram::update(string name, float value[]) {
+	Info* updateInfo = checkUpdate(name, "float");
+	if (updateInfo != NULL) {
+		glUseProgram(shaderProgramHandle);
+		glUniform4f(updateInfo->location, value[0],value[1],value[2],value[3] );
+	}
+	return this;
+}
+
 ShaderProgram* ShaderProgram::update(string name, ivec2 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform2iv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	Info* updateInfo = checkUpdate(name, "ivec2");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform2iv(updateInfo->location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, ivec3 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform3iv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	Info* updateInfo = checkUpdate(name, "ivec3");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform3iv(updateInfo->location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, ivec4 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform4iv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	Info* updateInfo = checkUpdate(name, "ivec4");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform4iv(updateInfo->location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, vec2 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform2fv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	Info* updateInfo = checkUpdate(name, "vec2");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform2fv(updateInfo->location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, vec3 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform3fv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	Info* updateInfo = checkUpdate(name, "vec3");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform3fv(updateInfo->location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, vec4 vector) {
-	glUseProgram(shaderProgramHandle);
-	glUniform4fv(uniformMap[name].location, 1, glm::value_ptr(vector));
+	Info* updateInfo = checkUpdate(name, "vec4");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform4fv(updateInfo->location, 1, glm::value_ptr(vector));
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, mat2 matrix) {
-	glUseProgram(shaderProgramHandle);
-	glUniformMatrix2fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
+	Info* updateInfo = checkUpdate(name, "mat2");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniformMatrix2fv(updateInfo->location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, mat3 matrix) {
-	glUseProgram(shaderProgramHandle);
-	glUniformMatrix3fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
+	Info* updateInfo = checkUpdate(name, "mat3");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniformMatrix3fv(updateInfo->location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 	return this;
 }
+
 ShaderProgram* ShaderProgram::update(string name, mat4 matrix) {
-	glUseProgram(shaderProgramHandle);
-	glUniformMatrix4fv(uniformMap[name].location, 1, GL_FALSE, glm::value_ptr(matrix));
+	Info* updateInfo = checkUpdate(name, "mat4");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniformMatrix4fv(updateInfo->location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
 	return this;
+}
+
+ShaderProgram::Info* ShaderProgram::checkUpdate(std::string name, std::string type) {
+	auto it = uniformMap.find(name);
+	if (errorOccured) {
+		return NULL;
+	}
+	if (it == uniformMap.end()) {
+		std::cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		<< "\"uniform " << type << " " << name << "\" is not set or has been removed by the GLSL compiler" << std::endl << std::endl;
+		return NULL;
+	}
+	return &(it->second);
 }
 
 void ShaderProgram::printUniformInfo() {
@@ -122,7 +206,27 @@ void ShaderProgram::printOutputInfo() {
 	printInfo(&outputMap);
 }
 
-bool ShaderProgram::hasEnding (string const &fullString, string const &ending) {
+bool ShaderProgram::hasValidType(string filename, string typeLine) {
+	std::string delimiter = " ";
+	char invalidChars[] = "*.";
+	
+	for (unsigned int i = 0; i < strlen(invalidChars); ++i) {
+	  typeLine.erase (std::remove(typeLine.begin(), typeLine.end(), invalidChars[i]), typeLine.end());
+	}
+	size_t pos = 0;
+	std::string token;
+	while ((pos = typeLine.find(delimiter)) != std::string::npos) {
+	    token = typeLine.substr(0, pos);
+	    if (token.length() > 0 && 0 == filename.compare (filename.length() - token.length(), token.length(), token))
+	    	return true;
+	    typeLine.erase(0, pos + delimiter.length());
+	}
+    if (token.length() > 0 && 0 == filename.compare (filename.length() - typeLine.length(), typeLine.length(), typeLine))
+		return true;
+	return false;
+}
+
+bool ShaderProgram::hasEnding (string fullString, string ending) {
     if (fullString.length() >= ending.length()) {
         return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
     } else {
@@ -131,13 +235,21 @@ bool ShaderProgram::hasEnding (string const &fullString, string const &ending) {
 }
 
 void ShaderProgram::attachShader(string filename) {
-	if (hasEnding(filename, ".vert")) {
+	if (hasValidType(filename, ".vert .vs")) {
 		attachShader(GL_VERTEX_SHADER, filename);
-	} else if (hasEnding(filename, ".frag")) {
-		attachShader(GL_FRAGMENT_SHADER, filename);
-	} else if (hasEnding(filename, ".geom")) {
-		attachShader(GL_GEOMETRY_SHADER, filename);
+		return;
 	}
+	if (hasValidType(filename, ".frag .fs")) {
+		attachShader(GL_FRAGMENT_SHADER, filename);
+		return;
+	}
+	if (hasValidType(filename, ".geom .geo")) {
+		attachShader(GL_GEOMETRY_SHADER, filename);
+		return;
+	}
+	cerr << "ERROR IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+    	<< filename << " filetype invalid" << endl;
+    errorOccured = true;
 }
 
 void ShaderProgram::attachShader(GLenum shaderType, string filename) {
@@ -151,8 +263,8 @@ void ShaderProgram::attachShader(GLenum shaderType, string filename) {
     GLint rvalue;
     glGetShaderiv(shader, GL_COMPILE_STATUS, &rvalue);
     if (!rvalue) {
-        cerr << "ERROR IN SHADER PROGRAM " << shaderProgramHandle << ": Unable to compile ";
-        cerr << filename << endl;
+        cerr << "ERROR IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+        << "Unable to compile " << filename << endl;
         exit(30);
     }
     glAttachShader(shaderProgramHandle, shader);
@@ -174,10 +286,21 @@ string ShaderProgram::loadShaderSource(string filename) {
     }
     else
     {
-        cerr<< "ERROR IN SHADER PROGRAM " << shaderProgramHandle << ": Unable to read shader source code from " << filename << endl;
+        cerr << "ERROR IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+        << "Unable to read shader source code from " << filename << endl;
     }
 
     return shaderSrc;
+}
+
+void ShaderProgram::link() {
+	glLinkProgram(shaderProgramHandle);
+	GLint linkStatus;
+	glGetProgramiv(shaderProgramHandle, GL_LINK_STATUS, &linkStatus);
+	if (linkStatus == GL_FALSE) {
+		errorOccured = true;
+		printShaderProgramInfoLog();
+	}
 }
 
 void ShaderProgram::printShaderProgramInfoLog() {
