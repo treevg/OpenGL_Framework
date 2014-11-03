@@ -18,6 +18,7 @@ auto pass = new RenderPass(
 //TODO make lightsource a fix point?
 //TODO getTextures/depth/color
 //TODO occlusion by other spheres
+//TODO spheres with colors?
 
 
 float size = 0.5;
@@ -27,7 +28,7 @@ glm::vec3 eye;
 
 
 glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
-glm::vec4 sphere2 = glm::vec4(0.5, 0.5, -0.5, 0.25);
+glm::vec4 sphere2 = glm::vec4(0.5, 0.5, -0.5, 0.5);
 
 float spheres[4]={
 		0.25, 0.25, 0.0, 0.5
