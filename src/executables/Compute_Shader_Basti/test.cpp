@@ -37,6 +37,8 @@ using namespace glm;
 
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
+GLuint textureHandle;
+
 
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
@@ -51,7 +53,7 @@ int main(int argc, char *argv[]) {
 
         camAngle = fmod((camAngle + rotationSpeed * glfwGetTime()), (pi<float>() * 2.0f));
         glfwSetTime(0.0);
-        cubeModel = translate(rotate(mat4(1.0f), degrees(camAngle), vec3(1.0f, 1.0f, 0.0f)), vec3(0.0f, 5.0f, -5.0f));
+        cubeModel = translate(rotate(mat4(1.0f), degrees(camAngle), vec3(1.0f, 1.0f, 0.0f)), vec3(0.0f, 2.0f, -2.0f));
 
 
 
@@ -60,6 +62,7 @@ int main(int argc, char *argv[]) {
         -> update("uniformView", viewMat)
         -> update("uniformProjection", projMat)
         -> update("uniformModel", cubeModel)
+        -> texture("tex2d", textureHandle)
         -> update("color", glm::vec4(1,0,0,1))
         //-> update("scale", size)
         -> update("luminance", lum)

@@ -7,9 +7,9 @@ Cube::Cube() {
     glGenVertexArrays(1, &vertexArrayObjectHandle);
     glBindVertexArray(vertexArrayObjectHandle);
 
-    GLuint positionBuffer;
-    glGenBuffers(1, &positionBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
+    GLuint vertexBufferHandles[2];
+    glGenBuffers(2, vertexBufferHandles);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);
     float positions[] = {
 		        -size,-size,size, size,-size,size, size,size,size,
 		        size,size,size, -size,size,size, -size,-size,size,
@@ -32,6 +32,31 @@ Cube::Cube() {
     glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
+
+    GLfloat uvCoordinates[] = {
+        // Front face
+        0,0, 1,0, 1,1,
+        1,1, 0,1, 0,0,
+        // Right face
+        0,0, 1,0, 1,1,
+        1,1, 0,1, 0,0,
+        // Back face
+        0,0, 1,0, 1,1,
+        1,1, 0,1, 0,0,
+        // Left face
+        0,0, 1,0, 1,1,
+        1,1, 0,1, 0,0,
+        // Bottom face
+        0,0, 1,0, 1,1,
+        1,1, 0,1, 0,0,
+        // Top face
+        0,0, 1,0, 1,1,
+        1,1, 0,1, 0,0,
+    };
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(uvCoordinates), uvCoordinates, GL_STATIC_DRAW);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(1);
 }
 
 void Cube::draw() {
