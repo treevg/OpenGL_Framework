@@ -92,7 +92,7 @@ ShaderProgram* ShaderProgram::update(string name, float value[]) {
 	Info* updateInfo = checkUpdate(name, "float");
 	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
-		glUniform4f(updateInfo->location, value[0],value[1],value[2],value[3] );
+		glUniform4fv(updateInfo->location, 4,value );
 	}
 	return this;
 }

@@ -17,6 +17,8 @@ auto pass = new RenderPass(
 //TODO avoid horizonatal line / change background?
 //TODO make lightsource a fix point?
 //TODO getTextures
+//TODO occlusion by other spheres
+
 
 float size = 0.5;
 float lum = 0.5;
@@ -26,7 +28,7 @@ int arraySize;
 glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
 glm::vec4 sphere2 = glm::vec4(1.0, 0.5, 0.5, 0.25);
 
-float spheres[4]={
+GLfloat spheres[4]={
 		0.25, 0.25, 0.0, 0.5
 };
 
