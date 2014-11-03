@@ -16,19 +16,20 @@ auto pass = new RenderPass(
 //TODO load own spheres / multiple spheres
 //TODO avoid horizonatal line / change background?
 //TODO make lightsource a fix point?
-//TODO getTextures
+//TODO getTextures/depth/color
 //TODO occlusion by other spheres
 
 
 float size = 0.5;
 float lum = 0.5;
 int arraySize;
+glm::vec3 eye;
 
 
 glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
-glm::vec4 sphere2 = glm::vec4(1.0, 0.5, 0.5, 0.25);
+glm::vec4 sphere2 = glm::vec4(0.5, 0.5, -0.5, 0.25);
 
-GLfloat spheres[4]={
+float spheres[4]={
 		0.25, 0.25, 0.0, 0.5
 };
 
@@ -41,7 +42,7 @@ glm::mat4 viewMat = {
 		0,	0,	1,	0,
 		0,	0,	0,	1,
 };
-*/
+
 
 
 glm::mat4 viewMat       = glm::lookAt(
@@ -54,7 +55,7 @@ glm::mat4 viewMat       = glm::lookAt(
 glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
 glm::mat4 mvp= projMat * viewMat;
-
+*/
 
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
@@ -67,6 +68,7 @@ int main(int argc, char *argv[]) {
 
 
    arraySize= sizeof(spheres)/sizeof(*spheres);
+   eye=glm::vec3(0.0,0.0,-3.0);
 
 
     lastTime = glfwGetTime();
@@ -84,7 +86,6 @@ int main(int argc, char *argv[]) {
 
         pass
         -> clear(0, 0, 0, 0)
-		-> update("mvp" , mvp)
 
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
@@ -92,6 +93,7 @@ int main(int argc, char *argv[]) {
 		//-> update("spheres", spheres) doesnt work properly
 		//-> update("arraySize", arraySize)
 
+		-> update("eye", eye)
         -> update("color", glm::vec4(1,0,0,1))
         -> update("sphere1", sphere1)
 		-> update("sphere2", sphere2)

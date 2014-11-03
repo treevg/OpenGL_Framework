@@ -2,9 +2,10 @@
 
 in vec4 gl_FragCoord;
 
-uniform vec3 iResolution; 	//viewport resolution in pixels
-uniform float iGlobalTime;	//shader playback time in seconds
-//uniform float spheres;
+uniform vec3	iResolution; 	//viewport resolution in pixels
+uniform float	iGlobalTime;	//shader playback time in seconds
+uniform vec3	eye;	
+//uniform float spheres[4];
 //uniform int arraySize;
 
 uniform vec4 sphere1;
@@ -40,38 +41,35 @@ void main(void)
 {
 	vec2 uv = (-1.0 + 2.0*gl_FragCoord.xy / iResolution.xy) * 
 		vec2(iResolution.x/iResolution.y, 1.0);
-	vec3 ro = vec3(0.0, 0.0, -3.0);
+	vec3 ro = eye;
 	vec3 rd = normalize(vec3(uv, 1.0));
 
-//for(int i=0; i<2; i++){}
-
-
-	float t=0;
-	float t1 = sphere(ro, rd, vec3(sphere1.x,sphere1.y,sphere1.z), sphere1.w);
-	float t2 = sphere(ro, rd, vec3(sphere2.x,sphere2.y,sphere2.z), sphere2.w);
+	//float t=0;
+	float t = sphere(ro, rd, vec3(sphere1.x,sphere1.y,sphere1.z), sphere1.w);
+	//float t2 = sphere(ro, rd, vec3(sphere2.x,sphere2.y,sphere2.z), sphere2.w);
 	
-	if(t1>t2){
-	t=t1;
+	
+	//t=t1;
+	// normal of intersected point of sphere
 	vec3 nml = normalize(vec3(sphere1.x,sphere1.y,sphere1.z) - (ro+rd*t));
+	
+	//basic backgroundcolor
 	vec3 bgCol = background(iGlobalTime, rd);
+	
+	//get reflectionvector of intersected spherepoint
 	rd = reflect(rd, nml);
+
+
+	float t1= sphere(nml, rd, vec3(sphere2.x,sphere2.y,sphere2.z),sphere2.w);
 	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
+
+	if(t1<0.0){
 	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
 	}
-
-
 	else{
-
-	t=t2;
-	vec3 nml = normalize(vec3(sphere2.x,sphere2.y,sphere2.z) - (ro+rd*t));
-	vec3 bgCol = background(iGlobalTime, rd);
-	rd = reflect(rd, nml);
-	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
-	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
+	gl_FragColor = vec4( mix(bgCol, vec3(1), step(0.0, t1)), 1.0 );
 	}
 	
-
 	
-
 
 }
