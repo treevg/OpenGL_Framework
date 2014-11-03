@@ -18,7 +18,7 @@ public:
 	DefaultRenderLoop() {
 	    glfwInit();
 
-	    window = glfwCreateWindow(width, height, "OpenGL Window", NULL, NULL);
+	    window = glfwCreateWindow(width, height, "Bachelor Video Compression", NULL, NULL);
 	    glfwSetWindowPos( window, 0, 100);
 	    glfwMakeContextCurrent(window);
 

@@ -1,4 +1,4 @@
-#include "ShaderTools/DefaultRenderLoop.h"
+#include "ShaderTools/Sebastian_Tools/newRenderLoop.h"
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     compSP->printUniformInfo();
 
     renderLoop([]{
+		        glEnable(GL_DEPTH_TEST);
         float delta = 0.0;
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) delta = 0.01;
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) delta = -0.01;
@@ -62,7 +63,7 @@ int main(int argc, char *argv[]) {
         -> run();
 
         compositing
-        -> clear(0, 0, 0, 0)
+        -> clear(1, 1, 1, 0)
         -> texture("tex1", pass1->get("fragColor"))
         -> texture("tex2", pass2->get("fragColor"))
         -> texture("tex3", pass3->get("fragColor"))
