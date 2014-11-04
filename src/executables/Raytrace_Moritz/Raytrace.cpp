@@ -6,7 +6,7 @@
 
 // fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // original shader was "../Moritz_Ba/raytrace.frag"
-auto sp = new ShaderProgram({"/Test_ShaderTools/Moritz_Ba/raytrace.vert", "/Test_ShaderTools/Moritz_Ba/raytrace2.frag"});
+auto sp = new ShaderProgram({"/Test_ShaderTools/Moritz_Ba/raytrace.vert", "/Test_ShaderTools/Moritz_Ba/raytrace3.frag"});
 
 auto pass = new RenderPass(
     new Quad(), 
@@ -16,9 +16,10 @@ auto pass = new RenderPass(
 //TODO load own spheres / multiple spheres
 //TODO avoid horizonatal line / change background?
 //TODO make lightsource a fix point?
-//TODO getTextures/depth/color
+//TODO getTextures/depth/color  -> multiple passes
 //TODO occlusion by other spheres
 //TODO spheres with colors?
+
 
 
 float size = 0.5;
@@ -27,11 +28,11 @@ int arraySize;
 glm::vec3 eye;
 
 
-glm::vec4 sphere1 = glm::vec4(0.0, 0.0, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
+glm::vec4 sphere1 = glm::vec4(0.0, 0.25, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
 glm::vec4 sphere2 = glm::vec4(0.5, 0.5, -0.5, 0.5);
 
 float spheres[4]={
-		0.25, 0.25, 0.0, 0.5
+		0.0, 0.25, 0.0, 0.5
 };
 
 float lastTime, currentTime;
@@ -91,7 +92,7 @@ int main(int argc, char *argv[]) {
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
 
-		//-> update("spheres", spheres) doesnt work properly
+		-> update("spheres", spheres) //doesnt work properly
 		//-> update("arraySize", arraySize)
 
 		-> update("eye", eye)
