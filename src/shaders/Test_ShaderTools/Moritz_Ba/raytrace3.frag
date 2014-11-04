@@ -5,11 +5,9 @@ in vec4 gl_FragCoord;
 uniform vec3	iResolution; 	//viewport resolution in pixels
 uniform float	iGlobalTime;	//shader playback time in seconds
 uniform vec3	eye;	
-uniform float spheres[4];
-//uniform int arraySize;
 
-uniform vec4 sphere1;
-uniform vec4 sphere2;
+uniform vec4 sphereVec[2];
+uniform vec3 mesh[20];
 
 out vec4 fragColor;
 out vec4 fragPosition;
@@ -44,12 +42,12 @@ void main(void)
 	vec3 ro = eye;
 	vec3 rd = normalize(vec3(uv, 1.0));
 
-	float t = sphere(ro, rd, vec3(sphere1.x,sphere1.y,sphere1.z), sphere1.w);
-	float t1 = sphere(ro, rd, vec3(sphere2.x,sphere2.y,sphere2.z), sphere2.w);
+	float t = sphere(ro, rd, vec3(sphereVec[0].x,sphereVec[0].y,sphereVec[0].z), sphereVec[0].w);
+	float t1 = sphere(ro, rd, vec3(sphereVec[1].x,sphereVec[1].y,sphereVec[1].z), sphereVec[1].w);
 	
 	
 	// normal of intersected point of sphere
-	vec3 nml = normalize(vec3(sphere1.x,sphere1.y,sphere1.z) - (ro+rd*t));
+	vec3 nml = normalize(vec3(sphereVec[0].x,sphereVec[0].y,sphereVec[0].z) - (ro+rd*t));
 	
 	//basic backgroundcolor
 	vec3 bgCol = background(iGlobalTime, rd);
@@ -59,7 +57,7 @@ void main(void)
 	
 
 	//hittest from intersected point
-	float t2= sphere(nml, rd, vec3(sphere2.x,sphere2.y,sphere2.z),sphere2.w);
+	float t2= sphere(nml, rd, vec3(sphereVec[1].x,sphereVec[1].y,sphereVec[1].z),sphereVec[1].w);
 	
 	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
 	

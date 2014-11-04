@@ -3,6 +3,7 @@
 uniform vec4 color;
 uniform float luminance;
 uniform vec4 newColor;
+uniform float bla;
 
 in vec4 passPosition;
 

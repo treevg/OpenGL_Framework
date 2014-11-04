@@ -24,16 +24,7 @@ auto pass = new RenderPass(
 
 float size = 0.5;
 float lum = 0.5;
-int arraySize;
 glm::vec3 eye;
-
-
-glm::vec4 sphere1 = glm::vec4(0.0, 0.25, 0.0, 0.5);  // vec4(.x, .y, .z, rad)
-glm::vec4 sphere2 = glm::vec4(0.5, 0.5, -0.5, 0.5);
-
-float spheres[4]={
-		0.0, 0.25, 0.0, 0.5
-};
 
 float lastTime, currentTime;
 
@@ -59,21 +50,45 @@ glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 glm::mat4 mvp= projMat * viewMat;
 */
 
+std::vector<glm::vec4> sphereVec;
+std::vector<glm::vec3> mesh;
+
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
-    // fill sphere-array
-    //spheres[0]= sphere1;
-   // spheres[1]= sphere2;
+    eye=glm::vec3(0.0,0.0,-3.0);
 
+    sphereVec.push_back(glm::vec4(0.0, 0.25, 0.0, 0.5));
+    sphereVec.push_back(glm::vec4(0.5, 0.5, -0.5, 0.5));
 
-   arraySize= sizeof(spheres)/sizeof(*spheres);
-   eye=glm::vec3(0.0,0.0,-3.0);
-
+    mesh.push_back(glm::vec3(0.1, 0.2, -0.3));
+    mesh.push_back(glm::vec3(0.4, 0.5, -0.6));
+    mesh.push_back(glm::vec3(0.7, 0.8, -0.9));
+    mesh.push_back(glm::vec3(0.10, 0.11, -0.12));
+    mesh.push_back(glm::vec3(0.13, 0.14, -0.15));
+    mesh.push_back(glm::vec3(0.16, 0.17, -0.18));
+    mesh.push_back(glm::vec3(0.19, 0.20, -0.21));
+    mesh.push_back(glm::vec3(0.22, 0.23, -0.24));
+    mesh.push_back(glm::vec3(0.25, 0.26, -0.27));
+    mesh.push_back(glm::vec3(0.28, 0.29, -0.30));
+    mesh.push_back(glm::vec3(0.31, 0.32, -0.33));
+    mesh.push_back(glm::vec3(0.34, 0.35, -0.36));
+    mesh.push_back(glm::vec3(0.37, 0.38, -0.39));
+    mesh.push_back(glm::vec3(0.40, 0.41, -0.42));
+    mesh.push_back(glm::vec3(0.43, 0.44, -0.45));
+    mesh.push_back(glm::vec3(0.46, 0.47, -0.48));
+    mesh.push_back(glm::vec3(0.49, 0.50, -0.51));
+    mesh.push_back(glm::vec3(0.52, 0.53, -0.54));
+    mesh.push_back(glm::vec3(0.55, 0.56, -0.57));
+    mesh.push_back(glm::vec3(0.58, 0.59, -0.60));
+    mesh.push_back(glm::vec3(0.61, 0.62, -0.63));
 
     lastTime = glfwGetTime();
+
+    pass -> update("sphereVec[0]", sphereVec);
+    pass -> update("mesh[0]", mesh);
 
     renderLoop([]{
         currentTime = glfwGetTime();
@@ -88,20 +103,10 @@ int main(int argc, char *argv[]) {
 
         pass
         -> clear(0, 0, 0, 0)
-
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
-
-		-> update("spheres", spheres) //doesnt work properly
-		//-> update("arraySize", arraySize)
-
 		-> update("eye", eye)
-        -> update("color", glm::vec4(1,0,0,1))
-        -> update("sphere1", sphere1)
-		-> update("sphere2", sphere2)
-		-> update("nicht_gesetzte_uniform", glm::vec4(1, 3, 3, 7))
         -> update("scale", size)
-        -> update("luminance", lum)
         -> run();
     });
 }
