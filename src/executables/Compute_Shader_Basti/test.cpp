@@ -9,7 +9,7 @@ auto quadVAO = new Quad();
 auto sp = new ShaderProgram({"/Test_ShaderTools/Sebastian_Ba/test1.vert", "/Test_ShaderTools/Sebastian_Ba/test1.frag"});
 //auto simpleTexShader = new ShaderProgram({"Test_ShaderTools/test.vert", "/Test_ShaderTools/Sebastian/simpleTexture.frag"});
 
-auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Test_ShaderTools/Sebastian_Ba/compute.frag");
+auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Test_ShaderTools/Sebastian_Ba/compute.comp");
 
 auto pass = new RenderPass(new Cube(), sp);
 auto passCompute = new RenderPass(quadVAO, cs, width, height);
