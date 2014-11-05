@@ -13,13 +13,14 @@ auto pass = new RenderPass(
     sp
 );
 
-//TODO load own spheres / multiple spheres
+//TODO multiple spheres
 //TODO avoid horizonatal line / change background?
 //TODO make lightsource a fix point?
-//TODO getTextures/depth/color  -> multiple passes
+//TODO getTextures/depth/color  -> multiple passes?
 //TODO occlusion by other spheres
 //TODO spheres with colors?
-
+//TODO change shader to loop
+//TODO add some keyboard input
 
 
 float size = 0.5;

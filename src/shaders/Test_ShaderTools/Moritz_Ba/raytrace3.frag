@@ -13,6 +13,7 @@ out vec4 fragColor;
 out vec4 fragPosition;
 
 
+
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 {
 	vec3 rc = ray-center;
@@ -37,13 +38,17 @@ vec3 background(float t, vec3 rd)
 
 void main(void)
 {
+
 	vec2 uv = (-1.0 + 2.0*gl_FragCoord.xy / iResolution.xy) * 
 		vec2(iResolution.x/iResolution.y, 1.0);
 	vec3 ro = eye;
 	vec3 rd = normalize(vec3(uv, 1.0));
 
+	for(int i=0; i<sphereVec.length();i++){}
+
 	float t = sphere(ro, rd, vec3(sphereVec[0].x,sphereVec[0].y,sphereVec[0].z), sphereVec[0].w);
 	float t1 = sphere(ro, rd, vec3(sphereVec[1].x,sphereVec[1].y,sphereVec[1].z), sphereVec[1].w);
+	
 	
 	
 	// normal of intersected point of sphere
@@ -54,14 +59,16 @@ void main(void)
 	
 	//get reflectionvector of intersected spherepoint
 	rd = reflect(rd, nml);
-	
 
 	//hittest from intersected point
 	float t2= sphere(nml, rd, vec3(sphereVec[1].x,sphereVec[1].y,sphereVec[1].z),sphereVec[1].w);
 	
 	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
 	
-	//t2<0.0
+	if(t==-1){
+	gl_FragColor=vec4(bgCol,1.0);
+	}
+	else{
 	if(t2<0.0){
 
 	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
@@ -71,5 +78,6 @@ void main(void)
 	// draws reflected point + "other" sphere
 	vec4 temp = vec4( mix(col, vec3(0.0, 0.5, 0.0), 1-t2), 1.0 );
 	gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,t2)),1.0);
+	}
 	}
 }

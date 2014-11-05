@@ -170,7 +170,6 @@ ShaderProgram* ShaderProgram::update(string name, mat4 matrix) {
 
 ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec2> vector) {
 	Info* updateInfo = checkUpdate(name, "vec2");
-
 	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform2fv(updateInfo->location, sizeof(vector), glm::value_ptr((&vector[0])[0]));
@@ -180,7 +179,6 @@ ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec2> vector)
 
 ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec3> vector) {
 	Info* updateInfo = checkUpdate(name, "vec3");
-
 	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform3fv(updateInfo->location, sizeof(vector), glm::value_ptr((&vector[0])[0]));
@@ -190,7 +188,6 @@ ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec3> vector)
 
 ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec4> vector) {
 	Info* updateInfo = checkUpdate(name, "vec4");
-
 	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform4fv(updateInfo->location, sizeof(vector), glm::value_ptr((&vector[0])[0]));
