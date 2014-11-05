@@ -24,8 +24,10 @@ auto pass = new RenderPass(
 
 
 float size = 0.5;
-float lum = 0.5;
-glm::vec3 eye;
+float lum =  0.5;
+float side=  0.0;
+float vertical= 0.0;
+glm::vec3 eye=glm::vec3(side,vertical,-3.0);
 
 float lastTime, currentTime;
 
@@ -36,18 +38,12 @@ glm::mat4 viewMat = {
 		0,	0,	1,	0,
 		0,	0,	0,	1,
 };
-
-
-
 glm::mat4 viewMat       = glm::lookAt(
     glm::vec3(4,3,3), // Camera is at (4,3,3), in World Space
     glm::vec3(0,0,0), // and looks at the origin
     glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
 );
-
-
 glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-
 glm::mat4 mvp= projMat * viewMat;
 */
 
@@ -59,9 +55,9 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
-    eye=glm::vec3(0.0,0.0,-3.0);
 
-    sphereVec.push_back(glm::vec4(0.0, 0.25, 0.0, 0.5));
+
+    sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.5, 0.5, -0.5, 0.5));
 
     mesh.push_back(glm::vec3(0.1, 0.2, -0.3));
@@ -101,12 +97,21 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.5 * deltaT, 1.);
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
+        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
+
+        // not finished
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) side = side - 0.5 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side = side + 0.5 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) vertical = vertical - 0.5 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) vertical = vertical + 0.5 * deltaT;
 
         pass
         -> clear(0, 0, 0, 0)
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
 		-> update("eye", eye)
+		-> update("side", side)
+		-> update("vertical", vertical)
         -> update("scale", size)
         -> run();
     });

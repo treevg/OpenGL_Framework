@@ -5,6 +5,8 @@ in vec4 gl_FragCoord;
 uniform vec3	iResolution; 	//viewport resolution in pixels
 uniform float	iGlobalTime;	//shader playback time in seconds
 uniform vec3	eye;	
+uniform float side;
+uniform float vertical;
 
 uniform vec4 sphereVec[2];
 uniform vec3 mesh[20];
@@ -41,7 +43,7 @@ void main(void)
 
 	vec2 uv = (-1.0 + 2.0*gl_FragCoord.xy / iResolution.xy) * 
 		vec2(iResolution.x/iResolution.y, 1.0);
-	vec3 ro = eye;
+	vec3 ro = vec3(side, vertical, -3.0);
 	vec3 rd = normalize(vec3(uv, 1.0));
 
 	for(int i=0; i<sphereVec.length();i++){}
@@ -69,7 +71,7 @@ void main(void)
 	gl_FragColor=vec4(bgCol,1.0);
 	}
 	else{
-	if(t2<0.0){
+	if(t2==-1){
 
 	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
 	
