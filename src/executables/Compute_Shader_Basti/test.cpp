@@ -87,8 +87,8 @@ int main(int argc, char *argv[]) {
         -> update("uniformProjection", projMat)
         -> update("uniformModel", cubeModel)
         -> texture("tex2", textureHandle)
-        -> update("color", glm::vec4(1,0,0,1))
-        -> update("luminance", lum)
+        // -> update("color", glm::vec4(1,0,0,1))
+        // -> update("luminance", lum)
         -> run();
     });
 }
