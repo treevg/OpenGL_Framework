@@ -24,7 +24,7 @@ ShaderProgram::ShaderProgram(vector<string> attachShaders) {
 ShaderProgram::ShaderProgram(GLenum type, string path){
 	shaderProgramHandle = glCreateProgram();
 
-	attachShader(type, path);
+	attachShader(type, SHADERS_PATH+path);
 	link();
 
 	mapShaderProperties(GL_UNIFORM, &uniformMap);
