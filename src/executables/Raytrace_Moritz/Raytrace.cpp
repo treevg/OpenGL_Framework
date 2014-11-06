@@ -6,7 +6,7 @@
 
 // fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // original shader was "../Moritz_Ba/raytrace.frag"
-auto sp = new ShaderProgram({"/Test_ShaderTools/Moritz_Ba/raytrace.vert", "/Test_ShaderTools/Moritz_Ba/raytrace3.frag"});
+auto sp = new ShaderProgram({"/Test_ShaderTools/Moritz_Ba/raytrace.vert", "/Test_ShaderTools/Moritz_Ba/raytrace2.frag"});
 
 auto pass = new RenderPass(
     new Quad(), 
@@ -21,6 +21,7 @@ auto pass = new RenderPass(
 //TODO spheres with colors?
 //TODO change shader to loop
 //TODO add some keyboard input
+//TODO raytrace polygons
 
 
 float size = 0.5;
@@ -58,7 +59,9 @@ int main(int argc, char *argv[]) {
 
 
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
-    sphereVec.push_back(glm::vec4(0.5, 0.5, -0.5, 0.5));
+    sphereVec.push_back(glm::vec4(0.75, 0.5, -0.5, 0.5));
+    sphereVec.push_back(glm::vec4(-0.75, 0.5, -0.5, 0.5));
+
 
     mesh.push_back(glm::vec3(0.1, 0.2, -0.3));
     mesh.push_back(glm::vec3(0.4, 0.5, -0.6));
@@ -85,7 +88,7 @@ int main(int argc, char *argv[]) {
     lastTime = glfwGetTime();
 
     pass -> update("sphereVec[0]", sphereVec);
-    pass -> update("mesh[0]", mesh);
+    //pass -> update("mesh[0]", mesh);
 
     renderLoop([]{
         currentTime = glfwGetTime();
@@ -100,6 +103,7 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 
         // not finished
+        //TODO moving in 3D
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) side = side - 0.5 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side = side + 0.5 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) vertical = vertical - 0.5 * deltaT;
@@ -109,7 +113,6 @@ int main(int argc, char *argv[]) {
         -> clear(0, 0, 0, 0)
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
-		-> update("eye", eye)
 		-> update("side", side)
 		-> update("vertical", vertical)
         -> update("scale", size)

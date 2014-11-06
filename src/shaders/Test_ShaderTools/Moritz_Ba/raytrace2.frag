@@ -3,16 +3,16 @@
 in vec4 gl_FragCoord;
 
 uniform vec3	iResolution; 	//viewport resolution in pixels
-uniform float	iGlobalTime;	//shader playback time in seconds
-uniform vec3	eye;	
-//uniform float spheres[4];
-//uniform int arraySize;
+uniform float	iGlobalTime;	//shader playback time in seconds	
+uniform float side;
+uniform float vertical;
 
-uniform vec4 sphere1;
-uniform vec4 sphere2;
+uniform vec4 sphereVec[3];
+uniform vec3 mesh[20];
 
 out vec4 fragColor;
 out vec4 fragPosition;
+
 
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
@@ -39,54 +39,64 @@ vec3 background(float t, vec3 rd)
 
 void main(void)
 {
+
 	vec2 uv = (-1.0 + 2.0*gl_FragCoord.xy / iResolution.xy) * 
 		vec2(iResolution.x/iResolution.y, 1.0);
-	vec3 ro = eye;
+	vec3 ro = vec3(side, vertical, -3.0);
+	
+
+	//compute for every sphere
+	for(int i=0; i<1;i++){
+
+	float t2=-1;
+	float mint=1000.0;
 	vec3 rd = normalize(vec3(uv, 1.0));
 
-	float t = sphere(ro, rd, vec3(sphere1.x,sphere1.y,sphere1.z), sphere1.w);
-	float t1 = sphere(ro, rd, vec3(sphere2.x,sphere2.y,sphere2.z), sphere2.w);
-	
-	
-	// normal of intersected point of sphere
-	vec3 nml = normalize(vec3(sphere1.x,sphere1.y,sphere1.z) - (ro+rd*t));
-	vec3 nml2 = normalize(vec3(sphere2.x,sphere2.y,sphere2.z) - (ro+rd*t1));
-	
 	//basic backgroundcolor
 	vec3 bgCol = background(iGlobalTime, rd);
+
+	float t = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
+
+	if(t==-1){
+	gl_FragColor=vec4(bgCol,1.0);
+	continue;
+	}
+
+	// normal of intersected point of sphere
+	vec3 nml = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t));
 	
+
 	//get reflectionvector of intersected spherepoint
 	rd = reflect(rd, nml);
-	vec3 rd2= reflect(rd,nml2);
+
+	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
+
+
+	
+	for(int j=0; j<sphereVec.length(); j++){
+
+	if(j==i){continue;}
 
 	//hittest from intersected point
-	float t2= sphere(nml, rd, vec3(sphere2.x,sphere2.y,sphere2.z),sphere2.w);
-	float t3= sphere(nml2, rd2, vec3(sphere1.x,sphere1.y,sphere1.z),sphere1.w);
-	
-	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
-	vec3 col2 = background(iGlobalTime, rd2) * vec3(0.9, 0.8, 1.0);
+	t2= sphere(nml, rd, vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z),sphereVec[j].w);
 
-	if(t>t1){	
-
-	if(t2<0.0){
-
-	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
+	if(t2>0){mint=min(mint,t2);}
 	
 	}
+
+	if(mint==1000.0){
+
+	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );	
+	}
+
 	else{
-	gl_FragColor = vec4( mix(col, vec3(0.0, 0.5, 0.0), 1-t2), 1.0 );
+	// draws reflected point
+	//todo: remove unwanted green circle on sphere 0
+	vec4 temp = vec4( mix(col, vec3(0.0, 0.5, 0.0), 1-mint), 1.0 );
+	gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,mint)),1.0);
 	}
-	}
-	else{
-	if(t3<0.0){
+	
 
-	gl_FragColor = vec4( mix(bgCol, col2, step(0.0, t1)), 1.0 );
-	
-	}
-	else{
-	gl_FragColor = vec4( mix(col2, vec3(0.0, 0.5, 0.0), t3), 1.0 );
-	}
-	}
-	
+}
 
 }

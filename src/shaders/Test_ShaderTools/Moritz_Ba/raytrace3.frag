@@ -3,8 +3,7 @@
 in vec4 gl_FragCoord;
 
 uniform vec3	iResolution; 	//viewport resolution in pixels
-uniform float	iGlobalTime;	//shader playback time in seconds
-uniform vec3	eye;	
+uniform float	iGlobalTime;	//shader playback time in seconds	
 uniform float side;
 uniform float vertical;
 
@@ -49,7 +48,7 @@ void main(void)
 	for(int i=0; i<sphereVec.length();i++){}
 
 	float t = sphere(ro, rd, vec3(sphereVec[0].x,sphereVec[0].y,sphereVec[0].z), sphereVec[0].w);
-	float t1 = sphere(ro, rd, vec3(sphereVec[1].x,sphereVec[1].y,sphereVec[1].z), sphereVec[1].w);
+	//float t1 = sphere(ro, rd, vec3(sphereVec[1].x,sphereVec[1].y,sphereVec[1].z), sphereVec[1].w);
 	
 	
 	
