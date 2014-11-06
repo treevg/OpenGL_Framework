@@ -9,6 +9,21 @@ auto quadVAO = new Quad();
 auto sp = new ShaderProgram({"/Test_ShaderTools/Sebastian_Ba/test1.vert", "/Test_ShaderTools/Sebastian_Ba/test1.frag"});
 //auto simpleTexShader = new ShaderProgram({"Test_ShaderTools/test.vert", "/Test_ShaderTools/Sebastian/simpleTexture.frag"});
 
+GLuint shader, program;
+static const GLchar* source[] =
+{
+"#version 430 core\n"
+"\n"
+"// Input layout qualifier declaring a 16 x 16 (x 1) local\n"
+"// workgroup size\n"
+"layout (local_size_x = 16, local_size_y = 16) in;\n"
+"\n"
+"void main(void)\n"
+"{\n"
+" // Do nothing.\n"
+"}\n"
+};
+
 auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Test_ShaderTools/Sebastian_Ba/compute.comp");
 
 auto pass = new RenderPass(new Cube(), sp);
