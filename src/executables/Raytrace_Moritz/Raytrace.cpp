@@ -28,9 +28,28 @@ float size = 0.5;
 float lum =  0.5;
 float side=  0.0;
 float vertical= 0.0;
+float rad=-3.0;
+double xpos, ypos;
 glm::vec3 eye=glm::vec3(side,vertical,-3.0);
 
 float lastTime, currentTime;
+
+float horizontalAngle=0.0;
+float verticalAngle=0.0;
+
+//float x = radius * sin(theta) * cos(phi);
+//    float y = radius * sin(theta) * sin(phi);
+//    float z = radius * cos(theta);
+
+
+
+
+//
+//float x = rad * sin(theta) * cos(phi);
+//    float y = rad * sin(theta) * sin(phi);
+//    float z = rad * cos(theta);
+//
+
 
 /*
 glm::mat4 viewMat = {
@@ -57,10 +76,10 @@ int main(int argc, char *argv[]) {
     sp -> printOutputInfo();
 
 
-
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
-    sphereVec.push_back(glm::vec4(0.75, 0.5, -0.5, 0.5));
-    sphereVec.push_back(glm::vec4(-0.75, 0.5, -0.5, 0.5));
+    sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
+    sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.5));
+
 
 
     mesh.push_back(glm::vec3(0.1, 0.2, -0.3));
@@ -95,6 +114,17 @@ int main(int argc, char *argv[]) {
         float deltaT = currentTime - lastTime;
         lastTime = currentTime;
 
+        glfwGetCursorPos(window, &xpos,&ypos);
+        glfwSetCursorPos(window, 1280/2, 720/2);
+        horizontalAngle += 0.05 * deltaT * float(1280/2 - xpos );
+        verticalAngle   += 0.05 * deltaT * float( 720/2 - ypos );
+        glm::vec3 direction(
+          2*  cos(verticalAngle) * sin(horizontalAngle),
+            2*sin(verticalAngle),
+             2*cos(verticalAngle) *	cos(horizontalAngle)
+        );
+
+
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.5 * deltaT, 1.);
@@ -104,13 +134,15 @@ int main(int argc, char *argv[]) {
 
         // not finished
         //TODO moving in 3D
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) side = side - 0.5 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side = side + 0.5 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) vertical = vertical - 0.5 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) vertical = vertical + 0.5 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) side = side - 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side = side + 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) vertical = vertical - 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) vertical = vertical + 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) vertical,side = 0;
 
         pass
         -> clear(0, 0, 0, 0)
+		-> update("mouse", direction)
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
 		-> update("side", side)

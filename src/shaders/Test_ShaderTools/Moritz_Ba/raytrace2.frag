@@ -6,6 +6,7 @@ uniform vec3	iResolution; 	//viewport resolution in pixels
 uniform float	iGlobalTime;	//shader playback time in seconds	
 uniform float side;
 uniform float vertical;
+uniform vec3 mouse;
 
 uniform vec4 sphereVec[3];
 uniform vec3 mesh[20];
@@ -42,26 +43,31 @@ void main(void)
 
 	vec2 uv = (-1.0 + 2.0*gl_FragCoord.xy / iResolution.xy) * 
 		vec2(iResolution.x/iResolution.y, 1.0);
-	vec3 ro = vec3(side, vertical, -3.0);
-	
+	//vec3 ro = vec3(side, vertical, -3.0);
+	vec3 ro=vec3(mouse.x,mouse.y,mouse.z);
+	vec3 rd = normalize(vec3(uv, 1.0));
+
+	vec3 bgCol = background(iGlobalTime, rd);
+	gl_FragColor=vec4(bgCol,1.0);
+
 
 	//compute for every sphere
-	for(int i=0; i<1;i++){
+	for(int i=0; i<sphereVec.length();i++){
 
 	float t2=-1;
 	float mint=1000.0;
-	vec3 rd = normalize(vec3(uv, 1.0));
+	rd = normalize(vec3(uv, 1.0));
 
 	//basic backgroundcolor
-	vec3 bgCol = background(iGlobalTime, rd);
+	bgCol = background(iGlobalTime, rd);
 
 	float t = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
 
-	if(t==-1){
-	gl_FragColor=vec4(bgCol,1.0);
+	if(t==-1 && gl_FragColor.x==bgCol.x){
+	//gl_FragColor=vec4(bgCol,1.0);
 	continue;
 	}
-
+	
 	// normal of intersected point of sphere
 	vec3 nml = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t));
 	
@@ -79,24 +85,26 @@ void main(void)
 
 	//hittest from intersected point
 	t2= sphere(nml, rd, vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z),sphereVec[j].w);
-
-	if(t2>0){mint=min(mint,t2);}
-	
+	if(t2>0){mint=min(mint,t2);}	
 	}
 
-	if(mint==1000.0){
 
+	if(gl_FragColor.x==bgCol.x){
+
+	if(mint==1000.0){
 	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );	
 	}
 
 	else{
 	// draws reflected point
 	//todo: remove unwanted green circle on sphere 0
-	vec4 temp = vec4( mix(col, vec3(0.0, 0.5, 0.0), 1-mint), 1.0 );
-	gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,mint)),1.0);
+	vec4 temp= vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
+	gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), vec3(0.0, 0.2, 0.0), 0.25), 1.0 );
+	//gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,mint)),1.0);
 	}
 	
+	}
 
-}
+}  //big loop
 
-}
+}  //main
