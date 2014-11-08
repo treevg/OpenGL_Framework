@@ -10,6 +10,7 @@ uniform float vertical;
 uniform vec4 sphereVec[2];
 uniform vec3 mesh[20];
 
+
 out vec4 fragColor;
 out vec4 fragPosition;
 

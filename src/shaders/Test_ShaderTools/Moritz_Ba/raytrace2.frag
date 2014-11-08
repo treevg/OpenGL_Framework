@@ -10,6 +10,7 @@ uniform vec3 mouse;
 
 uniform vec4 sphereVec[3];
 uniform vec3 mesh[20];
+uniform vec3 colorSphere[3];
 
 out vec4 fragColor;
 out vec4 fragPosition;
@@ -56,6 +57,7 @@ void main(void)
 
 	float t2=-1;
 	float mint=1000.0;
+	vec3 refColor;
 	rd = normalize(vec3(uv, 1.0));
 
 	//basic backgroundcolor
@@ -75,7 +77,8 @@ void main(void)
 	//get reflectionvector of intersected spherepoint
 	rd = reflect(rd, nml);
 
-	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
+	//original color:0.9, 0.8, 1.0
+	vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[i].x,colorSphere[i].y,colorSphere[i].z);
 
 
 	
@@ -85,7 +88,11 @@ void main(void)
 
 	//hittest from intersected point
 	t2= sphere(nml, rd, vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z),sphereVec[j].w);
-	if(t2>0){mint=min(mint,t2);}	
+
+	if(t2>0 && t2<mint){
+	mint=t2;
+	refColor = vec3(colorSphere[j].x , colorSphere[j].y, colorSphere[j].z);
+	}	
 	}
 
 
@@ -96,10 +103,10 @@ void main(void)
 	}
 
 	else{
-	// draws reflected point
-	//todo: remove unwanted green circle on sphere 0
+	// draws reflected point  original color: 0.0, 0.2, 0.0
+	//todo: fix normals  , choose gewichtungsfaktor correctly
 	vec4 temp= vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
-	gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), vec3(0.0, 0.2, 0.0), 0.25), 1.0 );
+	gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), refColor, 0.25), 1.0 );
 	//gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,mint)),1.0);
 	}
 	

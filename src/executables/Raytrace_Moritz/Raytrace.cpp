@@ -69,6 +69,7 @@ glm::mat4 mvp= projMat * viewMat;
 
 std::vector<glm::vec4> sphereVec;
 std::vector<glm::vec3> mesh;
+std::vector<glm::vec3> colorSphere;
 
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
@@ -80,7 +81,10 @@ int main(int argc, char *argv[]) {
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
     sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.5));
 
-
+    //needs to be same size as sphereVec
+    colorSphere.push_back(glm::vec3(0.5,0.0,0.0));
+    colorSphere.push_back(glm::vec3(0.0,0.5,0.0));
+    colorSphere.push_back(glm::vec3(0.0,0.0,0.5));
 
     mesh.push_back(glm::vec3(0.1, 0.2, -0.3));
     mesh.push_back(glm::vec3(0.4, 0.5, -0.6));
@@ -108,6 +112,7 @@ int main(int argc, char *argv[]) {
 
     pass -> update("sphereVec[0]", sphereVec);
     //pass -> update("mesh[0]", mesh);
+    pass -> update("colorSphere[0]", colorSphere);
 
     renderLoop([]{
         currentTime = glfwGetTime();
