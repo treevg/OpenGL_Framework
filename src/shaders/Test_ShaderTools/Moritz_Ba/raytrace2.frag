@@ -103,10 +103,12 @@ void main(void)
 	}
 
 	else{
-	// draws reflected point  original color: 0.0, 0.2, 0.0
+	// draws reflected point 
+
 	//todo: fix normals  , choose gewichtungsfaktor correctly
+
 	vec4 temp= vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
-	gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), refColor, 0.25), 1.0 );
+	gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), refColor, mint), 1.0 );
 	//gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,mint)),1.0);
 	}
 	

@@ -28,7 +28,7 @@ float size = 0.5;
 float lum =  0.5;
 float side=  0.0;
 float vertical= 0.0;
-float rad=-3.0;
+float rad=3.0;
 double xpos, ypos;
 glm::vec3 eye=glm::vec3(side,vertical,-3.0);
 
@@ -36,13 +36,11 @@ float lastTime, currentTime;
 
 float horizontalAngle=0.0;
 float verticalAngle=0.0;
+float t,x,y,z;
 
 //float x = radius * sin(theta) * cos(phi);
 //    float y = radius * sin(theta) * sin(phi);
 //    float z = radius * cos(theta);
-
-
-
 
 //
 //float x = rad * sin(theta) * cos(phi);
@@ -123,12 +121,13 @@ int main(int argc, char *argv[]) {
         glfwSetCursorPos(window, 1280/2, 720/2);
         horizontalAngle += 0.05 * deltaT * float(1280/2 - xpos );
         verticalAngle   += 0.05 * deltaT * float( 720/2 - ypos );
-        glm::vec3 direction(
-          2*  cos(verticalAngle) * sin(horizontalAngle),
-            2*sin(verticalAngle),
-             2*cos(verticalAngle) *	cos(horizontalAngle)
-        );
 
+        t = rad*cos(verticalAngle);   // distance to y-axis after being rotated up
+        y = rad*sin(verticalAngle);
+
+        x = t*cos(horizontalAngle);
+        z = t*sin(horizontalAngle);
+        glm::vec3 dir(x,y,z);
 
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
@@ -141,17 +140,16 @@ int main(int argc, char *argv[]) {
         //TODO moving in 3D
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) side = side - 0.75 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side = side + 0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) vertical = vertical - 0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) vertical = vertical + 0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) vertical,side = 0;
-
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad =rad - 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad = rad + 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) dir=glm::vec3(0.0,0.0,-3.0);
         pass
         -> clear(0, 0, 0, 0)
-		-> update("mouse", direction)
+		-> update("mouse", dir)
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
-		-> update("side", side)
-		-> update("vertical", vertical)
+		//-> update("side", side)
+		//-> update("vertical", vertical)
         -> update("scale", size)
         -> run();
     });
