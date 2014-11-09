@@ -4,16 +4,16 @@ in vec4 gl_FragCoord;
 
 uniform vec3	iResolution; 	//viewport resolution in pixels
 uniform float	iGlobalTime;	//shader playback time in seconds	
-uniform float side;
-uniform float vertical;
-uniform vec3 mouse;
+uniform float 	side;
+uniform float 	vertical;
+uniform vec3 	mouse;
 
-uniform vec4 sphereVec[3];
-uniform vec3 mesh[20];
-uniform vec3 colorSphere[3];
+uniform vec4 	sphereVec[3];
+uniform vec3 	mesh[20];
+uniform vec3 	colorSphere[3];
 
-out vec4 fragColor;
-out vec4 fragPosition;
+out vec4 	fragColor;
+out vec4 	fragPosition;
 
 
 
@@ -45,7 +45,7 @@ void main(void)
 	vec2 uv = (-1.0 + 2.0*gl_FragCoord.xy / iResolution.xy) * 
 		vec2(iResolution.x/iResolution.y, 1.0);
 	//vec3 ro = vec3(side, vertical, -3.0);
-	vec3 ro=vec3(mouse.x,mouse.y,mouse.z);
+	vec3 ro= vec3(mouse.x,mouse.y,mouse.z); //vec3(0.0,0.0,-3.0);
 	vec3 rd = normalize(vec3(uv, 1.0));
 
 	vec3 bgCol = background(iGlobalTime, rd);
@@ -65,8 +65,7 @@ void main(void)
 
 	float t = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
 
-	if(t==-1 && gl_FragColor.x==bgCol.x){
-	//gl_FragColor=vec4(bgCol,1.0);
+	if(t==-1 && gl_FragColor.xyz==bgCol.xyz){
 	continue;
 	}
 	
@@ -80,23 +79,25 @@ void main(void)
 	//original color:0.9, 0.8, 1.0
 	vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[i].x,colorSphere[i].y,colorSphere[i].z);
 
-
+	vec3 nml2=vec3(0.0);
 	
 	for(int j=0; j<sphereVec.length(); j++){
-
 	if(j==i){continue;}
 
 	//hittest from intersected point
-	t2= sphere(nml, rd, vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z),sphereVec[j].w);
+	//needs: wo kommt strahl her(punkt), richtungsvektor(vektor!), zu testende kugel 
+	//before: sphere(nml,rd,...)
+	t2= sphere(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), rd, vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z),sphereVec[j].w);
 
 	if(t2>0 && t2<mint){
 	mint=t2;
-	refColor = vec3(colorSphere[j].x , colorSphere[j].y, colorSphere[j].z);
+	vec3 nml2 = normalize(vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z) - (ro+rd*t2));
+	refColor = background(iGlobalTime, nml2)* vec3(colorSphere[j].x , colorSphere[j].y, colorSphere[j].z);
 	}	
 	}
 
 
-	if(gl_FragColor.x==bgCol.x){
+	if(gl_FragColor.xyz==bgCol.xyz){
 
 	if(mint==1000.0){
 	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );	
