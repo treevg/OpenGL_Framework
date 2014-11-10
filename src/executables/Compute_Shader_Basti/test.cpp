@@ -3,6 +3,7 @@
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/Sebastian_Tools/TextureTools.h"
+#include "ShaderTools/Sebastian_Tools/ComputeShaderTools.h"
 
 using namespace std;
 using namespace glm;
@@ -33,11 +34,12 @@ mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture("/libraries/ShaderTools/Sebastian_Tools/cubeTexture.jpg");
 
-
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
     sp -> printInputInfo();
     sp -> printOutputInfo();
+
+    GLuint texHandle = ComputeShaderTools::generateTexture();
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.001, 0.);
@@ -61,4 +63,10 @@ int main(int argc, char *argv[]) {
         // -> update("luminance", lum)				not needed
         -> run();
     });
+}
+
+void computeMVP(){
+	glUseProgram(cs->getProgramHandle());
+	glUniform1f(glGetUniformLocation(cs->getProgramHandle(), "angle"), cubeAngle);
+	glDispatchCompute(512/16, 512/16, 1);
 }

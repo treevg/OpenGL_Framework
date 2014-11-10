@@ -40,6 +40,7 @@ public:
 	void printUniformInfo();
 	void printInputInfo();
 	void printOutputInfo();
+	GLuint getProgramHandle();
 
 	struct Info{
 		GLenum type;

@@ -382,6 +382,10 @@ void ShaderProgram::printInfo(std::map<std::string, Info>* map) {
 	}
 }
 
+GLuint ShaderProgram::getProgramHandle(){
+	return shaderProgramHandle;
+}
+
 
 string ShaderProgram::getTypeString(GLenum type) {
 	switch (type) {

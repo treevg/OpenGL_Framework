@@ -8,7 +8,9 @@
 #ifndef COMPUTESHADERTOOLS_H_
 #define COMPUTESHADERTOOLS_H_
 
-class ComputeShaderTools {
+namespace ComputeShaderTools {
+
+	GLuint generateTexture();
 };
 
 #endif /* COMPUTESHADERTOOLS_H_ */
