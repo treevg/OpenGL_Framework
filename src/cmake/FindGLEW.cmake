@@ -21,11 +21,14 @@ IF (WIN32)
     
 
 ELSEIF(APPLE)
-	SET(GLEW_INCLUDE_PATH 
-	   $ENV{OpenGL_ROOT}/include/)
+	FIND_PATH( GLEW_INCLUDE_PATH GL/glew.h
+	  PATHS $ENV{OpenGL_ROOT}/include/ /usr/include /usr/local/include /opt/local/include
+	)
 	 
-	SET(GLEW_LIBRARY
-	   $ENV{OpenGL_ROOT}/include/libGLEW.a)
+	FIND_LIBRARY( GLEW_LIBRARY
+	  NAMES libGLEW.a
+	  PATHS $ENV{OpenGL_ROOT}/lib /usr/lib /usr/local/lib /opt/local/lib
+	)
 
 ELSE()
 	FIND_PATH(GLEW_INCLUDE_PATH GL/glew.h)

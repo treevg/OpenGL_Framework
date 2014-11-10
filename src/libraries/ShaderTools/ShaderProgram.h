@@ -25,7 +25,6 @@ public:
 	ShaderProgram* update(std::string name, int value);
 	ShaderProgram* update(std::string name, float value);
 	ShaderProgram* update(std::string name, double value);
-	ShaderProgram* update(std::string name, float value[]);
 	ShaderProgram* update(std::string name, glm::ivec2 vector);
 	ShaderProgram* update(std::string name, glm::ivec3 vector);
 	ShaderProgram* update(std::string name, glm::ivec4 vector);
@@ -35,6 +34,9 @@ public:
 	ShaderProgram* update(std::string name, glm::mat2 matrix);
 	ShaderProgram* update(std::string name, glm::mat3 matrix);
 	ShaderProgram* update(std::string name, glm::mat4 matrix);
+	ShaderProgram* update(std::string name, std::vector<glm::vec2> vector);
+	ShaderProgram* update(std::string name, std::vector<glm::vec3> vector);
+	ShaderProgram* update(std::string name, std::vector<glm::vec4> vector);
 	void printUniformInfo();
 	void printInputInfo();
 	void printOutputInfo();

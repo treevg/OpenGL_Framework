@@ -1,4 +1,10 @@
-project(OpenGLProject)
+string(REPLACE "/" ";" p2list "${CMAKE_SOURCE_DIR}")
+string(REPLACE "\\" ";" p2list "${p2list}")
+list(REVERSE p2list)
+list(GET p2list 0 first)
+list(GET p2list 1 ProjectId)
+string(REPLACE " " "_" ProjectId ${ProjectId})
+project(${ProjectId})
 
 include(${CMAKE_MODULE_PATH}/doxygen.cmake)
 include(${CMAKE_MODULE_PATH}/macros.cmake)
@@ -16,9 +22,11 @@ if("${CMAKE_SYSTEM}" MATCHES "Linux")
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-GENERATE_SUBDIRS(ALL_LIBRARIES ${LIBRARIES_PATH})
+GENERATE_SUBDIRS(ALL_LIBRARIES ${LIBRARIES_PATH} ${PROJECT_BINARY_DIR}/libraries)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
-GENERATE_SUBDIRS(ALL_EXECUTABLES ${EXECUTABLES_PATH})
+GENERATE_SUBDIRS(ALL_EXECUTABLES ${EXECUTABLES_PATH} ${PROJECT_BINARY_DIR}/executables)
 
-add_subdirectory(${SHADERS_PATH})
+if(EXISTS ${SHADERS_PATH})
+	add_subdirectory(${SHADERS_PATH})
+endif()

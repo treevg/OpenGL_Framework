@@ -97,16 +97,6 @@ ShaderProgram* ShaderProgram::update(string name, double value) {
 	}
 	return this;
 }
-// TODO array uniform upload
-
-ShaderProgram* ShaderProgram::update(string name, float value[]) {
-	Info* updateInfo = checkUpdate(name, "float");
-	if (updateInfo != NULL) {
-		glUseProgram(shaderProgramHandle);
-		glUniform4f(updateInfo->location, value[0],value[1],value[2],value[3] );
-	}
-	return this;
-}
 
 ShaderProgram* ShaderProgram::update(string name, ivec2 vector) {
 	Info* updateInfo = checkUpdate(name, "ivec2");
@@ -185,6 +175,33 @@ ShaderProgram* ShaderProgram::update(string name, mat4 matrix) {
 	if (updateInfo != NULL) {	
 		glUseProgram(shaderProgramHandle);
 		glUniformMatrix4fv(updateInfo->location, 1, GL_FALSE, glm::value_ptr(matrix));
+	}
+	return this;
+}
+
+ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec2> vector) {
+	Info* updateInfo = checkUpdate(name, "vec2");
+	if (updateInfo != NULL) {
+		glUseProgram(shaderProgramHandle);
+		glUniform2fv(updateInfo->location, sizeof(vector), glm::value_ptr((&vector[0])[0]));
+	}
+	return this;
+}
+
+ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec3> vector) {
+	Info* updateInfo = checkUpdate(name, "vec3");
+	if (updateInfo != NULL) {
+		glUseProgram(shaderProgramHandle);
+		glUniform3fv(updateInfo->location, sizeof(vector), glm::value_ptr((&vector[0])[0]));
+	}
+	return this;
+}
+
+ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec4> vector) {
+	Info* updateInfo = checkUpdate(name, "vec4");
+	if (updateInfo != NULL) {
+		glUseProgram(shaderProgramHandle);
+		glUniform4fv(updateInfo->location, sizeof(vector), glm::value_ptr((&vector[0])[0]));
 	}
 	return this;
 }

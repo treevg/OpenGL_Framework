@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 cmake_policy(SET CMP0022 OLD)
+cmake_policy(SET CMP0038 OLD)
 
 get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" ProjectId ${ProjectId})
