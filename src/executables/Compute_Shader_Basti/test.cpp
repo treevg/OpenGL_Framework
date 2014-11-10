@@ -34,6 +34,12 @@ mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture("/libraries/ShaderTools/Sebastian_Tools/cubeTexture.jpg");
 
+void computeMVP(){
+	glUseProgram(cs->getProgramHandle());
+	glUniform1f(glGetUniformLocation(cs->getProgramHandle(), "angle"), cubeAngle);
+	glDispatchCompute(512/16, 512/16, 1);
+}
+
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
     sp -> printInputInfo();
@@ -53,6 +59,8 @@ int main(int argc, char *argv[]) {
         glfwSetTime(0.0);
         cubeModel = translate(rotate(mat4(1.0f), degrees(cubeAngle), vec3(1.0f, 1.0f, 0.0f)), vec3(0.0f, 2.0f, -2.0f));
 
+        computeMVP();
+
         pass
         -> clear(1, 1, 1, 0)
         -> update("uniformView", viewMat)
@@ -65,8 +73,3 @@ int main(int argc, char *argv[]) {
     });
 }
 
-void computeMVP(){
-	glUseProgram(cs->getProgramHandle());
-	glUniform1f(glGetUniformLocation(cs->getProgramHandle(), "angle"), cubeAngle);
-	glDispatchCompute(512/16, 512/16, 1);
-}
