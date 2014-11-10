@@ -62,32 +62,9 @@ mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLuint textureHandle = TextureTools::loadTexture("/libraries/ShaderTools/Sebastian_Tools/cubeTexture.jpg");
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////
-GLuint frameBufferObjectHandle;
-GLuint outTextureHandle;
-
-void generateTexture(){
-glGenFramebuffers(1, &frameBufferObjectHandle);
-glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
-glGenTextures(1, &outTextureHandle);
-glActiveTexture(GL_TEXTURE0);
-glBindTexture(GL_TEXTURE_2D, outTextureHandle);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-// glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
-// Allocate mipmaps
-glGenerateMipmap(GL_TEXTURE_2D);
-
-glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, outTextureHandle, 0);
-glDrawBuffer(GL_COLOR_ATTACHMENT0);
-}
-/////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 int main(int argc, char *argv[]) {
-	generateTexture();
     sp -> printUniformInfo();
     sp -> printInputInfo();
     sp -> printOutputInfo();
