@@ -10,33 +10,6 @@ using namespace glm;
 auto quadVAO = new Quad();
 
 auto sp = new ShaderProgram({"/Test_ShaderTools/Sebastian_Ba/test1.vert", "/Test_ShaderTools/Sebastian_Ba/test1.frag"});
-//auto simpleTexShader = new ShaderProgram({"Test_ShaderTools/test.vert", "/Test_ShaderTools/Sebastian/simpleTexture.frag"});
-
-//static const GLchar* source[] =
-//{
-//"#version 430 core\n"
-//"\n"
-//"// Input layout qualifier declaring a 16 x 16 (x 1) local\n"
-//"// workgroup size\n"
-//"layout (local_size_x = 16, local_size_y = 16) in;\n"
-//"\n"
-//"void main(void)\n"
-//"{\n"
-//" // Do nothing.\n"
-//"}\n"
-//};
-
-//static const string source =
-//"#version 430 core\n"
-//"\n"
-//"// Input layout qualifier declaring a 16 x 16 (x 1) local\n"
-//"// workgroup size\n"
-//"layout (local_size_x = 16, local_size_y = 16) in;\n"
-//"\n"
-//"void main(void)\n"
-//"{\n"
-//" // Do nothing.\n"
-//"}\n";
 
 auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Test_ShaderTools/Sebastian_Ba/compute.comp");
 
@@ -59,8 +32,6 @@ glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture("/libraries/ShaderTools/Sebastian_Tools/cubeTexture.jpg");
-
-
 
 
 int main(int argc, char *argv[]) {
@@ -86,8 +57,8 @@ int main(int argc, char *argv[]) {
         -> update("uniformProjection", projMat)
         -> update("uniformModel", cubeModel)
         -> texture("tex2", textureHandle)
-        // -> update("color", glm::vec4(1,0,0,1))
-        // -> update("luminance", lum)
+        // -> update("color", glm::vec4(1,0,0,1))		not needed
+        // -> update("luminance", lum)				not needed
         -> run();
     });
 }
