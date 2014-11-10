@@ -13,15 +13,11 @@ auto pass = new RenderPass(
     sp
 );
 
-//TODO multiple spheres
 //TODO avoid horizonatal line / change background?
-//TODO make lightsource a fix point?
 //TODO getTextures/depth/color  -> multiple passes?
-//TODO occlusion by other spheres
-//TODO spheres with colors?
-//TODO change shader to loop
 //TODO add some keyboard input
 //TODO raytrace polygons
+//TODO moving in 3D
 
 
 float size = 0.5;
@@ -137,7 +133,6 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 
         // not finished
-        //TODO moving in 3D
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) side = side - 0.75 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side = side + 0.75 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad =rad - 0.75 * deltaT;
