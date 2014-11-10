@@ -95,11 +95,29 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd,vec2 uv){
 	//gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,mint)),1.0);
 	}
 	}
-
 }  
 }
 	
+	// hittest polygon: ebenengleichung	
+//aus wie vielen wird das poly gezeichnet? dreiecke?
 
+
+	float polygon(vec3 ray, vec3 dir, vec3 mesh){
+	float t=0.0;
+	return t;
+	}
+	
+	
+	
+void drawPolygon(vec3 bgCol, vec3 ro, vec3 rd, vec2 uv){
+
+for(int i=0; i<mesh.length();i++){
+
+float t=polygon(ro,rd,mesh[i]);
+if(gl_FragColor.xyz!=bgCol.xyz || t==-1){continue;}
+
+}
+}
 
 void main(void)
 {
@@ -115,11 +133,10 @@ void main(void)
   	float norj = (gl_FragCoord.y / 720) - 0.5;
 	vec3 campoint=normalize(vec3(mouse.x,mouse.y,mouse.z));
 	
+	
 	vec3 camdir=vec3(0.0,0.0,0.0)-campoint;
 	vec3 camup= normalize(vec3(0.0,1.0,0.0));
-	
 	vec3 camright = cross(camdir, camup);
-	
 	camup = cross(camright, camdir);
 
 	//vec3 r = vec3(nori*camright + norj*camup + campoint+camdir);
@@ -133,6 +150,8 @@ void main(void)
 	gl_FragColor=vec4(bgCol,1.0);
 
 	drawSphere(bgCol,ro,rd,uv);
+	
+	drawPolygon(bgCol,ro,rd,uv);
 
 
 

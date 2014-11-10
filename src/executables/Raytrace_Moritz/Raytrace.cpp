@@ -26,24 +26,12 @@ float side=  0.0;
 float vertical= 0.0;
 float rad=3.0;
 double xpos, ypos;
-glm::vec3 eye=glm::vec3(side,vertical,-3.0);
 
 float lastTime, currentTime;
 
-float horizontalAngle=0.0;
+float horizontalAngle=4.7;
 float verticalAngle=0.0;
 float t,x,y,z;
-
-//float x = radius * sin(theta) * cos(phi);
-//    float y = radius * sin(theta) * sin(phi);
-//    float z = radius * cos(theta);
-
-//
-//float x = rad * sin(theta) * cos(phi);
-//    float y = rad * sin(theta) * sin(phi);
-//    float z = rad * cos(theta);
-//
-
 
 /*
 glm::mat4 viewMat = {
@@ -105,7 +93,7 @@ int main(int argc, char *argv[]) {
     lastTime = glfwGetTime();
 
     pass -> update("sphereVec[0]", sphereVec);
-    //pass -> update("mesh[0]", mesh);
+    pass -> update("mesh[0]", mesh);
     pass -> update("colorSphere[0]", colorSphere);
 
     renderLoop([]{
@@ -123,7 +111,7 @@ int main(int argc, char *argv[]) {
 
         x = t*cos(horizontalAngle);
         z = t*sin(horizontalAngle);
-        glm::vec3 dir(x,y,z);
+        glm::vec3 eye(x,y,z);
 
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
@@ -137,10 +125,10 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side = side + 0.75 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad =rad - 0.75 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad = rad + 0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) dir=glm::vec3(0.0,0.0,-3.0);
+        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) eye=glm::vec3(0.0,0.0,-3.0);
         pass
         -> clear(0, 0, 0, 0)
-		-> update("mouse", dir)
+		-> update("mouse", eye)
 		-> update("iGlobalTime", lastTime)
 		-> update("iResolution", glm::vec3(1280, 720, 1))
 		//-> update("side", side)
