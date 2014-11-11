@@ -3,10 +3,22 @@
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include <array>
 
+#include "ShaderTools/VertexArrayObjects/Cube.h"
+#include "ShaderTools/Sebastian_Tools/TextureTools.h"
+#include "ShaderTools/Sebastian_Tools/ComputeShaderTools.h"
+
+using namespace std;
+using namespace glm;
 
 // fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // original shader was "../Moritz_Ba/raytrace.frag"
 auto sp = new ShaderProgram({"/Test_ShaderTools/Moritz_Ba/raytrace.vert", "/Test_ShaderTools/Moritz_Ba/raytrace2.frag"});
+auto sp2 = new ShaderProgram({"/Test_ShaderTools/Sebastian_Ba/test1.vert", "/Test_ShaderTools/Sebastian_Ba/test1.frag"});
+
+auto pass2 = new RenderPass(new Cube(), sp2);
+GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
+GLuint texHandle = ComputeShaderTools::generateTexture();
+
 
 auto pass = new RenderPass(
     new Quad(), 
@@ -20,7 +32,7 @@ auto pass = new RenderPass(
 //TODO moving in 3D
 
 
-float size = 0.5;
+float size = 1.0;
 float lum =  0.5;
 float side=  0.0;
 float vertical= 0.0;
@@ -35,10 +47,10 @@ float t,x,y,z;
 
 /*
 glm::mat4 viewMat = {
-		1,	0,	0,	0,
-		0,	1,	0,	0,
-		0,	0,	1,	0,
-		0,	0,	0,	1,
+        1,  0,  0,  0,
+        0,  1,  0,  0,
+        0,  0,  1,  0,
+        0,  0,  0,  1,
 };
 glm::mat4 viewMat       = glm::lookAt(
     glm::vec3(4,3,3), // Camera is at (4,3,3), in World Space
@@ -102,9 +114,9 @@ int main(int argc, char *argv[]) {
         lastTime = currentTime;
 
         glfwGetCursorPos(window, &xpos,&ypos);
-        glfwSetCursorPos(window, 1280/2, 720/2);
-        horizontalAngle += 0.05 * deltaT * float(1280/2 - xpos );
-        verticalAngle   += 0.05 * deltaT * float( 720/2 - ypos );
+        glfwSetCursorPos(window, float(width)/2, float(720)/2);
+        horizontalAngle += 0.05 * deltaT * float(float(width)/2 - xpos );
+        verticalAngle   += 0.05 * deltaT * float( float(720)/2 - ypos );
 
         t = rad*cos(verticalAngle);   // distance to y-axis after being rotated up
         y = rad*sin(verticalAngle);
@@ -128,14 +140,38 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) eye=glm::vec3(0.0,0.0,-3.0);
 
 
-        pass
-        -> clear(0, 0, 0, 0)
-		-> update("mouse", eye)
-		-> update("iGlobalTime", lastTime)
-		-> update("iResolution", glm::vec3(1280, 720, 1))
-		//-> update("side", side)
-		//-> update("vertical", vertical)
-        -> update("scale", size)
-        -> run();
+        mat4 view(1);
+        view = translate(view, vec3(0,0,-4));
+        view = rotate(view, verticalAngle, vec3(1,0,0));
+        view = rotate(view, -horizontalAngle, vec3(0,1,0));
+
+        vec4 pos = inverse(view) * vec4(0,0,0,1);
+        vec4 dir = normalize(inverse(view) * vec4(0,0,1,0)); 
+        cout << to_string(dir) << endl;
+
+        if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+            pass2
+            -> clear(1, 1, 1, 0)
+            -> update("uniformView", view)
+            -> update("uniformProjection", glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f))
+            -> update("uniformModel", mat4(1))
+            -> texture("tex2", textureHandle)
+            // -> update("color", glm::vec4(1,0,0,1))       not needed
+            // -> update("luminance", lum)              not needed
+            -> run();
+        } else {
+            pass
+            -> clear(0, 0, 0, 0)
+            //-> update("mouse", eye)
+            -> update("iGlobalTime", lastTime)
+            -> update("iResolution", glm::vec3(width, height, 1))
+            //-> update("side", side)
+            //-> update("vertical", vertical)
+            -> update("scale", size)
+            -> update("view", view)
+            -> update("projection", glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f))
+            -> run();
+        }
+
     });
 }
