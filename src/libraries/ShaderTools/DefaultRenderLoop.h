@@ -25,9 +25,9 @@ public:
 	    glewInit();
 	}
 
-
 	void start(void (*renderLoop)()) {
-	    glEnable(GL_TEXTURE_2D);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_DEPTH_TEST);
 
 		while ( !glfwWindowShouldClose(window)) {
 	        renderLoop();

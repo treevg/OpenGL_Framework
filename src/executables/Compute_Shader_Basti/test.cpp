@@ -51,9 +51,6 @@ int main(int argc, char *argv[]) {
 //    cs->printInputInfo();
 //    cs->printOutputInfo();
 
-
-    glEnable(GL_DEPTH_TEST);
-
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.001, 0.);
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.001, 1.);
