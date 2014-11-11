@@ -21,6 +21,17 @@ ShaderProgram::ShaderProgram(vector<string> attachShaders) {
     mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
 }
 
+ShaderProgram::ShaderProgram(GLenum type, string path){
+	shaderProgramHandle = glCreateProgram();
+
+	attachShader(type, SHADERS_PATH+path);
+	link();
+
+	mapShaderProperties(GL_UNIFORM, &uniformMap);
+	mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
+	mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
+}
+
 void ShaderProgram::use() {
 	currentTextureUnit = 0;
 	glUseProgram(shaderProgramHandle);
@@ -282,6 +293,15 @@ void ShaderProgram::attachShader(GLenum shaderType, string filename) {
     if (!rvalue) {
         cerr << "ERROR IN SHADER PROGRAM " << shaderProgramHandle << std::endl
         << "Unable to compile " << filename << endl;
+
+        GLint infoLogLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+        GLchar* infoLog = new GLchar[infoLogLength + 1];
+        glGetShaderInfoLog(shader, infoLogLength, NULL, infoLog);
+
+        std::cout << std::endl << infoLog << std::endl;
+        delete[] infoLog;
         exit(30);
     }
     glAttachShader(shaderProgramHandle, shader);
@@ -369,6 +389,10 @@ void ShaderProgram::printInfo(std::map<std::string, Info>* map) {
 		"type: " << getTypeString(e.second.type) << endl <<
 		"location: " << e.second.location << endl << endl;
 	}
+}
+
+GLuint ShaderProgram::getProgramHandle(){
+	return shaderProgramHandle;
 }
 
 

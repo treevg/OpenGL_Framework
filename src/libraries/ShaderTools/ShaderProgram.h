@@ -17,6 +17,7 @@ class ShaderProgram {
 public:
 	ShaderProgram();
 	ShaderProgram(std::vector<std::string> attachShaders);
+	ShaderProgram(GLenum type, std::string path);
 	void use();
 	virtual ShaderProgram* texture(std::string name, GLuint textureHandle);
 	virtual ShaderProgram* texture(std::string name, GLuint textureHandle, GLuint samplerHandle);
@@ -39,6 +40,7 @@ public:
 	void printUniformInfo();
 	void printInputInfo();
 	void printOutputInfo();
+	GLuint getProgramHandle();
 
 	struct Info{
 		GLenum type;
