@@ -293,6 +293,15 @@ void ShaderProgram::attachShader(GLenum shaderType, string filename) {
     if (!rvalue) {
         cerr << "ERROR IN SHADER PROGRAM " << shaderProgramHandle << std::endl
         << "Unable to compile " << filename << endl;
+
+        GLint infoLogLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+        GLchar* infoLog = new GLchar[infoLogLength + 1];
+        glGetShaderInfoLog(shader, infoLogLength, NULL, infoLog);
+
+        std::cout << std::endl << infoLog << std::endl;
+        delete[] infoLog;
         exit(30);
     }
     glAttachShader(shaderProgramHandle, shader);
