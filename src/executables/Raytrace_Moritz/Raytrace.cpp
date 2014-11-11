@@ -111,7 +111,7 @@ int main(int argc, char *argv[]) {
 
         x = t*cos(horizontalAngle);
         z = t*sin(horizontalAngle);
-        glm::vec3 eye(x,y,z);
+        glm::vec3 eye(x,-y,z);
 
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
@@ -121,11 +121,13 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 
         // not finished
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) side = side - 0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side = side + 0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad =rad - 0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad = rad + 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) t -=  0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side += 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad -=0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad += 0.75 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) eye=glm::vec3(0.0,0.0,-3.0);
+
+
         pass
         -> clear(0, 0, 0, 0)
 		-> update("mouse", eye)

@@ -47,7 +47,9 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd,vec2 uv){
 	float t2=-1;
 	float mint=1000.0;
 	vec3 refColor;
+	
 	rd = normalize(vec3(uv, 1.0));
+
 
 	float t = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
 
@@ -83,7 +85,7 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd,vec2 uv){
 	if(gl_FragColor.xyz==bgCol.xyz){
 
 	if(mint==1000.0){
-	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );	
+	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 )+0.05;	
 	}
 
 	else{
@@ -91,7 +93,7 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd,vec2 uv){
 //todo: fix normals  , choose gewichtungsfaktor correctly
 
 	vec4 temp= vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
-	gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), refColor, mint), 1.0 );
+	gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), refColor, mint), 1.0 )+0.05;
 	//gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,mint)),1.0);
 	}
 	}
@@ -102,19 +104,61 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd,vec2 uv){
 //aus wie vielen wird das poly gezeichnet? dreiecke?
 
 
-	float polygon(vec3 ray, vec3 dir, vec3 mesh){
-	float t=0.0;
-	return t;
-	}
-	
+	float triangle(vec3 orig, vec3 dir, vec3 vertices[3], float lastHitT)
+{
+   // const float INFINITY = 1e10;
+    vec3 u, v, n; // triangle vectors
+    vec3 w0, w;  // ray vectors
+    float r, a, b; // params to calc ray-plane intersect
+
+    // get triangle edge vectors and plane normal
+    u = vertices[1] - vertices[0];
+    v = vertices[2] - vertices[0];
+    n = cross(u, v);
+
+    w0 = orig - vertices[0];
+    a = -dot(n, w0);
+    b = dot(n, dir);
+    if (abs(b) < 1e-5)
+    {
+        // ray is parallel to triangle plane, and thus can never intersect.
+        return -1.0;
+    }
+
+    // get intersect point of ray with triangle plane
+    r = a / b;
+    if (r < 0.0)
+        return -1.0; // ray goes away from triangle.
+
+    vec3 I = orig + r * dir;
+    float uu, uv, vv, wu, wv, D;
+    uu = dot(u, u);
+    uv = dot(u, v);
+    vv = dot(v, v);
+    w = I - vertices[0];
+    wu = dot(w, u);
+    wv = dot(w, v);
+    D = uv * uv - uu * vv;
+
+    // get and test parametric coords
+    float s, t;
+    s = (uv * wv - vv * wu) / D;
+    if (s < 0.0 || s > 1.0)
+        return -1;
+    t = (uv * wu - uu * wv) / D;
+    if (t < 0.0 || (s + t) > 1.0)
+        return -1.0;
+
+    return (r > 1e-5) ? r : -1.0;
+}
 	
 	
 void drawPolygon(vec3 bgCol, vec3 ro, vec3 rd, vec2 uv){
 
 for(int i=0; i<mesh.length();i++){
 
-float t=polygon(ro,rd,mesh[i]);
-if(gl_FragColor.xyz!=bgCol.xyz || t==-1){continue;}
+//float t=polygon(ro,rd,mesh[i]);
+//if(gl_FragColor.xyz!=bgCol.xyz || t==-1){continue;}
 
 }
 }
@@ -125,7 +169,13 @@ void main(void)
 	vec2 uv = (-1.0 + 2.0*gl_FragCoord.xy / iResolution.xy) * 
 		vec2(iResolution.x/iResolution.y, 1.0);
 
-	vec3 ro=vec3(mouse.x,mouse.y,mouse.z);  //vec3(0.0,0.0,-3.0);  normalize?
+	vec3 ro=vec3(mouse.x,mouse.y,mouse.z);  //vec3(0.0,0.0,-3.0);  
+	vec3 camup= normalize(vec3(0.0,1.0,0.0));
+	vec3 camright = cross(ro, camup);
+	camup = cross(camright, ro);
+
+	uv-=ro.xy;	//kugelsicht! jedoch starr
+	
 	vec3 rd = normalize(vec3(uv, 1.0));
 
 
@@ -135,9 +185,8 @@ void main(void)
 	
 	
 	vec3 camdir=vec3(0.0,0.0,0.0)-campoint;
-	vec3 camup= normalize(vec3(0.0,1.0,0.0));
-	vec3 camright = cross(camdir, camup);
-	camup = cross(camright, camdir);
+	
+	
 
 	//vec3 r = vec3(nori*camright + norj*camup + campoint+camdir);
 	 //rd = vec3(nori*camright, norj*camup , campoint+camdir);
