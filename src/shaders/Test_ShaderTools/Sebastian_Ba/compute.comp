@@ -12,11 +12,11 @@ void main() {
     vec4 iPos = mvpNew * vec4(wPos.xyz,1);
     iPos /= iPos.w;
     vec2 coordColor = vec2(
-        float(float(inCoord.x) / " + w + ".0),
-        float(float(inCoord.y) / " + h + ".0));
+        float(float(inCoord.x) / 100.0),
+        float(float(inCoord.y) / 100.0));
     ivec2 outCoord = ivec2(
-        float(iPos.x + 1.0) * 0.5 * " + h + ".0 + (" + w + ".0-" + h + ".0)/2.0,
-        float(iPos.y + 1.0) * 0.5 * " + h + ".0);
+        float(iPos.x + 1.0) * 0.5 * 100.0 + (100.0 - 100.0)/2.0,
+        float(iPos.y + 1.0) * 0.5 * 100.0);
     vec4 lastIteration;
     ivec2 tmp;
     tmp = outCoord;

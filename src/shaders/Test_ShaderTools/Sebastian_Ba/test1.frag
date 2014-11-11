@@ -17,7 +17,7 @@ void main() {
 
     //fragColor = color * luminance + newColor + texture(tex2, passUVCoord);
     
-    fragColor = texture(tex2, passUV);
+    fragColor = texture(tex2, passUVCoord);
     fragPosition = passPosition;
     
     //just for testing, no urgend needing

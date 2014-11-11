@@ -26,7 +26,14 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
     	textureMap[e.first] = handle;
 	    drawBufferHandles[e.second.location] = currentAttachment;
     }
+
     glDrawBuffers(size, &drawBufferHandles[0]);
+
+	GLuint depthTexture;
+	glGenTextures( 1, &depthTexture);
+	glBindTexture( GL_TEXTURE_2D, depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
 }
 
 void FrameBufferObject::bind() {
@@ -36,7 +43,7 @@ void FrameBufferObject::bind() {
 FrameBufferObject* FrameBufferObject::clear(float r, float g, float b, float a) {
 	bind();
 	glClearColor(r, g, b, a);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0, 0, 0, 0);
 	return this;
 }

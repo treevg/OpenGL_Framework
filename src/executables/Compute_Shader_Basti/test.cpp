@@ -32,7 +32,7 @@ using namespace glm;
 glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
-GLuint textureHandle = TextureTools::loadTexture("/libraries/ShaderTools/Sebastian_Tools/cubeTexture.jpg");
+GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 GLuint texHandle = ComputeShaderTools::generateTexture();
 
 void computeMVP(){
@@ -51,6 +51,8 @@ int main(int argc, char *argv[]) {
 //    cs->printInputInfo();
 //    cs->printOutputInfo();
 
+
+    glEnable(GL_DEPTH_TEST);
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.001, 0.);
