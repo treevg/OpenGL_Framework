@@ -7,7 +7,7 @@
 
 #include <GL/glew.h>
 
-#include <ShaderTools/Sebastian_Tools/ComputeShaderTools.h>
+#include "ComputeShaderTools.h"
 
 namespace ComputeShaderTools{
 
