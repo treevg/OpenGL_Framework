@@ -1,18 +1,18 @@
-#include "ShaderTools/Sebastian_Tools/NewRenderLoop.h"
+#include "Compression/NewRenderLoop.h"
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
-#include "ShaderTools/Sebastian_Tools/TextureTools.h"
-#include "ShaderTools/Sebastian_Tools/ComputeShaderTools.h"
+#include "Compression/TextureTools.h"
+#include "Compression/ComputeShaderTools.h"
 
 using namespace std;
 using namespace glm;
 
 auto quadVAO = new Quad();
 
-auto sp = new ShaderProgram({"/Test_ShaderTools/Sebastian_Ba/test1.vert", "/Test_ShaderTools/Sebastian_Ba/test1.frag"});
+auto sp = new ShaderProgram({"Compression/test1.vert", "Compression/test1.frag"});
 
-auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Test_ShaderTools/Sebastian_Ba/compute.comp");
+auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "Compression/compute.comp");
 
 auto pass = new RenderPass(new Cube(), sp);
 

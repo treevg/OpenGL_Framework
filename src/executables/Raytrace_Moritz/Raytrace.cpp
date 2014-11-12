@@ -4,16 +4,16 @@
 #include <array>
 
 #include "ShaderTools/VertexArrayObjects/Cube.h"
-#include "ShaderTools/Sebastian_Tools/TextureTools.h"
-#include "ShaderTools/Sebastian_Tools/ComputeShaderTools.h"
+#include "Compression/TextureTools.h"
+#include "Compression/ComputeShaderTools.h"
 
 using namespace std;
 using namespace glm;
 
 // fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // original shader was "../Moritz_Ba/raytrace.frag"
-auto sp = new ShaderProgram({"/Test_ShaderTools/Moritz_Ba/raytrace.vert", "/Test_ShaderTools/Moritz_Ba/raytrace2.frag"});
-auto sp2 = new ShaderProgram({"/Test_ShaderTools/Sebastian_Ba/test1.vert", "/Test_ShaderTools/Sebastian_Ba/test1.frag"});
+auto sp = new ShaderProgram({"/Raytacing/raytrace.vert", "/Raytacing/raytrace2.frag"});
+auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 
 auto pass2 = new RenderPass(new Cube(), sp2);
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
