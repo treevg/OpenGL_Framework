@@ -34,8 +34,6 @@ auto pass = new RenderPass(
 
 float size = 1.0;
 float lum =  0.5;
-float side=  0.0;
-float vertical= 0.0;
 float rad=3.0;
 double xpos, ypos;
 
@@ -43,23 +41,6 @@ float lastTime, currentTime;
 
 float horizontalAngle=4.7;
 float verticalAngle=0.0;
-float t,x,y,z;
-
-/*
-glm::mat4 viewMat = {
-        1,  0,  0,  0,
-        0,  1,  0,  0,
-        0,  0,  1,  0,
-        0,  0,  0,  1,
-};
-glm::mat4 viewMat       = glm::lookAt(
-    glm::vec3(4,3,3), // Camera is at (4,3,3), in World Space
-    glm::vec3(0,0,0), // and looks at the origin
-    glm::vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-);
-glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
-glm::mat4 mvp= projMat * viewMat;
-*/
 
 std::vector<glm::vec4> sphereVec;
 std::vector<glm::vec3> mesh;
@@ -114,16 +95,9 @@ int main(int argc, char *argv[]) {
         lastTime = currentTime;
 
         glfwGetCursorPos(window, &xpos,&ypos);
-        glfwSetCursorPos(window, float(width)/2, float(720)/2);
+        glfwSetCursorPos(window, float(width)/2, float(height)/2);
         horizontalAngle += 0.05 * deltaT * float(float(width)/2 - xpos );
-        verticalAngle   += 0.05 * deltaT * float( float(720)/2 - ypos );
-
-        t = rad*cos(verticalAngle);   // distance to y-axis after being rotated up
-        y = rad*sin(verticalAngle);
-
-        x = t*cos(horizontalAngle);
-        z = t*sin(horizontalAngle);
-        glm::vec3 eye(x,-y,z);
+        verticalAngle   += 0.05 * deltaT * float( float(height)/2 - ypos );
 
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
@@ -133,11 +107,8 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 
         // not finished
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) t -=  0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) side += 0.75 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad -=0.75 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad += 0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) eye=glm::vec3(0.0,0.0,-3.0);
 
 
         mat4 view(1);
@@ -145,8 +116,14 @@ int main(int argc, char *argv[]) {
         view = rotate(view, verticalAngle, vec3(1,0,0));
         view = rotate(view, -horizontalAngle, vec3(0,1,0));
 
-        vec4 pos = inverse(view) * vec4(0,0,0,1);
-        vec4 dir = normalize(inverse(view) * vec4(0,0,1,0)); 
+        mat4 invView = inverse(view);
+
+        vec4 pos = invView * vec4(0,0,0,1);
+        vec4 dir = normalize(invView * vec4(0,0,1,0));
+
+
+        mat4 projection = perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
+        mat4 invViewProjection = inverse(projection * view);
         // cout << to_string(dir) << endl;
 
         if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
@@ -156,21 +133,16 @@ int main(int argc, char *argv[]) {
             -> update("uniformProjection", glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f))
             -> update("uniformModel", mat4(1))
             -> texture("tex2", textureHandle)
-            // -> update("color", glm::vec4(1,0,0,1))       not needed
-            // -> update("luminance", lum)              not needed
             -> run();
         } else {
             pass
             -> clear(0, 0, 0, 0)
-            //-> update("mouse", eye)
             -> update("iGlobalTime", lastTime)
             -> update("iResolution", glm::vec3(width, height, 1))
-            //-> update("side", side)
-            //-> update("vertical", vertical)
             -> update("scale", size)
-            -> update("view", view)
-            -> update("projection", glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f))
-            -> run();
+            -> update("invViewProjection", invViewProjection)
+            -> update("invView",invView)
+			-> run();
         }
 
     });

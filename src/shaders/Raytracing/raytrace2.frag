@@ -4,14 +4,15 @@ in vec4 gl_FragCoord;
 
 uniform vec3	iResolution; 	//viewport resolution in pixels
 uniform float	iGlobalTime;	//shader playback time in seconds	
-uniform float 	side;
-uniform float 	vertical;
 uniform vec3 	mouse;
-uniform mat4 	view;
+//uniform mat4 	view;
 uniform mat4	projection;
 
-mat4 invView = inverse(view);
-mat4 invViewProjection = inverse(projection * view);
+uniform mat4 	invView;
+uniform mat4	invViewProjection;
+
+//mat4 invView = inverse(view);
+//mat4 invViewProjection = inverse(projection * view);
 
 uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[20];
