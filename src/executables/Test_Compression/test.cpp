@@ -1,4 +1,4 @@
-#include "Compression/NewRenderLoop.h"
+#include "ShaderTools/DefaultRenderLoop.h"
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
@@ -43,13 +43,12 @@ void computeMVP(){
 }
 
 int main(int argc, char *argv[]) {
-    sp -> printUniformInfo();
-    sp -> printInputInfo();
-    sp -> printOutputInfo();
+//    sp -> printUniformInfo();
+//    sp -> printInputInfo();
+//    sp -> printOutputInfo();
 
 //    cs->printUniformInfo();
-//    cs->printInputInfo();
-//    cs->printOutputInfo();
+
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.001, 0.);
@@ -63,7 +62,7 @@ int main(int argc, char *argv[]) {
         glfwSetTime(0.0);
         cubeModel = translate(rotate(mat4(1.0f), degrees(cubeAngle), vec3(1.0f, 1.0f, 0.0f)), vec3(0.0f, 2.0f, -2.0f));
 
-        //computeMVP();
+        computeMVP();
 
         pass
         -> clear(1, 1, 1, 0)
