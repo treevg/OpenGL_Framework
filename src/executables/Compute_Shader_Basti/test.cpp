@@ -10,9 +10,9 @@ using namespace glm;
 
 auto quadVAO = new Quad();
 
-auto sp = new ShaderProgram({"Compression/test1.vert", "Compression/test1.frag"});
+auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 
-auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "Compression/compute.comp");
+auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compute.comp");
 
 auto pass = new RenderPass(new Cube(), sp);
 
