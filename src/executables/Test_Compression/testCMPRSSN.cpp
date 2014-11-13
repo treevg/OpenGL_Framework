@@ -42,9 +42,9 @@ void computeMVP(){
 }
 
 int main(int argc, char *argv[]) {
-    sp -> printUniformInfo();
-    sp -> printInputInfo();
-    sp -> printOutputInfo();
+//    sp -> printUniformInfo();
+//    sp -> printInputInfo();
+//    sp -> printOutputInfo();
 
     cs->printUniformInfo();
 
