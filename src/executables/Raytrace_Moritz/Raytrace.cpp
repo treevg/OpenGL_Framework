@@ -12,7 +12,7 @@ using namespace glm;
 
 // fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // original shader was "../Moritz_Ba/raytrace.frag"
-auto sp = new ShaderProgram({"/Raytacing/raytrace.vert", "/Raytacing/raytrace2.frag"});
+auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 
 auto pass2 = new RenderPass(new Cube(), sp2);
@@ -147,7 +147,7 @@ int main(int argc, char *argv[]) {
 
         vec4 pos = inverse(view) * vec4(0,0,0,1);
         vec4 dir = normalize(inverse(view) * vec4(0,0,1,0)); 
-        cout << to_string(dir) << endl;
+        // cout << to_string(dir) << endl;
 
         if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
             pass2
