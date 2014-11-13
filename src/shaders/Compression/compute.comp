@@ -5,6 +5,8 @@ layout ( rgba16f, binding = 2 ) uniform image2D positionTexture;
 uniform mat4 mvpOld;
 uniform mat4 mvpNew;
 
+uniform float angle;
+
 layout (local_size_x = 16, local_size_y = 16) in;
 void main() {
     ivec2 inCoord = ivec2(gl_GlobalInvocationID.xy);
@@ -12,7 +14,7 @@ void main() {
     vec4 iPos = mvpNew * vec4(wPos.xyz,1);
     iPos /= iPos.w;
     vec2 coordColor = vec2(
-        float(float(inCoord.x) / 100.0),
+        float(float(inCoord.x + angle) / 100.0),
         float(float(inCoord.y) / 100.0));
     ivec2 outCoord = ivec2(
         float(iPos.x + 1.0) * 0.5 * 100.0 + (100.0 - 100.0)/2.0,

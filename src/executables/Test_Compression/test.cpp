@@ -38,16 +38,15 @@ GLuint texHandle = ComputeShaderTools::generateTexture();
 void computeMVP(){
 	glUseProgram(cs->getProgramHandle());
 	cs->update("angle", cubeAngle);
-	cs->texture("destTex", texHandle);
 	glDispatchCompute(512/16, 512/16, 1);
 }
 
 int main(int argc, char *argv[]) {
-//    sp -> printUniformInfo();
-//    sp -> printInputInfo();
-//    sp -> printOutputInfo();
+    sp -> printUniformInfo();
+    sp -> printInputInfo();
+    sp -> printOutputInfo();
 
-//    cs->printUniformInfo();
+    cs->printUniformInfo();
 
 
     renderLoop([]{
