@@ -8,16 +8,15 @@
 using namespace std;
 using namespace glm;
 
-auto quadVAO = new Quad();
-
 auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-
-auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compute.comp");
-
 auto pass = new RenderPass(new Cube(), sp);
 
-float size = 0.5;    			//not needed atm
-float lum = 0.5;
+auto quadVAO = new Quad();
+
+auto passThroughShader = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+
+
+auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compute.comp");
 
 float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
@@ -33,7 +32,7 @@ glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/cubeTexture.jpg");
-GLuint texHandle = ComputeShaderTools::generateTexture();
+GLuint tex1Handle = ComputeShaderTools::generateTexture();
 
 void computeMVP(){
 	glUseProgram(cs->getProgramHandle());
@@ -42,18 +41,15 @@ void computeMVP(){
 }
 
 int main(int argc, char *argv[]) {
-//    sp -> printUniformInfo();
-//    sp -> printInputInfo();
-//    sp -> printOutputInfo();
+    sp -> printUniformInfo();
+    sp -> printInputInfo();
+    sp -> printOutputInfo();
 
     cs->printUniformInfo();
+    cs->printOutputInfo();
 
 
     renderLoop([]{
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.001, 1.);
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.001, 1.);
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
 
         //rotate and translate the cube for a neat little animation
@@ -61,16 +57,14 @@ int main(int argc, char *argv[]) {
         glfwSetTime(0.0);
         cubeModel = translate(rotate(mat4(1.0f), degrees(cubeAngle), vec3(1.0f, 1.0f, 0.0f)), vec3(0.0f, 2.0f, -2.0f));
 
-        computeMVP();
         pass
         -> clear(1, 1, 1, 0)
         -> update("uniformView", viewMat)
         -> update("uniformProjection", projMat)
         -> update("uniformModel", cubeModel)
         -> texture("tex2", textureHandle)
-        // -> update("color", glm::vec4(1,0,0,1))		not needed
-        // -> update("luminance", lum)				not needed
-        -> run();
+        -> runInFBO();
+
+
     });
 }
-

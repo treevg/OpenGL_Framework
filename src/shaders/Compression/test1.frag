@@ -1,17 +1,18 @@
 #version 430
 
-uniform vec4 color;
 uniform float luminance;
 uniform vec4 newColor;
 
 uniform sampler2D tex2;
+uniform sampler2D texOut;
 
 in vec4 passPosition;
 in vec2 passUVCoord;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 fragColor;
 out vec4 fragPosition;
 out vec2 passUV;
+out vec3 color;
 
 void main() {
 
