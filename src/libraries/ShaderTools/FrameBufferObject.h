@@ -12,6 +12,7 @@ public:
 	FrameBufferObject* clear(float r, float g, float b, float a);
 	FrameBufferObject* clear();
 	GLuint get(std::string name);
+	GLuint getHandle();
 protected:
 	GLuint frameBufferObjectHandle;
 	std::map<std::string, GLuint> textureMap;

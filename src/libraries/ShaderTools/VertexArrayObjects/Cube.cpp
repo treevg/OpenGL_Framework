@@ -2,7 +2,7 @@
 
 Cube::Cube() {
 	const float size = 1.0f;
-	mode = GL_TRIANGLE_STRIP;
+	mode = GL_TRIANGLES;
 
     glGenVertexArrays(1, &vertexArrayObjectHandle);
     glBindVertexArray(vertexArrayObjectHandle);

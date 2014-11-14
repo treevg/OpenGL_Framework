@@ -57,3 +57,6 @@ GLuint FrameBufferObject::get(std::string name) {
 	return textureMap[name];
 }
 
+GLuint FrameBufferObject::getHandle(){
+	return frameBufferObjectHandle;
+}
