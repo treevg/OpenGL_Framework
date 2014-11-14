@@ -12,7 +12,7 @@ using namespace glm;
 
 // fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // original shader was "../Moritz_Ba/raytrace.frag"
-auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
+auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"});
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 
 auto pass2 = new RenderPass(new Cube(), sp2);
@@ -34,7 +34,7 @@ auto pass = new RenderPass(
 
 float size = 1.0;
 float lum =  0.5;
-float rad=3.0;
+float rad=0.0;
 double xpos, ypos;
 
 float lastTime, currentTime;
@@ -107,13 +107,13 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 
         // not finished
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad -=0.75 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad += 0.75 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad +=0.005 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.005 * deltaT;
 
 
         mat4 view(1);
         view = translate(view, vec3(0,0,-4));
-        view = rotate(view, verticalAngle, vec3(1,0,0));
+        view = rotate(view, -verticalAngle, vec3(1,0,0));
         view = rotate(view, -horizontalAngle, vec3(0,1,0));
 
         mat4 invView = inverse(view);
@@ -140,6 +140,7 @@ int main(int argc, char *argv[]) {
             -> update("iGlobalTime", lastTime)
             -> update("iResolution", glm::vec3(width, height, 1))
             -> update("scale", size)
+			-> update("zoom", rad)
             -> update("invViewProjection", invViewProjection)
             -> update("invView",invView)
 			-> run();
