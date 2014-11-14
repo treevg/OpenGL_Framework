@@ -11,9 +11,9 @@ using namespace glm;
 auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 auto pass = new RenderPass(new Cube(), sp);
 
-auto quadVAO = new Quad();
+auto compositingSP = new ShaderProgram({"/Compression/test.vert", "/Compression/compositing.frag"});
 
-auto passThroughShader = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+auto pass2 = new RenderPass(new Quad(), compositingSP);
 
 
 auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compute.comp");
@@ -45,6 +45,8 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
+    compositingSP->printUniformInfo();
+
     cs->printUniformInfo();
     cs->printOutputInfo();
 
@@ -64,6 +66,11 @@ int main(int argc, char *argv[]) {
         -> update("uniformModel", cubeModel)
         -> texture("tex2", textureHandle)
         -> runInFBO();
+
+//        pass2
+//        ->clear(1, 1, 1, 0)
+//        ->texture("tex2", pass->get())
+//        ->run();
 
 
     });
