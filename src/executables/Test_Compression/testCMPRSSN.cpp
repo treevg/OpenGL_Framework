@@ -8,10 +8,12 @@
 using namespace std;
 using namespace glm;
 
-auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-auto pass = new RenderPass(new Cube(), sp);
 
-auto compositingSP = new ShaderProgram({"/Compression/test.vert", "/Compression/compositing.frag"});
+auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+auto fbo = new FrameBufferObject;
+auto pass = new RenderPass(new Cube(), sp, fbo);
+
+auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compositing.frag"});
 
 auto pass2 = new RenderPass(new Quad(), compositingSP);
 
@@ -65,12 +67,12 @@ int main(int argc, char *argv[]) {
         -> update("uniformProjection", projMat)
         -> update("uniformModel", cubeModel)
         -> texture("tex2", textureHandle)
-        -> runInFBO();
+        -> run();													//alternative runInFBO(), but dont know if even necessary
 
-//        pass2
-//        ->clear(1, 1, 1, 0)
-//        ->texture("tex2", pass->get())
-//        ->run();
+        pass2
+        ->clear(1, 1, 1, 0)
+        ->texture("tex2", pass->frameBufferObject->getColorAttachment())		//TODO need acces to color_atachment_0 from fbo of renderpass "pass"
+        ->run();
 
 
     });

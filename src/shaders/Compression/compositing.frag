@@ -1,9 +1,6 @@
 #version 430
 
-uniform float interpol;
-uniform sampler2D tex1;
 uniform sampler2D tex2;
-uniform sampler2D tex3;
 
 in vec4 passPosition;
 

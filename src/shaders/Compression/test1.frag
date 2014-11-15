@@ -11,7 +11,6 @@ in vec2 passUVCoord;
 
 layout (location = 0) out vec4 fragColor;
 out vec4 fragPosition;
-out vec2 passUV;
 out vec3 color;
 
 void main() {
@@ -20,7 +19,4 @@ void main() {
     
     fragColor = texture(tex2, passUVCoord);
     fragPosition = passPosition;
-    
-    //just for testing, no urgend needing
-    passUV = passUVCoord;
 }

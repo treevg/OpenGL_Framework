@@ -24,6 +24,7 @@ void RenderPass::run() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+//TODO check if necessary
 void RenderPass::runInFBO() {
 	frameBufferObject->bind();
 	shaderProgram->use();
