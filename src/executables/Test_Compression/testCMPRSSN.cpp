@@ -43,14 +43,16 @@ void computeMVP(){
 }
 
 int main(int argc, char *argv[]) {
-    sp -> printUniformInfo();
-    sp -> printInputInfo();
-    sp -> printOutputInfo();
+//    sp -> printUniformInfo();
+//    sp -> printInputInfo();
+//    sp -> printOutputInfo();
 
     compositingSP->printUniformInfo();
+    compositingSP->printInputInfo();
+    compositingSP->printOutputInfo();
 
-    cs->printUniformInfo();
-    cs->printOutputInfo();
+//    cs->printUniformInfo();
+//    cs->printOutputInfo();
 
 
     renderLoop([]{
