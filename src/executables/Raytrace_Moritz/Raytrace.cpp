@@ -11,8 +11,7 @@ using namespace std;
 using namespace glm;
 
 // fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
-// original shader was "../Moritz_Ba/raytrace.frag"
-auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"});
+auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 
 auto pass2 = new RenderPass(new Cube(), sp2);
@@ -27,9 +26,7 @@ auto pass = new RenderPass(
 
 //TODO avoid horizonatal line / change background?
 //TODO getTextures/depth/color  -> multiple passes?
-//TODO add some keyboard input
 //TODO raytrace polygons
-//TODO moving in 3D
 
 
 float size = 1.0;
@@ -105,8 +102,6 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
-
-        // not finished
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad +=0.005 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.005 * deltaT;
 

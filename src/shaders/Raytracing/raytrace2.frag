@@ -4,9 +4,8 @@ in vec4 gl_FragCoord;
 
 uniform vec3	iResolution; 	//viewport resolution in pixels
 uniform float	iGlobalTime;	//shader playback time in seconds	
-//uniform vec3 	mouse;
 uniform mat4	projection;
-uniform float zoom;
+uniform float 	zoom;
 
 uniform mat4 	invView;
 uniform mat4	invViewProjection;
@@ -15,9 +14,10 @@ uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[20];
 uniform vec3 	colorSphere[3];
 
-out vec4 	fragColor;
-out vec4 	fragPosition;
+out vec4		fragColor;
+out vec4 		fragPosition;
 
+float 			closestHit=100;
 
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
@@ -31,6 +31,27 @@ float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 	return mix(-1.0, t, st);
 }
 
+
+float sphereRec(vec3 ray, vec3 dir, int geom)
+{
+	if(geom<sphereVec.length()){
+	vec3 rc = ray- vec3(sphereVec[geom].x,sphereVec[geom].y,sphereVec[geom].z); 
+	float c = dot(rc, rc) - (sphereVec[geom].w * sphereVec[geom].w);
+	float b = dot(dir, rc);
+	float d = b*b - c;
+	float t = -b - sqrt(abs(d));
+	float st = step(0.0, min(t,d));
+	float lastHit = mix(-1.0, t, st);
+	
+	if(lastHit>0 && lastHit<closestHit){
+	closestHit=lastHit;
+	}
+	return sphereRec(ray,dir,geom+1);
+	}
+	return closestHit;
+}
+
+
 vec3 background(float t, vec3 rd)
 {
 	vec3 light = normalize(vec3(sin(t), 0.6, cos(t)));
@@ -42,8 +63,8 @@ vec3 background(float t, vec3 rd)
 		pow(ground, 0.5)*vec3(0.4, 0.3, 0.2)+pow(sky, 1.0)*vec3(0.5, 0.6, 0.7);
 }
 
-
-void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv){
+// make draw method  insert global lastHit
+void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
 
 	vec3 saverd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 	
@@ -75,6 +96,7 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv){
 
 		vec3 nml2=vec3(0.0);
 		
+		make reflection method. mit for(i<recDepthloop) 
 		for(int j=0; j<sphereVec.length(); j++){
 			
 			if(j==i){continue;}
@@ -104,69 +126,14 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv){
 		}
 	}  
 }
-	
-	// hittest polygon: ebenengleichung	
-//aus wie vielen wird das poly gezeichnet? dreiecke?
 
 
-	float triangle(vec3 orig, vec3 dir, vec3 vertices[3], float lastHitT)
-{
-   // const float INFINITY = 1e10;
-    vec3 u, v, n; // triangle vectors
-    vec3 w0, w;  // ray vectors
-    float r, a, b; // params to calc ray-plane intersect
-
-    // get triangle edge vectors and plane normal
-    u = vertices[1] - vertices[0];
-    v = vertices[2] - vertices[0];
-    n = cross(u, v);
-
-    w0 = orig - vertices[0];
-    a = -dot(n, w0);
-    b = dot(n, dir);
-    if (abs(b) < 1e-5)
-    {
-        // ray is parallel to triangle plane, and thus can never intersect.
-        return -1.0;
-    }
-
-    // get intersect point of ray with triangle plane
-    r = a / b;
-    if (r < 0.0)
-        return -1.0; // ray goes away from triangle.
-
-    vec3 I = orig + r * dir;
-    float uu, uv, vv, wu, wv, D;
-    uu = dot(u, u);
-    uv = dot(u, v);
-    vv = dot(v, v);
-    w = I - vertices[0];
-    wu = dot(w, u);
-    wv = dot(w, v);
-    D = uv * uv - uu * vv;
-
-    // get and test parametric coords
-    float s, t;
-    s = (uv * wv - vv * wu) / D;
-    if (s < 0.0 || s > 1.0)
-        return -1;
-    t = (uv * wu - uu * wv) / D;
-    if (t < 0.0 || (s + t) > 1.0)
-        return -1.0;
-
-    return (r > 1e-5) ? r : -1.0;
+float draw(vec3 ro, vec3 rd){	
+	float t = sphereRec(ro, rd, 0);	
+return t;
 }
-	
-	
-void drawPolygon(vec3 bgCol, vec3 ro, vec3 rd, vec2 uv){
 
-for(int i=0; i<mesh.length();i++){
 
-//float t=polygon(ro,rd,mesh[i]);
-//if(gl_FragColor.xyz!=bgCol.xyz || t==-1){continue;}
-
-}
-}
 
 void main(void)
 {
@@ -181,8 +148,7 @@ void main(void)
 
 	gl_FragColor=vec4(bgCol,1.0);
 
-	drawSphere(bgCol, ro, rd, uv);
-	// drawPolygon(bgCol,ro,rd,uv);
+	drawSphere(bgCol, ro, rd, uv,1);
 }
 
 void main2(void)
