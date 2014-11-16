@@ -18,8 +18,8 @@ out vec4		fragColor;
 out vec4 		fragPosition;
 
 float 			closestHit=100;
-
-
+float 			mint;
+vec3 			color;
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 {
@@ -64,17 +64,45 @@ vec3 background(float t, vec3 rd)
 		pow(ground, 0.5)*vec3(0.4, 0.3, 0.2)+pow(sky, 1.0)*vec3(0.5, 0.6, 0.7);
 }
 
-// make draw method.  insert global lastHit
+
+
+vec3 refSphere(vec3 ro, vec3 rd, int geomBase, int refDepth){
+	color=vec3(0.0);
+	vec3 nml2=vec3(0.0);
+	
+	for(int i=0;i<sphereVec.length;i++){
+
+		for(int a=0; a<refDepth;a++){
+			if(geomBase==i){continue;}
+				
+				//hittest from intersected point
+				float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z),sphereVec[i].w);
+
+				if(t2>0 && t2<mint){
+					mint=t2;
+					vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
+					color = background(iGlobalTime, nml2)* vec3(colorSphere[i].x , colorSphere[i].y, colorSphere[i].z);
+				
+				}	
+		}		
+	}	
+	return color;
+}
+
+
+// make draw method
 // globale var mit lasthit?
 void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
+
+	int refDepth=1;
 
 	vec3 saverd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 	
 	for(int i=0; i<sphereVec.length();i++){
 
 		float t2=-1;
-		float mint=1000.0;
-		vec3 refColor;
+		mint=1000.0;
+		//vec3 refColor;
 		rd= saverd;
 
 		float t = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
@@ -89,65 +117,27 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
 		rd = reflect(rd, nml);
 
 		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[i].x,colorSphere[i].y,colorSphere[i].z);
-
-		vec3 nml2=vec3(0.0);
 		
-		
-		//make reflection method. mit for(i<recDepthloop) 
-		
-		for(int i=0; i<refDepth;i++){
-		// initialisiere normalen etc immer neu
-		vec3 color += refSphere();  //parametersuche
-		// nml neu, geoms hochzählen
-
-
-		}
-		
-		for(int j=0; j<sphereVec.length(); j++){
+		// gets reflection color
+		color = refSphere(ro,rd,i,1);
 			
-			if(j==i){continue;}
-			//hittest from intersected point
-			t2= sphere(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), rd, vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z),sphereVec[j].w);
-
-			if(t2>0 && t2<mint){
-				mint=t2;
-				vec3 nml2 = normalize(vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z) - (ro+rd*t2));
-				refColor = background(iGlobalTime, nml2)* vec3(colorSphere[j].x , colorSphere[j].y, colorSphere[j].z);
-			}	
-		}
-
 		if(gl_FragColor.xyz==bgCol.xyz){
 
 			if(mint==1000.0){
 				gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 )+0.05;	
-			} else {
+			} 
+			else {
 				// draws reflected point 
 				//todo: fix normals  , choose gewichtungsfaktor correctly
 
 				vec4 temp= vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
-				gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), refColor, mint), 1.0 )+0.05;
-				//gl_FragColor = vec4(mix(bgCol, vec3(temp.x,temp.y,temp.z), step(0.0,mint)),1.0);
+				gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), color, mint), 1.0 )+0.05;
 			}
 		}
 	}  
 }
 
-vec3 refSphere(vec3 ro, vec3 rd, int refDepth, int geomBase, int geomRef){
-	vec3 color=vec3(0.0);
-	vec3 nml2=vec3(0.0);
-	for(int i=0;i<sphereVec.length;i++){
-		if(geomBase==geomRef){continue;}
-			//hittest from intersected point
-			float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[geomRef].x,sphereVec[geomRef].y,sphereVec[geomRef].z),sphereVec[geomRef].w);
 
-			if(t2>0 && t2<mint){
-				mint=t2;
-				vec3 nml2 = normalize(vec3(sphereVec[geomRef].x,sphereVec[geomRef].y,sphereVec[geomRef].z) - (ro+rd*t2));
-				Color = background(iGlobalTime, nml2)* vec3(colorSphere[geomRef].x , colorSphere[geomRef].y, colorSphere[geomRef].z);
-			}	
-		}
-	return refColor;
-}
 
 float draw(vec3 ro, vec3 rd){	
 	float t = sphereRec(ro, rd, 0);	
