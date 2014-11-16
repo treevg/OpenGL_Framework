@@ -20,6 +20,7 @@ out vec4 		fragPosition;
 float 			closestHit=100;
 
 
+
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 {
 	vec3 rc = ray-center;
@@ -63,7 +64,8 @@ vec3 background(float t, vec3 rd)
 		pow(ground, 0.5)*vec3(0.4, 0.3, 0.2)+pow(sky, 1.0)*vec3(0.5, 0.6, 0.7);
 }
 
-// make draw method  insert global lastHit
+// make draw method.  insert global lastHit
+// globale var mit lasthit?
 void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
 
 	vec3 saverd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
@@ -73,11 +75,7 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
 		float t2=-1;
 		float mint=1000.0;
 		vec3 refColor;
-		
-		
 		rd= saverd;
-		//rd = normalize(vec3(uv, 1.0));
-		//rd = normalize(invView * vec4(uv, 1.0, 0.0)).xyz;
 
 		float t = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
 
@@ -87,21 +85,28 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
 	
 		// normal of intersected point of sphere
 		vec3 nml = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t));
-
 		//get reflectionvector of intersected spherepoint
 		rd = reflect(rd, nml);
 
-		//original color:0.9, 0.8, 1.0
 		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[i].x,colorSphere[i].y,colorSphere[i].z);
 
 		vec3 nml2=vec3(0.0);
 		
-		make reflection method. mit for(i<recDepthloop) 
+		
+		//make reflection method. mit for(i<recDepthloop) 
+		
+		for(int i=0; i<refDepth;i++){
+		// initialisiere normalen etc immer neu
+		vec3 color += refSphere();  //parametersuche
+		// nml neu, geoms hochzählen
+
+
+		}
+		
 		for(int j=0; j<sphereVec.length(); j++){
 			
 			if(j==i){continue;}
 			//hittest from intersected point
-			//needs: wo kommt strahl her(punkt), richtungsvektor(!), zu testende kugel 
 			t2= sphere(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), rd, vec3(sphereVec[j].x,sphereVec[j].y,sphereVec[j].z),sphereVec[j].w);
 
 			if(t2>0 && t2<mint){
@@ -127,6 +132,22 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
 	}  
 }
 
+vec3 refSphere(vec3 ro, vec3 rd, int refDepth, int geomBase, int geomRef){
+	vec3 color=vec3(0.0);
+	vec3 nml2=vec3(0.0);
+	for(int i=0;i<sphereVec.length;i++){
+		if(geomBase==geomRef){continue;}
+			//hittest from intersected point
+			float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[geomRef].x,sphereVec[geomRef].y,sphereVec[geomRef].z),sphereVec[geomRef].w);
+
+			if(t2>0 && t2<mint){
+				mint=t2;
+				vec3 nml2 = normalize(vec3(sphereVec[geomRef].x,sphereVec[geomRef].y,sphereVec[geomRef].z) - (ro+rd*t2));
+				Color = background(iGlobalTime, nml2)* vec3(colorSphere[geomRef].x , colorSphere[geomRef].y, colorSphere[geomRef].z);
+			}	
+		}
+	return refColor;
+}
 
 float draw(vec3 ro, vec3 rd){	
 	float t = sphereRec(ro, rd, 0);	
