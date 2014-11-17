@@ -10,8 +10,7 @@ using namespace glm;
 
 
 auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-auto fbo = new FrameBufferObject;
-auto pass = new RenderPass(new Cube(), sp, fbo);
+auto pass = new RenderPass(new Cube(), sp, width, height);
 
 auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compositing.frag"});
 
