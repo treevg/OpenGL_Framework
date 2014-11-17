@@ -27,6 +27,7 @@ auto pass = new RenderPass(
 //TODO avoid horizonatal line / change background?
 //TODO getTextures/depth/color  -> multiple passes?
 //TODO raytrace polygons
+//TODO fix "depthtest"
 
 
 float size = 1.0;

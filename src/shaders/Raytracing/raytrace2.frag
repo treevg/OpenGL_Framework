@@ -69,24 +69,33 @@ vec3 background(float t, vec3 rd)
 vec3 refSphere(vec3 ro, vec3 rd, int geomBase, int refDepth){
 	color=vec3(0.0);
 	vec3 nml2=vec3(0.0);
-	
-	for(int i=0;i<sphereVec.length;i++){
+	int sphereHit;
+	vec3 tempColor=vec3(0.0);
+	//if(refDepth==0){return color;}
 
-		for(int a=0; a<refDepth;a++){
+	for(int a=1; a<refDepth+1;a++){
+		for(int i=0;i<sphereVec.length;i++){
+
+		
 			if(geomBase==i){continue;}
 				
 				//hittest from intersected point
 				float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z),sphereVec[i].w);
-
+				
 				if(t2>0 && t2<mint){
 					mint=t2;
-					vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
-					color = background(iGlobalTime, nml2)* vec3(colorSphere[i].x , colorSphere[i].y, colorSphere[i].z);
-				
+					sphereHit=i;
+					//vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
+					vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2));
+					tempColor = background(iGlobalTime, nml2);
 				}	
-		}		
+		}
+		color = vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z);
+		geomBase=sphereHit;
+		rd=reflect(rd,nml2);
+		
 	}	
-	return color;
+	return color+tempColor;
 }
 
 
@@ -113,13 +122,15 @@ void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
 	
 		// normal of intersected point of sphere
 		vec3 nml = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t));
+		
+		
 		//get reflectionvector of intersected spherepoint
 		rd = reflect(rd, nml);
 
 		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[i].x,colorSphere[i].y,colorSphere[i].z);
 		
 		// gets reflection color
-		color = refSphere(ro,rd,i,1);
+		color = refSphere(ro,rd,i,2);
 			
 		if(gl_FragColor.xyz==bgCol.xyz){
 
