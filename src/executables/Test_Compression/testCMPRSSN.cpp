@@ -8,14 +8,13 @@
 using namespace std;
 using namespace glm;
 
-
 auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 auto pass = new RenderPass(new Cube(), sp, width, height);
+//auto pass = new RenderPass(new Cube(), sp);
 
 auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compositing.frag"});
 
 auto pass2 = new RenderPass(new Quad(), compositingSP);
-
 
 auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compute.comp");
 
@@ -35,24 +34,28 @@ mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/cubeTexture.jpg");
 GLuint tex1Handle = ComputeShaderTools::generateTexture();
 
-void computeMVP(){
-	glUseProgram(cs->getProgramHandle());
-	cs->update("angle", cubeAngle);
-	glDispatchCompute(512/16, 512/16, 1);
+void invertImg(){
+	//cs->texture("outImg", tex1Handle);
+	cs->use();
+	glBindImageTexture(0, pass->frameBufferObject->getColorAttachment(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+	glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	cs->texture("outImg", tex1Handle);
+	cs->texture("inImg", pass->frameBufferObject->getColorAttachment());
+	glDispatchCompute(1280/32, 720/32, 1);
+	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 }
 
 int main(int argc, char *argv[]) {
-//    sp -> printUniformInfo();
-//    sp -> printInputInfo();
-//    sp -> printOutputInfo();
+    sp -> printUniformInfo();
+    sp -> printInputInfo();
+    sp -> printOutputInfo();
 
     compositingSP->printUniformInfo();
     compositingSP->printInputInfo();
     compositingSP->printOutputInfo();
 
-//    cs->printUniformInfo();
-//    cs->printOutputInfo();
-
+    cs->printUniformInfo();
+    cs->printOutputInfo();
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
@@ -68,11 +71,16 @@ int main(int argc, char *argv[]) {
         -> update("uniformProjection", projMat)
         -> update("uniformModel", cubeModel)
         -> texture("tex2", textureHandle)
-        -> run();													//alternative runInFBO(), but dont know if even necessary
+        -> run();
+
+        //cs->texture("inImg", pass->frameBufferObject->getColorAttachment());		//update input image for compute shader
+
+        invertImg();
 
         pass2
         ->clear(1, 1, 1, 0)
-        ->texture("tex2", pass->frameBufferObject->getColorAttachment())		//TODO need acces to color_atachment_0 from fbo of renderpass "pass"
+        ->texture("tex2", tex1Handle)
+//        ->texture("tex2", pass->frameBufferObject->getColorAttachment())
         ->run();
 
 
