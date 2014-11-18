@@ -13,7 +13,6 @@ public:
 	FrameBufferObject* clear();
 	GLuint get(std::string name);
 	GLuint getHandle();
-	GLuint getColorAttachment();
 protected:
 	GLuint colorAttachment;
 	GLuint frameBufferObjectHandle;

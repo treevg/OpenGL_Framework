@@ -28,32 +28,49 @@ glm::mat4 viewMat       = glm::lookAt(
 
 using namespace glm;
 
-glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+glm::mat4 projMat = glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/cubeTexture.jpg");
-GLuint tex1Handle = ComputeShaderTools::generateTexture();
+//GLuint tex1Handle = ComputeShaderTools::generateTexture();
 
-void invertImg(){
-	//cs->texture("outImg", tex1Handle);
-	cs->use();
-	glBindImageTexture(0, pass->frameBufferObject->getColorAttachment(), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-	glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	cs->texture("outImg", tex1Handle);
-	cs->texture("inImg", pass->frameBufferObject->getColorAttachment());
-	glDispatchCompute(1280/32, 720/32, 1);
-	glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
-}
+GLuint tex1Handle;
+GLuint frameBufferObjectHandle;
 
 int main(int argc, char *argv[]) {
-    sp -> printUniformInfo();
-    sp -> printInputInfo();
-    sp -> printOutputInfo();
+    glGenFramebuffers(1, &frameBufferObjectHandle);
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
 
-    compositingSP->printUniformInfo();
-    compositingSP->printInputInfo();
-    compositingSP->printOutputInfo();
+    glGenTextures(1, &tex1Handle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex1Handle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+    // Allocate mipmaps
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex1Handle, 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
+
+
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
+    GLfloat clearColor[4] = {0, 1, 0, 0};
+    glClearBufferfv(GL_COLOR, 0, clearColor);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+
+    // sp -> printUniformInfo();
+    // sp -> printInputInfo();
+    // sp -> printOutputInfo();
+
+    // compositingSP->printUniformInfo();
+    // compositingSP->printInputInfo();
+    // compositingSP->printOutputInfo();
+
+    cs->printInputInfo();
     cs->printUniformInfo();
     cs->printOutputInfo();
 
@@ -73,14 +90,22 @@ int main(int argc, char *argv[]) {
         -> texture("tex2", textureHandle)
         -> run();
 
-        //cs->texture("inImg", pass->frameBufferObject->getColorAttachment());		//update input image for compute shader
+        //cs->texture("inImg", pass->get("fragColor"));		//update input image for compute shader
 
-        invertImg();
+        //invertImg();
+
+        cs->use();
+        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         pass2
         ->clear(1, 1, 1, 0)
         ->texture("tex2", tex1Handle)
-//        ->texture("tex2", pass->frameBufferObject->getColorAttachment())
+        //->texture("tex2", pass->get("fragColor"))
+        //-> texture("tex2", textureHandle)
         ->run();
 
 
