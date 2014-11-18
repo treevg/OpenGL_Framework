@@ -6,6 +6,7 @@ uniform vec3	iResolution; 	//viewport resolution in pixels
 uniform float	iGlobalTime;	//shader playback time in seconds	
 uniform mat4	projection;
 uniform float 	zoom;
+uniform int		indirection;
 
 uniform mat4 	invView;
 uniform mat4	invViewProjection;
@@ -17,9 +18,11 @@ uniform vec3 	colorSphere[3];
 out vec4		fragColor;
 out vec4 		fragPosition;
 
-float 			closestHit=100;
+vec2 			closestHit=vec2(100.0,0.0);  //meaning: closestHit.x == value .y==0 hitPoint of a sphere
 float 			mint;
 vec3 			color;
+int 			currentGeom;
+
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 {
@@ -31,27 +34,6 @@ float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 	float st = step(0.0, min(t,d));
 	return mix(-1.0, t, st);
 }
-
-
-float sphereRec(vec3 ray, vec3 dir, int geom)
-{
-	if(geom<sphereVec.length()){
-	vec3 rc = ray- vec3(sphereVec[geom].x,sphereVec[geom].y,sphereVec[geom].z); 
-	float c = dot(rc, rc) - (sphereVec[geom].w * sphereVec[geom].w);
-	float b = dot(dir, rc);
-	float d = b*b - c;
-	float t = -b - sqrt(abs(d));
-	float st = step(0.0, min(t,d));
-	float lastHit = mix(-1.0, t, st);
-	
-	if(lastHit>0 && lastHit<closestHit){
-	closestHit=lastHit;
-	}
-	return sphereRec(ray,dir,geom+1);
-	}
-	return closestHit;
-}
-
 
 vec3 background(float t, vec3 rd)
 {
@@ -99,63 +81,76 @@ vec3 refSphere(vec3 ro, vec3 rd, int geomBase, int refDepth){
 }
 
 
-// make draw method
-// globale var mit lasthit?
-void drawSphere(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
+void hit(vec3 ro, vec3 rd){	
 
-	int refDepth=1;
+	float hitSphere, hitTriangle;
 
-	vec3 saverd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
-	
 	for(int i=0; i<sphereVec.length();i++){
-
-		float t2=-1;
-		mint=1000.0;
-		//vec3 refColor;
-		rd= saverd;
-
-		float t = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
-
-		if(t==-1 && gl_FragColor.xyz==bgCol.xyz){
-			continue;
+		hitSphere = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
+	
+		if(hitSphere>0 && hitSphere<closestHit.x){
+			closestHit=vec2(hitSphere,0.0);
+			currentGeom=i;
 		}
+	}
+	
+	for(int i=0; i<mesh.length();i++){
+	
+		// hitTriangle= triangle();
+		hitTriangle=100.0; // placeholder
+	
+		if(hitTriangle>0 && hitTriangle<closestHit.x){
+			closestHit=vec2(hitTriangle,1.0);
+			currentGeom=i;
+		}
+	}
+}
+
+
+void draw(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
+
+	//int refDepth=1;
+	mint=1000.0;
+		
+	hit(ro,rd);
+		
+	if(closestHit.x > 50){
+		return;
+	}
+	
+	//sphere was hit
+	if(closestHit.y==0.0){
 	
 		// normal of intersected point of sphere
-		vec3 nml = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t));
-		
+		vec3 nml = normalize(vec3(sphereVec[currentGeom].x,sphereVec[currentGeom].y,sphereVec[currentGeom].z) - (ro+rd*closestHit.x));
 		
 		//get reflectionvector of intersected spherepoint
 		rd = reflect(rd, nml);
 
-		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[i].x,colorSphere[i].y,colorSphere[i].z);
+		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
 		
 		// gets reflection color
-		color = refSphere(ro,rd,i,2);
+		color = refSphere(ro,rd,currentGeom,indirection);
 			
 		if(gl_FragColor.xyz==bgCol.xyz){
 
 			if(mint==1000.0){
-				gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 )+0.05;	
+				gl_FragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
 			} 
 			else {
 				// draws reflected point 
 				//todo: fix normals  , choose gewichtungsfaktor correctly
-
-				vec4 temp= vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
+				vec4 temp= vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 );
 				gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), color, mint), 1.0 )+0.05;
 			}
 		}
-	}  
+	}
+		//triangle was hit
+		else{}
+		
+	
+	 
 }
-
-
-
-float draw(vec3 ro, vec3 rd){	
-	float t = sphereRec(ro, rd, 0);	
-return t;
-}
-
-
 
 void main(void)
 {
@@ -170,20 +165,5 @@ void main(void)
 
 	gl_FragColor=vec4(bgCol,1.0);
 
-	drawSphere(bgCol, ro, rd, uv,1);
-}
-
-void main2(void)
-{
-	vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
-	vec3 ro = (invView * vec4(0,0,0,1)).xyz;
-	vec3 rd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
-
-	vec3 p = vec3(0.0, 0.0, 0.0);
-	float t = sphere(ro, rd, p, 1.0);
-	vec3 nml = normalize(p - (ro+rd*t));
-	vec3 bgCol = background(iGlobalTime, rd);
-	rd = reflect(rd, nml);
-	vec3 col = background(iGlobalTime, rd) * vec3(0.9, 0.8, 1.0);
-	gl_FragColor = vec4( mix(bgCol, col, step(0.0, t)), 1.0 );
+	draw(bgCol, ro, rd, uv,1);
 }

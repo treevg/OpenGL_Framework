@@ -34,6 +34,7 @@ float size = 1.0;
 float lum =  0.5;
 float rad=0.0;
 double xpos, ypos;
+int ref=1;
 
 float lastTime, currentTime;
 
@@ -105,6 +106,8 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad +=0.005 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.005 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)ref =1;
+        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)ref =2;
 
 
         mat4 view(1);
@@ -137,6 +140,7 @@ int main(int argc, char *argv[]) {
             -> update("iResolution", glm::vec3(width, height, 1))
             -> update("scale", size)
 			-> update("zoom", rad)
+			-> update("indirection", ref)
             -> update("invViewProjection", invViewProjection)
             -> update("invView",invView)
 			-> run();
