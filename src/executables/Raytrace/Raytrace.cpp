@@ -14,20 +14,31 @@ using namespace glm;
 auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 
+/*
+auto compSP = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/compositing.frag"});
+auto compositing = new RenderPass(
+    quadVAO,
+    compSP);
+*/
+
 auto pass2 = new RenderPass(new Cube(), sp2);
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 GLuint texHandle = ComputeShaderTools::generateTexture();
 
 
-auto pass = new RenderPass(
+auto pass1 = new RenderPass(
     new Quad(), 
     sp
 );
 
+
+
 //TODO avoid horizonatal line / change background?
 //TODO raytrace polygons
+
 //TODO indirektionstiefe für 1. Kugel fixen
 //TODO 1 farbtextur pro layer + compositing shader
+//TODO eliminate background? (for layer)
 //TODO 1 positions- / tiefentextur pro layer (optional)
 
 
@@ -85,9 +96,9 @@ int main(int argc, char *argv[]) {
 
     lastTime = glfwGetTime();
 
-    pass -> update("sphereVec[0]", sphereVec);
-    pass -> update("mesh[0]", mesh);
-    pass -> update("colorSphere[0]", colorSphere);
+    pass1 -> update("sphereVec[0]", sphereVec);
+    pass1 -> update("mesh[0]", mesh);
+    pass1 -> update("colorSphere[0]", colorSphere);
 
     renderLoop([]{
         currentTime = glfwGetTime();
@@ -137,7 +148,7 @@ int main(int argc, char *argv[]) {
             -> texture("tex2", textureHandle)
             -> run();
         } else {
-            pass
+            pass1
             -> clear(0, 0, 0, 0)
             -> update("iGlobalTime", lastTime)
             -> update("iResolution", glm::vec3(width, height, 1))
@@ -147,6 +158,13 @@ int main(int argc, char *argv[]) {
             -> update("invViewProjection", invViewProjection)
             -> update("invView",invView)
 			-> run();
+
+            /*
+            compositing
+			-> clear(0, 0, 0, 0)
+	        -> texture("tex1", pass1->get("fragColor"))
+			-> run();
+            */
         }
 
     });
