@@ -108,6 +108,7 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.005 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)ref =1;
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)ref =2;
+        if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)ref =0;
 
 
         mat4 view(1);

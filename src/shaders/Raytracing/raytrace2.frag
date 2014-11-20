@@ -20,7 +20,6 @@ out vec4 		fragPosition;
 
 vec2 			closestHit=vec2(100.0,0.0);  //meaning: closestHit.x == value .y==0 hitPoint of a sphere
 float 			mint;
-vec3 			color;
 int 			currentGeom;
 
 
@@ -46,38 +45,43 @@ vec3 background(float t, vec3 rd)
 		pow(ground, 0.5)*vec3(0.4, 0.3, 0.2)+pow(sky, 1.0)*vec3(0.5, 0.6, 0.7);
 }
 
-
-
 vec3 refSphere(vec3 ro, vec3 rd, int geomBase, int refDepth){
-	color=vec3(0.0);
+	vec3 color=vec3(0.0);
 	vec3 nml2=vec3(0.0);
 	int sphereHit;
 	vec3 tempColor=vec3(0.0);
-	//if(refDepth==0){return color;}
+	float tempHit=100.0;
+
+	if(refDepth==0){
+		mint=100.0;
+		return color;
+	}
 
 	for(int a=1; a<refDepth+1;a++){
 		for(int i=0;i<sphereVec.length;i++){
-
 		
-			if(geomBase==i){continue;}
+			//if(geomBase==i){continue;}
 				
-				//hittest from intersected point
-				float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z),sphereVec[i].w);
+			//hittest from intersected point
+			float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z),sphereVec[i].w);
 				
-				if(t2>0 && t2<mint){
-					mint=t2;
-					sphereHit=i;
-					//vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
-					vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2));
-					tempColor = background(iGlobalTime, nml2);
-				}	
+			if(t2>0 && t2<mint){
+				mint=t2;
+				sphereHit=i;
+				//vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
+				//nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2));
+				nml2 = normalize((vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2) - vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) );
+				color = background(iGlobalTime, nml2) * (vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z));
+			}	
 		}
-		color = vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z);
+		// abfangen wenn bei 2. indirektion nichts getroffen. if()
+		// reflektion mit dreiecken ermöglichen
+		//color *= vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z);
 		geomBase=sphereHit;
 		rd=reflect(rd,nml2);
 		
 	}	
-	return color+tempColor;
+	return color;
 }
 
 
@@ -96,7 +100,7 @@ void hit(vec3 ro, vec3 rd){
 	
 	for(int i=0; i<mesh.length();i++){
 	
-		// hitTriangle= triangle();
+		// hitTriangle = triangle();
 		hitTriangle=100.0; // placeholder
 	
 		if(hitTriangle>0 && hitTriangle<closestHit.x){
@@ -107,17 +111,18 @@ void hit(vec3 ro, vec3 rd){
 }
 
 
-void draw(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
+void draw(vec3 bgCol,vec3 ro, vec3 rd, int recDepth){
 
-	//int refDepth=1;
-	mint=1000.0;
-		
+	mint=100.0;	
+	
+	//hittest with every geometry
 	hit(ro,rd);
 		
 	if(closestHit.x > 50){
 		return;
 	}
-	
+//TODO make drawSphere method
+
 	//sphere was hit
 	if(closestHit.y==0.0){
 	
@@ -130,11 +135,11 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd, vec2 uv, int recDepth){
 		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
 		
 		// gets reflection color
-		color = refSphere(ro,rd,currentGeom,indirection);
+		vec3 color = refSphere(ro,rd,currentGeom,indirection);
 			
 		if(gl_FragColor.xyz==bgCol.xyz){
 
-			if(mint==1000.0){
+			if(mint==100.0){
 				gl_FragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
 			} 
 			else {
@@ -162,8 +167,7 @@ void main(void)
 	vec3 rd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 
 	vec3 bgCol = background(iGlobalTime, rd);
-
 	gl_FragColor=vec4(bgCol,1.0);
 
-	draw(bgCol, ro, rd, uv,1);
+	draw(bgCol, ro, rd,1);
 }
