@@ -25,9 +25,10 @@ auto pass = new RenderPass(
 );
 
 //TODO avoid horizonatal line / change background?
-//TODO getTextures/depth/color  -> multiple passes?
 //TODO raytrace polygons
-//TODO fix "depthtest"
+//TODO indirektionstiefe für 1. Kugel fixen
+//TODO 1 farbtextur pro layer + compositing shader
+//TODO 1 positions- / tiefentextur pro layer (optional)
 
 
 float size = 1.0;
@@ -104,11 +105,12 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad +=0.005 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.005 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad +=0.0075 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.0075 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)ref =1;
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)ref =2;
         if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)ref =0;
+        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)ref =3;
 
 
         mat4 view(1);
