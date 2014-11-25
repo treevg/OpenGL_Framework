@@ -15,8 +15,10 @@ uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[20];
 uniform vec3 	colorSphere[3];
 
-out vec4		fragColor;
-out vec4 		fragPosition;
+in 		vec4 	passPosition;
+
+out 	vec4	fragColor;
+out 	vec4 	fragPosition;
 
 vec2 			closestHit=vec2(100.0,0.0);  //meaning: closestHit.x == value .y==0 hitPoint of a sphere
 float 			mint;
@@ -49,7 +51,6 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 	vec3 color=vec3(0.0);
 	vec3 nml2=vec3(0.0);
 	int sphereHit;
-	bool hasChanged=false;
 	//vec3 tempColor=vec3(0.0);
 	//float tempHit=100.0;
 
@@ -67,7 +68,6 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 			float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z),sphereVec[i].w);
 				
 			if(t2>0 && t2<mint){
-				hasChanged=true;
 				mint=t2;
 				sphereHit=i;
 				//vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
@@ -76,13 +76,10 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 				color = background(iGlobalTime, nml2) * (vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z));
 			}	
 		}
-		
-		if(hasChanged){
 		// troublemaker here
 		geomBase=sphereHit;
+		
 		rd=reflect(rd,nml2);
-		hasChanged=false;
-		}
 	}	
 	return color;
 }
@@ -141,13 +138,13 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 		vec3 color = refSphere(rd,currentGeom,indirection);
 			
 		if(mint==100.0){
-			gl_FragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
+			fragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
 		} 
 		else {
 			// draws reflected point 
 			//todo: fix normals  , choose gewichtungsfaktor correctly
 			vec4 temp= vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 );
-			gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), color, mint), 1.0 )+0.05;
+			fragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), color, mint), 1.0 )+0.05;
 		}
 		
 	}
@@ -157,6 +154,7 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 
 void main(void)
 {
+ 
 	//vec4 pos = invView * vec4(0,0,0,1);
 	//vec4 dir = normalize(invView * vec4(0,0,1,0));
 
@@ -165,7 +163,7 @@ void main(void)
 	vec3 rd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 
 	vec3 bgCol = background(iGlobalTime, rd);
-	gl_FragColor=vec4(bgCol,1.0);
-
+	fragColor=vec4(bgCol,1.0);
+fragPosition = passPosition;
 	draw(bgCol, ro, rd);
 }

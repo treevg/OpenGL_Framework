@@ -10,27 +10,35 @@
 using namespace std;
 using namespace glm;
 
-// fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
+
+auto quadVAO = new Quad();
+
+// basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
+// For raytracing
 auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
+
+//For Compression
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-
-/*
-auto compSP = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/compositing.frag"});
-auto compositing = new RenderPass(
-    quadVAO,
-    compSP);
-*/
-
 auto pass2 = new RenderPass(new Cube(), sp2);
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 GLuint texHandle = ComputeShaderTools::generateTexture();
 
 
-auto pass1 = new RenderPass(
-    new Quad(), 
-    sp
-);
+auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
+auto compositing = new RenderPass(
+    quadVAO,
+    compSP);
 
+
+//auto pass1 = new RenderPass(
+//    new Quad(),
+//    sp
+//);
+
+auto pass1 = new RenderPass(
+    quadVAO,
+    sp);
+    //width, height);
 
 
 //TODO avoid horizonatal line / change background?
@@ -62,6 +70,10 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
+
+    compSP -> printUniformInfo();
+    compSP -> printInputInfo();
+    compSP -> printOutputInfo();
 
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
@@ -116,8 +128,8 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad +=0.0075 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.0075 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad +=0.0125 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.0125 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)ref =1;
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)ref =2;
         if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)ref =0;
@@ -159,12 +171,12 @@ int main(int argc, char *argv[]) {
             -> update("invView",invView)
 			-> run();
 
-            /*
-            compositing
-			-> clear(0, 0, 0, 0)
-	        -> texture("tex1", pass1->get("fragColor"))
-			-> run();
-            */
+
+//            compositing
+//			-> clear(0, 0, 0, 0)
+//	        -> texture("tex1", pass1->get("fragColor"))
+//			-> run();
+
         }
 
     });
