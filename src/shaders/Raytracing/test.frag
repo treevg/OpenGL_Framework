@@ -2,8 +2,8 @@
 
 in vec4 gl_FragCoord;
 
-uniform vec3	iResolution; 	//viewport resolution in pixels
-uniform float	iGlobalTime;	//shader playback time in seconds	
+uniform vec3	iResolution;
+uniform float	iGlobalTime;
 uniform mat4	projection;
 uniform float 	zoom;
 uniform int		indirection;
@@ -17,7 +17,7 @@ uniform vec3 	colorSphere[3];
 
 in 		vec4 	passPosition;
 
-out 	vec4	fragColor;
+layout(location = 0) out 	vec4	fragColor;
 out 	vec4 	fragPosition;
 
 vec2 			closestHit=vec2(100.0,0.0);  //meaning: closestHit.x == value .y==0 hitPoint of a sphere

@@ -11,11 +11,27 @@ using namespace std;
 using namespace glm;
 
 
+//TODO avoid horizonatal line / change background?
+//TODO raytrace polygons
+
+//TODO indirektionstiefe für 1. Kugel fixen
+//TODO 1 farbtextur pro layer + compositing shader
+//TODO eliminate background? (for layer)
+//TODO 1 positions- / tiefentextur pro layer
+
+
+
+
 auto quadVAO = new Quad();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // For raytracing
 auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
+
+auto pass1 = new RenderPass(
+    quadVAO,
+    sp);
+//width, height);
 
 //For Compression
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
@@ -24,30 +40,16 @@ GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 GLuint texHandle = ComputeShaderTools::generateTexture();
 
 
-auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
-auto compositing = new RenderPass(
-    quadVAO,
-    compSP);
-
-
 //auto pass1 = new RenderPass(
 //    new Quad(),
 //    sp
 //);
 
-auto pass1 = new RenderPass(
-    quadVAO,
-    sp);
-    //width, height);
+auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
 
-
-//TODO avoid horizonatal line / change background?
-//TODO raytrace polygons
-
-//TODO indirektionstiefe für 1. Kugel fixen
-//TODO 1 farbtextur pro layer + compositing shader
-//TODO eliminate background? (for layer)
-//TODO 1 positions- / tiefentextur pro layer (optional)
+auto compositing = new RenderPass(
+		quadVAO,
+    compSP);
 
 
 float size = 1.0;
@@ -58,7 +60,7 @@ int ref=1;
 
 float lastTime, currentTime;
 
-float horizontalAngle=4.7;
+float horizontalAngle=0.0;
 float verticalAngle=0.0;
 
 std::vector<glm::vec4> sphereVec;
@@ -71,9 +73,9 @@ int main(int argc, char *argv[]) {
     sp -> printOutputInfo();
 
 
-    compSP -> printUniformInfo();
-    compSP -> printInputInfo();
-    compSP -> printOutputInfo();
+//    compSP -> printUniformInfo();
+//    compSP -> printInputInfo();
+//    compSP -> printOutputInfo();
 
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
@@ -84,27 +86,27 @@ int main(int argc, char *argv[]) {
     colorSphere.push_back(glm::vec3(0.0,0.5,0.0));
     colorSphere.push_back(glm::vec3(0.0,0.0,0.5));
 
-    mesh.push_back(glm::vec3(0.1, 0.2, -0.3));
-    mesh.push_back(glm::vec3(0.4, 0.5, -0.6));
-    mesh.push_back(glm::vec3(0.7, 0.8, -0.9));
-    mesh.push_back(glm::vec3(0.10, 0.11, -0.12));
-    mesh.push_back(glm::vec3(0.13, 0.14, -0.15));
-    mesh.push_back(glm::vec3(0.16, 0.17, -0.18));
-    mesh.push_back(glm::vec3(0.19, 0.20, -0.21));
-    mesh.push_back(glm::vec3(0.22, 0.23, -0.24));
-    mesh.push_back(glm::vec3(0.25, 0.26, -0.27));
-    mesh.push_back(glm::vec3(0.28, 0.29, -0.30));
-    mesh.push_back(glm::vec3(0.31, 0.32, -0.33));
-    mesh.push_back(glm::vec3(0.34, 0.35, -0.36));
-    mesh.push_back(glm::vec3(0.37, 0.38, -0.39));
-    mesh.push_back(glm::vec3(0.40, 0.41, -0.42));
-    mesh.push_back(glm::vec3(0.43, 0.44, -0.45));
-    mesh.push_back(glm::vec3(0.46, 0.47, -0.48));
-    mesh.push_back(glm::vec3(0.49, 0.50, -0.51));
-    mesh.push_back(glm::vec3(0.52, 0.53, -0.54));
-    mesh.push_back(glm::vec3(0.55, 0.56, -0.57));
-    mesh.push_back(glm::vec3(0.58, 0.59, -0.60));
-    mesh.push_back(glm::vec3(0.61, 0.62, -0.63));
+    mesh.push_back(glm::vec3(-0.5, -0.5, 0.75));
+    mesh.push_back(glm::vec3(0.5, -0.5, 0.75));
+    mesh.push_back(glm::vec3(0.0, 0.8, 0.75));
+//    mesh.push_back(glm::vec3(0.10, 0.11, -0.12));
+//    mesh.push_back(glm::vec3(0.13, 0.14, -0.15));
+//    mesh.push_back(glm::vec3(0.16, 0.17, -0.18));
+//    mesh.push_back(glm::vec3(0.19, 0.20, -0.21));
+//    mesh.push_back(glm::vec3(0.22, 0.23, -0.24));
+//    mesh.push_back(glm::vec3(0.25, 0.26, -0.27));
+//    mesh.push_back(glm::vec3(0.28, 0.29, -0.30));
+//    mesh.push_back(glm::vec3(0.31, 0.32, -0.33));
+//    mesh.push_back(glm::vec3(0.34, 0.35, -0.36));
+//    mesh.push_back(glm::vec3(0.37, 0.38, -0.39));
+//    mesh.push_back(glm::vec3(0.40, 0.41, -0.42));
+//    mesh.push_back(glm::vec3(0.43, 0.44, -0.45));
+//    mesh.push_back(glm::vec3(0.46, 0.47, -0.48));
+//    mesh.push_back(glm::vec3(0.49, 0.50, -0.51));
+//    mesh.push_back(glm::vec3(0.52, 0.53, -0.54));
+//    mesh.push_back(glm::vec3(0.55, 0.56, -0.57));
+//    mesh.push_back(glm::vec3(0.58, 0.59, -0.60));
+//    mesh.push_back(glm::vec3(0.61, 0.62, -0.63));
 
     lastTime = glfwGetTime();
 
@@ -173,8 +175,9 @@ int main(int argc, char *argv[]) {
 
 
 //            compositing
-//			-> clear(0, 0, 0, 0)
+//			-> clear(0, 1, 0, 0)
 //	        -> texture("tex1", pass1->get("fragColor"))
+//			//->texture("tex1",0)
 //			-> run();
 
         }

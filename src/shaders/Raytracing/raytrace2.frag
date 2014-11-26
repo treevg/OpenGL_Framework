@@ -12,7 +12,7 @@ uniform mat4 	invView;
 uniform mat4	invViewProjection;
 
 uniform vec4 	sphereVec[3];
-uniform vec3 	mesh[20];
+uniform vec3 	mesh[3];
 uniform vec3 	colorSphere[3];
 
 out vec4		fragColor;
@@ -21,6 +21,8 @@ out vec4 		fragPosition;
 vec2 			closestHit=vec2(100.0,0.0);  //meaning: closestHit.x == value .y==0 hitPoint of a sphere
 float 			mint;
 int 			currentGeom;
+
+vec3 			triangleNml;
 
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
@@ -32,6 +34,55 @@ float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 	float t = -b - sqrt(abs(d));
 	float st = step(0.0, min(t,d));
 	return mix(-1.0, t, st);
+}
+
+float triangle(vec3 orig, vec3 dir, vec3 vertices[3])
+{
+   // const float INFINITY = 1e10;
+    vec3 u, v, n; // triangle vectors
+    vec3 w0, w;  // ray vectors
+    float r, a, b; // params to calc ray-plane intersect
+
+    // get triangle edge vectors and plane normal
+    u = vertices[1] - vertices[0];
+    v = vertices[2] - vertices[0];
+    n = cross(u, v);
+	triangleNml=n;
+
+    w0 = orig - vertices[0];
+    a = -dot(n, w0);
+    b = dot(n, dir);
+    if (abs(b) < 1e-5)
+    {
+        // ray is parallel to triangle plane, and thus can never intersect.
+        return -1.0;
+    }
+
+    // get intersect point of ray with triangle plane
+    r = a / b;
+    if (r < 0.0)
+        return -1.0; // ray goes away from triangle.
+
+    vec3 I = orig + r * dir;
+    float uu, uv, vv, wu, wv, D;
+    uu = dot(u, u);
+    uv = dot(u, v);
+    vv = dot(v, v);
+    w = I - vertices[0];
+    wu = dot(w, u);
+    wv = dot(w, v);
+    D = uv * uv - uu * vv;
+
+    // get and test parametric coords
+    float s, t;
+    s = (uv * wv - vv * wu) / D;
+    if (s < 0.0 || s > 1.0)
+        return -1.0;
+    t = (uv * wu - uu * wv) / D;
+    if (t < 0.0 || (s + t) > 1.0)
+        return -1.0;
+
+    return (r > 1e-5) ? r : -1.0;
 }
 
 vec3 background(float t, vec3 rd)
@@ -57,7 +108,6 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 		mint=100.0;
 		return color;
 	}
-
 	for(int a=1; a<refDepth+1;a++){
 		for(int i=0;i<sphereVec.length;i++){
 		
@@ -78,8 +128,10 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 		}
 		
 		if(hasChanged){
+		
 		// troublemaker here
 		geomBase=sphereHit;
+		
 		rd=reflect(rd,nml2);
 		hasChanged=false;
 		}
@@ -101,16 +153,16 @@ void hit(vec3 ro, vec3 rd){
 		}
 	}
 	
-	for(int i=0; i<mesh.length();i++){
+	//for(int i=0; i<mesh.length();i++){
 	
-		// hitTriangle = triangle();
-		hitTriangle=100.0; // placeholder
+		 hitTriangle = triangle(ro,rd,mesh);
+		//hitTriangle=100.0; // placeholder
 	
 		if(hitTriangle>0 && hitTriangle<closestHit.x){
 			closestHit=vec2(hitTriangle,1.0);
-			currentGeom=i;
+			//currentGeom=i;
 		}
-	}
+	//}
 }
 
 
@@ -137,7 +189,7 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 
 		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
 		
-		// gets reflection color
+		// compute indirection
 		vec3 color = refSphere(rd,currentGeom,indirection);
 			
 		if(mint==100.0){
@@ -152,7 +204,12 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 		
 	}
 	//triangle was hit
-	else{}	 
+	else{
+	rd = reflect(rd, triangleNml);
+	vec3 col = background(iGlobalTime, rd) * vec3(0.0,1.0,0.0);
+	gl_FragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
+	
+	}	 
 }
 
 void main(void)
