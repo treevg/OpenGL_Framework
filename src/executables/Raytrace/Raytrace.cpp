@@ -178,7 +178,6 @@ int main(int argc, char *argv[]) {
 			-> clear(0, 1, 0, 0)
             -> update("scale", size)
 	        -> texture("tex1", pass1->get("fragColor"))
-			//->texture("tex1",0)
 			-> run();
 
         }
