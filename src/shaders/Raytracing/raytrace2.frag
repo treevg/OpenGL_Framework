@@ -2,8 +2,8 @@
 
 in vec4 gl_FragCoord;
 
-uniform vec3	iResolution; 	//viewport resolution in pixels
-uniform float	iGlobalTime;	//shader playback time in seconds	
+uniform vec3	iResolution; 
+uniform float	iGlobalTime;	
 uniform mat4	projection;
 uniform float 	zoom;
 uniform int		indirection;
@@ -15,7 +15,9 @@ uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[3];
 uniform vec3 	colorSphere[3];
 
-out vec4		fragColor;
+in 		vec4 	passPosition;
+
+layout(location = 0) out vec4		fragColor;
 out vec4 		fragPosition;
 
 vec2 			closestHit=vec2(100.0,0.0);  //meaning: closestHit.x == value .y==0 hitPoint of a sphere
@@ -193,13 +195,13 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 		vec3 color = refSphere(rd,currentGeom,indirection);
 			
 		if(mint==100.0){
-			gl_FragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
+			fragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
 		} 
 		else {
 			// draws reflected point 
 			//todo: fix normals  , choose gewichtungsfaktor correctly
 			vec4 temp= vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 );
-			gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), color, mint), 1.0 )+0.05;
+			fragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), color, mint), 1.0 )+0.05;
 		}
 		
 	}
@@ -207,7 +209,7 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 	else{
 	rd = reflect(rd, triangleNml);
 	vec3 col = background(iGlobalTime, rd) * vec3(0.0,1.0,0.0);
-	gl_FragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
+	fragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
 	
 	}	 
 }
@@ -222,7 +224,7 @@ void main(void)
 	vec3 rd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 
 	vec3 bgCol = background(iGlobalTime, rd);
-	gl_FragColor=vec4(bgCol,1.0);
+	fragColor=vec4(bgCol,1.0);
 
 	draw(bgCol, ro, rd);
 }

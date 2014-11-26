@@ -17,7 +17,7 @@ uniform vec3 	colorSphere[3];
 
 in 		vec4 	passPosition;
 
-layout(location = 0) out 	vec4	fragColor;
+ out 	vec4	fragColor;
 out 	vec4 	fragPosition;
 
 vec2 			closestHit=vec2(100.0,0.0);  //meaning: closestHit.x == value .y==0 hitPoint of a sphere

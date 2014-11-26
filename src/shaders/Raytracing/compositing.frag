@@ -13,8 +13,8 @@ in vec4 fragPosition;
 out vec4 fragColor;
 
 void main() {
- fragColor = vec4(0,1,1,1); 
-	//fragColor = texture(tex1, passPosition.xy);
+ //fragColor = vec4(0,1,1,1); 
+	fragColor = texture(tex1, passPosition.xy);
 	//fragColor = texture(tex1, fragPosition.xy);
 		
 		//+ texture(tex2, passPosition.xy) +

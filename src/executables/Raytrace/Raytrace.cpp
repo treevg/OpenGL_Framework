@@ -25,13 +25,13 @@ using namespace glm;
 auto quadVAO = new Quad();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
+// triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
 // For raytracing
 auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
 
 auto pass1 = new RenderPass(
     quadVAO,
-    sp);
-//width, height);
+    sp, width, height);
 
 //For Compression
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
@@ -174,11 +174,12 @@ int main(int argc, char *argv[]) {
 			-> run();
 
 
-//            compositing
-//			-> clear(0, 1, 0, 0)
-//	        -> texture("tex1", pass1->get("fragColor"))
-//			//->texture("tex1",0)
-//			-> run();
+            compositing
+			-> clear(0, 1, 0, 0)
+            -> update("scale", size)
+	        -> texture("tex1", pass1->get("fragColor"))
+			//->texture("tex1",0)
+			-> run();
 
         }
 
