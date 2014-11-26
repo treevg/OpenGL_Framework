@@ -11,11 +11,11 @@ using namespace std;
 using namespace glm;
 
 
-//TODO avoid horizonatal line / change background?
-//TODO raytrace polygons
+
+//TODO draw generic triangle mesh
 
 //TODO indirektionstiefe für 1. Kugel fixen
-//TODO 1 farbtextur pro layer + compositing shader
+//TODO 1 farbtextur pro layer
 //TODO eliminate background? (for layer)
 //TODO 1 positions- / tiefentextur pro layer
 
@@ -27,11 +27,21 @@ auto quadVAO = new Quad();
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
 // For raytracing
-auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
-
+auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"});
 auto pass1 = new RenderPass(
     quadVAO,
     sp, width, height);
+
+//auto sp3 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/colorIndirection.frag"});
+//auto pass3 = new RenderPass(
+//    quadVAO,
+//    sp3, width, height);
+//
+//auto sp4 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/depth.frag"});
+//auto pass4 = new RenderPass(
+//    quadVAO,
+//    sp4, width, height);
+
 
 //For Compression
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
@@ -178,6 +188,7 @@ int main(int argc, char *argv[]) {
 			-> clear(0, 1, 0, 0)
             -> update("scale", size)
 	        -> texture("tex1", pass1->get("fragColor"))
+			//-> texture("indirection", pass3->get("fragColor"))
 			-> run();
 
         }

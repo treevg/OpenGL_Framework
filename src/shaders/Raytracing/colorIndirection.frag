@@ -155,6 +155,7 @@ void hit(vec3 ro, vec3 rd){
 		}
 	}
 	
+//TODO make loop for generic meshsize
 	//for(int i=0; i<mesh.length();i++){
 	
 		 hitTriangle = triangle(ro,rd,mesh);
@@ -191,12 +192,11 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 
 		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
 		
-		// compute indirection
+		// compute indirection 
 		vec3 color = refSphere(rd,currentGeom,indirection);
 			
-		if(mint==100.0){
-			fragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
-		} 
+		if(mint==100.0){}
+			
 		else {
 			// draws reflected point 
 			//todo: fix normals  , choose gewichtungsfaktor correctly
@@ -205,6 +205,7 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 		}
 		
 	}
+	
 	//triangle was hit
 	else{
 	rd = reflect(rd, triangleNml);
