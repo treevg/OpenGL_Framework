@@ -18,6 +18,7 @@ using namespace glm;
 //TODO 1 farbtextur pro layer
 //TODO eliminate background? (for layer)
 //TODO 1 positions- / tiefentextur pro layer
+//TODO show textures simultaneously
 
 
 
@@ -32,15 +33,15 @@ auto pass1 = new RenderPass(
     quadVAO,
     sp, width, height);
 
-//auto sp3 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/colorIndirection.frag"});
-//auto pass3 = new RenderPass(
-//    quadVAO,
-//    sp3, width, height);
-//
-//auto sp4 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/depth.frag"});
-//auto pass4 = new RenderPass(
-//    quadVAO,
-//    sp4, width, height);
+auto sp3 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/colorIndirection.frag"});
+auto pass3 = new RenderPass(
+    quadVAO,
+    sp3, width, height);
+
+auto sp4 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/depth.frag"});
+auto pass4 = new RenderPass(
+    quadVAO,
+    sp4, width, height);
 
 
 //For Compression
@@ -67,6 +68,7 @@ float lum =  0.5;
 float rad=0.0;
 double xpos, ypos;
 int ref=1;
+int texNum=0;
 
 float lastTime, currentTime;
 
@@ -124,6 +126,14 @@ int main(int argc, char *argv[]) {
     pass1 -> update("mesh[0]", mesh);
     pass1 -> update("colorSphere[0]", colorSphere);
 
+    pass3 -> update("sphereVec[0]", sphereVec);
+    pass3 -> update("mesh[0]", mesh);
+    pass3 -> update("colorSphere[0]", colorSphere);
+
+    pass4 -> update("sphereVec[0]", sphereVec);
+    pass4 -> update("mesh[0]", mesh);
+    pass4 -> update("colorSphere[0]", colorSphere);
+
     renderLoop([]{
         currentTime = glfwGetTime();
         float deltaT = currentTime - lastTime;
@@ -146,6 +156,10 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)ref =2;
         if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)ref =0;
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)ref =3;
+
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)texNum =0;
+        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)texNum =1;
+        if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)texNum =2;
 
 
         mat4 view(1);
@@ -171,8 +185,22 @@ int main(int argc, char *argv[]) {
             -> update("uniformModel", mat4(1))
             -> texture("tex2", textureHandle)
             -> run();
-        } else {
-            pass1
+        }
+        else {
+
+
+        	pass1
+        	-> clear(0, 0, 0, 0)
+        	-> update("iGlobalTime", lastTime)
+        	-> update("iResolution", glm::vec3(width, height, 1))
+        	-> update("scale", size)
+        	-> update("zoom", rad)
+        	-> update("indirection", ref)
+            -> update("invViewProjection", invViewProjection)
+        	-> update("invView",invView)
+        	-> run();
+
+            pass3
             -> clear(0, 0, 0, 0)
             -> update("iGlobalTime", lastTime)
             -> update("iResolution", glm::vec3(width, height, 1))
@@ -183,12 +211,24 @@ int main(int argc, char *argv[]) {
             -> update("invView",invView)
 			-> run();
 
+            pass4
+            -> clear(0, 0, 0, 0)
+                // -> update("iGlobalTime", lastTime)
+            -> update("iResolution", glm::vec3(width, height, 1))
+            -> update("scale", size)
+     		-> update("zoom", rad)
+			-> update("indirection", ref)
+            -> update("invViewProjection", invViewProjection)
+            -> update("invView",invView)
+		    -> run();
 
             compositing
 			-> clear(0, 1, 0, 0)
             -> update("scale", size)
-	        -> texture("tex1", pass1->get("fragColor"))
-			//-> texture("indirection", pass3->get("fragColor"))
+			-> update("texNum", texNum)
+	        -> texture("color", pass1->get("fragColor"))
+			-> texture("indirectionColor", pass3->get("fragColor"))
+			-> texture("depth", pass4->get("fragColor"))
 			-> run();
 
         }

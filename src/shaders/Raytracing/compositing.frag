@@ -1,22 +1,28 @@
 #version 430
 
-//uniform float interpol;
-uniform sampler2D tex1;
 
-//uniform sampler2D tex2;
-//uniform sampler2D tex3;
+uniform sampler2D color;
+uniform sampler2D indirectionColor;
+uniform sampler2D depth;
+uniform int texNum;
 
 in vec4 passPosition;
-
-in vec4 fragPosition;
 
 out vec4 fragColor;
 
 void main() {
- //fragColor = vec4(0,1,1,1); 
-	fragColor = texture(tex1, passPosition.xy);
-	//fragColor = texture(tex1, fragPosition.xy);
-		
-		//+ texture(tex2, passPosition.xy) +
-	    //texture(tex3, passPosition.xy);
+
+if(texNum==0){
+	fragColor = texture(color, passPosition.xy);
+	
+}
+ 
+if(texNum==1){
+	fragColor = texture(indirectionColor, passPosition.xy);
+}
+
+if(texNum==2){
+	fragColor = texture(depth, passPosition.xy);
+}	
+
 }
