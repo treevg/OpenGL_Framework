@@ -13,7 +13,7 @@ uniform mat4	invViewProjection;
 
 uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[3];
-uniform vec3 	colorSphere[3];
+//uniform vec3 	colorSphere[3];
 
 in 		vec4 	passPosition;
 
@@ -170,6 +170,8 @@ void draw(vec3 ro, vec3 rd){
 	}
 //TODO make drawSphere method
 
+
+	
 	//sphere was hit
 	if(closestHit.y==0.0){
 	
@@ -179,12 +181,11 @@ void draw(vec3 ro, vec3 rd){
 		//get reflectionvector of intersected spherepoint
 		rd = reflect(rd, nml);
 
-		vec3 col = vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
-		
 		// compute indirection
 		vec3 color = refSphere(rd,currentGeom,indirection);
 			
 		if(mint==100.0){
+			
 			fragColor = vec4( closestHit.x,closestHit.x,closestHit.x, 1.0 );	
 		} 
 		else {

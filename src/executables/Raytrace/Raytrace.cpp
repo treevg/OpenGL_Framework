@@ -13,6 +13,7 @@ using namespace glm;
 
 
 //TODO draw generic triangle mesh
+//TODO add other shading
 
 //TODO indirektionstiefe für 1. Kugel fixen
 //TODO 1 farbtextur pro layer
@@ -42,6 +43,12 @@ auto sp4 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/depth.fr
 auto pass4 = new RenderPass(
     quadVAO,
     sp4, width, height);
+
+auto sp5 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/indirectionDepth.frag"});
+auto pass5 = new RenderPass(
+    quadVAO,
+    sp5, width, height);
+
 
 
 //For Compression
@@ -132,7 +139,10 @@ int main(int argc, char *argv[]) {
 
     pass4 -> update("sphereVec[0]", sphereVec);
     pass4 -> update("mesh[0]", mesh);
-    pass4 -> update("colorSphere[0]", colorSphere);
+
+    pass5 -> update("sphereVec[0]", sphereVec);
+    pass5 -> update("mesh[0]", mesh);
+
 
     renderLoop([]{
         currentTime = glfwGetTime();
@@ -157,9 +167,10 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)ref =0;
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)ref =3;
 
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)texNum =0;
-        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)texNum =1;
-        if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)texNum =2;
+        if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)texNum =0;
+        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)texNum =1;
+        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)texNum =2;
+        if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)texNum =3;
 
 
         mat4 view(1);
@@ -213,7 +224,6 @@ int main(int argc, char *argv[]) {
 
             pass4
             -> clear(0, 0, 0, 0)
-                // -> update("iGlobalTime", lastTime)
             -> update("iResolution", glm::vec3(width, height, 1))
             -> update("scale", size)
      		-> update("zoom", rad)
@@ -222,6 +232,16 @@ int main(int argc, char *argv[]) {
             -> update("invView",invView)
 		    -> run();
 
+            pass5
+            -> clear(0, 0, 0, 0)
+            -> update("iResolution", glm::vec3(width, height, 1))
+            -> update("scale", size)
+            -> update("zoom", rad)
+            -> update("indirection", ref)
+            -> update("invViewProjection", invViewProjection)
+            -> update("invView",invView)
+            -> run();
+
             compositing
 			-> clear(0, 1, 0, 0)
             -> update("scale", size)
@@ -229,6 +249,7 @@ int main(int argc, char *argv[]) {
 	        -> texture("color", pass1->get("fragColor"))
 			-> texture("indirectionColor", pass3->get("fragColor"))
 			-> texture("depth", pass4->get("fragColor"))
+			-> texture("indirectionDepth", pass5->get("fragColor"))
 			-> run();
 
         }

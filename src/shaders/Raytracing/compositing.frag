@@ -4,6 +4,7 @@
 uniform sampler2D color;
 uniform sampler2D indirectionColor;
 uniform sampler2D depth;
+uniform sampler2D indirectionDepth;
 uniform int texNum;
 
 in vec4 passPosition;
@@ -23,6 +24,9 @@ if(texNum==1){
 
 if(texNum==2){
 	fragColor = texture(depth, passPosition.xy);
+}	
+if(texNum==3){
+	fragColor = texture(indirectionDepth, passPosition.xy);
 }	
 
 }
