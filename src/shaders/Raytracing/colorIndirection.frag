@@ -125,15 +125,17 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 				//vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
 				//nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2));
 				nml2 = normalize((vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2) - vec3(sphereVec[sphereHit].x,sphereVec[sphereHit].y,sphereVec[sphereHit].z) );
-				color = background(iGlobalTime, nml2) * (vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z));
+				color = (vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z));
+				//background(iGlobalTime, nml2) * 
 			}	
 		}
 		
 		if(hasChanged){
-		
-		// troublemaker here
+		//not very elegant
+		if(geomBase==0){}
+		else{
 		geomBase=sphereHit;
-		
+		}
 		rd=reflect(rd,nml2);
 		hasChanged=false;
 		}
@@ -190,7 +192,8 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 		//get reflectionvector of intersected spherepoint
 		rd = reflect(rd, nml);
 
-		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
+		vec3 col = vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
+		// background(iGlobalTime, rd) *
 		
 		// compute indirection 
 		vec3 color = refSphere(rd,currentGeom,indirection);
@@ -225,7 +228,8 @@ void main(void)
 	vec3 rd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 
 	vec3 bgCol = background(iGlobalTime, rd);
-	fragColor=vec4(bgCol,1.0);
+	//fragColor=vec4(bgCol,1.0);
+	fragColor=vec4(0.15);
 	fragPosition = passPosition;
 
 	draw(bgCol, ro, rd);

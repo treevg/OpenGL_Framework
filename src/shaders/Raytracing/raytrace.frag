@@ -195,8 +195,7 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 		
 		
 		// compute indirection
-		//original rd.   -nml better solution??
-		vec3 color = refSphere(-nml,currentGeom,indirection);
+		vec3 color = refSphere(rd,currentGeom,indirection);
 			
 		if(mint==100.0){
 			fragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	

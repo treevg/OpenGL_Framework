@@ -11,15 +11,17 @@ using namespace std;
 using namespace glm;
 
 
-
+//TODO Objectloader
 //TODO draw generic triangle mesh
-//TODO add other shading
+//TODO add other shading for mesh?
 
-//TODO indirektionstiefe für 1. Kugel fixen
-//TODO 1 farbtextur pro layer
-//TODO eliminate background? (for layer)
+//TODO indirektionstiefe für 1. Kugel fixen  -> if correct, copy to other shader
+
+//TODO 1 farbtextur pro layer  done (?)
+//TODO eliminate background? (for layer)  done, if correct
+//TODO show textures simultaneously  done(?)
+
 //TODO 1 positions- / tiefentextur pro layer
-//TODO show textures simultaneously
 
 
 
