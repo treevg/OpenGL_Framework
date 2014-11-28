@@ -194,9 +194,9 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 
 		vec3 col = vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
 		// background(iGlobalTime, rd) *
+		
 		// compute indirection 
-		//original rd.   -nml better solution??
-		vec3 color = refSphere(-nml,currentGeom,indirection);
+		vec3 color = refSphere(rd,currentGeom,indirection);
 			
 		if(mint==100.0){}
 			

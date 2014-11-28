@@ -185,8 +185,9 @@ void draw(vec3 ro, vec3 rd){
 		vec3 color = refSphere(rd,currentGeom,indirection);
 			
 		if(mint==100.0){
-			
-			fragColor = vec4( closestHit.x,closestHit.x,closestHit.x, 1.0 );	
+			float dist = (abs(closestHit.x - ro.z));
+			fragColor = vec4( dist,dist,dist, 1.0 );	
+			//fragColor = vec4( closestHit.x,closestHit.x,closestHit.x, 1.0 );	
 		} 
 		else {
 			// draws reflected point 

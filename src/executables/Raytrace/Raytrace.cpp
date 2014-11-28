@@ -11,7 +11,7 @@ using namespace std;
 using namespace glm;
 
 
-
+//TODO Objectloader
 //TODO draw generic triangle mesh
 //TODO add other shading for mesh?
 
