@@ -29,7 +29,7 @@ auto quadVAO = new Quad();
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
 // For raytracing
-auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"});
+auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
 auto pass1 = new RenderPass(
     quadVAO,
     sp, width, height);
@@ -101,9 +101,9 @@ int main(int argc, char *argv[]) {
     sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.5));
 
     //needs to be same size as sphereVec
-    colorSphere.push_back(glm::vec3(0.5,0.0,0.0));
-    colorSphere.push_back(glm::vec3(0.0,0.5,0.0));
-    colorSphere.push_back(glm::vec3(0.0,0.0,0.5));
+    colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
+    colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
+    colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
 
     mesh.push_back(glm::vec3(-0.5, -0.5, 0.75));
     mesh.push_back(glm::vec3(0.5, -0.5, 0.75));

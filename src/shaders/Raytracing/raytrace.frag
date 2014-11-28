@@ -116,7 +116,7 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 			if(geomBase==i){continue;}
 				
 			//hittest from intersected point
-			float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z),sphereVec[i].w);
+			float t2= sphere(vec3(sphereVec[geomBase].xyz), rd, vec3(sphereVec[i].xyz),sphereVec[i].w);
 				
 			if(t2>0 && t2<mint){
 				hasChanged=true;
@@ -124,8 +124,8 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 				sphereHit=i;
 				//vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
 				//nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2));
-				nml2 = normalize((vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2) - vec3(sphereVec[sphereHit].x,sphereVec[sphereHit].y,sphereVec[sphereHit].z) );
-				color = background(iGlobalTime, nml2) * (vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z));
+				nml2 = normalize((vec3(sphereVec[geomBase].xyz)+rd*t2) - vec3(sphereVec[sphereHit].xyz) );
+				color = background(iGlobalTime, nml2) * (vec3(colorSphere[sphereHit].xyz));
 			}	
 		}
 		
