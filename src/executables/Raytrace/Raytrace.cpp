@@ -15,10 +15,7 @@ using namespace glm;
 //TODO draw generic triangle mesh
 //TODO add other shading for mesh?
 
-//TODO indirektionstiefe für 1. Kugel fixen  -> if correct, copy to other shader
-
 //TODO 1 farbtextur pro layer  done (?)
-//TODO eliminate background? (for layer)  done, if correct
 //TODO show textures simultaneously  done(?)
 
 //TODO 1 positions- / tiefentextur pro layer
@@ -36,7 +33,7 @@ auto pass1 = new RenderPass(
     quadVAO,
     sp, width, height);
 
-auto sp3 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/colorIndirection.frag"});
+auto sp3 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/colorIndirection2.frag"});
 auto pass3 = new RenderPass(
     quadVAO,
     sp3, width, height);
@@ -204,22 +201,22 @@ int main(int argc, char *argv[]) {
 
         	pass1
         	-> clear(0, 0, 0, 0)
-        	-> update("iGlobalTime", lastTime)
+        	//-> update("iGlobalTime", lastTime)
         	-> update("iResolution", glm::vec3(width, height, 1))
         	-> update("scale", size)
         	-> update("zoom", rad)
-        	-> update("indirection", ref)
+        	//-> update("indirection", ref)
             -> update("invViewProjection", invViewProjection)
         	-> update("invView",invView)
         	-> run();
 
             pass3
             -> clear(0, 0, 0, 0)
-            -> update("iGlobalTime", lastTime)
+            //-> update("iGlobalTime", lastTime)
             -> update("iResolution", glm::vec3(width, height, 1))
             -> update("scale", size)
 			-> update("zoom", rad)
-			-> update("indirection", ref)
+			//-> update("indirection", ref)
             -> update("invViewProjection", invViewProjection)
             -> update("invView",invView)
 			-> run();
