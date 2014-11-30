@@ -15,9 +15,6 @@ using namespace glm;
 //TODO draw generic triangle mesh
 //TODO add other shading for mesh?
 
-//TODO 1 farbtextur pro layer  done (?)
-//TODO show textures simultaneously  done(?)
-
 //TODO 1 positions- / tiefentextur pro layer
 
 
@@ -38,12 +35,12 @@ auto pass3 = new RenderPass(
     quadVAO,
     sp3, width, height);
 
-auto sp4 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/depth.frag"});
+auto sp4 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/depth2.frag"});
 auto pass4 = new RenderPass(
     quadVAO,
     sp4, width, height);
 
-auto sp5 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/indirectionDepth.frag"});
+auto sp5 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/indirectionDepth2.frag"});
 auto pass5 = new RenderPass(
     quadVAO,
     sp5, width, height);
@@ -184,6 +181,7 @@ int main(int argc, char *argv[]) {
 
 
         mat4 projection = perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
+        mat4 invProjection = inverse(projection);
         mat4 invViewProjection = inverse(projection * view);
         // cout << to_string(dir) << endl;
 
@@ -198,7 +196,7 @@ int main(int argc, char *argv[]) {
         }
         else {
 
-
+        	//color
         	pass1
         	-> clear(0, 0, 0, 0)
         	//-> update("iGlobalTime", lastTime)
@@ -209,7 +207,7 @@ int main(int argc, char *argv[]) {
             -> update("invViewProjection", invViewProjection)
         	-> update("invView",invView)
         	-> run();
-
+        	//indirectionColor
             pass3
             -> clear(0, 0, 0, 0)
             //-> update("iGlobalTime", lastTime)
@@ -221,22 +219,25 @@ int main(int argc, char *argv[]) {
             -> update("invView",invView)
 			-> run();
 
+            //depth
             pass4
             -> clear(0, 0, 0, 0)
             -> update("iResolution", glm::vec3(width, height, 1))
             -> update("scale", size)
      		-> update("zoom", rad)
-			-> update("indirection", ref)
+			//-> update("indirection", ref)
             -> update("invViewProjection", invViewProjection)
             -> update("invView",invView)
+			-> update("invProj", invProjection)
 		    -> run();
 
+            //indirectionDepth
             pass5
             -> clear(0, 0, 0, 0)
             -> update("iResolution", glm::vec3(width, height, 1))
             -> update("scale", size)
             -> update("zoom", rad)
-            -> update("indirection", ref)
+            //-> update("indirection", ref)
             -> update("invViewProjection", invViewProjection)
             -> update("invView",invView)
             -> run();
