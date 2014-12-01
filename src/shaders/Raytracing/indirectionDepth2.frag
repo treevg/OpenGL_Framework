@@ -151,7 +151,8 @@ void main(void)
 		if (hitSphere >= 0) {
 			timesReflected++;
 			// multiply Colors
-			temp *= vec3(currentDepth);
+			float dist = abs((currentDepth - currentPos.z))/3.5;
+			temp *= vec3(dist);
 			
 			// make new Ray
 			currentPos = currentPos + currentDir * currentDepth;

@@ -94,7 +94,7 @@ vec3 background(float t, vec3 rd)
 
 
 
-int indirections = 2;
+int indirections = 0;
 
 vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
@@ -151,11 +151,9 @@ void main(void)
 			//unprojected /= unprojected.w;
 			//currentColor = unprojected.xyz; 
 			
-			float dist = abs((currentDepth - currentPos.z))/3;
+			float dist = (currentDepth - currentDir.z);
 			float dist2 = (currentDepth - currentPos.z)*2.0-1.0;
-			currentColor = vec3(dist2);
-			
-			
+			currentColor = vec3(currentDepth);
 			
 			// make new Ray
 			currentPos = currentPos + currentDir * currentDepth;
