@@ -59,7 +59,7 @@ GLuint texHandle = ComputeShaderTools::generateTexture();
 //    sp
 //);
 
-auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
+auto compSP = new ShaderProgram({"/Raytracing/compositing.vert", "/Raytracing/compositing.frag"});
 
 auto compositing = new RenderPass(
 		quadVAO,
@@ -83,6 +83,8 @@ std::vector<glm::vec3> mesh;
 std::vector<glm::vec3> colorSphere;
 
 int main(int argc, char *argv[]) {
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
     sp -> printUniformInfo();
     sp -> printInputInfo();
     sp -> printOutputInfo();
@@ -147,8 +149,8 @@ int main(int argc, char *argv[]) {
 
         glfwGetCursorPos(window, &xpos,&ypos);
         glfwSetCursorPos(window, float(width)/2, float(height)/2);
-        horizontalAngle += 0.05 * deltaT * float(float(width)/2 - xpos );
-        verticalAngle   += 0.05 * deltaT * float( float(height)/2 - ypos );
+        horizontalAngle += 0.5 * deltaT * float(float(width)/2 - xpos );
+        verticalAngle   += 0.5 * deltaT * float( float(height)/2 - ypos );
 
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
@@ -228,7 +230,7 @@ int main(int argc, char *argv[]) {
 			//-> update("indirection", ref)
             -> update("invViewProjection", invViewProjection)
             -> update("invView",invView)
-			-> update("invProj", invProjection)
+			//-> update("invProj", invProjection)
 		    -> run();
 
             //indirectionDepth
@@ -244,7 +246,6 @@ int main(int argc, char *argv[]) {
 
             compositing
 			-> clear(0, 1, 0, 0)
-            -> update("scale", size)
 			-> update("texNum", texNum)
 	        -> texture("color", pass1->get("fragColor"))
 			-> texture("indirectionColor", pass3->get("fragColor"))
