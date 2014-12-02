@@ -153,7 +153,12 @@ void main(void)
 			
 			float dist = (currentDepth - currentDir.z);
 			float dist2 = (currentDepth - currentPos.z)*2.0-1.0;
-			currentColor = vec3(currentDepth);
+			
+		//	if(currentDepth>3){
+		//	currentColor= vec3(1.0,0.0,0.0);}
+		//	else{ currentColor = vec3(0.0);}
+		
+			currentColor=vec3(currentDepth);
 			
 			// make new Ray
 			currentPos = currentPos + currentDir * currentDepth;
