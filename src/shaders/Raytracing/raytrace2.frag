@@ -14,8 +14,14 @@ uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[3];
 uniform vec3 	colorSphere[3];
 
+//direct 
 out 	vec4	fragColor;
 out 	vec4 	fragPosition;
+out 	vec4	fragDepth;
+//indirect
+out 	vec4	fragColor2;
+out 	vec4 	fragPosition2;
+out 	vec4	fragDepth2;
 
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
@@ -97,10 +103,14 @@ int indirections = 2;
 
 vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
+vec3 initialPos=currentPos;
 vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
+vec3 initialDir = currentDir;
 vec3 currentColor = vec3(1,1,1);
+vec3 currentColor2 = vec3(1,1,1);
 float currentDepth;
 vec3 currentNormal;
+int timesReflected=0;
 
 void main(void)
 {
@@ -144,6 +154,7 @@ void main(void)
 		// in case it is a sphere
 
 		if (hitSphere >= 0) {
+			timesReflected++;
 			// multiply Colors
 			currentColor *= colorSphere[hitSphere];
 
@@ -160,10 +171,28 @@ void main(void)
 		// 	currentNormal = 
 		// 	currentDir = 
 		// }
+		
+		
+		if(i==0){
+			currentColor *= background(currentDepth, currentDir);
+			fragColor = vec4(currentColor,1);
+			fragPosition = vec4(vec3(currentPos),1);
+			float d= distance(initialPos, fragPosition.xyz);
+			fragDepth = vec4(d,d,d, 1);
+		}
+		if(i==1){
+			fragColor2 = vec4(currentColor,1);
+			fragPosition2= vec4(vec3(currentPos),1);
+			fragDepth2 = vec4(vec3(currentDepth),1);
+		}
+		if(i>0){
+			
+		}
+		
+		
+		
 	}
 
 	// and finally the background color
-	currentColor *= background(currentDepth, currentDir);
-	fragColor = vec4(currentColor,1);
-	fragPosition = vec4(vec3(currentPos),1);
+	//currentColor *= background(currentDepth, currentDir);
 }
