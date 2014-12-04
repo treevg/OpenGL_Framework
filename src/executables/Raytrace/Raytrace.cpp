@@ -12,7 +12,6 @@ using namespace glm;
 
 
 //TODO Objectloader
-//TODO draw generic triangle mesh
 //TODO add other shading for mesh?
 
 
@@ -81,6 +80,7 @@ float verticalAngle=0.0;
 std::vector<glm::vec4> sphereVec;
 std::vector<glm::vec3> mesh;
 std::vector<glm::vec3> colorSphere;
+std::vector<glm::vec3> colorTriangle;
 
 int main(int argc, char *argv[]) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -103,12 +103,18 @@ int main(int argc, char *argv[]) {
     colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
     colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
 
-    mesh.push_back(glm::vec3(-0.5, -0.5, 0.75));
-    mesh.push_back(glm::vec3(0.5, -0.5, 0.75));
-    mesh.push_back(glm::vec3(0.0, 0.8, 0.75));
-//    mesh.push_back(glm::vec3(0.10, 0.11, -0.12));
-//    mesh.push_back(glm::vec3(0.13, 0.14, -0.15));
-//    mesh.push_back(glm::vec3(0.16, 0.17, -0.18));
+    colorTriangle.push_back(glm::vec3(0.4,0.7,0.7));
+    colorTriangle.push_back(glm::vec3(0.7,0.7,0.4));
+    colorTriangle.push_back(glm::vec3(0.4,0.4,0.8));
+
+    mesh.push_back(glm::vec3(-0.5, -0.5, 1.0));
+    mesh.push_back(glm::vec3(0.5, -0.5, 1.0));
+    mesh.push_back(glm::vec3(0.0, 0.8, 1.0));
+
+    mesh.push_back(glm::vec3(0.5, -0.5, 1.0));
+    mesh.push_back(glm::vec3(0.8, 0.25, 1.25));
+    mesh.push_back(glm::vec3(0.0, 0.8, 1.0));
+
 //    mesh.push_back(glm::vec3(0.19, 0.20, -0.21));
 //    mesh.push_back(glm::vec3(0.22, 0.23, -0.24));
 //    mesh.push_back(glm::vec3(0.25, 0.26, -0.27));
@@ -130,6 +136,7 @@ int main(int argc, char *argv[]) {
     pass1 -> update("sphereVec[0]", sphereVec);
     pass1 -> update("mesh[0]", mesh);
     pass1 -> update("colorSphere[0]", colorSphere);
+    pass1 -> update("colorTriangle[0]", colorTriangle);
 
 //    pass3 -> update("sphereVec[0]", sphereVec);
 //    pass3 -> update("mesh[0]", mesh);
