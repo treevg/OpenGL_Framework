@@ -11,7 +11,7 @@ uniform mat4 	invView;
 uniform mat4	invViewProjection;
 
 uniform vec4 	sphereVec[3];
-uniform vec3 	mesh[6];
+uniform vec3 	mesh[3];
 uniform vec3 	colorSphere[3];
 uniform vec3 	colorTriangle[3];
 
