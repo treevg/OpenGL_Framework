@@ -16,8 +16,6 @@ using namespace glm;
 
 
 
-
-
 auto quadVAO = new Quad();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
@@ -27,6 +25,11 @@ auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2
 auto pass1 = new RenderPass(
     quadVAO,
     sp, width, height);
+
+auto spLin = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/toneMap.frag"});
+auto passLin = new RenderPass(
+    quadVAO,
+    spLin, width, height);
 
 //auto sp3 = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/colorIndirection2.frag"});
 //auto pass3 = new RenderPass(
@@ -50,18 +53,11 @@ auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.fra
 auto pass2 = new RenderPass(new Cube(), sp2);
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 GLuint texHandle = ComputeShaderTools::generateTexture();
-
-
-//auto pass1 = new RenderPass(
-//    new Quad(),
-//    sp
-//);
-
 auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
-
 auto compositing = new RenderPass(
 		quadVAO,
     compSP);
+
 
 
 float size = 1.0;
@@ -82,6 +78,81 @@ std::vector<glm::vec3> mesh;
 std::vector<glm::vec3> colorSphere;
 std::vector<glm::vec3> colorTriangle;
 
+
+bool loadOBJ(
+    const char * path,
+    std::vector < glm::vec3 > & out_vertices,
+    std::vector < glm::vec2 > & out_uvs,
+    std::vector < glm::vec3 > & out_normals
+){
+	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
+	std::vector< glm::vec3 > temp_vertices;
+	std::vector< glm::vec2 > temp_uvs;
+	std::vector< glm::vec3 > temp_normals;
+
+	FILE * file = fopen(path, "r");
+	if( file == NULL ){
+	    printf("Impossible to open the file !\n");
+	    return false;
+	}
+
+	while( 1 ){
+
+	    char lineHeader[128];
+	    // read the first word of the line
+	    int res = fscanf(file, "%s", lineHeader);
+	    if (res == EOF)
+	        break; // EOF = End Of File. Quit the loop.
+
+	    // else : parse lineHeader
+	    if ( strcmp( lineHeader, "v" ) == 0 ){
+	        glm::vec3 vertex;
+	        fscanf(file, "%f %f %f\n", &vertex.x, &vertex.y, &vertex.z );
+	        temp_vertices.push_back(vertex);
+	    }else if ( strcmp( lineHeader, "vt" ) == 0 ){
+	        glm::vec2 uv;
+	        fscanf(file, "%f %f\n", &uv.x, &uv.y );
+	        temp_uvs.push_back(uv);
+	    }else if ( strcmp( lineHeader, "vn" ) == 0 ){
+	        glm::vec3 normal;
+	        fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z );
+	        temp_normals.push_back(normal);
+	    }else if ( strcmp( lineHeader, "f" ) == 0 ){
+	        std::string vertex1, vertex2, vertex3;
+	        unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
+	        int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
+	        if (matches != 9){
+	            printf("File can't be read by our simple parser : ( Try exporting with other options\n");
+	            return false;
+	        }
+
+	        vertexIndices.push_back(vertexIndex[0]);
+	        vertexIndices.push_back(vertexIndex[1]);
+	        vertexIndices.push_back(vertexIndex[2]);
+	        uvIndices    .push_back(uvIndex[0]);
+	        uvIndices    .push_back(uvIndex[1]);
+	        uvIndices    .push_back(uvIndex[2]);
+	        normalIndices.push_back(normalIndex[0]);
+	        normalIndices.push_back(normalIndex[1]);
+	        normalIndices.push_back(normalIndex[2]);
+
+
+	    for( unsigned int i=0; i<vertexIndices.size(); i++ ){
+	    	unsigned int vertexIndex = vertexIndices[i];
+	    	glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
+	    	out_vertices.push_back(vertex);
+	    }
+	    }
+	}
+}
+
+// Read our .obj file
+std::vector< glm::vec3 > vertices;
+std::vector< glm::vec2 > uvs;
+std::vector< glm::vec3 > normals; // Won't be used at the moment.
+
+
+
 int main(int argc, char *argv[]) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -93,6 +164,10 @@ int main(int argc, char *argv[]) {
 //    compSP -> printUniformInfo();
 //    compSP -> printInputInfo();
 //    compSP -> printOutputInfo();
+
+    bool res = loadOBJ(RESOURCES_PATH "/mesh.obj", vertices, uvs, normals);
+    cout<<"OBJECTLOADING = "<<res<<endl;
+
 
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
@@ -115,28 +190,13 @@ int main(int argc, char *argv[]) {
     mesh.push_back(glm::vec3(0.8, 0.25, 1.25));
     mesh.push_back(glm::vec3(0.0, 0.8, 1.0));
 
-//    mesh.push_back(glm::vec3(0.19, 0.20, -0.21));
-//    mesh.push_back(glm::vec3(0.22, 0.23, -0.24));
-//    mesh.push_back(glm::vec3(0.25, 0.26, -0.27));
-//    mesh.push_back(glm::vec3(0.28, 0.29, -0.30));
-//    mesh.push_back(glm::vec3(0.31, 0.32, -0.33));
-//    mesh.push_back(glm::vec3(0.34, 0.35, -0.36));
-//    mesh.push_back(glm::vec3(0.37, 0.38, -0.39));
-//    mesh.push_back(glm::vec3(0.40, 0.41, -0.42));
-//    mesh.push_back(glm::vec3(0.43, 0.44, -0.45));
-//    mesh.push_back(glm::vec3(0.46, 0.47, -0.48));
-//    mesh.push_back(glm::vec3(0.49, 0.50, -0.51));
-//    mesh.push_back(glm::vec3(0.52, 0.53, -0.54));
-//    mesh.push_back(glm::vec3(0.55, 0.56, -0.57));
-//    mesh.push_back(glm::vec3(0.58, 0.59, -0.60));
-//    mesh.push_back(glm::vec3(0.61, 0.62, -0.63));
-
     lastTime = glfwGetTime();
 
     pass1 -> update("sphereVec[0]", sphereVec);
-    pass1 -> update("mesh[0]", mesh);
+    //pass1 -> update("mesh[0]", mesh);
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
+    pass1 -> update("mesh[0]", vertices);
 
 //    pass3 -> update("sphereVec[0]", sphereVec);
 //    pass3 -> update("mesh[0]", mesh);
@@ -223,6 +283,13 @@ int main(int argc, char *argv[]) {
         	-> update("invView",invView)
         	-> run();
 
+        	passLin
+			-> clear(0,0,0,0)
+			-> update("minRange",minRange)
+			-> update("maxRange",maxRange)
+			-> texture("depth", pass1->get("fragDepth"))
+			-> run();
+
 
         	//indirectionColor
 //            pass3
@@ -271,11 +338,9 @@ int main(int argc, char *argv[]) {
             compositing
 			-> clear(0, 1, 0, 0)
 			-> update("texNum", texNum)
-			-> update("minRange",minRange)
-			-> update("maxRange",maxRange)
 			-> texture("color", pass1->get("fragColor"))
 			-> texture("indirectionColor", pass1->get("fragColor2"))
-			-> texture("depth", pass1->get("fragDepth"))
+			-> texture("depth", passLin->get("fragColor"))
 			-> texture("indirectionDepth", pass1->get("fragDepth2"))
 			-> texture("fragPos", pass1->get("fragPosition"))
 			-> texture("indirectionFragPos", pass1->get("fragPosition2"))
