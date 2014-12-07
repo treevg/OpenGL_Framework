@@ -11,7 +11,7 @@ uniform mat4 	invView;
 uniform mat4	invViewProjection;
 
 uniform vec4 	sphereVec[3];
-uniform vec3 	mesh[3];
+uniform vec3 	mesh[15];
 uniform vec3 	colorSphere[3];
 uniform vec3 	colorTriangle[3];
 
@@ -104,10 +104,6 @@ vec3 background(float t, vec3 rd)
 }
 
 
-
-
-
-
 int indirections = 2;
 
 vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
@@ -174,7 +170,8 @@ void main(void)
 		 if (hitTriangle >= 0) {	
 			timesReflected++;
 			// multiply Colors
-			currentColor *= colorTriangle[hitTriangle/3];
+			currentColor *= vec3(1.0,0,0);
+			//colorTriangle[hitTriangle/3];
 			
 		 	currentPos = currentPos + currentDir * currentDepth;
 		// 	currentNormal = globally set
