@@ -36,6 +36,7 @@ mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/cubeTexture.jpg");
 
 GLuint tex1Handle;
+GLuint tex2Handle;
 GLuint frameBufferObjectHandle;
 
 int main(int argc, char *argv[]) {
@@ -53,6 +54,17 @@ int main(int argc, char *argv[]) {
     glGenerateMipmap(GL_TEXTURE_2D);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex1Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+    glGenTextures(1, &tex2Handle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex2Handle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
+    // Allocate mipmaps
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, tex2Handle, 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
 
 
@@ -91,7 +103,9 @@ int main(int argc, char *argv[]) {
         -> texture("tex2", textureHandle)
         -> run();
 
-        cs->use();
+//        cs->use();
+
+        toYCbCr->use();
         glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
         glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
