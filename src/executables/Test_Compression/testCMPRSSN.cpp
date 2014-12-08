@@ -16,7 +16,9 @@ auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/
 
 auto pass2 = new RenderPass(new Quad(), compositingSP);
 
-auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compute.comp");
+auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/invert.comp");
+
+auto toYCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rgbToYCbCr.comp");
 
 float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
@@ -32,7 +34,6 @@ glm::mat4 projMat = glm::perspective(45.0f, float(width)/float(height), 0.1f, 10
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/cubeTexture.jpg");
-//GLuint tex1Handle = ComputeShaderTools::generateTexture();
 
 GLuint tex1Handle;
 GLuint frameBufferObjectHandle;
@@ -89,10 +90,6 @@ int main(int argc, char *argv[]) {
         -> update("uniformModel", cubeModel)
         -> texture("tex2", textureHandle)
         -> run();
-
-        //cs->texture("inImg", pass->get("fragColor"));		//update input image for compute shader
-
-        //invertImg();
 
         cs->use();
         glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
