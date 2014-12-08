@@ -18,7 +18,8 @@ auto pass2 = new RenderPass(new Quad(), compositingSP);
 
 auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/invert.comp");
 
-auto toYCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rgbToYCbCr.comp");
+auto RGBtoYCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rgbToYCbCr.comp");
+auto YCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/YCbCrToRGB.comp");
 
 float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
@@ -83,9 +84,9 @@ int main(int argc, char *argv[]) {
     // compositingSP->printInputInfo();
     // compositingSP->printOutputInfo();
 
-    cs->printInputInfo();
-    cs->printUniformInfo();
-    cs->printOutputInfo();
+    YCbCrToRGB->printInputInfo();
+    YCbCrToRGB->printUniformInfo();
+    YCbCrToRGB->printOutputInfo();
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
@@ -105,15 +106,22 @@ int main(int argc, char *argv[]) {
 
 //        cs->use();
 
-        toYCbCr->use();
+        RGBtoYCbCr->use();
         glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
         glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+        YCbCrToRGB->use();
+        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
         pass2
         ->clear(1, 1, 1, 0)
-        ->texture("tex2", tex1Handle)
+        //->texture("tex2", pass->get("fragColor"))
+        ->texture("tex2", tex2Handle)
         ->run();
 
 
