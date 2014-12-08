@@ -14,43 +14,39 @@ using namespace glm;
 //TODO fewer depth viewports
 
 auto quadVAO = new Quad();
+auto fbo = new FrameBufferObject();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
 auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
-auto pass1 = new RenderPass(
-    quadVAO,
-    sp, width, height);
+auto pass1 = new RenderPass(quadVAO, sp,width, height);
 
+//Tonemap shader for depth
 auto spLin = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/toneMap.frag"});
-auto passLin = new RenderPass(
-    quadVAO,
-    spLin, width, height);
+auto passLin = new RenderPass(quadVAO,spLin,width, height);
 
 //For Compression
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 auto pass2 = new RenderPass(new Cube(), sp2);
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 GLuint texHandle = ComputeShaderTools::generateTexture();
+
+//Composite shader
 auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
-auto compositing = new RenderPass(
-		quadVAO,
-    compSP);
+auto compositing = new RenderPass(quadVAO, compSP);
 
 
-
-float size = 1.0;
-float lum =  0.5;
-float rad=0.0;
-double xpos, ypos;
-int ref=1;
-int texNum=0;
-float minRange=0, maxRange=0;
-
-float lastTime, currentTime;
-
-float horizontalAngle=0.0;
-float verticalAngle=0.0;
+//global variables
+float 	size = 1.0;
+float 	lum =  0.5;
+float 	rad=0.0;
+double 	xpos, ypos;
+int 	ref=1;
+int 	texNum=0;
+float 	minRange=0.8, maxRange=10;
+float 	lastTime, currentTime;
+float 	horizontalAngle=0.0;
+float 	verticalAngle=0.0;
 
 std::vector<glm::vec4> sphereVec;
 std::vector<glm::vec3> mesh;
@@ -224,10 +220,15 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)texNum =2;
         if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)texNum =3;
 
-        if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)minRange +=0.1;
-        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)minRange -=0.1;
-        if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)maxRange +=1.5;
-        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)maxRange -=1.5;
+        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)minRange +=0.1;
+        if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)minRange -=0.1;
+        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)maxRange +=0.5;
+        if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)maxRange -=0.5;
+
+        if(minRange>=maxRange){
+        	minRange=1.0;
+        	maxRange=20.0;
+        }
 
 
 

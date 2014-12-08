@@ -18,10 +18,11 @@ float LinearizeDepth(vec2 uv)
 }
 
 vec3 lin() {
-	float min= 1.0+minRange;
-	float max = 20.0+maxRange;
+	//float min= 1.0+minRange;
+	//float max = 20.0+maxRange;
+	
 	vec3 c = texture(depth, passPosition.xy).xyz;
-	c = (c - min) / (max - min);
+	c = (c - minRange) / (maxRange - minRange);
 	
 	return c;  
 }

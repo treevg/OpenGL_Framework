@@ -25,11 +25,11 @@ out 	vec4 	fragPosition2;
 out 	vec4	fragDepth2;
 
 
-vec3 currentColor = vec3(1,1,1);
-vec3 currentColor2 = vec3(1,1,1);
-float currentDepth;
-vec3 currentNormal;
-int timesReflected=0;
+vec3 	currentColor = vec3(1,1,1);
+vec3 	currentColor2 = vec3(1,1,1);
+float 	currentDepth;
+vec3 	currentNormal;
+int 	timesReflected=0;
 
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
@@ -138,7 +138,7 @@ void main(void)
 		}
 
 		// determine if it is a triangle
-
+ 
 		 for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
 		 	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
 		 	if (hitDepth < currentDepth && hitDepth>0.0) {
@@ -187,7 +187,7 @@ void main(void)
 				currentColor *= background(currentDepth, currentDir);
 				fragColor = vec4(currentColor,1);
 				fragPosition = vec4(vec3(currentPos),1);
-				float d= distance(initialPos, fragPosition.xyz);
+				float d= (distance(initialPos, fragPosition.xyz));
 				fragDepth = vec4(d,d,d, 1);
 			}
 		}
