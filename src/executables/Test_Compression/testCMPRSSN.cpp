@@ -99,7 +99,6 @@ int main(int argc, char *argv[]) {
         glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        //glMemoryBarrier(GL_SHADER_IMAGE_ACCESS_BARRIER_BIT);
 
         pass2
         ->clear(1, 1, 1, 0)
