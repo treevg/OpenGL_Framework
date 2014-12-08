@@ -93,15 +93,13 @@ int main(int argc, char *argv[]) {
 
         cs->use();
         glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_READ_WRITE, GL_RGBA32F);
+        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         pass2
         ->clear(1, 1, 1, 0)
         ->texture("tex2", tex1Handle)
-        //->texture("tex2", pass->get("fragColor"))
-        //-> texture("tex2", textureHandle)
         ->run();
 
 
