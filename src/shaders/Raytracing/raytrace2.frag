@@ -24,7 +24,8 @@ out 	vec4	fragColor2;
 out 	vec4 	fragPosition2;
 out 	vec4	fragDepth2;
 
-
+float	t = 0;
+vec3 	light = normalize(vec3(sin(t), 0.6, cos(t)));
 vec3 	currentColor = vec3(1,1,1);
 vec3 	currentColor2 = vec3(1,1,1);
 float 	currentDepth;
@@ -92,9 +93,8 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     return (r > 1e-5) ? r : -1.0;
 }
 
-vec3 background(float t, vec3 rd)
+vec3 background(vec3 rd)
 {
-	vec3 light = normalize(vec3(sin(t), 0.6, cos(t)));
 	float sun = max(0.0, dot(rd, light));
 	float sky = max(0.0, dot(rd, vec3(0.0, 1.0, 1.0)));
 	float ground = max(0.0, -dot(rd, vec3(0.0, 1.0, 0.0)));
@@ -139,14 +139,14 @@ void main(void)
 
 		// determine if it is a triangle
  
-		 for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
-		 	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
-		 	if (hitDepth < currentDepth && hitDepth>0.0) {
-		 		hitSphere = -1;
-		 		hitTriangle = t;
-		 		currentDepth = hitDepth;
-		 	}
-		 }
+		 // for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
+		 // 	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
+		 // 	if (hitDepth < currentDepth && hitDepth>0.0) {
+		 // 		hitSphere = -1;
+		 // 		hitTriangle = t;
+		 // 		currentDepth = hitDepth;
+		 // 	}
+		 // }
 
 		//============================//
 		// compute new ray parameters //
@@ -155,7 +155,7 @@ void main(void)
 		// in case it is a sphere
 
 		if (hitSphere >= 0) {
-			timesReflected++;
+			// timesReflected++;
 			// multiply Colors
 			currentColor *= colorSphere[hitSphere];
 
@@ -168,7 +168,7 @@ void main(void)
 		// in case it is a triangle
 
 		 if (hitTriangle >= 0) {	
-			timesReflected++;
+			// timesReflected++;
 			// multiply Colors
 			currentColor *= vec3(1.0,0,0);
 			//colorTriangle[hitTriangle/3];
@@ -179,36 +179,58 @@ void main(void)
 		 }
 		
 		
-		if(i==0){
-			if(timesReflected<1){
-				fragColor = vec4(0,0,0,1);
-			}
-			else{
-				currentColor *= background(currentDepth, currentDir);
-				fragColor = vec4(currentColor,1);
+		// if(i==0){
+		// 	if(timesReflected<1){
+		// 		fragColor = vec4(0,0,0,1);
+		// 	}
+		// 	else{
+		// 		currentColor *= background(currentDepth, currentDir);
+		// 		fragColor = vec4(currentColor,1);
+		// 		fragPosition = vec4(vec3(currentPos),1);
+		// 		float d= (distance(initialPos, fragPosition.xyz));
+		// 		fragDepth = vec4(d,d,d, 1);
+		// 	}
+		// }
+		// if(i==1){
+		// 	if(timesReflected<2){
+		// 		fragColor2 = vec4(0,0,0,1);
+		// 	}else{
+		// 		currentColor *= background(currentDepth,currentDir);
+		// 		fragColor2 = vec4(currentColor,1);
+		// 		fragPosition2= vec4(vec3(currentPos),1);
+		// 		fragDepth2 = vec4(vec3(currentDepth),1);
+		// 	}
+
+		// }
+		if(i == 0){
+			if (hitTriangle == -1 && hitSphere == -1) {
+				fragColor = vec4(background(currentDir),1);
+				fragPosition = vec4(currentDir,0);
+				fragDepth = vec4(9999);
+				fragColor2 = vec4(0,0,0,0);
+				fragPosition2 = vec4(0,0,0,0);
+				fragDepth2 = vec4(9999);
+				break;
+			} else {
+				float phongDiffuse = max(dot(currentNormal, light),0) * 0.5;
+				vec3  phongAmbient = vec3(0.0, 0.02, 0.01);
+				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
 				fragPosition = vec4(vec3(currentPos),1);
-				float d= (distance(initialPos, fragPosition.xyz));
-				fragDepth = vec4(d,d,d, 1);
+				fragDepth = vec4(distance(initialPos, fragPosition.xyz));
 			}
+		} 
+
+		if (i == 1) {		
+			fragPosition2= vec4(vec3(currentPos),1);
+			fragDepth2 = vec4(vec3(currentDepth),1);
 		}
-		if(i==1){
-			if(timesReflected<2){
-				fragColor2 = vec4(0,0,0,1);
-			}else{
-				currentColor *= background(currentDepth,currentDir);
-				fragColor2 = vec4(currentColor,1);
-				fragPosition2= vec4(vec3(currentPos),1);
-				fragDepth2 = vec4(vec3(currentDepth),1);
-			}
+
+		if (i > 0) {			
+			currentColor *= background(currentDir);
+			fragColor2 = vec4(currentColor,1);
 		}
-		if(i>0){
-			
-		}
-		
-		
 		
 	}
-
 	// and finally the background color
 	//currentColor *= background(currentDepth, currentDir);
 }

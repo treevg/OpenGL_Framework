@@ -216,9 +216,11 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)ref =3;
 
         if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)texNum =0;
+        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)texNum =0;
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)texNum =1;
         if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)texNum =2;
         if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)texNum =3;
+        if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)texNum =4;
 
         if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)minRange +=0.1;
         if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)minRange -=0.1;
@@ -248,7 +250,7 @@ int main(int argc, char *argv[]) {
         mat4 invViewProjection = inverse(projection * view);
         // cout << to_string(dir) << endl;
 
-        if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS) {
             pass2
             -> clear(1, 1, 1, 0)
             -> update("uniformView", view)
