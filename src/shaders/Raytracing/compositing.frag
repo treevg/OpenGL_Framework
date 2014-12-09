@@ -25,12 +25,12 @@ void main() {
  
  
 	if(texNum==0){
-		fragColor = texture(color, passPosition.xy);
+		fragColor = texture(color, (passPosition.xy - 1) * 0.5);
 	
 	}
  
 	if(texNum==1){
-		fragColor = texture(indirectionColor, passPosition.xy);
+		fragColor = texture(indirectionColor, (passPosition.xy - 1) * 0.5);
 	}
 
 	if(texNum==2){
@@ -40,10 +40,10 @@ void main() {
 		
 		//fragColor = vec4(d, d, d, 1.0);
 		
-		fragColor = texture(depth, passPosition.xy);
+		fragColor = texture(depth, (passPosition.xy - 1) * 0.5);
 	}	
 	if(texNum==3){
-		fragColor = texture(indirectionDepth, passPosition.xy);
+		fragColor = texture(indirectionDepth, (passPosition.xy - 1) * 0.5);
 	}	
 
 }

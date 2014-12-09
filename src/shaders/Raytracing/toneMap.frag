@@ -21,7 +21,7 @@ vec3 lin() {
 	//float min= 1.0+minRange;
 	//float max = 20.0+maxRange;
 	
-	vec3 c = texture(depth, passPosition.xy).xyz;
+	vec3 c = texture(depth, (passPosition.xy - 1) * 0.5).xyz;
 	c = (c - minRange) / (maxRange - minRange);
 	
 	return c;  
