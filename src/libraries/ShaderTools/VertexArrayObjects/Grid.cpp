@@ -20,18 +20,19 @@ Grid::Grid(int width, int height) {
 
     for(int i=0; i<height; i++){
     	for(int j=0; j<width; j++){
-    		positions[i+j]=(i*(2/width))-1 + (j*(2/height))-1;
+    		positions[height*i + j] = (i*(2/width))-1 + (j*(2/height))-1;
     	}
     }
 
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*width*height, positions, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
+    // ...(0,2,GL_FLOAT,...) originally
+    glVertexAttribPointer(0, 1, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 }
 
 void Grid::draw() {
     glBindVertexArray(vertexArrayObjectHandle);
-    glDrawArrays(mode, 0, 1);
+    glDrawArrays(mode, 0, 1280*720);
 }
 
 

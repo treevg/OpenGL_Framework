@@ -16,8 +16,7 @@ using namespace glm;
 
 auto quadVAO = new Quad();
 auto fbo = new FrameBufferObject();
-
-auto grid = new Grid(width,height);
+//auto grid = new Grid(width,height);
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
@@ -38,10 +37,10 @@ GLuint texHandle = ComputeShaderTools::generateTexture();
 auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
 auto compositing = new RenderPass(quadVAO, compSP);
 
-
 //Warping shader
-auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
-auto diffWarp = new RenderPass(grid, warp);
+//auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
+//auto diffWarp = new RenderPass(grid, warp);
+
 
 //global variables
 float 	size = 1.0;
@@ -297,10 +296,10 @@ int main(int argc, char *argv[]) {
 			//-> texture("indirectionFragPos", pass1->get("fragPosition2"))
 			-> run();
 
-            diffWarp
-			-> clear(1,0,0,0)
-
-			-> run();
+//            diffWarp
+//			-> clear(1,0,0,0)
+//
+//			-> run();
 
         }
 
