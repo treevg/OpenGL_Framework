@@ -15,8 +15,7 @@ using namespace glm;
 //TODO fewer depth viewports
 
 auto quadVAO = new Quad();
-auto fbo = new FrameBufferObject();
-//auto grid = new Grid(width,height);
+auto grid = new Grid(width,height);
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
@@ -38,8 +37,8 @@ auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compo
 auto compositing = new RenderPass(quadVAO, compSP);
 
 //Warping shader
-//auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
-//auto diffWarp = new RenderPass(grid, warp);
+auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
+auto diffWarp = new RenderPass(grid, warp);
 
 
 //global variables
@@ -139,13 +138,16 @@ std::vector< glm::vec3 > normals;
 
 
 int main(int argc, char *argv[]) {
+
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     //glFrontFace(GL_CW);
 
-    sp -> printUniformInfo();
-    sp -> printInputInfo();
-    sp -> printOutputInfo();
-
+//    sp -> printUniformInfo();
+//    sp -> printInputInfo();
+//    sp -> printOutputInfo();
+       warp -> printUniformInfo();
+        warp -> printInputInfo();
+       warp -> printOutputInfo();
 
 //    compSP -> printUniformInfo();
 //    compSP -> printInputInfo();
@@ -239,13 +241,22 @@ int main(int argc, char *argv[]) {
         }
 
 
-
+        //original
         mat4 view(1);
         view = translate(view, vec3(0,0,-4));
         view = rotate(view, -verticalAngle, vec3(1,0,0));
         view = rotate(view, -horizontalAngle, vec3(0,1,0));
 
         mat4 invView = inverse(view);
+
+        //slightly different VM
+        mat4 altView(1);
+        altView= translate(altView, vec3(0.2,0,-4.0));
+        altView = rotate(altView, -verticalAngle, vec3(1,0,0));
+        altView = rotate(altView, -horizontalAngle, vec3(0,1,0));
+
+       // mat4 invAltView = inverse(altView);
+
 
         vec4 pos = invView * vec4(0,0,0,1);
         vec4 dir = normalize(invView * vec4(0,0,1,0));
@@ -269,11 +280,8 @@ int main(int argc, char *argv[]) {
 
         	pass1
         	-> clear(0, 0, 0, 0)
-        	//-> update("iGlobalTime", lastTime)
         	-> update("iResolution", glm::vec3(width, height, 1))
-        	//-> update("scale", size)
         	-> update("zoom", rad)
-        	//-> update("indirection", ref)
             -> update("invViewProjection", invViewProjection)
         	-> update("invView",invView)
         	-> run();
@@ -296,9 +304,12 @@ int main(int argc, char *argv[]) {
 			//-> texture("indirectionFragPos", pass1->get("fragPosition2"))
 			-> run();
 
-//            diffWarp
+   //        diffWarp
 //			-> clear(1,0,0,0)
-//
+//			-> update("altView", altView)
+//			-> update("invView",invView)
+//			-> texture("color", pass1->get("fragColor"))
+//			-> texture("depth", passLin->get("fragColor"))
 //			-> run();
 
         }
