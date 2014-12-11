@@ -2,33 +2,9 @@
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 
+#include "SlicemapUtilities.h"
+
 #define PI 3.14159265359f
-
-// create 32bit uint bitmask
-GLuint createBitMask()
-{
-	GLuint bitmask = 0;
-
-	// 32 bit values, one bit set per entry
-	unsigned long int bitmaskData[32] =
-			{ 1u, 2u, 4u, 8u, 16u, 32u, 64u, 128u,
-			256u, 512u, 1024u, 2048u, 4096u, 8192u, 16384u, 32768u, 65536u,
-			131072u, 262144u, 524288u, 1048576u, 2097152u, 4194304u, 8388608u,
-			16777216u, 33554432u, 67108864u, 134217728u, 268435456u, 536870912u,
-			1073741824u, 2147483648u };
-
-	glGenTextures(1, &bitmask);
-	glBindTexture(GL_TEXTURE_1D, bitmask);
-
-	// allocate memory:  1D Texture,  1 level,   long uint format (32bit)
-	glTexStorage1D( GL_TEXTURE_1D, 1, GL_R32UI, 32);
-	glTexSubImage1D( GL_TEXTURE_1D, 0, 0, 32, GL_RED_INTEGER, GL_UNSIGNED_INT, &bitmaskData);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glBindTexture(GL_TEXTURE_1D, 0);
-
-	return bitmask;
-}
 
 auto sp = new ShaderProgram({"/Voxelization/simpleVertex.vert", "/Voxelization/simpleColoring.frag"});
 auto slicemappingShader = new ShaderProgram({"/Voxelization/simpleVertex.vert", "/Voxelization/sliceMapMultipleTargets.frag"});
@@ -40,12 +16,14 @@ auto pass = new RenderPass(
     sp
 );
 
-auto slicemappingPass = new RenderPass(
+auto slicemappingPass = new SlicemapRenderPass(
     cube,
-    slicemappingShader
+    slicemappingShader,
+    width,
+    height
 );
 
-GLuint bitmask = createBitMask();
+GLuint bitmask = createRGBA32UIBitMask();
 
 float near = 0.1f;
 float far  = 6.0f;
@@ -63,7 +41,7 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
-    //TODO framebuffers
+    slicemappingShader->printOutputInfo();
 
     renderLoop([]{
 
@@ -80,7 +58,6 @@ int main(int argc, char *argv[]) {
 		->clear(0,0,0,0)
 		->update("near", near)
 		->update("far", far)
-		->update("numSliceMaps", 4)
 		->texture("bitMask", bitmask) // does this even work?
 		->run();
 
@@ -97,6 +74,9 @@ int main(int argc, char *argv[]) {
         -> run();
 
         // project slicemap
+
+        // TODO hardcode everything
+        // TODO Gerrit bescheid sagen wie weit der code ist
 
     });
 }
