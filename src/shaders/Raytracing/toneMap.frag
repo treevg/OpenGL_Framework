@@ -29,7 +29,7 @@ vec3 lin() {
 
 void main() {
 
-	vec2 uv = passPosition.xy;
+	//vec2 uv = passPosition.xy;
 	//float d = LinearizeDepth(uv);
 	fragColor = vec4(lin(),1);
 
