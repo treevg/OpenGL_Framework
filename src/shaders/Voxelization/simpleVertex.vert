@@ -22,6 +22,6 @@ void main() {
 	gl_Position = projection * viewpos;
     passUV = uvCoordAttribute;
     
-    // distance to camera
-    clipDepth = (viewpos.z - near) / (far - near);
+    // relative position in clip volume (linear between near and far plane)
+    clipDepth = ( (-viewpos.z) - near) / (far - near);
 }

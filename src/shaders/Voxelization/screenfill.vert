@@ -2,10 +2,11 @@
 
 in vec4 pos;
 
-uniform float scale;
 out vec4 passPosition;
+out vec2 passUV;
 
 void main() {
 	passPosition = pos;
-    gl_Position = vec4(pos.xy * scale, 0, 1);
+	passUV = (pos.xy + 1.0) / 2.0;
+    gl_Position = vec4(pos.xy, 0, 1);
 }
