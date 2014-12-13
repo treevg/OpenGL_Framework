@@ -10,9 +10,9 @@ void main() {
 	
 	vec4 texel_color = imageLoad(inImg, index);
 	
-	vec4 resulting_color = vec4(texel_color.rgb, texel_color.a);
+	vec4 resulting_color = vec4(texel_color.rgba);
 	
-	imageStore(outImgCbCr, index, resulting_color.gb);
-	imageStore(outImgY, index, resulting_color.r);
+	imageStore(outImgCbCr, index, vec4(vec2(resulting_color.gb), 0, 0));
+	imageStore(outImgY, index, vec4(resulting_color.r, 0, 0, 0));
 	
 }
