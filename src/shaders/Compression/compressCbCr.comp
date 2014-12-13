@@ -14,5 +14,5 @@ void main() {
 	
 	imageStore(outImgCbCr, index, vec4(vec2(resulting_color.gb), 0, 0));
 	imageStore(outImgYA, index, vec4(resulting_color.r, resulting_color.a, 0, 0));
-	
+	//TODO akldfjkaljsdfkjalösjfjaskldfkljaklsdjf
 }
