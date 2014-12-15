@@ -2,7 +2,7 @@
 
 uniform sampler2D color;
 
-in vec2 passPosition;
+in vec4 passPosition;
 //in vec3 col;
 
 out vec4 fragColor;

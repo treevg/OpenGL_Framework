@@ -6,9 +6,9 @@
 //uniform sampler2D color;
 
 // vec2 instead of vec4 ?
-in vec2 pos;
+in vec4 pos;
 
-out vec2 passPosition;
+out vec4 passPosition;
 //out vec3 col;
 
 void main() {

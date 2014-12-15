@@ -11,7 +11,7 @@ uniform mat4 	invView;
 uniform mat4	invViewProjection;
 
 uniform vec4 	sphereVec[3];
-uniform vec3 	mesh[15];
+uniform vec3 	mesh[6];
 uniform vec3 	colorSphere[3];
 uniform vec3 	colorTriangle[3];
 
@@ -30,7 +30,7 @@ vec3 	currentColor = vec3(1,1,1);
 vec3 	currentColor2 = vec3(1,1,1);
 float 	currentDepth;
 vec3 	currentNormal;
-int 	timesReflected=0;
+vec3 	tempNormal;
 
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
@@ -55,7 +55,7 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     u = vertex1 - vertex0;
     v = vertex2 - vertex0;
     n = cross(u, v);
-	currentNormal = n;
+	tempNormal = n;
 
     w0 = orig - vertex0;
     a = -dot(n, w0);
@@ -139,14 +139,15 @@ void main(void)
 
 		// determine if it is a triangle
  
-		 // for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
-		 // 	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
-		 // 	if (hitDepth < currentDepth && hitDepth>0.0) {
-		 // 		hitSphere = -1;
-		 // 		hitTriangle = t;
-		 // 		currentDepth = hitDepth;
-		 // 	}
-		 // }
+		  for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
+		  	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
+		  	if (hitDepth < currentDepth && hitDepth>0.0) {
+		  		hitSphere = -1;
+		  		hitTriangle = t;
+		  		currentDepth = hitDepth;
+				currentNormal = tempNormal;
+		  	}
+		  }
 
 		//============================//
 		// compute new ray parameters //
@@ -155,7 +156,6 @@ void main(void)
 		// in case it is a sphere
 
 		if (hitSphere >= 0) {
-			// timesReflected++;
 			// multiply Colors
 			currentColor *= colorSphere[hitSphere];
 
@@ -168,13 +168,13 @@ void main(void)
 		// in case it is a triangle
 
 		 if (hitTriangle >= 0) {	
-			// timesReflected++;
 			// multiply Colors
-			currentColor *= vec3(1.0,0,0);
-			//colorTriangle[hitTriangle/3];
+			//currentColor *= vec3(1.0,0,0);
 			
+			currentColor *=colorTriangle[hitTriangle/3];
+		
 		 	currentPos = currentPos + currentDir * currentDepth;
-		// 	currentNormal = globally set
+			//currentNormal = tempNormal;
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
 		
@@ -229,8 +229,5 @@ void main(void)
 			currentColor *= background(currentDir);
 			fragColor2 = vec4(currentColor,1);
 		}
-		
 	}
-	// and finally the background color
-	//currentColor *= background(currentDepth, currentDir);
 }

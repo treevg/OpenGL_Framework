@@ -14,6 +14,7 @@
 
 class Grid : public VertexArrayObject {
 public:
+	int height, width;
 	Grid(int width, int height);
 	void draw();
 };

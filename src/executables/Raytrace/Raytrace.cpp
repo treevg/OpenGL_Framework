@@ -12,7 +12,6 @@ using namespace std;
 using namespace glm;
 
 //TODO make objectloader class
-//TODO fewer depth viewports
 
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
@@ -141,6 +140,7 @@ int main(int argc, char *argv[]) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
     //glFrontFace(GL_CW);
+   //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 //    sp -> printUniformInfo();
 //    sp -> printInputInfo();
@@ -171,25 +171,25 @@ int main(int argc, char *argv[]) {
     colorTriangle.push_back(glm::vec3(0.4,0.4,0.8));
 
     // initialize mesh
-    mesh.push_back(glm::vec3(-0.5, -0.5, 1.0));
-    mesh.push_back(glm::vec3(0.5, -0.5, 1.0));
-    mesh.push_back(glm::vec3(0.0, 0.8, 1.0));
+    mesh.push_back(glm::vec3(0.5, -0.5, 1.5));
+    mesh.push_back(glm::vec3(0.0, 0.8, 1.5));
+    mesh.push_back(glm::vec3(-0.5, -0.5, 1.5));
 
-    mesh.push_back(glm::vec3(0.5, -0.5, 1.0));
-    mesh.push_back(glm::vec3(0.8, 0.25, 1.25));
-    mesh.push_back(glm::vec3(0.0, 0.8, 1.0));
+    mesh.push_back(glm::vec3(0.5, 0.5, 1.5));
+    mesh.push_back(glm::vec3(0.0, 1.8, 1.0));
+    mesh.push_back(glm::vec3(-0.5, 0.5, 1.5));
 
-    mesh.push_back(glm::vec3(-1.5, 0.5, 1.0));
-    mesh.push_back(glm::vec3(1.5, 0.5, 1.0));
-    mesh.push_back(glm::vec3(1.0, -0.8, 1.0));
+//    mesh.push_back(glm::vec3(0.5, -0.5, 1.0));
+//    mesh.push_back(glm::vec3(0.8, 0.25, 1.25));
+//    mesh.push_back(glm::vec3(0.0, 0.8, 1.0));
 
-    mesh.push_back(glm::vec3(0.5, 1.5, 1.0));
-    mesh.push_back(glm::vec3(0.8, -1.25, 1.25));
-    mesh.push_back(glm::vec3(0.0, -1.8, 1.0));
-
-    mesh.push_back(glm::vec3(0.0, 0.0, 0.0));
-    mesh.push_back(glm::vec3(0.0, -2.25, 2.25));
-    mesh.push_back(glm::vec3(2.0, 2.8, 2.0));
+//    mesh.push_back(glm::vec3(0.5, 1.5, 1.0));
+//    mesh.push_back(glm::vec3(0.8, -1.25, 1.25));
+//    mesh.push_back(glm::vec3(0.0, -1.8, 1.0));
+//
+//    mesh.push_back(glm::vec3(0.0, 0.0, 0.0));
+//    mesh.push_back(glm::vec3(0.0, -2.25, 2.25));
+//    mesh.push_back(glm::vec3(2.0, 2.8, 2.0));
 
 
     lastTime = glfwGetTime();
@@ -304,13 +304,13 @@ int main(int argc, char *argv[]) {
 			//-> texture("indirectionFragPos", pass1->get("fragPosition2"))
 			-> run();
 
-   //        diffWarp
-//			-> clear(1,0,0,0)
-//			-> update("altView", altView)
-//			-> update("invView",invView)
-//			-> texture("color", pass1->get("fragColor"))
-//			-> texture("depth", passLin->get("fragColor"))
-//			-> run();
+           //diffWarp
+			//-> clear(1,0,0,0)
+			//-> update("altView", altView)
+			//-> update("invView",invView)
+			//-> texture("color", pass1->get("fragColor"))
+			//-> texture("depth", passLin->get("fragColor"))
+			//-> run();
 
         }
 
