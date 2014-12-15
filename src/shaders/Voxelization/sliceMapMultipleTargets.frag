@@ -5,34 +5,30 @@
 
 in float clipDepth; // relative position between near and far plane
 
-uniform sampler2D bitMask;
+//uniform sampler2D bitMask;
+layout( rgba32ui, binding = 0 ) uniform readonly uimage1D bitMask;
+
 uniform int numSlicemaps;	// number of slicemaps to accumulate (max 4)
 
 // out : layout positions for multiple render targets
-layout(location = 0) out vec4 slice0_127;
+layout(location = 0) out uvec4 slice0_127;
 
 // (optional) use multiple render targets
-layout(location = 1) out vec4 slice128_255;
-layout(location = 2) out vec4 slice256_383;
-layout(location = 3) out vec4 slice384_511;
+layout(location = 1) out uvec4 slice128_255;
+layout(location = 2) out uvec4 slice256_383;
+layout(location = 3) out uvec4 slice384_511;
  
 void main() { 
-	float z = clipDepth;
+	float z = clipDepth; // [0..1]
 	
 	// determine slicemap to write to
-	int sliceMapTarget = int ( numSlicemaps * z ); 
+	int sliceMapTarget = int ( numSlicemaps * z );
 	
 	// map from z to [0..1] in slice map target
 	z = ( z * float( numSlicemaps ) ) - float( sliceMapTarget ); 
-
-//TODO can be ignored since bitmask holds all color informations	
-//	int channel = int(z * 4.0f);  				// determine color channel to write to
-//	z = ( z * 4.0f ) - float( channel );		// determine sample position from 1D texture
 	
 	// bit mask lookup determines bit value
-	vec4 bit_value = texture( bitMask, vec2( 0.5,z  ) );
-	
-	//TODO use usampler
+	uvec4 bit_value = imageLoad( bitMask, int( z * 128.0 ) );
 	
 	if (sliceMapTarget == 0)
 	{
@@ -50,4 +46,5 @@ void main() {
 	{
 		slice384_511 = bit_value;
 	}
+	
 }

@@ -8,8 +8,7 @@ uniform float backgroundTransparency;
 
 //uniform bool enabled;
 
-layout( rgba32ui ) uniform readonly uimage2D sliceMapTexture;
-
+layout( rgba32ui, binding = 0 ) uniform readonly uimage2D sliceMapTexture;
 
 out vec4 fragmentColor;
 
@@ -19,20 +18,19 @@ void main() {
 	
 //	if (enabled)
 //	{
-		
 		// size
-		vec2 sliceTexSize = vec2 ( imageSize( sliceMapTexture ) );
+		ivec2 sliceTexSize = imageSize( sliceMapTexture );
+	
 		// load texel
-		uvec4 sliceTex = imageLoad( sliceMapTexture, ivec2 ( passUV * sliceTexSize ) );
+		uvec4 sliceTex = imageLoad( sliceMapTexture, ivec2( passUV * vec2(sliceTexSize) ) );
 
-		// map to 0..255
-		float r = float ( ( byte & 0xFF000000 ) >> 24u ) / 255.0;
-		float g = float ( ( byte & 0x00FF0000 ) >> 16u ) / 255.0;
-		float b = float ( ( byte & 0x0000FF00 ) >> 8u  ) / 255.0;
-		float a = float ( ( byte & 0x000000FF ) >> 0u  ) / 255.0;
+		float r = float(sliceTexSize.x);		
+		float g = float(sliceTexSize.y);  
+		float b = 0.0;  
+		float a = 0.0;  
 		
 		// alpha is distributed among r,g,b channels --> white
-		sliceAdd = vec4( sliceAdd.r + sliceAdd.a , sliceAdd.g + sliceAdd.a, sliceAdd.b + sliceAdd.a, 1.0);	
+		sliceAdd = vec4( r + a , g + a, b + a, 1.0);	
 //	}
 	
 	// base color

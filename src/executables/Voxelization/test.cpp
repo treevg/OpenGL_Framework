@@ -8,8 +8,8 @@
 #define PI 3.14159265359f
 
 /*TODO
+ * - fix bugs
  * - enable slicemapping shader to use 128 slices
- * - test whether 1D Texture can still be used as 2D-Texture ( else hardcode )
  * - enable slicemapoverlay shader to use 128 slices
  */
 
@@ -43,7 +43,7 @@ float green = 0.25f;
 float blue = 0.25f;
 
 bool enabled = true;
-float backgroundTransparency = 0.25f;
+float backgroundTransparency = 0.5f;
 
 int numSlicemaps = 1;
 
@@ -84,12 +84,20 @@ int main(int argc, char *argv[]) {
         -> update("green", green)
         -> update("blue", blue)
         -> update("alpha", 1.0f)
-//		->update("near", near)
-//		->update("far", far)
         -> run();
 
 
-//TODO  bind bitmask to an image unit instead of using texture method
+        // bind bitmask to image unit 0
+        slicemappingShader->use();
+		glBindImageTexture(0,           // image unit binding
+		bitmask,  						// texture
+		0,								// texture level
+		GL_FALSE,                       // layered
+		0,                              // layer
+		GL_READ_ONLY,                   // access
+		GL_RGBA32UI                     // format
+		);
+
 		// render slicemap
 		slicemappingPass
 		->clear(0,0,0,0)
@@ -99,19 +107,36 @@ int main(int argc, char *argv[]) {
 		->update("near", near)
 		->update("far", far)
 		->update("numSlicemaps", numSlicemaps)
-		->texture("bitMask", bitmask) // does this even work?
 		->run();
 
-		// display slicemap
 
-//TODO  bind slice map to image unit instead of using texture method
+		// trying to debug
+		//TODO fix bug: slicemapping texture has no width/height --> possible related to Slicemap class !?
+		int width_, height_;
+		glBindTexture(GL_TEXTURE_2D, slicemappingPass->get("slice0_127"));
+//		glBindTexture(GL_TEXTURE_2D, pass->get("fragmentColor"));
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width_);
+		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height_);
+		std::cout<< "width: " << width_ << " , height: " << height_<< std::endl;
+
+        // bind slicemap to image unit 0
+		projectSlicemap->use();
+		glBindImageTexture(0,           // image unit binding
+		slicemappingPass->get("slice0_127"), // texture
+		0,								// texture level
+		GL_FALSE,                       // layered
+		0,                              // layer
+		GL_READ_ONLY,                   // access
+		GL_RGBA32UI                     // format
+		);
 
 		projectSlicemapPass
         ->clear(0,0,0,0)
         ->texture("baseTexture", pass->get("fragmentColor"))
-//       ->texture("sliceMapTexture", slicemappingPass->get("slice0_127"))
-//       ->update("enabled", enabled)
         ->update("backgroundTransparency", backgroundTransparency)
         ->run();
+
+		// unbind bitmask
+		glBindImageTexture(0,0,0,GL_FALSE,0,GL_READ_WRITE, GL_RGBA32UI );
     });
 }

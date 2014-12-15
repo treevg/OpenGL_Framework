@@ -113,7 +113,7 @@ SlicemapRenderPass::SlicemapRenderPass(VertexArrayObject* vertexArrayObject,
 		ShaderProgram* shaderProgram, int width, int height)
 : RenderPass(vertexArrayObject, shaderProgram)
 {
-	autoGenerateSlicemap(width, height);
+	SlicemapRenderPass::autoGenerateSlicemap(width, height);
 }
 
 
