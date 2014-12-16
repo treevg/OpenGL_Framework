@@ -16,12 +16,14 @@ auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/
 
 auto pass2 = new RenderPass(new Quad(), compositingSP);
 
+auto compressingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compressCbCr.frag"});
+
+auto passCompress = new RenderPass(new Quad(), compressingSP);
+
 auto cs = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/invert.comp");
 
 auto RGBtoYCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rgbToYCbCr.comp");
 auto YCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/YCbCrToRGB.comp");
-auto compressCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressCbCr.comp");
-auto compressedYCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressedYCbCrToRGB.comp");
 
 float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
@@ -40,8 +42,8 @@ GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/cubeTexture.jp
 
 GLuint tex1Handle;
 GLuint tex2Handle;
-GLuint tex3Handle;
-GLuint tex4Handle;
+GLuint texCbCrHandle;
+GLuint texYHandle;
 GLuint frameBufferObjectHandle;
 
 int main(int argc, char *argv[]) {
@@ -71,26 +73,26 @@ int main(int argc, char *argv[]) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, tex2Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
-    glGenTextures(1, &tex3Handle);
+    glGenTextures(1, &texCbCrHandle);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex3Handle);
+    glBindTexture(GL_TEXTURE_2D, texCbCrHandle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width/2, height/2, 0, GL_RG, GL_FLOAT, NULL);
     // Allocate mipmaps
     glGenerateMipmap(GL_TEXTURE_2D);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, tex3Handle, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, texCbCrHandle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
-    glGenTextures(1, &tex4Handle);
+    glGenTextures(1, &texYHandle);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex4Handle);
+    glBindTexture(GL_TEXTURE_2D, texYHandle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_R, GL_FLOAT, NULL);
     // Allocate mipmaps
     glGenerateMipmap(GL_TEXTURE_2D);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, tex4Handle, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, texYHandle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
 
@@ -100,19 +102,9 @@ int main(int argc, char *argv[]) {
     glClearBufferfv(GL_COLOR, 0, clearColor);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-
-    // sp -> printUniformInfo();
-    // sp -> printInputInfo();
-    // sp -> printOutputInfo();
-
-    // compositingSP->printUniformInfo();
-    // compositingSP->printInputInfo();
-    // compositingSP->printOutputInfo();
-
-    YCbCrToRGB->printInputInfo();
-    YCbCrToRGB->printUniformInfo();
-    YCbCrToRGB->printOutputInfo();
+    compressingSP->printInputInfo();
+    compressingSP->printUniformInfo();
+    compressingSP->printOutputInfo();
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
@@ -138,30 +130,17 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        compressCbCr->use();
-        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
-        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-        glDispatchCompute(int(width/16), int(height/16), 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-//        YCbCrToRGB->use();
-//        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-//        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-        compressedYCbCrToRGB->use();
-        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
-        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-        glDispatchCompute(int(width/16), int(height/16), 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        passCompress
+        ->clear(1,1,1,0)
+        ->texture("texIn", tex1Handle)
+        ->texture("texCbCr", texCbCrHandle)
+        ->texture("texY", texYHandle)
+        ->run();
 
         pass2
         ->clear(1, 1, 1, 0)
 //        ->texture("tex2", pass->get("fragColor"))
-        ->texture("tex2", tex2Handle)
+        ->texture("tex2", tex1Handle)
         ->run();
 
 
