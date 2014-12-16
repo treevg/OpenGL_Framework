@@ -304,13 +304,13 @@ int main(int argc, char *argv[]) {
 			//-> texture("indirectionFragPos", pass1->get("fragPosition2"))
 			-> run();
 
-           //diffWarp
-			//-> clear(1,0,0,0)
-			//-> update("altView", altView)
-			//-> update("invView",invView)
-			//-> texture("color", pass1->get("fragColor"))
-			//-> texture("depth", passLin->get("fragColor"))
-			//-> run();
+           diffWarp
+			-> clear(1,0,0,0)
+			// -> update("altView", altView)
+			// -> update("invView",invView)
+			-> texture("color", pass1->get("fragColor"))
+			// -> texture("depth", passLin->get("fragColor"))
+			-> run();
 
         }
 
