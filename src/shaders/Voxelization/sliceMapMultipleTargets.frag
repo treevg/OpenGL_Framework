@@ -28,14 +28,11 @@ void main() {
 //	z = ( z * float( numSlicemaps ) ) - float( sliceMapTarget ); 
 //	
 	// bit mask lookup determines bit value
-	uvec4 bit_value = imageLoad( bitMask, int( z * 128.0 ) );
+	uvec4 bit_value = imageLoad( bitMask, int( z * 128.0 )  );
 	
 //	if (sliceMapTarget == 0)
 //	{
-		
-	// map into range from 0..1
-	slice0_127 = bit_value;
-		
+		slice0_127 = bit_value;
 //	}
 //	if (sliceMapTarget == 1)
 //	{

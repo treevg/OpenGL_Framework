@@ -30,9 +30,10 @@ auto quad = new Quad();
 
 // RENDERPASSES
 auto pass = new RenderPass( cube, sp, width, height );	// render cube
-auto slicemappingPass = new RenderPass( cube, slicemappingShader, width, height ); // render slice map
+auto slicemappingPass = new SlicemapRenderPass( cube, slicemappingShader, width, height ); // render slice map
 auto projectSlicemapPass = new RenderPass( quad, projectSlicemap);	// project slice map onto rendered scene
-GLuint bitmask = createRGBA32UIBitMask();
+
+GLuint bitmask = 0;
 
 // GLOBAL VARIABLES
 float near = 0.1f;  // clipping planes
@@ -50,7 +51,6 @@ int numSlicemaps = 1;
 glm::mat4 model = glm::mat4(1.0f);
 glm::mat4 view = glm::lookAt(glm::vec3(0.0f,0.0f,3.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f) );
 glm::mat4 projection = glm::perspective(60.0f * PI / 180.0f, (float) width/height, near, far );
-
 
 void testZeros(GLuint texture, GLenum format = GL_RGBA)
 {
@@ -70,12 +70,15 @@ void testZeros(GLuint texture, GLenum format = GL_RGBA)
 		{
 			std::cout<<"i[" << i / 4 << ", " << i % 4 << "] : " << data[i] << std::endl;
 			notzero = true;
+			break;
 		}
 	}
 	if ( !notzero )
 	{
 		std::cout << "texture: " << texture <<" is all zeros..." << std::endl;
 	}
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void testZeros1D(GLuint texture)
@@ -103,7 +106,11 @@ void testZeros1D(GLuint texture)
 	}
 
 	std::cout << "i'm done with this crap " << std::endl;
+
+	glBindTexture(GL_TEXTURE_1D, 0);
 }
+
+bool once = false;
 
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
@@ -117,6 +124,10 @@ int main(int argc, char *argv[]) {
     projectSlicemap->printUniformInfo();
     projectSlicemap->printInputInfo();
     projectSlicemap->printOutputInfo();
+
+    bitmask = createRGBA32UIBitMask();
+
+	glEnable(GL_TEXTURE_1D);
 
     renderLoop([]{
 		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {view = glm::translate(glm::vec3(0.0f,0.0f,0.01f)) * view;}
@@ -142,8 +153,14 @@ int main(int argc, char *argv[]) {
 
 //		testZeros(pass->get("fragmentColor"), GL_RGBA);
 
+        if ( !once )
+        {
+
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_LOGIC_OP);
+        glLogicOp(GL_OR);
+
         // bind bitmask to image unit 0
-        slicemappingShader->use();
 		glBindImageTexture(0,           // image unit binding
 		bitmask,  						// texture
 		0,								// texture level
@@ -164,14 +181,21 @@ int main(int argc, char *argv[]) {
 //		->update("numSlicemaps", numSlicemaps)
 		->run();
 
-		//DEBUG
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_LOGIC_OP);
+		glLogicOp(GL_COPY);
+
+//    	once = true;
+
+    	}
+
+    // DEBUG
 		testZeros(slicemappingPass->get("slice0_127"), GL_RGBA_INTEGER);
 
-		glBindImageTexture(0,0,0,GL_FALSE,0,GL_READ_WRITE, GL_RGBA32UI );
-
         // bind slicemap to image unit 0
-		projectSlicemap->use();
-		glBindImageTexture(0,           // image unit binding
+        glUseProgram( projectSlicemap->getProgramHandle() );
+
+        glBindImageTexture(1,           // image unit binding
 		slicemappingPass->get("slice0_127"), // texture
 		0,								// texture level
 		GL_FALSE,                       // layered
@@ -186,7 +210,5 @@ int main(int argc, char *argv[]) {
         ->update("backgroundTransparency", backgroundTransparency)
         ->run();
 
-		// unbind bitmask
-		glBindImageTexture(0,0,0,GL_FALSE,0,GL_READ_WRITE, GL_RGBA32UI );
     });
 }
