@@ -90,6 +90,8 @@ Slicemap::Slicemap(std::map<std::string, ShaderProgram::Info>* outputMap,
 //-->       // explicitly create a RGBA 32bit UI Texture
 
 			glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32UI, width, height);
+//			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT, NULL);
+
 //		    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32UI, width, height, 0, GL_RGBA_INTEGER, GL_UNSIGNED_INT, 0);
 
 		    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -101,7 +103,6 @@ Slicemap::Slicemap(std::map<std::string, ShaderProgram::Info>* outputMap,
 	    	textureMap[e.first] = handle;
 		    drawBufferHandles[e.second.location] = currentAttachment;
 	    }
-
 	    glDrawBuffers(size, &drawBufferHandles[0]);
 
 		GLuint depthTexture;
