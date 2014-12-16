@@ -145,18 +145,18 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        YCbCrToRGB->use();
-//        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-//        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-        compressedYCbCrToRGB->use();
-        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
-        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        YCbCrToRGB->use();
+        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+//        compressedYCbCrToRGB->use();
+//        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
+//        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+//        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+//        glDispatchCompute(int(width/16), int(height/16), 1);
+//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         pass2
         ->clear(1, 1, 1, 0)
