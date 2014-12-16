@@ -139,7 +139,8 @@ int main(int argc, char *argv[]) {
 
         pass2
         ->clear(1, 1, 1, 0)
-//        ->texture("tex2", pass->get("fragColor"))
+        //->texture("tex2", pass->get("fragColor"))
+        //->texture("tex2", passCompress->get("fragColor"))
         ->texture("tex2", tex1Handle)
         ->run();
 

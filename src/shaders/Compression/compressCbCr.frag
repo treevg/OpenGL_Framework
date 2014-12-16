@@ -12,5 +12,5 @@ void main() {
     fragColor = texture(texIn, passPosition.xy);
     vec4 color = texture(texIn, passPosition.xy);
     
-    texture(texY, passPosition.xy) = color.r;
+    //imageStore(texY, passPosition.xy, vec4(fragColor.ra, 0, 0));
 }
