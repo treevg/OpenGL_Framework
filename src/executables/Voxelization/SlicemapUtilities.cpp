@@ -64,7 +64,7 @@ GLuint createRGBA32UIBitMask()
 
 	// allocate memory:  1D Texture,  1 level,   long uint format (32bit)
 	glTexStorage1D( GL_TEXTURE_1D, 1, GL_RGBA32UI, 32*4);
-	glTexSubImage1D( GL_TEXTURE_1D, 0, 0, 32*4, GL_RGBA, GL_UNSIGNED_INT, &bitmaskData);
+	glTexSubImage1D( GL_TEXTURE_1D, 0, 0, 32*4, GL_RGBA_INTEGER, GL_UNSIGNED_INT, &bitmaskData);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glBindTexture(GL_TEXTURE_1D, 0);
@@ -87,8 +87,10 @@ Slicemap::Slicemap(std::map<std::string, ShaderProgram::Info>* outputMap,
 	    	glGenTextures(1, &handle);
 		    glBindTexture(GL_TEXTURE_2D, handle);
 
-//-->       // minimize buggy behaviour: create Unsigned Integer textures, not float
-		    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32UI, width, height, 0, GL_RGBA, GL_UNSIGNED_INT, 0);
+//-->       // explicitly create a RGBA 32bit UI Texture
+
+			glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32UI, width, height);
+//		    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32UI, width, height, 0, GL_RGBA_INTEGER, GL_UNSIGNED_INT, 0);
 
 		    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

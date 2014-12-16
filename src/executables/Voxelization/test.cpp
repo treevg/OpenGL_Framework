@@ -30,7 +30,7 @@ auto quad = new Quad();
 
 // RENDERPASSES
 auto pass = new RenderPass( cube, sp, width, height );	// render cube
-auto slicemappingPass = new SlicemapRenderPass( cube, slicemappingShader, width, height ); // render slice map
+auto slicemappingPass = new RenderPass( cube, slicemappingShader, width, height ); // render slice map
 auto projectSlicemapPass = new RenderPass( quad, projectSlicemap);	// project slice map onto rendered scene
 GLuint bitmask = createRGBA32UIBitMask();
 
@@ -50,6 +50,60 @@ int numSlicemaps = 1;
 glm::mat4 model = glm::mat4(1.0f);
 glm::mat4 view = glm::lookAt(glm::vec3(0.0f,0.0f,3.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f) );
 glm::mat4 projection = glm::perspective(60.0f * PI / 180.0f, (float) width/height, near, far );
+
+
+void testZeros(GLuint texture, GLenum format = GL_RGBA)
+{
+	glBindTexture(GL_TEXTURE_2D, texture);
+	int width_, height_;
+	glGetTexLevelParameteriv(GL_TEXTURE_2D,0, GL_TEXTURE_WIDTH, &width_);
+	glGetTexLevelParameteriv(GL_TEXTURE_2D,0, GL_TEXTURE_HEIGHT, &height_);
+//	std::cout<<"width: "<< width_ <<", height: "<< height_ << std::endl;
+
+	unsigned int *data = (unsigned int*)malloc( sizeof(unsigned int) * height_ * width_ * 4);
+	glGetTexImage(GL_TEXTURE_2D, 0, format, GL_UNSIGNED_INT, data);
+
+	bool notzero = false;
+	for( unsigned int i = 0; i < width_ * height_ * 4 ; i++ )
+	{
+		if ( data[i] > 0 )
+		{
+			std::cout<<"i[" << i / 4 << ", " << i % 4 << "] : " << data[i] << std::endl;
+			notzero = true;
+		}
+	}
+	if ( !notzero )
+	{
+		std::cout << "texture: " << texture <<" is all zeros..." << std::endl;
+	}
+}
+
+void testZeros1D(GLuint texture)
+{
+	glBindTexture(GL_TEXTURE_1D, texture);
+	int width_ = 0; int height_ = 0 ;
+	glGetTexLevelParameteriv(GL_TEXTURE_1D, 0, GL_TEXTURE_WIDTH, &width_);
+//	std::cout<<"width: "<< width_ <<", height: "<< height_ << std::endl;
+
+	unsigned int *data = (unsigned int*)malloc(sizeof(unsigned int) * width_ * 4);
+	glGetTexImage(GL_TEXTURE_1D, 0, GL_RGBA_INTEGER, GL_UNSIGNED_INT, data);
+
+	bool notzero = false;
+	for( unsigned int i = 0; i < width_*4; i++ )
+	{
+		if ( data[i] > 0 )
+		{
+			std::cout<<"i[" << i / 4 << ", " << i % 4 <<"] : " << data[i] << std::endl;
+			notzero = true;
+		}
+	}
+	if ( !notzero )
+	{
+		std::cout << "1D texture: " << texture <<" is all zeros..." << std::endl;
+	}
+
+	std::cout << "i'm done with this crap " << std::endl;
+}
 
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
@@ -86,6 +140,7 @@ int main(int argc, char *argv[]) {
         -> update("alpha", 1.0f)
         -> run();
 
+//		testZeros(pass->get("fragmentColor"), GL_RGBA);
 
         // bind bitmask to image unit 0
         slicemappingShader->use();
@@ -106,18 +161,13 @@ int main(int argc, char *argv[]) {
         ->update("projection", projection)
 		->update("near", near)
 		->update("far", far)
-		->update("numSlicemaps", numSlicemaps)
+//		->update("numSlicemaps", numSlicemaps)
 		->run();
 
+		//DEBUG
+		testZeros(slicemappingPass->get("slice0_127"), GL_RGBA_INTEGER);
 
-		// trying to debug
-		//TODO fix bug: slicemapping texture has no width/height --> possible related to Slicemap class !?
-		int width_, height_;
-		glBindTexture(GL_TEXTURE_2D, slicemappingPass->get("slice0_127"));
-//		glBindTexture(GL_TEXTURE_2D, pass->get("fragmentColor"));
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &width_);
-		glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &height_);
-		std::cout<< "width: " << width_ << " , height: " << height_<< std::endl;
+		glBindImageTexture(0,0,0,GL_FALSE,0,GL_READ_WRITE, GL_RGBA32UI );
 
         // bind slicemap to image unit 0
 		projectSlicemap->use();
