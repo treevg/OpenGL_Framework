@@ -105,17 +105,17 @@ Slicemap::Slicemap(std::map<std::string, ShaderProgram::Info>* outputMap,
 	    }
 	    glDrawBuffers(size, &drawBufferHandles[0]);
 
+		GLuint depthTexture;
+		glGenTextures( 1, &depthTexture);
+		glBindTexture( GL_TEXTURE_2D, depthTexture);
 
-//	    //TODO ????? investigate further to avoid in future ...
-//		GLuint depthTexture;
-//		glGenTextures( 1, &depthTexture);
-//		glBindTexture( GL_TEXTURE_2D, depthTexture);
-//		glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT16, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-//
-//	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-//	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//
-//		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+		// Depth Component has to be 32 bit to make this combination work
+		glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT32, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
 
 }
 
