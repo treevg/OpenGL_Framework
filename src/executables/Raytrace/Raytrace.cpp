@@ -51,6 +51,7 @@ float 	minRange=0.8, maxRange=10;
 float 	lastTime, currentTime;
 float 	horizontalAngle=0.0;
 float 	verticalAngle=0.0;
+int		warpView=0;
 
 std::vector<glm::vec4> sphereVec;
 std::vector<glm::vec3> mesh;
@@ -235,6 +236,9 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)maxRange +=0.5;
         if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)maxRange -=0.5;
 
+        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)warpView =1;
+        if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)warpView =0;
+
         if(minRange>=maxRange){
         	minRange=1.0;
         	maxRange=20.0;
@@ -306,11 +310,11 @@ int main(int argc, char *argv[]) {
 
            diffWarp
 			-> clear(1,0,0,0)
-            -> update("bla", 7)
-			// -> update("altView", altView)
-			// -> update("invView",invView)
+            -> update("warpView", warpView)
+			-> update("altView", altView)
+			-> update("invView",invView)
 			-> texture("color", pass1->get("fragColor"))
-			// -> texture("depth", passLin->get("fragColor"))
+			-> texture("depth", passLin->get("fragColor"))
 			-> run();
 
         }
