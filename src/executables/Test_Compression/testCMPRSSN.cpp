@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
 
         vector<ColorField> test = doRLE(data);
 
-        cout<<test.size()<<endl;
+        cout<<test.size() * sizeof(float) *4<<endl;
 
         glBindTexture(GL_TEXTURE_2D, tex1Handle);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
