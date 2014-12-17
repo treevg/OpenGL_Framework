@@ -53,6 +53,8 @@ glm::mat4 model = glm::mat4(1.0f);
 glm::mat4 view = glm::lookAt(glm::vec3(0.0f,0.0f,3.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f) );
 glm::mat4 projection = glm::perspective(60.0f * PI / 180.0f, (float) width/height, near, far );
 
+GLuint clearSlicemap[4] = {0, 0, 0, 0};
+
 int main(int argc, char *argv[]) {
     sp -> printUniformInfo();
     sp -> printInputInfo();
@@ -113,7 +115,7 @@ int main(int argc, char *argv[]) {
 //    testZeros(slicemappingPass->frameBufferObject->get("slice0_127"), GL_RGBA_INTEGER);
 //    delete data;
 //    //////////////////////////////////////////////////////////////////////////
-//
+
 //    //////////////////////////////////////////////////////////////////////////
 //    // DEBUG TEST: framebuffer is aware that texture is of unsigned integer type | WORKS
 //    slicemappingPass->frameBufferObject->bind(); // identify as unsigned int
@@ -148,14 +150,16 @@ int main(int argc, char *argv[]) {
 		if (glfwGetKey(window, GLFW_KEY_KP_ADD) == GLFW_PRESS) {backgroundTransparency += 0.15;}
 		if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {backgroundTransparency -= 0.15;}
 
-		if ( !once )
-		{
+			glBindFramebuffer( GL_FRAMEBUFFER, slicemappingPass->frameBufferObject->getFrameBufferObjectHandle());
+			glClearBufferuiv(GL_COLOR, 0, clearSlicemap);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-			//TODO clear slice map to 0
-
+			// enable bitwise logic OR operation for framebuffer access
 			glDisable(GL_DEPTH_TEST);
-			glEnable(GL_LOGIC_OP);
+			glEnable(GL_COLOR_LOGIC_OP);
 			glLogicOp(GL_OR);
+
+	        printImageBindings();
 
 			// bind bitmask to image unit 0
 			glBindImageTexture(0,	// image unit binding
@@ -167,8 +171,12 @@ int main(int argc, char *argv[]) {
 					GL_RGBA32UI		// format
 			);
 
+	        printImageBindings();
+
+
 			// render slicemap
 			slicemappingPass
+//			->clear(0,0,0,0)
 			->update("model", model)
 			->update("view", view)
 			->update("projection", projection)
@@ -177,15 +185,13 @@ int main(int argc, char *argv[]) {
 //			->update("numSlicemaps", numSlicemaps)
 			->run();
 
+			// restore default values for framebuffer access
 			glEnable(GL_DEPTH_TEST);
-			glDisable(GL_LOGIC_OP);
+			glDisable(GL_COLOR_LOGIC_OP);
 			glLogicOp(GL_COPY);
-
-//			once = true;
 
 			//DEBUGGING
 //		    testZeros(slicemappingPass->frameBufferObject->get("slice0_127"), GL_RGBA_INTEGER);
-		}
 
 		// render scene
         pass
@@ -204,6 +210,7 @@ int main(int argc, char *argv[]) {
         // bind slicemap to image unit 0
         glUseProgram( projectSlicemap->getProgramHandle() );
 
+
         glBindImageTexture(1,           // image unit binding
 		slicemappingPass->get("slice0_127"), // texture
 		0,								// texture level
@@ -212,6 +219,8 @@ int main(int argc, char *argv[]) {
 		GL_READ_ONLY,                   // access
 		GL_RGBA32UI                     // format
 		);
+
+        printImageBindings();
 
 		projectSlicemapPass
         ->clear(0,0,0,0)

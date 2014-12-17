@@ -165,5 +165,16 @@ void testFramebuffer(GLenum target)
 	}
 }
 
+void printImageBindings()
+{
+	GLint image = 0;
+	std::cout <<"IMAGE_BINDING_NAME:";
+	for (int i = 0; i < 8; i++)
+	{
+		glGetIntegeri_v(GL_IMAGE_BINDING_NAME, i, &image);
+		std::cout << " ["<<i<<"] : "<< image;
+	}
+	std::cout<<std::endl;
+}
 
 #endif
