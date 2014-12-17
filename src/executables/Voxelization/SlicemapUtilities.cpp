@@ -1,6 +1,6 @@
 #include "SlicemapUtilities.h"
 
-// create 32bit uint bitmask
+// create 32bit uint R bitmask
 GLuint createR32UIBitMask()
 {
 	GLuint bitmask = 0;
@@ -28,7 +28,8 @@ GLuint createR32UIBitMask()
 
 	return bitmask;
 }
-// create 32bit uint bitmask
+
+// create 32bit uint RGBA bitmask
 GLuint createRGBA32UIBitMask()
 {
 	GLuint bitmask = 0;
@@ -77,12 +78,8 @@ Slicemap::Slicemap(std::map<std::string, ShaderProgram::Info>* outputMap,
 	    	glGenTextures(1, &handle);
 		    glBindTexture(GL_TEXTURE_2D, handle);
 
-//-->       // explicitly create a RGBA 32bit UI Texture
-
+		    // IMPORTANT : use UNSIGNED_INT texture format
 			glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA32UI, width, height);
-//			glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_INT, NULL);
-
-//		    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32UI, width, height, 0, GL_RGBA_INTEGER, GL_UNSIGNED_INT, 0);
 
 		    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -95,18 +92,7 @@ Slicemap::Slicemap(std::map<std::string, ShaderProgram::Info>* outputMap,
 	    }
 	    glDrawBuffers(size, &drawBufferHandles[0]);
 
-		GLuint depthTexture;
-		glGenTextures( 1, &depthTexture);
-		glBindTexture( GL_TEXTURE_2D, depthTexture);
-
-		// Depth Component has to be 32 bit to make this combination work
-		glTexImage2D(GL_TEXTURE_2D, 0,GL_DEPTH_COMPONENT32, width, height, 0,GL_DEPTH_COMPONENT, GL_FLOAT, 0);
-
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
-
+	    // no depth buffer necessary
 }
 
 SlicemapRenderPass::SlicemapRenderPass(VertexArrayObject* vertexArrayObject,
