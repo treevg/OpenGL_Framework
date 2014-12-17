@@ -306,6 +306,7 @@ int main(int argc, char *argv[]) {
 
            diffWarp
 			-> clear(1,0,0,0)
+            -> update("bla", 7)
 			// -> update("altView", altView)
 			// -> update("invView",invView)
 			-> texture("color", pass1->get("fragColor"))
