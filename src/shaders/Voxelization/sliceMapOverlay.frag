@@ -23,21 +23,24 @@ void main() {
 	uvec4 sliceTex = imageLoad( sliceMapTexture, sliceCoords );
 	
 //	float r = float(log2(sliceTex.r));
+	
 	float r = float(sliceTex.r);
+	float g = float(sliceTex.g);
+	float b = float(sliceTex.b);
+	float a = float(sliceTex.a);
 	
-	if ( sliceTex.r == 0 && sliceTex.g == 0 && sliceTex.b == 0 && sliceTex.a == 0)
-	{
-		r = sliceCoords.x / 1280.0;		
+	if (r != 0) {
+		r = log2(r) / 32.0;
 	}
-	
-//	float g = float(log2(sliceTex.g)) / 32.0;
-//	float b = float(log2(sliceTex.b)) / 32.0;
-//	float a = float(log2(sliceTex.a)) / 32.0;
-
-//		float r =  0.3;		
-	float g = 0.1;
-	float b = 0.1;
-	float a = 0.0;
+	if (g != 0) {
+		g = log2(g) / 32.0;
+	}
+	if (b != 0) {
+		b = log2(b) / 32.0;
+	}
+	if (a != 0) {
+		a = log2(a) / 32.0;
+	}
 
 	// alpha is distributed among r,g,b channels --> white
 	sliceAdd = vec4(r + a, g + a, b + a, 1.0);	
@@ -46,5 +49,5 @@ void main() {
 	vec4 baseTex = texture(baseTexture, passUV) * ( 1.0 - min( 1.0, max( 0.0, backgroundTransparency ) ) );
 	
 	// add
-	fragmentColor = vec4 ( baseTex.rgb + sliceAdd.rgb, 1.0);
+	fragmentColor = vec4 ( baseTex.rgb + sliceAdd.rgb * backgroundTransparency, 1.0);
 }

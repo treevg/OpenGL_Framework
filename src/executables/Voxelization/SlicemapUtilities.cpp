@@ -49,16 +49,6 @@ GLuint createRGBA32UIBitMask()
 		}
 	}
 
-//	for ( int i = 0; i < 4*32; i++)
-//	{
-//		std::cout << "rgba(" << i << ") : "
-//		<< bitmaskData[i*4] << ", "
-//		<< bitmaskData[i*4+1]<< ", "
-//		<< bitmaskData[i*4+2]<< ", "
-//		<< bitmaskData[i*4+3]
-//		<< std::endl;
-//	}
-
 	glGenTextures(1, &bitmask);
 	glBindTexture(GL_TEXTURE_1D, bitmask);
 
