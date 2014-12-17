@@ -4,6 +4,7 @@
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
+#include "Compression/ColorField.h"
 
 using namespace std;
 using namespace glm;
@@ -44,6 +45,42 @@ GLuint tex3Handle;
 GLuint tex4Handle;
 GLuint frameBufferObjectHandle;
 
+int tWidth, tHeight;
+float *data;
+
+
+vector<ColorField> doRLE(float *array){
+	vector<ColorField> data2;
+	int startAddressOfPixel = 0;
+	float rOld, gOld, bOld, aOld;
+	int count = 1;
+	for(int x = 0; x < tWidth; x++){
+		for(int y = 0; y < tHeight; y++){
+			startAddressOfPixel = ((y * tWidth) + x) * 4;
+			float r = array[startAddressOfPixel];
+			float g = array[startAddressOfPixel + 4];
+			float b = array[startAddressOfPixel + 8];
+			float a = array[startAddressOfPixel + 12];
+
+			if (rOld == r && gOld == g && bOld == b && aOld == a){
+				count++;
+			}
+			else{
+			rOld = r;
+			gOld = g;
+			bOld = b;
+			aOld = a;
+
+			ColorField *temp = new ColorField(count, r, g, b,a);
+
+			data2.push_back(*temp);
+			}
+		}
+	}
+
+	return data2;
+}
+
 int main(int argc, char *argv[]) {
     glGenFramebuffers(1, &frameBufferObjectHandle);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
@@ -76,7 +113,7 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, tex3Handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG16F, width, height, 0, GL_RG, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width/2, height/2, 0, GL_RG, GL_FLOAT, NULL);
     // Allocate mipmaps
     glGenerateMipmap(GL_TEXTURE_2D);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, tex3Handle, 0);
@@ -87,32 +124,36 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, tex4Handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_R, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width/2, height/2, 0, GL_RG, GL_FLOAT, NULL);
     // Allocate mipmaps
     glGenerateMipmap(GL_TEXTURE_2D);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, tex4Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT1);
-
-
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
     GLfloat clearColor[4] = {0, 1, 0, 0};
     glClearBufferfv(GL_COLOR, 0, clearColor);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-
-    // sp -> printUniformInfo();
-    // sp -> printInputInfo();
-    // sp -> printOutputInfo();
-
-    // compositingSP->printUniformInfo();
-    // compositingSP->printInputInfo();
-    // compositingSP->printOutputInfo();
-
     YCbCrToRGB->printInputInfo();
     YCbCrToRGB->printUniformInfo();
     YCbCrToRGB->printOutputInfo();
+
+    glBindTexture(GL_TEXTURE_2D, tex1Handle);																	//prepare swapping Texture between Memories
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
+    std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
+
+    data = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+    int y=0;
+        for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
+                {
+                        y++;
+                }
+    cout<<"size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
+    cout<<"array: " << y * 4<<endl;
+    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
@@ -140,7 +181,7 @@ int main(int argc, char *argv[]) {
 
         compressCbCr->use();
         glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG16F);
+        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
         glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -150,6 +191,22 @@ int main(int argc, char *argv[]) {
         glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        glBindTexture(GL_TEXTURE_2D, tex1Handle);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        vector<ColorField> test = doRLE(data);
+
+        cout<<test.size()<<endl;
+
+        glBindTexture(GL_TEXTURE_2D, tex1Handle);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE, 0);
+
+
+
+
 
 //        compressedYCbCrToRGB->use();
 //        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
@@ -161,9 +218,12 @@ int main(int argc, char *argv[]) {
         pass2
         ->clear(1, 1, 1, 0)
 //        ->texture("tex2", pass->get("fragColor"))
-        ->texture("tex2", tex2Handle)
+        ->texture("tex2", tex1Handle)
         ->run();
 
+//        glBindTexture(GL_TEXTURE_2D, tex1Handle);
+//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+//        glBindTexture(GL_TEXTURE_2D, 0);
 
     });
 }
