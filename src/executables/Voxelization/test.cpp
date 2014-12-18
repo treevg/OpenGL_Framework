@@ -42,7 +42,7 @@ glm::mat4 model = glm::mat4(1.0f);
 glm::mat4 view = glm::lookAt(glm::vec3(0.0f,0.0f,3.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f) );
 glm::mat4 projection = glm::perspective(60.0f * PI / 180.0f, (float) width/height, near, far );
 
-GLuint bitmask = createRGBA32UIBitMask();	// handle of 1D bitmask texture
+//GLuint bitmask = createRGBA32UIBitMask();	// handle of 1D bitmask texture
 GLuint clearSlicemap[4] = {0, 0, 0, 0};
 
 int main(int argc, char *argv[]) {
@@ -73,12 +73,11 @@ int main(int argc, char *argv[]) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		// enable bitwise logic OR operation on outgoing fragments and disable depth test
-		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_COLOR_LOGIC_OP);
 		glLogicOp(GL_OR);
 
 		// bind bitmask to image unit 0
-		glBindImageTexture( 0, bitmask, 0, GL_FALSE,	0, GL_READ_ONLY, GL_RGBA32UI );
+//		glBindImageTexture( 0, bitmask, 0, GL_FALSE,	0, GL_READ_ONLY, GL_RGBA32UI );
 
 		// render slicemap
 		slicemappingPass
@@ -90,7 +89,6 @@ int main(int argc, char *argv[]) {
 		->run();
 
 		// restore default values
-		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_COLOR_LOGIC_OP);
 		glLogicOp(GL_COPY);
 
@@ -118,6 +116,5 @@ int main(int argc, char *argv[]) {
 
 		// unbind image units (clean up)
 		glBindImageTexture(0,0,0,GL_FALSE,0,GL_READ_WRITE,GL_RGBA32UI);
-
     });
 }
