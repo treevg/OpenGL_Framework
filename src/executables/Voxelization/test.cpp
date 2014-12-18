@@ -42,7 +42,7 @@ glm::mat4 model = glm::mat4(1.0f);
 glm::mat4 view = glm::lookAt(glm::vec3(0.0f,0.0f,3.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f) );
 glm::mat4 projection = glm::perspective(60.0f * PI / 180.0f, (float) width/height, near, far );
 
-//GLuint bitmask = createRGBA32UIBitMask();	// handle of 1D bitmask texture
+GLuint bitmask = createRGBA32UIBitMask();	// handle of 1D bitmask texture
 GLuint clearSlicemap[4] = {0, 0, 0, 0};
 
 int main(int argc, char *argv[]) {
@@ -79,6 +79,10 @@ int main(int argc, char *argv[]) {
 		// bind bitmask to image unit 0
 //		glBindImageTexture( 0, bitmask, 0, GL_FALSE,	0, GL_READ_ONLY, GL_RGBA32UI );
 
+		// bind bitmask to texture unit 0
+		glActiveTexture(0);
+		glBindTexture(GL_TEXTURE_1D, bitmask);
+
 		// render slicemap
 		slicemappingPass
 		->update("model", model)
@@ -89,6 +93,7 @@ int main(int argc, char *argv[]) {
 		->run();
 
 		// restore default values
+		glBindTexture(GL_TEXTURE_1D, 0);
 		glDisable(GL_COLOR_LOGIC_OP);
 		glLogicOp(GL_COPY);
 
