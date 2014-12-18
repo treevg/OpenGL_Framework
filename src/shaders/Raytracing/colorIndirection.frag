@@ -103,8 +103,8 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 	vec3 nml2=vec3(0.0);
 	int sphereHit;
 	bool hasChanged=false;
-
-	
+	//vec3 tempColor=vec3(0.0);
+	//float tempHit=100.0;
 
 	if(refDepth==0){
 		mint=100.0;
@@ -116,7 +116,7 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 			if(geomBase==i){continue;}
 				
 			//hittest from intersected point
-			float t2= sphere(vec3(sphereVec[geomBase].xyz), rd, vec3(sphereVec[i].xyz),sphereVec[i].w);
+			float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z),sphereVec[i].w);
 				
 			if(t2>0 && t2<mint){
 				hasChanged=true;
@@ -124,8 +124,9 @@ vec3 refSphere(vec3 rd, int geomBase, int refDepth){
 				sphereHit=i;
 				//vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
 				//nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2));
-				nml2 = normalize((vec3(sphereVec[geomBase].xyz)+rd*t2) - vec3(sphereVec[sphereHit].xyz) );
-				color = background(iGlobalTime, nml2) * (vec3(colorSphere[sphereHit].xyz));
+				nml2 = normalize((vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2) - vec3(sphereVec[sphereHit].x,sphereVec[sphereHit].y,sphereVec[sphereHit].z) );
+				color = (vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z));
+				//background(iGlobalTime, nml2) * 
 			}	
 		}
 		
@@ -191,15 +192,14 @@ void draw(vec3 bgCol,vec3 ro, vec3 rd){
 		//get reflectionvector of intersected spherepoint
 		rd = reflect(rd, nml);
 
-		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
+		vec3 col = vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
+		// background(iGlobalTime, rd) *
 		
-		
-		// compute indirection
+		// compute indirection 
 		vec3 color = refSphere(rd,currentGeom,indirection);
 			
-		if(mint==100.0){
-			fragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
-		} 
+		if(mint==100.0){}
+			
 		else {
 			// draws reflected point 
 			//todo: fix normals  , choose gewichtungsfaktor correctly
@@ -228,7 +228,8 @@ void main(void)
 	vec3 rd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 
 	vec3 bgCol = background(iGlobalTime, rd);
-	fragColor=vec4(bgCol,1.0);
+	//fragColor=vec4(bgCol,1.0);
+	fragColor=vec4(0.15);
 	fragPosition = passPosition;
 
 	draw(bgCol, ro, rd);

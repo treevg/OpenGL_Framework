@@ -9,28 +9,14 @@ uniform int		indirection;
 
 uniform mat4 	invView;
 uniform mat4	invViewProjection;
+uniform mat4	invProj;
 
 uniform vec4 	sphereVec[3];
-uniform vec3 	mesh[6];
+uniform vec3 	mesh[3];
 uniform vec3 	colorSphere[3];
-uniform vec3 	colorTriangle[3];
 
-//direct 
 out 	vec4	fragColor;
 out 	vec4 	fragPosition;
-out 	vec4	fragDepth;
-//indirect
-out 	vec4	fragColor2;
-out 	vec4 	fragPosition2;
-out 	vec4	fragDepth2;
-
-float	t = 0;
-vec3 	light = normalize(vec3(sin(t), 0.6, cos(t)));
-vec3 	currentColor = vec3(1,1,1);
-vec3 	currentColor2 = vec3(1,1,1);
-float 	currentDepth;
-vec3 	currentNormal;
-vec3 	tempNormal;
 
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
@@ -44,7 +30,7 @@ float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 	return mix(-1.0, t, st);
 }
 
-float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
+float triangle(vec3 orig, vec3 dir, vec3 vertices[3])
 {
    // const float INFINITY = 1e10;
     vec3 u, v, n; // triangle vectors
@@ -52,12 +38,11 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     float r, a, b; // params to calc ray-plane intersect
 
     // get triangle edge vectors and plane normal
-    u = vertex1 - vertex0;
-    v = vertex2 - vertex0;
+    u = vertices[1] - vertices[0];
+    v = vertices[2] - vertices[0];
     n = cross(u, v);
-	tempNormal = n;
 
-    w0 = orig - vertex0;
+    w0 = orig - vertices[0];
     a = -dot(n, w0);
     b = dot(n, dir);
     if (abs(b) < 1e-5)
@@ -76,7 +61,7 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     uu = dot(u, u);
     uv = dot(u, v);
     vv = dot(v, v);
-    w = I - vertex0;
+    w = I - vertices[0];
     wu = dot(w, u);
     wv = dot(w, v);
     D = uv * uv - uu * vv;
@@ -93,8 +78,9 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     return (r > 1e-5) ? r : -1.0;
 }
 
-vec3 background(vec3 rd)
+vec3 background(float t, vec3 rd)
 {
+	vec3 light = normalize(vec3(sin(t), 0.6, cos(t)));
 	float sun = max(0.0, dot(rd, light));
 	float sky = max(0.0, dot(rd, vec3(0.0, 1.0, 1.0)));
 	float ground = max(0.0, -dot(rd, vec3(0.0, 1.0, 0.0)));
@@ -104,14 +90,18 @@ vec3 background(vec3 rd)
 }
 
 
-int indirections = 2;
+
+
+
+
+int indirections = 0;
 
 vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
-vec3 initialPos=currentPos;
 vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
-vec3 initialDir = currentDir;
-
+vec3 currentColor = vec3(1,1,1);
+float currentDepth;
+vec3 currentNormal;
 
 void main(void)
 {
@@ -138,16 +128,15 @@ void main(void)
 		}
 
 		// determine if it is a triangle
- 
-		  for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
-		  	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
-		  	if (hitDepth < currentDepth && hitDepth>0.0) {
-		  		hitSphere = -1;
-		  		hitTriangle = t;
-		  		currentDepth = hitDepth;
-				currentNormal = tempNormal;
-		  	}
-		  }
+
+		// for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
+		// 	float hitDepth = 
+		// 	if (hitDepth < currentDepth) {
+		// 		hitSphere = -1;
+		// 		hitTriangle = t;
+		// 		currentDepth = hitDepth;
+		// 	}
+		// }
 
 		//============================//
 		// compute new ray parameters //
@@ -156,9 +145,21 @@ void main(void)
 		// in case it is a sphere
 
 		if (hitSphere >= 0) {
-			// multiply Colors
-			currentColor *= colorSphere[hitSphere];
-
+			
+			//float z = gl_FragCoord.z * 2.0 - 1.0;
+			//vec4 unprojected = invProj * vec4(0, 0, z, 1.0);
+			//unprojected /= unprojected.w;
+			//currentColor = unprojected.xyz; 
+			
+			float dist = (currentDepth - currentDir.z);
+			float dist2 = (currentDepth - currentPos.z)*2.0-1.0;
+			
+		//	if(currentDepth>3){
+		//	currentColor= vec3(1.0,0.0,0.0);}
+		//	else{ currentColor = vec3(0.0);}
+		
+			currentColor=vec3(currentDepth);
+			
 			// make new Ray
 			currentPos = currentPos + currentDir * currentDepth;
 			currentNormal = normalize(currentPos - sphereVec[hitSphere].xyz);
@@ -167,67 +168,15 @@ void main(void)
 		
 		// in case it is a triangle
 
-		 if (hitTriangle >= 0) {	
-			// multiply Colors
-			//currentColor *= vec3(1.0,0,0);
-			
-			currentColor *=colorTriangle[hitTriangle/3];
-		
-		 	currentPos = currentPos + currentDir * currentDepth;
-			//currentNormal = tempNormal;
-		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
-		 }
-		
-		
-		// if(i==0){
-		// 	if(timesReflected<1){
-		// 		fragColor = vec4(0,0,0,1);
-		// 	}
-		// 	else{
-		// 		currentColor *= background(currentDepth, currentDir);
-		// 		fragColor = vec4(currentColor,1);
-		// 		fragPosition = vec4(vec3(currentPos),1);
-		// 		float d= (distance(initialPos, fragPosition.xyz));
-		// 		fragDepth = vec4(d,d,d, 1);
-		// 	}
+		// if (hitTriangle >= 0) {	
+		// 	currentPos = 
+		// 	currentNormal = 
+		// 	currentDir = 
 		// }
-		// if(i==1){
-		// 	if(timesReflected<2){
-		// 		fragColor2 = vec4(0,0,0,1);
-		// 	}else{
-		// 		currentColor *= background(currentDepth,currentDir);
-		// 		fragColor2 = vec4(currentColor,1);
-		// 		fragPosition2= vec4(vec3(currentPos),1);
-		// 		fragDepth2 = vec4(vec3(currentDepth),1);
-		// 	}
-
-		// }
-		if(i == 0){
-			if (hitTriangle == -1 && hitSphere == -1) {
-				fragColor = vec4(background(currentDir),1);
-				fragPosition = vec4(currentDir,0);
-				fragDepth = vec4(9999);
-				fragColor2 = vec4(0,0,0,0);
-				fragPosition2 = vec4(0,0,0,0);
-				fragDepth2 = vec4(9999);
-				break;
-			} else {
-				float phongDiffuse = max(dot(currentNormal, light),0) * 0.5;
-				vec3  phongAmbient = vec3(0.0, 0.02, 0.01);
-				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
-				fragPosition = vec4(vec3(currentPos),1);
-				fragDepth = vec4(distance(initialPos, fragPosition.xyz));
-			}
-		} 
-
-		if (i == 1) {		
-			fragPosition2= vec4(vec3(currentPos),1);
-			fragDepth2 = vec4(vec3(currentDepth),1);
-		}
-
-		if (i > 0) {			
-			currentColor *= background(currentDir);
-			fragColor2 = vec4(currentColor,1);
-		}
 	}
+
+	// and finally the background color
+	//currentColor *= background(currentDepth, currentDir);
+	fragColor = vec4(currentColor,1);
+	fragPosition = vec4(vec3(currentPos),1);
 }
