@@ -177,4 +177,40 @@ void printImageBindings()
 	std::cout<<std::endl;
 }
 
+GLuint queryID[2];
+
+void startTime() {
+	// generate OpenGL query objects
+	glGenQueries(2, &queryID[0] );
+
+	// request current time-stamp
+	glQueryCounter(queryID[0], GL_TIMESTAMP);
+}
+
+void stopTime() {
+	// request current time-stamp
+	glQueryCounter(queryID[1], GL_TIMESTAMP);
+
+	// wait for query to become available
+	unsigned int stopTimerAvailable = 0;
+	while (!stopTimerAvailable )
+	{
+	    glGetQueryObjectuiv(queryID[1],
+	    		GL_QUERY_RESULT_AVAILABLE,
+	    		&stopTimerAvailable);
+	}
+
+	GLuint64 startTime, stopTime;
+	double executionTime;
+
+	// retrieve query results
+	glGetQueryObjectui64v(queryID[0], GL_QUERY_RESULT, &startTime);
+	glGetQueryObjectui64v(queryID[1], GL_QUERY_RESULT, &stopTime);
+
+	// compute execution time
+	executionTime = (stopTime - startTime) / 1000000.0;
+
+	std::cout << executionTime << " (ms)" << std::endl;
+}
+
 #endif

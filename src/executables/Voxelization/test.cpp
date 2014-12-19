@@ -83,6 +83,7 @@ int main(int argc, char *argv[]) {
 		glActiveTexture(0);
 		glBindTexture(GL_TEXTURE_1D, bitmask);
 
+//		startTime();
 		// render slicemap
 		slicemappingPass
 		->update("model", model)
@@ -91,6 +92,7 @@ int main(int argc, char *argv[]) {
 		->update("near", near)
 		->update("far", far)
 		->run();
+//		stopTime();
 
 		// restore default values
 		glBindTexture(GL_TEXTURE_1D, 0);
@@ -112,12 +114,14 @@ int main(int argc, char *argv[]) {
         //bind slicemap to image unit 0
         glBindImageTexture(0, slicemappingPass->get("slice0_127"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32UI );
 
+//		startTime();
         // overlay slicemap onto scene for visualization
 		overlaySlicemapPass
         ->clear(0,0,0,0)
         ->texture("baseTexture", pass->get("fragmentColor"))
         ->update("backgroundTransparency", backgroundTransparency)
         ->run();
+//		stopTime();
 
 		// unbind image units (clean up)
 		glBindImageTexture(0,0,0,GL_FALSE,0,GL_READ_WRITE,GL_RGBA32UI);
