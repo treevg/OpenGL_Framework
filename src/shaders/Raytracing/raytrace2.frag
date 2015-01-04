@@ -46,7 +46,6 @@ float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 
 float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
 {
-   // const float INFINITY = 1e10;
     vec3 u, v, n; // triangle vectors
     vec3 w0, w;  // ray vectors
     float r, a, b; // params to calc ray-plane intersect
@@ -54,14 +53,13 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     // get triangle edge vectors and plane normal
     u = vertex1 - vertex0;
     v = vertex2 - vertex0;
-    n = cross(u, v);
+    n = normalize( cross(u,v) );
 	tempNormal = n;
 
-    w0 = orig - vertex0;
-    a = -dot(n, w0);
-    b = dot(n, dir);
-    if (abs(b) < 1e-5)
-    {
+    w0	= orig - vertex0;
+    a	= -dot(n, w0);
+    b	= dot(n, dir);
+    if (abs(b) < 1e-5){
         // ray is parallel to triangle plane, and thus can never intersect.
         return -1.0;
     }
@@ -172,9 +170,7 @@ void main(void)
 			//currentColor *= vec3(1.0,0,0);
 			
 			currentColor *=colorTriangle[hitTriangle/3];
-		
 		 	currentPos = currentPos + currentDir * currentDepth;
-			//currentNormal = tempNormal;
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
 		
@@ -200,7 +196,6 @@ void main(void)
 		// 		fragPosition2= vec4(vec3(currentPos),1);
 		// 		fragDepth2 = vec4(vec3(currentDepth),1);
 		// 	}
-
 		// }
 		if(i == 0){
 			if (hitTriangle == -1 && hitSphere == -1) {

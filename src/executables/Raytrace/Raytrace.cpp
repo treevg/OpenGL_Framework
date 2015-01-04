@@ -7,6 +7,7 @@
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
 #include "ShaderTools/VertexArrayObjects/Grid.h"
+#include "Objectloader/Objectloader.h"
 
 using namespace std;
 using namespace glm;
@@ -15,6 +16,8 @@ using namespace glm;
 
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
+
+auto objl = new Objectloader();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
@@ -140,8 +143,6 @@ std::vector< glm::vec3 > normals;
 int main(int argc, char *argv[]) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-    //glFrontFace(GL_CW);
-   //glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 //    sp -> printUniformInfo();
 //    sp -> printInputInfo();
@@ -154,8 +155,11 @@ int main(int argc, char *argv[]) {
 //    compSP -> printInputInfo();
 //    compSP -> printOutputInfo();
 
-    bool res = loadOBJ(RESOURCES_PATH "/Objects/originalMesh.obj", vertices, uvs, normals);
-    cout<<"OBJECTLOADING = "<<res<<endl;
+//    bool res = loadOBJ(RESOURCES_PATH "/Objects/originalMesh.obj", vertices, uvs, normals);
+//    cout<<"OBJECTLOADING = "<<res<<endl;
+
+    bool bl = objl->loadOBJ(RESOURCES_PATH "/Objects/originalMesh.obj", vertices, uvs, normals);
+    cout<<"OBJECTLOADING = "<<bl<<endl;
 
 
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
@@ -176,7 +180,7 @@ int main(int argc, char *argv[]) {
     mesh.push_back(glm::vec3(0.0, 0.8, 1.5));
     mesh.push_back(glm::vec3(-0.5, -0.5, 1.5));
 
-    mesh.push_back(glm::vec3(0.5, 0.5, 1.5));
+    mesh.push_back(glm::vec3(0.5, 0.5, 0.75));
     mesh.push_back(glm::vec3(0.0, 1.8, 1.0));
     mesh.push_back(glm::vec3(-0.5, 0.5, 1.5));
 
@@ -309,7 +313,7 @@ int main(int argc, char *argv[]) {
 			-> run();
 
            diffWarp
-			-> clear(1,0,0,0)
+			-> clear(0,0,0,0)
             -> update("warpView", warpView)
 			-> update("altView", altView)
 			-> update("invView",invView)
