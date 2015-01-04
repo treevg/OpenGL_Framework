@@ -5,7 +5,10 @@
  *      Author: Moe
  */
 
-#include <Objectloader.h>
+#include "Objectloader.h"
+Objectloader::Objectloader(){
+
+}
 
 bool Objectloader::loadOBJ(
     const char * path,

@@ -15,6 +15,8 @@
 #include <stdlib.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/ext.hpp>
+#include <vector>
 
 
 class Objectloader {
@@ -34,7 +36,6 @@ public:
 
 
 };
-
 
 
 #endif /* LIBRARIES_OBJECTLOADER_OBJECTLOADER_H_ */
