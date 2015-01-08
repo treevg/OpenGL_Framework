@@ -60,6 +60,7 @@ int main(int argc, char *argv[]) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex1Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
+
     glGenTextures(1, &tex2Handle);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex2Handle);
