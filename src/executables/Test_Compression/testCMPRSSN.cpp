@@ -78,7 +78,7 @@ int main(int argc, char *argv[]) {
     // Allocate mipmaps
     glGenerateMipmap(GL_TEXTURE_2D);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, tex3Handle, 0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT1);
+    //glDrawBuffer(GL_COLOR_ATTACHMENT1);
 
     glGenTextures(1, &tex4Handle);
     glActiveTexture(GL_TEXTURE0);
