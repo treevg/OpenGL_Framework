@@ -12,6 +12,6 @@ void main() {
 	
 	vec4 resulting_color = vec4(texel_color.rgba);
 	
-	imageStore(outImgCbCr, index, vec4(vec2(resulting_color.gb), 0, 0));
+	imageStore(outImgCbCr, ivec2(index.x / 2 , index.y), vec4(vec2(resulting_color.gb), 0, 0));
 	imageStore(outImgYA, index, vec4(resulting_color.r, resulting_color.a, 0, 0));
 }

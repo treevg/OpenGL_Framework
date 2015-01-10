@@ -9,7 +9,7 @@ void main() {
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 	
 	vec2 texYA = vec2(imageLoad(inImgYA, index));
-	vec2 texCbCr = vec2(imageLoad(inImgCbCr, index));
+	vec2 texCbCr = vec2(imageLoad(inImgCbCr, ivec2(index.x / 2, index.y)));
 	
 	vec4 texel_color = vec4(texYA.r, texCbCr.rg, texYA.g);
 	
