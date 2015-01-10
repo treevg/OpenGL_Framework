@@ -1,5 +1,5 @@
 #version 430
-layout ( binding = 0, rg16f ) readonly uniform image2D inImgCbCr;
+layout ( binding = 0, rg32f ) readonly uniform image2D inImgCbCr;
 layout ( binding = 1, rg32f ) readonly uniform image2D inImgYA;
 layout ( binding = 2, rgba32f ) writeonly uniform image2D outImageRGBA;
 

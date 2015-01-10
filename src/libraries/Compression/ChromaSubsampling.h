@@ -11,6 +11,8 @@
 class ChromaSubsampling {
 
 
+
+
 };
 
 #endif /* CHROMASUBSAMPLING_H_ */
