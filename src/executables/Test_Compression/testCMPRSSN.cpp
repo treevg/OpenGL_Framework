@@ -42,6 +42,9 @@ GLuint tex3Handle;
 GLuint tex4Handle;
 GLuint frameBufferObjectHandle;
 
+double mouseX, mouseY;
+vector<float> pixelColor(4);
+
 int main(int argc, char *argv[]) {
     glGenFramebuffers(1, &frameBufferObjectHandle);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
@@ -110,6 +113,12 @@ int main(int argc, char *argv[]) {
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
+        if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+     	   glfwGetCursorPos(window, &mouseX, &mouseY);
+     	   cout<<"Position of mouse X:" << mouseX << ", Y:" << height - mouseY<<endl;
+     	   glReadPixels(mouseX, mouseY, 1, 1, GL_RGBA, GL_FLOAT, &pixelColor[0]);
+     	   cout<< "Color in that pixel   R: "<< pixelColor[0] << ", G: " << pixelColor[1] << endl;
+        };
 
         //rotate and translate the cube for a neat little animation
         cubeAngle = fmod((cubeAngle + rotationSpeed * glfwGetTime()), (pi<float>() * 2.0f));
