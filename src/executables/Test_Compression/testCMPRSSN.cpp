@@ -107,17 +107,17 @@ int main(int argc, char *argv[]) {
     // compositingSP->printInputInfo();
     // compositingSP->printOutputInfo();
 
-    YCbCrToRGB->printInputInfo();
-    YCbCrToRGB->printUniformInfo();
-    YCbCrToRGB->printOutputInfo();
+//    YCbCrToRGB->printInputInfo();
+//    YCbCrToRGB->printUniformInfo();
+//    YCbCrToRGB->printOutputInfo();
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
      	   glfwGetCursorPos(window, &mouseX, &mouseY);
      	   cout<<"Position of mouse X:" << mouseX << ", Y:" << height - mouseY<<endl;
-     	   glReadPixels(mouseX, mouseY, 1, 1, GL_RGBA, GL_FLOAT, &pixelColor[0]);
-     	   cout<< "Color in that pixel   R: "<< pixelColor[0] << ", G: " << pixelColor[1] << endl;
+     	   glReadPixels(mouseX, height - mouseY, 1, 1, GL_RGBA, GL_FLOAT, &pixelColor[0]);
+     	   cout<< "Color in that pixel   R: "<< pixelColor[0] << " G: " << pixelColor[1] << " B: " << pixelColor[2] << " A: " << pixelColor[3]<< endl;
         };
 
         //rotate and translate the cube for a neat little animation
