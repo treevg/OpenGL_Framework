@@ -2,7 +2,7 @@
 #include <ShaderTools/RenderPass.h>
 
 /**
- * Owns RGBA 32bit Unsigned Integer textures as draw buffers
+ * Has a RGBA 32bit Unsigned Integer textures as draw buffer and no depth buffer
  */
 class Slicemap : public FrameBufferObject
 {
