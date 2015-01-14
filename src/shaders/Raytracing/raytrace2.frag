@@ -31,6 +31,7 @@ vec3 	currentColor2 = vec3(1,1,1);
 float 	currentDepth;
 vec3 	currentNormal;
 vec3 	tempNormal;
+const float INFINITY = 1e10;
 
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
