@@ -16,6 +16,7 @@ void main() {
 	float z = texture(depth,pos).x;
 	
 	if(warpView==0){
+		if(z>=999){z=0;}
 		vec4 w	= invView*vec4(pos * 2 - 1, z,1);
 		gl_Position = altView*w;
 	}
