@@ -1,3 +1,6 @@
+#ifndef SLICEMAPUTILITIES_H_
+#define SLICEMAPUTILITIES_H_
+
 #include <ShaderTools/FrameBufferObject.h>
 #include <ShaderTools/RenderPass.h>
 
@@ -24,3 +27,5 @@ class SlicemapRenderPass : public RenderPass
 // create 32bit uint bitmask
 GLuint createR32UIBitMask();
 GLuint createRGBA32UIBitMask();
+
+#endif
