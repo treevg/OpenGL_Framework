@@ -179,7 +179,7 @@ int main(int argc, char *argv[]) {
 
         //slightly different VM
         mat4 altView(1);
-        altView= translate(altView, vec3(0.2,0,-4.0));
+        altView= translate(altView, vec3(0.1,0,-4.0));
         altView = rotate(altView, -verticalAngle, vec3(1,0,0));
         altView = rotate(altView, -horizontalAngle, vec3(0,1,0));
 
@@ -192,6 +192,11 @@ int main(int argc, char *argv[]) {
         mat4 invProjection = inverse(projection);
         mat4 invViewProjection = inverse(projection * view);
         // cout << to_string(dir) << endl;
+
+        mat4 onlyRotation = mat4( 1.0, 1.0, 1.0, 0.0,
+        					  	  1.0, 1.0, 1.0, 0.0,
+								  1.0, 1.0, 1.0, 0.0,
+								  0.0, 0.0, 0.0, 1.0 );
 
         if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS) {
             pass2
@@ -234,7 +239,9 @@ int main(int argc, char *argv[]) {
 			-> clear(0,0,0,0)
             -> update("warpView", warpView)
 			-> update("altView", altView)
-			-> update("invView",invView)
+			-> update("onlyRotation",onlyRotation)
+			-> update("invViewProjection", invViewProjection)
+			-> update("projection", projection)
 			-> texture("color", pass1->get("fragColor"))
 			-> texture("depth", passLin->get("fragColor"))
 			-> run();
