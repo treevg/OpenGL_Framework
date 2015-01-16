@@ -25,36 +25,41 @@ void main() {
 	vec4 gbufferPosition = texture(positionMap, passUV);
 	if ( gbufferPosition.a != 0.0)
 	{
-	vec4 gbufferColor = texture(colorMap, passUV);
-	
-	// retrieve world positon of sample
-	vec4 worldPos = inverse( view ) * ( gbufferPosition );
-	
-	// project into shadow map
-	vec4 lightPerspPos = lightPerspective * lightView * worldPos;	
-	lightPerspPos.xyz /= lightPerspPos.w;
-	lightPerspPos.xyz *= 0.5;
-	lightPerspPos.xyz += 0.5;
-	
-	// read pixel from shadow map
-	vec2 shadowMapLookup   = lightPerspPos.xy ;
-	uvec4 shadowMapVal = texture( shadowMap, shadowMapLookup );
-	
-	// amount of set slices in direction to light source
-	int fullSlices = 0;					
-	
-	// for every slice from fragment depth (offset by one slice) to light source
-	for ( float t = lightPerspPos.z - 1.0/128.0; t >= 0.0 && t <= 1.0; t-= 1.0 / 128.0 )
-	{
-		// bitmask of current slice
-		uvec4 currentBitMask = texture( bitMask, t );
-
-		// compare mask to shadow map value by bitwise AND
-		if ( dot( (currentBitMask & shadowMapVal), uvec4(1,1,1,1) ) != 0 )
+		vec4 gbufferColor = texture(colorMap, passUV);
+		
+		// retrieve world positon of sample
+		vec4 worldPos = inverse( view ) * ( gbufferPosition );
+		
+		// project into shadow map
+		vec4 lightPerspPos = lightPerspective * lightView * worldPos;	
+		lightPerspPos.xyz /= lightPerspPos.w;
+		lightPerspPos.xyz *= 0.5;
+		lightPerspPos.xyz += 0.5;
+		
+		// read pixel from shadow map
+		vec2 shadowMapLookup   = lightPerspPos.xy ;
+		float t = lightPerspPos.z;
+		
+		int fullSlices = 0;
+		if ( t >= 0.0 && t < 1.0 )
 		{
-			fullSlices ++;
-		}
-	}
+			uvec4 shadowMapVal = texture( shadowMap, shadowMapLookup );
+	
+			// truncate bits of shadowmap value
+			uvec4 mask = texture(bitMask, t); // i.e. 0000|0100|0000|0000
+			mask =  mask - 1; // i.e. 1111|0011|1111|1111
+			if (t >= 0.25)
+				mask.r = 1;			 // i.e. 0001|0011|1111|1111
+			if (t >= 0.5)
+				mask.g = 1;	
+			if (t >= 0.75)
+				mask.b = 1;
+			mask *= -1;				// i.e. 1111|1100|0000|0000
+			uvec4 slicesToLight = mask & shadowMapVal;
+		
+			// amount of set slices in direction to light source
+			fullSlices = int( dot( bitCount(slicesToLight), uvec4(1,1,1,1) ) );
+		}		
 		fragmentColor = vec4 ( gbufferColor.rgb * pow( 1.0 - ( opacityPerSlice ), fullSlices ), 1.0 );
 	}
 	else
