@@ -28,11 +28,11 @@ auto cube = new Cube();
 auto quad = new Quad();
 
 // RENDERPASSES
-int gridResX = 256;	// slice map resolution
-int gridResY = 256;
+int gridResX = 512;	// slice map resolution
+int gridResY = 512;
 
 auto pass = new RenderPass( cube, sp, width, height );	// render object
-auto slicemappingPass = new SlicemapRenderPass( cube, slicemappingShader, width, height ); // render slice map
+auto slicemappingPass = new SlicemapRenderPass( cube, slicemappingShader, gridResX, gridResY ); // render slice map
 auto transmissiveShadowmappingPass = new RenderPass( quad, transmissiveShadowmapping);	// apply transmissive shadowmap
 
 // GLOBAL VARIABLES
@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 
 	// generate random small cube positions and a ground cube
 	srand(time(NULL));
-	for (int i = 0; i < 100; i++)
+	for (int i = 0; i < 75; i++)
 	{
 		float offX = ( (float( rand()) / float(RAND_MAX) ) - 0.5f ); // -0.5..0.5
 		float offY = ( (float( rand()) / float(RAND_MAX) ) * 0.75f - 0.25f) ; // 0.0..0.75
@@ -113,6 +113,9 @@ int main(int argc, char *argv[]) {
 		->update("near", lightNear)
 		->update("far", lightFar);
 
+		//adjust viewport to slicemap resolution
+		glViewport(0,0,gridResX,gridResY);
+
 		for ( unsigned int i = 0; i < positions.size(); i++ )
 		{
 			slicemappingPass
@@ -124,6 +127,7 @@ int main(int argc, char *argv[]) {
 		glBindTexture(GL_TEXTURE_1D, 0);
 		glDisable(GL_COLOR_LOGIC_OP);
 		glLogicOp(GL_COPY);
+		glViewport(0,0,width,height);
 
 		// render scene
         pass

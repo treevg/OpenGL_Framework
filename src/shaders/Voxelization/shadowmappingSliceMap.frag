@@ -44,7 +44,7 @@ void main() {
 	int fullSlices = 0;					
 	
 	// for every slice from fragment depth (offset by one slice) to light source
-	for ( float t = lightPerspPos.z - 1.0/128.0; t >= 0.0; t-= 1.0 / 128.0 )
+	for ( float t = lightPerspPos.z - 1.0/128.0; t >= 0.0 && t <= 1.0; t-= 1.0 / 128.0 )
 	{
 		// bitmask of current slice
 		uvec4 currentBitMask = texture( bitMask, t );
@@ -56,7 +56,6 @@ void main() {
 		}
 	}
 		fragmentColor = vec4 ( gbufferColor.rgb * pow( 1.0 - ( opacityPerSlice ), fullSlices ), 1.0 );
-//		fragmentColor = vec4 ( gbufferColor.rgb * 1.0 - ( opacityPerSlice )* fullSlices ,1.0 );
 	}
 	else
 	{
