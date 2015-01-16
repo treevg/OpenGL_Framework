@@ -31,8 +31,8 @@ auto quad = new Quad();
 int gridResX = 256;	// slice map resolution
 int gridResY = 256;
 
-auto pass = new RenderPass( cube, sp, width, height );	// render cube
-auto slicemappingPass = new SlicemapRenderPass( cube, slicemappingShader, gridResX, gridResY ); // render slice map
+auto pass = new RenderPass( cube, sp, width, height );	// render object
+auto slicemappingPass = new SlicemapRenderPass( cube, slicemappingShader, width, height ); // render slice map
 auto transmissiveShadowmappingPass = new RenderPass( quad, transmissiveShadowmapping);	// apply transmissive shadowmap
 
 // GLOBAL VARIABLES
