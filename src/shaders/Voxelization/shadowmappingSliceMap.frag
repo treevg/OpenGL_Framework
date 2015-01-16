@@ -32,9 +32,9 @@ void main() {
 	
 	// project into shadow map
 	vec4 lightPerspPos = lightPerspective * lightView * worldPos;	
-	lightPerspPos /= lightPerspPos.w;
-	lightPerspPos.rgb *= 0.5;
-	lightPerspPos.rgb += 0.5;
+	lightPerspPos.xyz /= lightPerspPos.w;
+	lightPerspPos.xyz *= 0.5;
+	lightPerspPos.xyz += 0.5;
 	
 	// read pixel from shadow map
 	vec2 shadowMapLookup   = lightPerspPos.xy ;
@@ -44,19 +44,19 @@ void main() {
 	int fullSlices = 0;					
 	
 	// for every slice from fragment depth (offset by one slice) to light source
-	for ( float t = lightPerspPos.z; t >= 0.0; t-= 1.0 / 128.0 )
+	for ( float t = lightPerspPos.z - 1.0/128.0; t >= 0.0; t-= 1.0 / 128.0 )
 	{
 		// bitmask of current slice
 		uvec4 currentBitMask = texture( bitMask, t );
 
 		// compare mask to shadow map value by bitwise AND
-		if ( (currentBitMask & shadowMapVal) != uvec4(0) )
+		if ( dot( (currentBitMask & shadowMapVal), uvec4(1,1,1,1) ) != 0 )
 		{
 			fullSlices ++;
 		}
 	}
-	
 		fragmentColor = vec4 ( gbufferColor.rgb * pow( 1.0 - ( opacityPerSlice ), fullSlices ), 1.0 );
+//		fragmentColor = vec4 ( gbufferColor.rgb * 1.0 - ( opacityPerSlice )* fullSlices ,1.0 );
 	}
 	else
 	{

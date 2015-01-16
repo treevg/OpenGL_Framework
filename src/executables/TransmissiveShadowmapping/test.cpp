@@ -36,23 +36,23 @@ auto slicemappingPass = new SlicemapRenderPass( cube, slicemappingShader, gridRe
 auto transmissiveShadowmappingPass = new RenderPass( quad, transmissiveShadowmapping);	// apply transmissive shadowmap
 
 // GLOBAL VARIABLES
-float red = 0.1f;   // object colors
-float green = 0.75f;
-float blue = 0.1f;
+float red = 0.133f;   // object colors
+float green = 0.545f;
+float blue = 0.133f;
 
-float opacityPerSlice = 0.03f;	// visibility of cube
+float opacityPerSlice = 0.15f;
 
 // camera / object parameters
 float near = 0.1f;
-float far  = 10.0f;
+float far  = 4.0f;
 glm::mat4 model = glm::mat4(1.0f);
 std::vector<glm::mat4> positions;
-glm::mat4 view = glm::lookAt(glm::vec3(0.0f,0.0f,3.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f) );
+glm::mat4 view = glm::lookAt(glm::vec3(0.0f,0.0f,1.5f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,1.0f,0.0f) );
 glm::mat4 projection = glm::perspective(60.0f * PI / 180.0f, (float) width/height, near, far );
 
 // voxelization camera parameters
 float lightNear = 0.0f;
-float lightFar = 1.5f;
+float lightFar = 2.0f;
 glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,0.0f,0.0f), glm::vec3(0.0f,0.0f,-1.0f) );
 glm::mat4 lightProjection = glm::ortho( -1.5f, 1.5f, -1.5f, 1.5f, lightNear, lightFar );
 
@@ -60,17 +60,17 @@ GLuint bitmask = createRGBA32UIBitMask();	// handle of 1D bitmask texture
 GLuint clearSlicemap[4] = {0, 0, 0, 0};
 
 int main(int argc, char *argv[]) {
+
 	// generate random small cube positions and a ground cube
 	srand(time(NULL));
-	for (int i = 0; i < 30; i++)
+	for (int i = 0; i < 100; i++)
 	{
-		float offX = ( (float( rand()) / float(RAND_MAX) ) - 0.5f ) * 2.0f; // -1..1
-		float offY = ( (float( rand()) / float(RAND_MAX) ) - 0.5f ) ; // -0.5..0.5
-		float offZ = ( (float( rand()) / float(RAND_MAX) ) - 0.5f ) * 2.0f; // -1..1
-		positions.push_back( glm::translate(offX,offY,offZ) * glm::scale(glm::mat4(1.0f), 0.1f,0.01f,0.1f) );
+		float offX = ( (float( rand()) / float(RAND_MAX) ) - 0.5f ); // -0.5..0.5
+		float offY = ( (float( rand()) / float(RAND_MAX) ) * 0.75f - 0.25f) ; // 0.0..0.75
+		float offZ = ( (float( rand()) / float(RAND_MAX) ) - 0.5f ); // -0.5..0.5
+		positions.push_back( glm::translate(offX,offY,offZ) * glm::scale(glm::mat4(1.0f), 0.1f,0.005f,0.1f) ); // small plane
 	}
-	positions.push_back( glm::translate(0.0f,-0.5f,0.0f) * glm::scale(glm::mat4(1.0f), 1.25f, 0.01f, 1.25f ) );
-
+	positions.push_back( glm::translate(0.0f,-0.5f,0.0f) * glm::scale(glm::mat4(1.0f), 1.25f, 0.01f, 1.25f ) ); // ground plane
 
     sp -> printUniformInfo();
     sp -> printInputInfo();
@@ -103,7 +103,7 @@ int main(int argc, char *argv[]) {
 		glLogicOp(GL_OR);
 
 		// bind bitmask to texture unit 0
-		glActiveTexture(0);
+		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_1D, bitmask);
 
 		// render slicemap
@@ -142,15 +142,12 @@ int main(int argc, char *argv[]) {
 					->run();
 		}
 
-        //bind slicemap to image unit 0
-//      glBindImageTexture(0, slicemappingPass->get("slice0_127"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32UI );
-
         // bind bitmask & slicemap to texture unit 5 & 6 (arbitrary units...)
-   		glActiveTexture(5);
+   		glActiveTexture(GL_TEXTURE0 + 5);
     	glBindTexture(GL_TEXTURE_1D, bitmask);
-   		glActiveTexture(6);
+   		glActiveTexture(GL_TEXTURE0 + 6);
     	glBindTexture(GL_TEXTURE_2D, slicemappingPass->get("slice0_127"));
-   		glActiveTexture(0);
+   		glActiveTexture(GL_TEXTURE0);
 
         // apply transmissive shadowmapping onto scene for visualization
 		transmissiveShadowmappingPass
@@ -163,14 +160,11 @@ int main(int argc, char *argv[]) {
         ->update("opacityPerSlice", opacityPerSlice)
         ->run();
 
-		// unbind image & texture units (clean up)
-//		glBindImageTexture(0,0,0,GL_FALSE,0,GL_READ_WRITE,GL_RGBA32UI);
-
-   		glActiveTexture(5);
+   		glActiveTexture(GL_TEXTURE0 + 5);
     	glBindTexture(GL_TEXTURE_1D, 0);
-   		glActiveTexture(6);
+   		glActiveTexture(GL_TEXTURE0 + 6);
     	glBindTexture(GL_TEXTURE_2D, 0);
-   		glActiveTexture(0);
+   		glActiveTexture(GL_TEXTURE0);
 
     });
 }
