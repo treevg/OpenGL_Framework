@@ -139,6 +139,22 @@ int main(int argc, char *argv[]) {
 //    YCbCrToRGB->printUniformInfo();
 //    YCbCrToRGB->printOutputInfo();
 
+    glBindTexture(GL_TEXTURE_2D, tex1Handle);																	//prepare swapping Texture between Memories
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
+    std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
+
+    data = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+    int y=0;
+        for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
+                {
+                        y++;
+                }
+    cout<<"size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
+    cout<<"array: " << y * 4<<endl;
+    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation
+
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
@@ -186,6 +202,18 @@ int main(int argc, char *argv[]) {
         glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        glBindTexture(GL_TEXTURE_2D, tex1Handle);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        vector<ColorField> test = doRLE(data);
+
+        cout<<test.size() * sizeof(float) *4<<endl;
+
+        glBindTexture(GL_TEXTURE_2D, tex1Handle);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE, 0);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
