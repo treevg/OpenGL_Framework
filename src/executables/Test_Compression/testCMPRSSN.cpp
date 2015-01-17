@@ -42,8 +42,11 @@ GLuint tex3Handle;
 GLuint tex4Handle;
 GLuint frameBufferObjectHandle;
 
-double mouseX, mouseY;
-vector<float> pixelColor(4);
+double mouseX, mouseY;																	//stubs for mouse coordinates
+vector<float> pixelColor(4);																//container for color of texture at mouse coordinates
+
+int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Memory
+float *data;																			//container for texture in CPU-Memory as plain array
 
 int main(int argc, char *argv[]) {
     glGenFramebuffers(1, &frameBufferObjectHandle);
