@@ -50,7 +50,7 @@ int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Mem
 float *data;																			//container for texture in CPU-Memory as plain array
 
 vector<ColorField> doRLE(float *array){
-	vector<ColorField> data2;
+	vector<ColorField> data;
 	int startAddressOfPixel = 0;
 	float rOld, gOld, bOld, aOld;
 	int count = 1;
@@ -72,13 +72,14 @@ vector<ColorField> doRLE(float *array){
 			aOld = a;
 
 			ColorField *temp = new ColorField(count, r, g, b,a);
+			count = 1;
 
-			data2.push_back(*temp);
+			data.push_back(*temp);
 			}
 		}
 	}
 
-	return data2;
+	return data;
 }
 
 int main(int argc, char *argv[]) {
@@ -145,15 +146,15 @@ int main(int argc, char *argv[]) {
     std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
 
     data = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);														//this is where the swapping magic happens
     int y=0;
         for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
                 {
                         y++;
                 }
-    cout<<"size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
-    cout<<"array: " << y * 4<<endl;
-    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation
+    cout<<"array has: " << y << " entries, which makes a total of ..." << endl;
+    cout<<"... size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
+    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
 
     renderLoop([]{
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
@@ -208,6 +209,9 @@ int main(int argc, char *argv[]) {
         glBindTexture(GL_TEXTURE_2D, 0);
 
         vector<ColorField> test = doRLE(data);
+
+        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
+        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
 
         cout<<test.size() * sizeof(float) *4<<endl;
 
