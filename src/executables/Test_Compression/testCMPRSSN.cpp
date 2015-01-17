@@ -48,6 +48,38 @@ vector<float> pixelColor(4);																//container for color of texture at 
 int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Memory
 float *data;																			//container for texture in CPU-Memory as plain array
 
+vector<ColorField> doRLE(float *array){
+	vector<ColorField> data2;
+	int startAddressOfPixel = 0;
+	float rOld, gOld, bOld, aOld;
+	int count = 1;
+	for(int x = 0; x < tWidth; x++){
+		for(int y = 0; y < tHeight; y++){
+			startAddressOfPixel = ((y * tWidth) + x) * 4;
+			float r = array[startAddressOfPixel];
+			float g = array[startAddressOfPixel + 4];
+			float b = array[startAddressOfPixel + 8];
+			float a = array[startAddressOfPixel + 12];
+
+			if (rOld == r && gOld == g && bOld == b && aOld == a){
+				count++;
+			}
+			else{
+			rOld = r;
+			gOld = g;
+			bOld = b;
+			aOld = a;
+
+			ColorField *temp = new ColorField(count, r, g, b,a);
+
+			data2.push_back(*temp);
+			}
+		}
+	}
+
+	return data2;
+}
+
 int main(int argc, char *argv[]) {
     glGenFramebuffers(1, &frameBufferObjectHandle);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
