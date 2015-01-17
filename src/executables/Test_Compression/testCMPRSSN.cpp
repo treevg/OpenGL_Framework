@@ -6,6 +6,8 @@
 #include "Compression/ComputeShaderTools.h"
 #include "Compression/ColorField.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace glm;
 
@@ -80,6 +82,44 @@ vector<ColorField> doRLE(float *array){
 	}
 
 	return data;
+}
+
+double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
+	static double tZero = glfwGetTime();
+	static double fps = 0.0;
+
+	static double frames = -1.0;
+
+	frames ++;
+
+	if (interval < 0.0)
+		interval = 0.0;
+	else
+		if (interval > 10.0)
+			interval = 10;
+
+	double timeElapsed = glfwGetTime() - tZero;
+
+	if (timeElapsed > interval){
+		fps = frames / timeElapsed;
+		if (title != "NONE"){
+			std::ostringstream stream;
+			stream << fps;
+			std::string fpsToString = stream.str();
+
+			title += " || Frames per second: " + fpsToString;
+
+			const char* pszConstString = title.c_str();
+			glfwSetWindowTitle(window, pszConstString);
+		}
+		else {
+			cout << "Frames per second: " + fps << endl;
+		}
+		frames = 0.0;
+		tZero = glfwGetTime();
+	}
+
+	return fps;
 }
 
 int main(int argc, char *argv[]) {
@@ -165,6 +205,7 @@ int main(int argc, char *argv[]) {
      	   cout<< "Color in that pixel   R: "<< pixelColor[0] << " G: " << pixelColor[1] << " B: " << pixelColor[2] << " A: " << pixelColor[3]<< endl;
         };
 
+
         //rotate and translate the cube for a neat little animation
         cubeAngle = fmod((cubeAngle + rotationSpeed * glfwGetTime()), (pi<float>() * 2.0f));
         glfwSetTime(0.0);
@@ -204,18 +245,22 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        glBindTexture(GL_TEXTURE_2D, tex1Handle);
+        glBindTexture(GL_TEXTURE_2D, tex2Handle);
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
         glBindTexture(GL_TEXTURE_2D, 0);
 
+        double lastTime = glfwGetTime();
         vector<ColorField> test = doRLE(data);
+        double thisTime = glfwGetTime();
 
-        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
-        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
+        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
 
-        cout<<test.size() * sizeof(float) *4<<endl;
+//        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
+//        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
+//
+//        cout<<test.size() * sizeof(float) *4<<endl;
 
-        glBindTexture(GL_TEXTURE_2D, tex1Handle);
+        glBindTexture(GL_TEXTURE_2D, tex2Handle);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
         glBindTexture(GL_TEXTURE, 0);
 
