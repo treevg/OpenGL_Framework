@@ -51,6 +51,8 @@ vector<float> pixelColor(4);																//container for color of texture at 
 int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Memory
 float *data;																			//container for texture in CPU-Memory as plain array
 
+double oldTime, newTime;
+
 vector<ColorField> doRLE(float *array){
 	vector<ColorField> data;
 	int startAddressOfPixel = 0;
@@ -113,7 +115,7 @@ double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
 			glfwSetWindowTitle(window, pszConstString);
 		}
 		else {
-			cout << "Frames per second: " + fps << endl;
+			std::cout << "Frames per second: " + to_string(fps) << endl;
 		}
 		frames = 0.0;
 		tZero = glfwGetTime();
@@ -197,6 +199,7 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
 
     renderLoop([]{
+		    calculateFPS(1.0, "OpenGL Window");
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {glfwDestroyWindow(window); exit(-1);};						//close the window
         if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
      	   glfwGetCursorPos(window, &mouseX, &mouseY);
@@ -206,9 +209,12 @@ int main(int argc, char *argv[]) {
         };
 
 
+        oldTime = newTime;
+        newTime = glfwGetTime();
+        double delta = newTime - oldTime;
         //rotate and translate the cube for a neat little animation
-        cubeAngle = fmod((cubeAngle + rotationSpeed * glfwGetTime()), (pi<float>() * 2.0f));
-        glfwSetTime(0.0);
+        cubeAngle = fmod((cubeAngle + rotationSpeed * delta), (pi<float>() * 2.0f));
+        //glfwSetTime(0.0);
         cubeModel = translate(rotate(mat4(1.0f), degrees(cubeAngle), vec3(1.0f, 1.0f, 0.0f)), vec3(0.0f, 2.0f, -2.0f));
 
         pass
@@ -245,24 +251,24 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-        glBindTexture(GL_TEXTURE_2D, 0);
+//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+//        glBindTexture(GL_TEXTURE_2D, 0);
 
-        double lastTime = glfwGetTime();
-        vector<ColorField> test = doRLE(data);
-        double thisTime = glfwGetTime();
-
-        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
+//        double lastTime = glfwGetTime();
+//        vector<ColorField> test = doRLE(data);
+//        double thisTime = glfwGetTime();
+//
+//        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
 
 //        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
 //        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
 //
 //        cout<<test.size() * sizeof(float) *4<<endl;
 
-        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
-        glBindTexture(GL_TEXTURE, 0);
+//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
+//        glBindTexture(GL_TEXTURE, 0);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
