@@ -4,6 +4,7 @@
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
+#include "Compression/ColorField.h"
 
 using namespace std;
 using namespace glm;
