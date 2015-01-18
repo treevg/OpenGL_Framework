@@ -29,6 +29,15 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 
     glDrawBuffers(size, &drawBufferHandles[0]);
 
+    //TODO how to acces colorTexture from outside of this fbo???
+
+    // glGenTextures(1, &colorAttachment);
+    // glBindTexture( GL_TEXTURE_2D, colorAttachment);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, 0);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	//glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, colorAttachment, 0);
+
 	GLuint depthTexture;
 	glGenTextures( 1, &depthTexture);
 	glBindTexture( GL_TEXTURE_2D, depthTexture);
@@ -57,6 +66,7 @@ GLuint FrameBufferObject::get(std::string name) {
 	return textureMap[name];
 }
 
+<<<<<<< HEAD
 GLuint FrameBufferObject::getFrameBufferObjectHandle() const {
 	return frameBufferObjectHandle;
 }
@@ -65,3 +75,8 @@ void FrameBufferObject::setFrameBufferObjectHandle(
 		GLuint frameBufferObjectHandle) {
 	this->frameBufferObjectHandle = frameBufferObjectHandle;
 }
+=======
+GLuint FrameBufferObject::getHandle(){
+	return frameBufferObjectHandle;
+}
+>>>>>>> origin/Compute_Shader_Integration

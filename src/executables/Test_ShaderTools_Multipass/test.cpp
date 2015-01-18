@@ -30,7 +30,9 @@ float lum2 = 0.5;
 float lum3 = 0.5;
 
 int main(int argc, char *argv[]) {
-    compSP->printUniformInfo();
+    singleColorSP->printUniformInfo();
+    singleColorSP->printInputInfo();
+    singleColorSP->printOutputInfo();
 
     renderLoop([]{
         float delta = 0.0;
