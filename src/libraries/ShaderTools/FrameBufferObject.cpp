@@ -66,7 +66,7 @@ GLuint FrameBufferObject::get(std::string name) {
 	return textureMap[name];
 }
 
-<<<<<<< HEAD
+
 GLuint FrameBufferObject::getFrameBufferObjectHandle() const {
 	return frameBufferObjectHandle;
 }
@@ -75,8 +75,8 @@ void FrameBufferObject::setFrameBufferObjectHandle(
 		GLuint frameBufferObjectHandle) {
 	this->frameBufferObjectHandle = frameBufferObjectHandle;
 }
-=======
+
 GLuint FrameBufferObject::getHandle(){
 	return frameBufferObjectHandle;
 }
->>>>>>> origin/Compute_Shader_Integration
+

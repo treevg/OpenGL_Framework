@@ -12,14 +12,14 @@ public:
 	FrameBufferObject* clear(float r, float g, float b, float a);
 	FrameBufferObject* clear();
 	GLuint get(std::string name);
-<<<<<<< HEAD
+
 
 	GLuint getFrameBufferObjectHandle() const;
 	void setFrameBufferObjectHandle(GLuint frameBufferObjectHandle);
 
-=======
+
 	GLuint getHandle();
->>>>>>> origin/Compute_Shader_Integration
+
 protected:
 	GLuint colorAttachment;
 	GLuint frameBufferObjectHandle;
