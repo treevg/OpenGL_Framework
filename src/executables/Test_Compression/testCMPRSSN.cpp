@@ -10,6 +10,10 @@
 using namespace std;
 using namespace glm;
 
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ *------------------------------------------------------variable declaration--------------------------------------------------------------------------
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 auto pass = new RenderPass(new Cube(), sp, width, height);
 //auto pass = new RenderPass(new Cube(), sp);
@@ -27,7 +31,7 @@ float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
 
 glm::mat4 viewMat       = glm::lookAt(
-    glm::vec3(0,10,10), // Camera is at (0,10,10), in World Space
+    glm::vec3(0,5,4), // Camera is at (0,10,10), in World Space
     glm::vec3(0,0,0), // and looks at the origin
     glm::vec3(0,1,0));  // Head is up (set to 0, 1 ,0 to look upside-down)
 
@@ -48,9 +52,14 @@ double mouseX, mouseY;																	//stubs for mouse coordinates
 vector<float> pixelColor(4);																//container for color of texture at mouse coordinates
 
 int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Memory
-float *data;																			//container for texture in CPU-Memory as plain array
+float* data;																			//container for texture in CPU-Memory as plain array
+float* data2;
 
 double oldTime, newTime;
+
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ *------------------------------------------------------function declaration--------------------------------------------------------------------------
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 vector<ColorField> doRLE(float *array){
 	vector<ColorField> data;
@@ -67,16 +76,13 @@ vector<ColorField> doRLE(float *array){
 
 			if (rOld == r && gOld == g && bOld == b && aOld == a){
 				count++;
-
 			}
 			else{
 			rOld = r;
 			gOld = g;
 			bOld = b;
 			aOld = a;
-
 			ColorField *temp = new ColorField(count, r, g, b,a);
-
 			data.push_back(*temp);
 			count = 1;
 			}
@@ -88,23 +94,18 @@ vector<ColorField> doRLE(float *array){
 
 vector<ColorField> doRLE2(float *array){
 	vector<ColorField> data;
-	int i = 0;
 	float rOld = array[0];
 	float gOld = array[4];
 	float bOld = array[8];
 	float aOld = array[12];
 	int count = 0;
-	for(int i = 0; i < tWidth * tHeight; i+=16){
+	for(int i = 0; i < (tWidth * tHeight) * 4; i+=16){
 		float r = array[i];
 		float g = array[i + 4];
 		float b = array[i + 8];
 		float a = array[i + 12];
 		if (rOld == r && gOld == g && bOld == b && aOld == a){
 			count++;
-			rOld = r;
-			gOld = g;
-			bOld = b;
-			aOld = a;
 		}
 		else{
 		ColorField *temp = new ColorField(count, rOld, gOld, bOld, aOld);
@@ -119,30 +120,32 @@ vector<ColorField> doRLE2(float *array){
 	return data;
 }
 
-float* doRLEDecode(vector<ColorField> data){
-	float *array;
-	int startAddressOfPixel = 0;
-	int count = 1;
-	for(int x = 0; x < tWidth; x++){
-		for(int y = 0; y < tHeight; y++){
-			int i = data.front().appearence;
-			float r = data.front().r;
-			float g = data.front().g;
-			float b = data.front().b;
-			float a = data.front().a;
+void doRLEDecode(vector<ColorField> data, float* array){
+	int count;
+	for(int i = 0; i < (tWidth * tHeight) * 4; i+=16){
+		count = data.back().appearence;
+		if (count == 1){
+			array[i] = data.back().r;
+			array[i + 4] = data.back().g;
+			array[i + 8] = data.back().b;
+			array[i + 12] = data.back().a;
 
-			for(int j = 1; j <=i; j++){
-				array[startAddressOfPixel] = r;
-				array[startAddressOfPixel+4] = g;
-				array[startAddressOfPixel+8] = b;
-				array[startAddressOfPixel+12] = a;
-			}
-			if(i != 1)
-				y += i;
-			}
+			data.pop_back();
 		}
+		else{
+			for(int j = 0; j < count; j++){
+				array[i] = data.back().r;
+				array[i + 4] = data.back().g;
+				array[i + 8] = data.back().b;
+				array[i + 12] = data.back().a;
+				i += 16;
+				}
+			i-= 16;
+			data.pop_back();
+		}
+	}
 
-	return array;
+	//return array;
 }
 
 double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
@@ -182,6 +185,10 @@ double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
 
 	return fps;
 }
+
+/*-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ *------------------------------------------------------end of declaration--------------------------------------------------------------------------
+ -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
 int main(int argc, char *argv[]) {
     glGenFramebuffers(1, &frameBufferObjectHandle);
@@ -235,6 +242,7 @@ int main(int argc, char *argv[]) {
     std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
 
     data = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
+    data2 = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);														//this is where the swapping magic happens
     int y=0;
         for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
@@ -306,18 +314,15 @@ int main(int argc, char *argv[]) {
         vector<ColorField> test = doRLE2(data);
         double thisTime = glfwGetTime();
 
-//        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
+        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
 
-//        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
-//        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
+        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
+        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
 
-//        float* testDecode = doRLEDecode(test);
+//        cout<< test.front().appearence << " times the Color: " << test.front().r << endl;
 
-        cout<<"-----------------------------------"<<endl;
+//        doRLEDecode(test, data2);
 
-        for(ColorField x : test){
-     	   cout<< x.appearence << " times the Color: " << x.r << endl;
-        }
 
         glBindTexture(GL_TEXTURE_2D, tex2Handle);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
@@ -333,5 +338,6 @@ int main(int argc, char *argv[]) {
 //        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
 //        glBindTexture(GL_TEXTURE_2D, 0);
 
+        cout<<"-----------------------------------"<<endl;
     });
 }
