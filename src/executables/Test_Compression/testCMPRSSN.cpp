@@ -306,27 +306,27 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-        glBindTexture(GL_TEXTURE_2D, 0);
+//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+//        glBindTexture(GL_TEXTURE_2D, 0);
 
-        double lastTime = glfwGetTime();
-        vector<ColorField> test = doRLE2(data);
-        double thisTime = glfwGetTime();
-
-        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
-
-        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
-        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
+//        double lastTime = glfwGetTime();
+//        vector<ColorField> test = doRLE2(data);
+//        double thisTime = glfwGetTime();
+//
+//        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
+//
+//        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
+//        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
 
 //        cout<< test.front().appearence << " times the Color: " << test.front().r << endl;
 
 //        doRLEDecode(test, data2);
 
 
-        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
-        glBindTexture(GL_TEXTURE, 0);
+//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
+//        glBindTexture(GL_TEXTURE, 0);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
@@ -334,10 +334,16 @@ int main(int argc, char *argv[]) {
         ->texture("tex2", tex2Handle)
         ->run();
 
+//        int wiggle;
+//        glBindTexture(GL_TEXTURE_2D, tex3Handle);
+//        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &wiggle);
+//        glBindTexture(GL_TEXTURE_2D, 0);
+//        cout << "width: " << wiggle << endl;
+
 //        glBindTexture(GL_TEXTURE_2D, tex1Handle);
 //        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
 //        glBindTexture(GL_TEXTURE_2D, 0);
 
-        cout<<"-----------------------------------"<<endl;
+//        cout<<"-----------------------------------"<<endl;
     });
 }
