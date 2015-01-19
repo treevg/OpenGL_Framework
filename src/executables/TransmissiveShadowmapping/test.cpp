@@ -9,9 +9,10 @@
 #define PI 3.14159265359f
 
 // DESCRIPTION
-/*
- * This program creates a 128-slices slicemap from an object encoded in a RGBA texture of a 32bit unsigned integer format
- * This slicemap is interpreted as a transmissive shadowmap, which simulates partial light absorption by transmissive material like paper or foliage.
+/* This program uses a slicemap similarly to a shadowmap to simulate partial light absorption (i.e. foliage, transmissive material)
+ * A 128-slices slicemap is used as the render target of the light source's view (see Slicemapping program).
+ * A G-Buffer (color, position) is used as the render target of the camera view.
+ * A screenfilling quad is rendered to evaluate the shadow map, by counting the set bits between the fragment's position and the light source.
  */
 
 // SHADER PROGRAMS
