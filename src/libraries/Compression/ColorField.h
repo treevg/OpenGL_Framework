@@ -7,10 +7,10 @@
 class ColorField{
 private:
 
-int appearence;
-float r, g, b, a;
 
 public:
+int appearence;
+float r, g, b, a;
 	ColorField();
 	ColorField(int appearence, float rNew, float gNew, float bNew, float aNew){
 		this->appearence = appearence;

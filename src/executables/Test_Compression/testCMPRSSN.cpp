@@ -67,6 +67,7 @@ vector<ColorField> doRLE(float *array){
 
 			if (rOld == r && gOld == g && bOld == b && aOld == a){
 				count++;
+
 			}
 			else{
 			rOld = r;
@@ -83,6 +84,65 @@ vector<ColorField> doRLE(float *array){
 	}
 
 	return data;
+}
+
+vector<ColorField> doRLE2(float *array){
+	vector<ColorField> data;
+	int i = 0;
+	float rOld = array[0];
+	float gOld = array[4];
+	float bOld = array[8];
+	float aOld = array[12];
+	int count = 0;
+	for(int i = 0; i < tWidth * tHeight; i+=16){
+		float r = array[i];
+		float g = array[i + 4];
+		float b = array[i + 8];
+		float a = array[i + 12];
+		if (rOld == r && gOld == g && bOld == b && aOld == a){
+			count++;
+			rOld = r;
+			gOld = g;
+			bOld = b;
+			aOld = a;
+		}
+		else{
+		ColorField *temp = new ColorField(count, rOld, gOld, bOld, aOld);
+		data.push_back(*temp);
+		rOld = r;
+		gOld = g;
+		bOld = b;
+		aOld = a;
+		count = 1;
+		}
+	}
+	return data;
+}
+
+float* doRLEDecode(vector<ColorField> data){
+	float *array;
+	int startAddressOfPixel = 0;
+	int count = 1;
+	for(int x = 0; x < tWidth; x++){
+		for(int y = 0; y < tHeight; y++){
+			int i = data.front().appearence;
+			float r = data.front().r;
+			float g = data.front().g;
+			float b = data.front().b;
+			float a = data.front().a;
+
+			for(int j = 1; j <=i; j++){
+				array[startAddressOfPixel] = r;
+				array[startAddressOfPixel+4] = g;
+				array[startAddressOfPixel+8] = b;
+				array[startAddressOfPixel+12] = a;
+			}
+			if(i != 1)
+				y += i;
+			}
+		}
+
+	return array;
 }
 
 double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
@@ -169,19 +229,6 @@ int main(int argc, char *argv[]) {
     glClearBufferfv(GL_COLOR, 0, clearColor);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-    // sp -> printUniformInfo();
-    // sp -> printInputInfo();
-    // sp -> printOutputInfo();
-
-    // compositingSP->printUniformInfo();
-    // compositingSP->printInputInfo();
-    // compositingSP->printOutputInfo();
-
-//    YCbCrToRGB->printInputInfo();
-//    YCbCrToRGB->printUniformInfo();
-//    YCbCrToRGB->printOutputInfo();
-
     glBindTexture(GL_TEXTURE_2D, tex1Handle);																	//prepare swapping Texture between Memories
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
@@ -251,24 +298,30 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-//        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
-//        double lastTime = glfwGetTime();
-//        vector<ColorField> test = doRLE(data);
-//        double thisTime = glfwGetTime();
-//
+        double lastTime = glfwGetTime();
+        vector<ColorField> test = doRLE2(data);
+        double thisTime = glfwGetTime();
+
 //        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
 
 //        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
 //        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
-//
-//        cout<<test.size() * sizeof(float) *4<<endl;
 
-//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
-//        glBindTexture(GL_TEXTURE, 0);
+//        float* testDecode = doRLEDecode(test);
+
+        cout<<"-----------------------------------"<<endl;
+
+        for(ColorField x : test){
+     	   cout<< x.appearence << " times the Color: " << x.r << endl;
+        }
+
+        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE, 0);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
