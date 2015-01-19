@@ -5,11 +5,7 @@
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
 #include "Compression/ColorField.h"
-<<<<<<< HEAD
-=======
-
 #include <sstream>
->>>>>>> origin/Chroma-Subsampling-Method-1-smaller-texture
 
 using namespace std;
 using namespace glm;
@@ -48,14 +44,6 @@ GLuint tex3Handle;
 GLuint tex4Handle;
 GLuint frameBufferObjectHandle;
 
-<<<<<<< HEAD
-int tWidth, tHeight;
-float *data;
-
-
-vector<ColorField> doRLE(float *array){
-	vector<ColorField> data2;
-=======
 double mouseX, mouseY;																	//stubs for mouse coordinates
 vector<float> pixelColor(4);																//container for color of texture at mouse coordinates
 
@@ -66,7 +54,6 @@ double oldTime, newTime;
 
 vector<ColorField> doRLE(float *array){
 	vector<ColorField> data;
->>>>>>> origin/Chroma-Subsampling-Method-1-smaller-texture
 	int startAddressOfPixel = 0;
 	float rOld, gOld, bOld, aOld;
 	int count = 1;
@@ -88,21 +75,13 @@ vector<ColorField> doRLE(float *array){
 			aOld = a;
 
 			ColorField *temp = new ColorField(count, r, g, b,a);
-<<<<<<< HEAD
-
-			data2.push_back(*temp);
-=======
-			count = 1;
 
 			data.push_back(*temp);
->>>>>>> origin/Chroma-Subsampling-Method-1-smaller-texture
+			count = 1;
 			}
 		}
 	}
 
-<<<<<<< HEAD
-	return data2;
-=======
 	return data;
 }
 
@@ -142,7 +121,6 @@ double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
 	}
 
 	return fps;
->>>>>>> origin/Chroma-Subsampling-Method-1-smaller-texture
 }
 
 int main(int argc, char *argv[]) {
@@ -171,49 +149,27 @@ int main(int argc, char *argv[]) {
     glGenTextures(1, &tex3Handle);																//this is going to be CbCr Texture
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex3Handle);
-<<<<<<< HEAD
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width/2, height/2, 0, GL_RG, GL_FLOAT, NULL);
-    // Allocate mipmaps
-    glGenerateMipmap(GL_TEXTURE_2D);
-=======
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width/2, height, 0, GL_RG, GL_FLOAT, NULL);
->>>>>>> origin/Chroma-Subsampling-Method-1-smaller-texture
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, tex3Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT2);
 
     glGenTextures(1, &tex4Handle);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex4Handle);
-<<<<<<< HEAD
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width/2, height/2, 0, GL_RG, GL_FLOAT, NULL);
-    // Allocate mipmaps
-    glGenerateMipmap(GL_TEXTURE_2D);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, tex4Handle, 0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT1);
-=======
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, width, height, 0, GL_RG, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, tex4Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT3);
->>>>>>> origin/Chroma-Subsampling-Method-1-smaller-texture
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
     GLfloat clearColor[4] = {0, 1, 0, 0};
     glClearBufferfv(GL_COLOR, 0, clearColor);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-<<<<<<< HEAD
-    YCbCrToRGB->printInputInfo();
-    YCbCrToRGB->printUniformInfo();
-    YCbCrToRGB->printOutputInfo();
-=======
+
     // sp -> printUniformInfo();
     // sp -> printInputInfo();
     // sp -> printOutputInfo();
@@ -241,23 +197,6 @@ int main(int argc, char *argv[]) {
     cout<<"array has: " << y << " entries, which makes a total of ..." << endl;
     cout<<"... size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
     glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
->>>>>>> origin/Chroma-Subsampling-Method-1-smaller-texture
-
-    glBindTexture(GL_TEXTURE_2D, tex1Handle);																	//prepare swapping Texture between Memories
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
-    std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
-
-    data = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-    int y=0;
-        for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
-                {
-                        y++;
-                }
-    cout<<"size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
-    cout<<"array: " << y * 4<<endl;
-    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation
 
     renderLoop([]{
 		    calculateFPS(1.0, "OpenGL Window");
@@ -286,68 +225,18 @@ int main(int argc, char *argv[]) {
         -> texture("tex2", textureHandle)
         -> run();
 
-<<<<<<< HEAD
-//        cs->use();
-
         RGBtoYCbCr->use();
-        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);		//INPUT texture
+        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         compressCbCr->use();
-        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
+        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture2  Brightness-Channel (Y) and Depth-Channel/transperancy (A)
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-        YCbCrToRGB->use();
-        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-        glDispatchCompute(int(width/16), int(height/16), 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-        glBindTexture(GL_TEXTURE_2D, tex1Handle);
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        vector<ColorField> test = doRLE(data);
-
-        cout<<test.size() * sizeof(float) *4<<endl;
-
-        glBindTexture(GL_TEXTURE_2D, tex1Handle);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
-        glBindTexture(GL_TEXTURE, 0);
-
-
-
-
-
-//        compressedYCbCrToRGB->use();
-//        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG16F);
-//        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
-//        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-        pass2
-        ->clear(1, 1, 1, 0)
-//        ->texture("tex2", pass->get("fragColor"))
-        ->texture("tex2", tex1Handle)
-=======
-//        RGBtoYCbCr->use();
-//        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);		//INPUT texture
-//        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-//
-//        compressCbCr->use();
-//        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
-//        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture2  Brightness-Channel (Y) and Depth-Channel/transperancy (A)
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 //        YCbCrToRGB->use();
 //        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
@@ -355,12 +244,12 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        compressedYCbCrToRGB->use();
-//        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
-//        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
-//        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        compressedYCbCrToRGB->use();
+        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
+        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
+        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 //        glBindTexture(GL_TEXTURE_2D, tex2Handle);
 //        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
@@ -383,9 +272,8 @@ int main(int argc, char *argv[]) {
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
-        ->texture("tex2", pass->get("fragColor"))
-//        ->texture("tex2", tex2Handle)
->>>>>>> origin/Chroma-Subsampling-Method-1-smaller-texture
+//        ->texture("tex2", pass->get("fragColor"))
+        ->texture("tex2", tex2Handle)
         ->run();
 
 //        glBindTexture(GL_TEXTURE_2D, tex1Handle);
