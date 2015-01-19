@@ -8,10 +8,6 @@
 
 #define PI 3.14159265359f
 
-/**TODO
- * - fix bugs
- */
-
 // DESCRIPTION
 /*
  * This program creates a 128-slices slicemap from an object encoded in a RGBA texture of a 32bit unsigned integer format
@@ -57,6 +53,7 @@ glm::mat4 lightView = glm::lookAt(glm::vec3(0.0f,1.0f,0.0f), glm::vec3(0.0f,0.0f
 glm::mat4 lightProjection = glm::ortho( -1.5f, 1.5f, -1.5f, 1.5f, lightNear, lightFar );
 
 GLuint bitmask = createRGBA32UIBitMask();	// handle of 1D bitmask texture
+GLuint acc_bitmask = createRGBA32UIAccBitMask();	// handle of 1D accumulated bitmask texture for value truncation
 GLuint clearSlicemap[4] = {0, 0, 0, 0};
 
 int main(int argc, char *argv[]) {
@@ -146,9 +143,9 @@ int main(int argc, char *argv[]) {
 					->run();
 		}
 
-        // bind bitmask & slicemap to texture unit 5 & 6 (arbitrary units...)
+        // bind accumulated bitmask & slicemap to texture unit 5 & 6 (arbitrary units...)
    		glActiveTexture(GL_TEXTURE0 + 5);
-    	glBindTexture(GL_TEXTURE_1D, bitmask);
+    	glBindTexture(GL_TEXTURE_1D, acc_bitmask);
    		glActiveTexture(GL_TEXTURE0 + 6);
     	glBindTexture(GL_TEXTURE_2D, slicemappingPass->get("slice0_127"));
    		glActiveTexture(GL_TEXTURE0);

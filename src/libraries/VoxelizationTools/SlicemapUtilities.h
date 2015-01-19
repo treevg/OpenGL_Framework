@@ -27,5 +27,6 @@ class SlicemapRenderPass : public RenderPass
 // create 32bit uint bitmask
 GLuint createR32UIBitMask();
 GLuint createRGBA32UIBitMask();
+GLuint createRGBA32UIAccBitMask();
 
 #endif

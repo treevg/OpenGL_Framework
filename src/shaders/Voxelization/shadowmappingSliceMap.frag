@@ -8,7 +8,7 @@ uniform sampler2D colorMap;
 //uniform usampler2D shadowMap;
 //uniform usampler1D bitMask;
 
-layout(binding = 5) uniform usampler1D bitMask;
+layout(binding = 5) uniform usampler1D bitMask; // accumulated bitmask
 layout(binding = 6) uniform usampler2D shadowMap;	//aka slicemap
 
 uniform mat4 lightView;
@@ -43,18 +43,9 @@ void main() {
 		int fullSlices = 0;
 		if ( t >= 0.0 && t < 1.0 )
 		{
+			// truncate bits behind slice
+			uvec4 mask = texture( bitMask, t);
 			uvec4 shadowMapVal = texture( shadowMap, shadowMapLookup );
-	
-			// truncate bits of shadowmap value
-			uvec4 mask = texture(bitMask, t); // i.e. 0000|0100|0000|0000
-			mask =  mask - 1; // i.e. 1111|0011|1111|1111
-			if (t >= 0.25)
-				mask.r = 1;			 // i.e. 0001|0011|1111|1111
-			if (t >= 0.5)
-				mask.g = 1;	
-			if (t >= 0.75)
-				mask.b = 1;
-			mask *= -1;				// i.e. 1111|1100|0000|0000
 			uvec4 slicesToLight = mask & shadowMapVal;
 		
 			// amount of set slices in direction to light source
