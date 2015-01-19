@@ -1,8 +1,11 @@
+#ifndef SLICEMAPUTILITIES_H_
+#define SLICEMAPUTILITIES_H_
+
 #include <ShaderTools/FrameBufferObject.h>
 #include <ShaderTools/RenderPass.h>
 
 /**
- * Owns RGBA 32bit Unsigned Integer textures as draw buffers
+ * Has a RGBA 32bit Unsigned Integer textures as draw buffer and no depth buffer
  */
 class Slicemap : public FrameBufferObject
 {
@@ -24,3 +27,6 @@ class SlicemapRenderPass : public RenderPass
 // create 32bit uint bitmask
 GLuint createR32UIBitMask();
 GLuint createRGBA32UIBitMask();
+GLuint createRGBA32UIAccBitMask();
+
+#endif
