@@ -8,8 +8,8 @@ uniform sampler2D colorMap;
 //uniform usampler2D shadowMap;
 //uniform usampler1D bitMask;
 
-layout(binding = 5) uniform usampler1D bitMask; // accumulated bitmask
-layout(binding = 6) uniform usampler2D shadowMap;	//aka slicemap
+layout(binding = 5) uniform usampler1D bitMask;  // accumulated bitmask
+layout(binding = 6) uniform usampler2D shadowMap;// aka slice map
 
 uniform mat4 lightView;
 uniform mat4 lightPerspective;
@@ -38,7 +38,7 @@ void main() {
 		
 		// read pixel from shadow map
 		vec2 shadowMapLookup   = lightPerspPos.xy ;
-		float t = lightPerspPos.z;
+		float t = lightPerspPos.z - (1.0 / 128.0); // 1 slice offset to prevent self-occlusion
 		
 		int fullSlices = 0;
 		if ( t >= 0.0 && t < 1.0 )
