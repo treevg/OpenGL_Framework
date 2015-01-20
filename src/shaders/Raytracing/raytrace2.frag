@@ -175,29 +175,6 @@ void main(void)
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
 		
-		
-		// if(i==0){
-		// 	if(timesReflected<1){
-		// 		fragColor = vec4(0,0,0,1);
-		// 	}
-		// 	else{
-		// 		currentColor *= background(currentDepth, currentDir);
-		// 		fragColor = vec4(currentColor,1);
-		// 		fragPosition = vec4(vec3(currentPos),1);
-		// 		float d= (distance(initialPos, fragPosition.xyz));
-		// 		fragDepth = vec4(d,d,d, 1);
-		// 	}
-		// }
-		// if(i==1){
-		// 	if(timesReflected<2){
-		// 		fragColor2 = vec4(0,0,0,1);
-		// 	}else{
-		// 		currentColor *= background(currentDepth,currentDir);
-		// 		fragColor2 = vec4(currentColor,1);
-		// 		fragPosition2= vec4(vec3(currentPos),1);
-		// 		fragDepth2 = vec4(vec3(currentDepth),1);
-		// 	}
-		// }
 		if(i == 0){
 			if (hitTriangle == -1 && hitSphere == -1) {
 				fragColor = vec4(background(currentDir),1);
