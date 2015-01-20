@@ -1,27 +1,33 @@
 #include "ShaderTools/DefaultRenderLoop.h"
+#include <assimp/Importer.hpp> 
 #include "ShaderTools/RenderPass.h"
+#include "Compression/TextureTools.h"
+#include "Compression/ComputeShaderTools.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Pyramid.h"
-#include "WrappingGame/Modelloader/ObjModelLoader.h"
+#include "ShaderTools/VertexArrayObjects/Model.h"
 
 using namespace std;
 using namespace glm;
 
 auto sp = new ShaderProgram({"/Wrapping/wrap.vert", "/Wrapping/wrap.frag"});
 
-auto passPyramid = new RenderPass(
-    new Pyramid(), 
+auto passCube = new RenderPass(
+    new Model( RESOURCES_PATH "/cube.obj"), 
     sp
 );
 
-auto passGround = new RenderPass(  new Quad(), sp);
+auto passChevr = new RenderPass(  new Model (RESOURCES_PATH "/Chevrolet.obj") , sp);
 
-float gScale = 0.0;
+GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
+GLuint texHandle = ComputeShaderTools::generateTexture();
+
+float gScale = 0.5;
 float lScale =0.0;
 float lum = 0.5;
-float horizAngle = 0.0;
-
+float horizAngle = -40.0;
+float verticAngle = 0.0; 
 
 
 
@@ -29,32 +35,32 @@ glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
 
 int main(int argc, char *argv[]) {
 
-    const string path = "/home/ivanna/git_repo/OpenGL_Framework/resources/cube.obj";
-    ModelLoader* loader = new ObjModelLoader(path);
-
-
+  
+    
     sp -> printUniformInfo();
     sp -> printInputInfo();
     sp -> printOutputInfo();
 
     renderLoop([]{
 
-        mat4 model = mat4(1);
-        model = translate(model, vec3(-0.3,0,0));
-        mat4 view = mat4(1);
-        model = glm::rotate(model, horizAngle, vec3(0,1,0));
-        view = translate(view, vec3(0,0,-4));
-
+        mat4 viewC = lookAt(vec3(0,15,15), vec3(0.0f),vec3(0.0, 1.0, 0.0)); 
        
+         mat4   modelC = rotate(mat4(1.0), horizAngle, vec3(0.0,1.0,0.0));
+                modelC = translate (modelC, vec3(0.0, 0.1, 0.0));
+
+
+        
+
         //ground
         mat4 modelG = mat4(1);
         modelG = rotate(modelG, 90.0f,vec3(1,0,0));
         
 
-  
         mat4 viewG = mat4(1);
-        viewG = rotate(modelG, 90.0f,vec3(1,0,0));
-        viewG = translate(view, vec3(0+lScale,-1,-1+gScale));
+        viewG = translate(viewG, vec3(0,0,5));  
+
+        viewG = rotate(viewG, 90.0f,vec3(1,0,0));
+        viewG = translate(viewG, vec3(0+lScale,-1,-1+gScale));
 
         
 
@@ -70,10 +76,13 @@ int main(int argc, char *argv[]) {
        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) horizAngle += 0.01;
        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) horizAngle -=  0.01;
 
+       if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) verticAngle += 0.01;
+       if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) verticAngle -=  0.01;
+
        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
 
 
-        view = glm::lookAt( glm::vec3(0,10,10), // Camera is at (0,10,10), in World Space
+        viewC = glm::lookAt( glm::vec3(0,10,10), // Camera is at (0,10,10), in World Space
                                          glm::vec3(0,0,0), // and looks at the origin
                                          glm::vec3(0,1,0));
 
@@ -87,13 +96,13 @@ int main(int argc, char *argv[]) {
          if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) lScale = lScale - 0.01;
 
 
-       if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
+          if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
 
 
-        passPyramid
+        passCube
         ->  clear(0, 0, 0, 0)
-        ->  update("uniformModel", model)
-        ->  update("uniformView", view)
+        ->  update("uniformModel", modelC)
+        ->  update("uniformView", viewC)
         ->  update("uniformProjection", projMat)
         ->  update("color", vec4(1,0,0,1))
         ->  update("scale", gScale)
@@ -105,13 +114,13 @@ int main(int argc, char *argv[]) {
        }else {
        
 
-      passGround
+      passChevr
         -> clear(0, 0, 0, 0)
     
      
         ->  update("color", vec4(0,1,0,1))
-        ->  update("uniformModel", modelG)
-        ->  update("uniformView", viewG)
+        ->  update("uniformModel", modelC)
+        ->  update("uniformView", viewC)
         ->  update("uniformProjection", projMat)
         ->  update("luminance", lum)
         -> run();
