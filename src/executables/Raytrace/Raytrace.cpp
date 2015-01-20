@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
 								  1.0, 1.0, 1.0, 0.0,
 								  0.0, 0.0, 0.0, 1.0 );
 
-        mat4 altinvViewProjection = inverse(projection * view * rotationOnly);
+        mat4 altInvViewProjection = inverse(projection * view * rotationOnly);
 
 
         if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS) {
@@ -242,9 +242,10 @@ int main(int argc, char *argv[]) {
 			-> clear(0,0,0,0)
             -> update("warpView", warpView)
 			-> update("altView", altView)
+			-> update("view", view)
 			-> update("rotationOnly",rotationOnly)
 			-> update("invViewProjection", invViewProjection)
-			-> update("altinvViewProjection", altinvViewProjection)
+			-> update("altInvViewProjection", altInvViewProjection)
 			-> update("projection", projection)
 			-> texture("color", pass1->get("fragColor"))
 			-> texture("depth", passLin->get("fragColor"))

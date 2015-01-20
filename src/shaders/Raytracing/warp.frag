@@ -9,8 +9,8 @@ out vec4 fragColor;
 
 void main() {
 
-	fragColor = texture(color, passPosition);
-	//fragColor = passColor;
+	//fragColor = texture(color, passPosition);
+	fragColor = passColor;
 
 
 }
