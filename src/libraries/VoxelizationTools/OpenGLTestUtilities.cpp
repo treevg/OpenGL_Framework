@@ -1,20 +1,23 @@
-#ifndef OPENGLTESTUTILITIES_H_
-#define OPENGLTESTUTILITIES_H_
+#include "OpenGLTestUtilities.h"
 
-#include <GLFW/glfw3.h>
-#include <GL/glew.h>
-
-void testZeros(GLuint texture, GLenum format = GL_RGBA)
+void testZeros(GLuint texture, GLenum format, GLenum target)
 {
 	glActiveTexture( GL_TEXTURE10 );
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture( target , texture );
 	int width_, height_;
-	glGetTexLevelParameteriv(GL_TEXTURE_2D,0, GL_TEXTURE_WIDTH, &width_);
-	glGetTexLevelParameteriv(GL_TEXTURE_2D,0, GL_TEXTURE_HEIGHT, &height_);
+	glGetTexLevelParameteriv(target,0, GL_TEXTURE_WIDTH, &width_);
+	if ( target == GL_TEXTURE_2D)
+	{
+		glGetTexLevelParameteriv(target,0, GL_TEXTURE_HEIGHT, &height_);
+	}
+	else
+	{
+		height_ = 1;
+	}
 //	std::cout<<"2D texture: "<< texture <<" width: "<< width_ <<", height: "<< height_ << std::endl;
 
 	unsigned int *data = (unsigned int*)malloc( sizeof(unsigned int) * height_ * width_ * 4);
-	glGetTexImage(GL_TEXTURE_2D, 0, format, GL_UNSIGNED_INT, data);
+	glGetTexImage(target, 0, format, GL_UNSIGNED_INT, data);
 
 	bool notzero = false;
 	for( unsigned int i = 0; i < width_ * height_ * 4 ; i++ )
@@ -31,7 +34,7 @@ void testZeros(GLuint texture, GLenum format = GL_RGBA)
 		std::cout << "2D texture: " << texture <<" is all zeros..." << std::endl;
 	}
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(target, 0);
 	glActiveTexture( GL_TEXTURE0 );
 
 	delete data;
@@ -67,8 +70,6 @@ void testZeros1D(GLuint texture)
 	glBindTexture(GL_TEXTURE_1D, 0);
 	glActiveTexture( GL_TEXTURE0 );
 }
-
-bool once = false;
 
 void testError()
 {
@@ -212,5 +213,3 @@ void stopTime() {
 
 	std::cout << executionTime << " (ms)" << std::endl;
 }
-
-#endif

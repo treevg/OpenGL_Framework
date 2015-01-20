@@ -13,10 +13,15 @@ public:
 	FrameBufferObject* clear();
 	GLuint get(std::string name);
 
+
 	GLuint getFrameBufferObjectHandle() const;
 	void setFrameBufferObjectHandle(GLuint frameBufferObjectHandle);
 
+
+	GLuint getHandle();
+
 protected:
+	GLuint colorAttachment;
 	GLuint frameBufferObjectHandle;
 	std::map<std::string, GLuint> textureMap;
 };

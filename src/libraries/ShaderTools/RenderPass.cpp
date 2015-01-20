@@ -24,6 +24,14 @@ void RenderPass::run() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+//TODO check if necessary
+void RenderPass::runInFBO() {
+	frameBufferObject->bind();
+	shaderProgram->use();
+	vertexArrayObject->draw();
+	//glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject->getHandle());
+}
+
 void RenderPass::autoGenerateFrameBufferObject(int width, int height) {
 	if (frameBufferObject) delete frameBufferObject;
 	frameBufferObject = new FrameBufferObject(&(shaderProgram->outputMap), width, height);
