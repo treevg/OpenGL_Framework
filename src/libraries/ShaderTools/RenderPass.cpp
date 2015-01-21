@@ -17,19 +17,21 @@ RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shad
 {
 }
 
-void RenderPass::run() {
+RenderPass* RenderPass::run() {
 	frameBufferObject->bind();
 	shaderProgram->use();
 	vertexArrayObject->draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return this;
 }
 
 //TODO check if necessary
-void RenderPass::runInFBO() {
+RenderPass* RenderPass::runInFBO() {
 	frameBufferObject->bind();
 	shaderProgram->use();
 	vertexArrayObject->draw();
 	//glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject->getHandle());
+	return this;
 }
 
 void RenderPass::autoGenerateFrameBufferObject(int width, int height) {

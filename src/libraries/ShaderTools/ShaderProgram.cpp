@@ -1,4 +1,5 @@
 #include "ShaderProgram.h"
+#include <math.h>
 #include <algorithm>
 
 using namespace std;
