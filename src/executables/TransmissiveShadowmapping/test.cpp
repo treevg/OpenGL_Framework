@@ -67,9 +67,9 @@ int main(int argc, char *argv[]) {
 		float offX = ( (float( rand()) / float(RAND_MAX) ) - 0.5f ); // -0.5..0.5
 		float offY = ( (float( rand()) / float(RAND_MAX) ) * 0.75f - 0.25f) ; // 0.0..0.75
 		float offZ = ( (float( rand()) / float(RAND_MAX) ) - 0.5f ); // -0.5..0.5
-		model.push_back( glm::translate(offX,offY,offZ) * glm::scale(glm::mat4(1.0f), 0.1f,0.005f,0.1f) ); // small plane
+		model.push_back( glm::translate(glm::mat4(1.0f),glm::vec3(offX,offY,offZ)) * glm::scale(glm::mat4(1.0f), glm::vec3(0.1f,0.005f,0.1f)) ); // small plane
 	}
-	model.push_back( glm::translate(0.0f,-0.5f,0.0f) * glm::scale(glm::mat4(1.0f), 1.25f, 0.01f, 1.25f ) ); // ground plane
+	model.push_back( glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,-0.5f,0.0f)) * glm::scale(glm::mat4(1.0f), glm::vec3(1.25f, 0.01f, 1.25f) ) ); // ground plane
 
 	// print shader info
     gbufferSp -> printUniformInfo();
