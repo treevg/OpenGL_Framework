@@ -50,9 +50,17 @@ public:
 	std::map<std::string, Info> inputMap;
 	std::map<std::string, Info> outputMap;
 
+	struct TextureObject{
+		GLenum textureHandle;
+		GLenum samplerHandle;
+		bool equals(TextureObject o) {
+			return textureHandle == o.textureHandle && samplerHandle == o.textureHandle;
+		}
+	};
+	std::vector<TextureObject> textureList;
+
 protected:
 	GLuint shaderProgramHandle;
-	int currentTextureUnit;
 	bool errorOccured = false;
 
 	void link();

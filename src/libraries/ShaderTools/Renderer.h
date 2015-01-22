@@ -81,4 +81,16 @@ void setCursorEnterCallback(GLFWwindow* window, std::function<void (int)> func) 
 	});
 }
 
+int getWidth(GLFWwindow* window) {
+	int w, h;
+    glfwGetWindowSize(window, &w, &h);
+    return w;
+}
+
+int getHeight(GLFWwindow* window) {
+    int w, h;
+    glfwGetWindowSize(window, &w, &h);
+    return h;
+}
+
 #endif // DEFAULT_RENDER_LOOP_H
