@@ -21,7 +21,7 @@ void main() {
 	if(warpView==0){
 		if(z>=999.0){
 			
-			w =   invViewProjection * vec4(pos * 2 - 1, z, 1);
+			w =   invViewProjection * vec4(pos * 2 - 1, 0.999, 1);
 			gl_Position = projection * altView * w;
 			
 		}

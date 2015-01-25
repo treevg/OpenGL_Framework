@@ -12,11 +12,33 @@
 using namespace std;
 using namespace glm;
 
-//TODO make objectloader class
+//TODO - Latenzsimulation
+//TODO Himmel soll nachziehen bei Rotation - Skybox
+//TODO Verzerrungsartefakte beseitigen
+
+
+//global variables
+float 	size = 1.0;
+float 	lum =  0.5;
+float 	rad=0.0;
+double 	xpos, ypos;
+int 	ref=1;
+int 	texNum=0;
+float 	minRange=0.8, maxRange=10;
+float 	lastTime, currentTime;
+float 	horizontalAngle=0.0;
+float 	verticalAngle=0.0;
+float 	offsetHorizontalAngle=0.01;
+float 	offsetVerticalAngle=-0.01;
+int		warpView=0;
+
+std::vector<glm::vec4> sphereVec;
+std::vector<glm::vec3> mesh;
+std::vector<glm::vec3> colorSphere;
+std::vector<glm::vec3> colorTriangle;
 
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
-
 auto objl = new Objectloader();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
@@ -43,23 +65,6 @@ auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}
 auto diffWarp = new RenderPass(grid, warp);
 
 
-//global variables
-float 	size = 1.0;
-float 	lum =  0.5;
-float 	rad=0.0;
-double 	xpos, ypos;
-int 	ref=1;
-int 	texNum=0;
-float 	minRange=0.8, maxRange=10;
-float 	lastTime, currentTime;
-float 	horizontalAngle=0.0;
-float 	verticalAngle=0.0;
-int		warpView=0;
-
-std::vector<glm::vec4> sphereVec;
-std::vector<glm::vec3> mesh;
-std::vector<glm::vec3> colorSphere;
-std::vector<glm::vec3> colorTriangle;
 
 
 int main(int argc, char *argv[]) {
@@ -100,9 +105,9 @@ int main(int argc, char *argv[]) {
     mesh.push_back(glm::vec3(0.0, 0.8, 1.5));
     mesh.push_back(glm::vec3(-0.5, -0.5, 1.5));
 
-    mesh.push_back(glm::vec3(0.5, 0.5, 0.75));
-    mesh.push_back(glm::vec3(0.0, 1.8, 1.0));
-    mesh.push_back(glm::vec3(-0.5, 0.5, 1.5));
+    mesh.push_back(glm::vec3(0.0, 0.5, 1.0));
+    mesh.push_back(glm::vec3(-0.5, 1.8, 1.0));
+    mesh.push_back(glm::vec3(-1., 0.5, 1.0));
 
 //    mesh.push_back(glm::vec3(0.5, -0.5, 1.0));
 //    mesh.push_back(glm::vec3(0.8, 0.25, 1.25));
@@ -179,11 +184,15 @@ int main(int argc, char *argv[]) {
 
         //slightly different VM
         mat4 altView(1);
-        altView = translate(altView, vec3(0.1,0,-4.0));
+        altView = translate(altView, vec3(0.05, 0, -4.0));
         altView = rotate(altView, -verticalAngle, vec3(1,0,0));
         altView = rotate(altView, -horizontalAngle, vec3(0,1,0));
 
        // mat4 invAltView = inverse(altView);
+
+        mat4 aView = view;
+        aView = translate(aView, vec3(0.05, 0, 0.0));
+        aView = rotate(aView, offsetHorizontalAngle, vec3(0,1,0));
 
         vec4 pos = invView * vec4(0,0,0,1);
         vec4 dir = normalize(invView * vec4(0,0,1,0));
@@ -241,7 +250,7 @@ int main(int argc, char *argv[]) {
            diffWarp
 			-> clear(0,0,0,0)
             -> update("warpView", warpView)
-			-> update("altView", altView)
+			-> update("altView", aView)
 			-> update("view", view)
 			-> update("rotationOnly",rotationOnly)
 			-> update("invViewProjection", invViewProjection)
