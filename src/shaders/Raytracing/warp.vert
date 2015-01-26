@@ -8,7 +8,7 @@ uniform int 		warpView;
 uniform mat4		invViewProjection;
 uniform mat4		projection;
 uniform mat4		rotationOnly;
-uniform mat4 		altInvViewProjection;
+
 in vec2 pos;
 
 out vec2 passPosition;

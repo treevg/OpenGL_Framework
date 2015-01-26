@@ -14,6 +14,7 @@ uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[6];
 uniform vec3 	colorSphere[3];
 uniform vec3 	colorTriangle[3];
+
 in 		vec4	passPosition;
 
 //direct 
@@ -169,7 +170,7 @@ void main(void)
 			currentColor *= colorSphere[hitSphere];
 
 			// make new Ray
-			currentPos = currentPos + currentDir * (currentDepth + extraDepth);
+			currentPos = currentPos + currentDir * currentDepth ;
 			currentNormal = normalize(currentPos - sphereVec[hitSphere].xyz);
 			currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		}
@@ -179,9 +180,9 @@ void main(void)
 		 if (hitTriangle >= 0) {	
 			// multiply Colors
 			//currentColor *= vec3(1.0,0,0);
-			
 			currentColor *=colorTriangle[hitTriangle/3];
-		 	currentPos = currentPos + currentDir * (currentDepth);
+		 	
+			currentPos = currentPos + currentDir * currentDepth;
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
 		

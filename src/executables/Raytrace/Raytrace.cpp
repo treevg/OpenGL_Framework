@@ -18,11 +18,11 @@ using namespace glm;
 
 
 //global variables
-float 	size = 1.0;
-float 	lum =  0.5;
+
+//float 	size = 1.0;
+//float 	lum =  0.5;
 float 	rad=0.0;
 double 	xpos, ypos;
-int 	ref=1;
 int 	texNum=0;
 float 	minRange=0.8, maxRange=10;
 float 	lastTime, currentTime;
@@ -31,11 +31,14 @@ float 	verticalAngle=0.0;
 float 	offsetHorizontalAngle=0.01;
 float 	offsetVerticalAngle=-0.01;
 int		warpView=0;
+float 	warpUpDown = 0.0;
+float	warpLeftRight = 0.0;
 
 std::vector<glm::vec4> sphereVec;
 std::vector<glm::vec3> mesh;
 std::vector<glm::vec3> colorSphere;
 std::vector<glm::vec3> colorTriangle;
+std::vector<glm::mat4> matVec;
 
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
@@ -65,7 +68,19 @@ auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}
 auto diffWarp = new RenderPass(grid, warp);
 
 
+mat4 latency(mat4 newMat, int lat){
+matVec.push_back(newMat);
+int lengthMatVec = matVec.size();
 
+mat4 returnMat;
+if(lengthMatVec<=lat){
+	return newMat;
+}
+else {
+	matVec.erase(matVec.begin());
+	return returnMat = matVec[lengthMatVec-lat-1];
+}
+}
 
 int main(int argc, char *argv[]) {
 
@@ -139,20 +154,24 @@ int main(int argc, char *argv[]) {
         glfwSetCursorPos(window, float(width)/2, float(height)/2);
         horizontalAngle += 0.5 * deltaT * float(float(width)/2 - xpos );
         verticalAngle   += 0.5 * deltaT * float( float(height)/2 - ypos );
+//        warpUpDown = horizontalAngle;
+//        warpLeftRight = verticalAngle;
 
+//
+//        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
+//        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.5 * deltaT, 1.);
+//        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
+//        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
 
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.5 * deltaT, 1.);
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
+        // Close window
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) rad +=0.03 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)rad -= 0.03 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)ref =1;
-        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)ref =2;
-        if (glfwGetKey(window, GLFW_KEY_0) == GLFW_PRESS)ref =0;
-        if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)ref =3;
 
+        // Zoom
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rad +=0.03 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)rad -= 0.03 * deltaT;
+
+
+        // Change between rendered textures
         if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)texNum =0;
         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)texNum =0;
         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)texNum =1;
@@ -160,13 +179,22 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)texNum =3;
         if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)texNum =4;
 
+        // Linearize Depth
         if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)minRange +=0.1;
         if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)minRange -=0.1;
         if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)maxRange +=0.5;
         if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)maxRange -=0.5;
 
+        // Warpview on/off
         if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)warpView =1;
         if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)warpView =0;
+
+        // Warpview
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) warpUpDown +=  0.05 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) warpUpDown -=  0.05 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) warpLeftRight +=  0.05* deltaT ;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) warpLeftRight -= 0.05* deltaT ;
+
 
         if(minRange>=maxRange){
         	minRange=1.0;
@@ -181,18 +209,18 @@ int main(int argc, char *argv[]) {
         view = rotate(view, -horizontalAngle, vec3(0,1,0));
 
         mat4 invView = inverse(view);
+        mat4 lat = latency(invView,20);
+
 
         //slightly different VM
-        mat4 altView(1);
-        altView = translate(altView, vec3(0.05, 0, -4.0));
-        altView = rotate(altView, -verticalAngle, vec3(1,0,0));
-        altView = rotate(altView, -horizontalAngle, vec3(0,1,0));
-
-       // mat4 invAltView = inverse(altView);
-
         mat4 aView = view;
         aView = translate(aView, vec3(0.05, 0, 0.0));
-        aView = rotate(aView, offsetHorizontalAngle, vec3(0,1,0));
+        aView = rotate(aView, warpUpDown, vec3(1,0,0));
+        aView = rotate(aView, warpLeftRight, vec3(0,1,0));
+
+        mat4 invAView = inverse(aView);
+       // mat4 invAltView = inverse(altView);
+
 
         vec4 pos = invView * vec4(0,0,0,1);
         vec4 dir = normalize(invView * vec4(0,0,1,0));
@@ -226,7 +254,7 @@ int main(int argc, char *argv[]) {
         	-> update("iResolution", glm::vec3(width, height, 1))
         	-> update("zoom", rad)
             -> update("invViewProjection", invViewProjection)
-        	-> update("invView",invView)
+        	-> update("invView",lat)
         	-> run();
 
         	passLin
@@ -252,9 +280,8 @@ int main(int argc, char *argv[]) {
             -> update("warpView", warpView)
 			-> update("altView", aView)
 			-> update("view", view)
-			-> update("rotationOnly",rotationOnly)
+			//-> update("rotationOnly",rotationOnly)
 			-> update("invViewProjection", invViewProjection)
-			-> update("altInvViewProjection", altInvViewProjection)
 			-> update("projection", projection)
 			-> texture("color", pass1->get("fragColor"))
 			-> texture("depth", passLin->get("fragColor"))
