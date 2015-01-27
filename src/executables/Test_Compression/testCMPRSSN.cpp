@@ -6,6 +6,7 @@
 #include "Compression/ComputeShaderTools.h"
 #include "Compression/ColorField.h"
 #include <sstream>
+#include <glm/gtx/string_cast.hpp>
 
 using namespace std;
 using namespace glm;

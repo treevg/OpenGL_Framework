@@ -50,9 +50,9 @@ RenderPass* RenderPass::texture(std::string name, GLuint textureHandle, GLuint s
 }
 
 RenderPass* RenderPass::clear(float r, float g, float b, float a) {
-		frameBufferObject->clear(r, g, b, a);
-		return this;
-	}
+	frameBufferObject->clear(r, g, b, a);
+	return this;
+}
 
 GLuint RenderPass::get(std::string name) {
 	return frameBufferObject->get(name);
