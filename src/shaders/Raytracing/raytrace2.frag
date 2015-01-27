@@ -21,6 +21,8 @@ in 		vec4	passPosition;
 out 	vec4	fragColor;
 out 	vec4 	fragPosition;
 out 	vec4	fragDepth;
+out 	float	extraDepthTex;
+
 //indirect
 out 	vec4	fragColor2;
 out 	vec4 	fragPosition2;
@@ -111,7 +113,7 @@ vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
 vec3 initialPos=currentPos;
 
-vec3 currentDirOffset = normalize((invViewProjection * vec4(0, 0, 0.04+zoom, 0.0)).xyz);
+vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.04+zoom, 0.0)).xyz);
 vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 
 float lengthCurrentDirOffset = length(currentDirOffset);
@@ -124,7 +126,7 @@ vec3 initialDir = currentDir;
 void main(void)
 
 { 
-
+extraDepthTex = extraDepth;
 	for (int i = 0; i <= indirections; i++) {
 		currentDepth = 999999;
 		int hitSphere = -1;
@@ -182,7 +184,7 @@ void main(void)
 			//currentColor *= vec3(1.0,0,0);
 			currentColor *=colorTriangle[hitTriangle/3];
 		 	
-			currentPos = currentPos + currentDir * currentDepth;
+			currentPos = (currentPos + currentDir * currentDepth);
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
 		

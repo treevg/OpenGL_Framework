@@ -12,10 +12,9 @@
 using namespace std;
 using namespace glm;
 
-//TODO - Latenzsimulation
-//TODO Himmel soll nachziehen bei Rotation - Skybox
-//TODO Verzerrungsartefakte beseitigen
-
+//TODO Himmel soll nachziehen bei Rotation - Skybox?
+//TODO verzerrungsartefakte ausmerzen
+//TODO fix vector upload
 
 //global variables
 
@@ -34,11 +33,13 @@ int		warpView=0;
 float 	warpUpDown = 0.0;
 float	warpLeftRight = 0.0;
 
-std::vector<glm::vec4> sphereVec;
-std::vector<glm::vec3> mesh;
-std::vector<glm::vec3> colorSphere;
-std::vector<glm::vec3> colorTriangle;
-std::vector<glm::mat4> matVec;
+vector<vec4> sphereVec;
+vector<vec3> mesh;
+vector<vec3> colorSphere;
+vector<vec3> colorTriangle;
+vector<mat4> matVec;
+//vec3 *meshAr = new vec3[3];
+//float *float_array = new float[w * h * 2];
 
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
@@ -86,12 +87,12 @@ int main(int argc, char *argv[]) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-//    sp -> printUniformInfo();
-//    sp -> printInputInfo();
-//    sp -> printOutputInfo();
-       warp -> printUniformInfo();
-       warp -> printInputInfo();
-       warp -> printOutputInfo();
+    sp -> printUniformInfo();
+    sp -> printInputInfo();
+    sp -> printOutputInfo();
+//       warp -> printUniformInfo();
+//       warp -> printInputInfo();
+//       warp -> printOutputInfo();
 
 //    compSP -> printUniformInfo();
 //    compSP -> printInputInfo();
@@ -106,6 +107,23 @@ int main(int argc, char *argv[]) {
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
     sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.5));
 
+//    sphereVec.push_back(glm::vec4(1, 0.5, 0.5, 0.5));
+//    sphereVec.push_back(glm::vec4(1.5, 0.5, 0.5, 0.5));
+//    sphereVec.push_back(glm::vec4(2, 0.5, 0.5, 0.5));
+//
+//    sphereVec.push_back(glm::vec4(2.5, 0.5, 0.5, 0.5));
+//    sphereVec.push_back(glm::vec4(3, 0.5, 0.5, 0.5));
+//    sphereVec.push_back(glm::vec4(3.5, 0.5, 0.5, 0.5));
+//
+//    sphereVec.push_back(glm::vec4(4, 0.5, 0.5, 0.5));
+//    sphereVec.push_back(glm::vec4(4.5, 0.5, 0.5, 0.5));
+//    sphereVec.push_back(glm::vec4(5, 0.5, 0.5, 0.5));
+//
+//    sphereVec.push_back(glm::vec4(-2, 0.5, 0.5, 0.5));
+//        sphereVec.push_back(glm::vec4(-2.5, 0.5, 0.5, 0.5));
+//        sphereVec.push_back(glm::vec4(-3, 0.5, 0.5, 0.5));
+//
+
     //needs to be same size as sphereVec
     colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
     colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
@@ -113,7 +131,9 @@ int main(int argc, char *argv[]) {
 
     colorTriangle.push_back(glm::vec3(0.4,0.7,0.7));
     colorTriangle.push_back(glm::vec3(0.7,0.7,0.4));
-    colorTriangle.push_back(glm::vec3(0.4,0.4,0.8));
+    colorTriangle.push_back(glm::vec3(0.6,0.4,0.8));
+    colorTriangle.push_back(glm::vec3(0.7,0.3,0.3));
+    colorTriangle.push_back(glm::vec3(0.1,0.4,0.8));
 
     // initialize mesh
     mesh.push_back(glm::vec3(0.5, -0.5, 1.5));
@@ -127,7 +147,7 @@ int main(int argc, char *argv[]) {
 //    mesh.push_back(glm::vec3(0.5, -0.5, 1.0));
 //    mesh.push_back(glm::vec3(0.8, 0.25, 1.25));
 //    mesh.push_back(glm::vec3(0.0, 0.8, 1.0));
-
+//
 //    mesh.push_back(glm::vec3(0.5, 1.5, 1.0));
 //    mesh.push_back(glm::vec3(0.8, -1.25, 1.25));
 //    mesh.push_back(glm::vec3(0.0, -1.8, 1.0));
@@ -137,13 +157,17 @@ int main(int argc, char *argv[]) {
 //    mesh.push_back(glm::vec3(2.0, 2.8, 2.0));
 
 
+//    meshAr[0] = vec3(0.5, -0.5, 1.5);
+//    meshAr[1] = vec3(0.0, 0.8, 1.5);
+//    meshAr[2] = vec3(-0.5, -0.5, 1.5);
+
     lastTime = glfwGetTime();
 
     pass1 -> update("sphereVec[0]", sphereVec);
     pass1 -> update("mesh[0]", mesh);
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
-   // pass1 -> update("mesh[0]", objl->vertices);
+    //pass1 -> update("mesh[0]", objl->vertices);
 
     renderLoop([]{
         currentTime = glfwGetTime();
@@ -190,10 +214,10 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)warpView =0;
 
         // Warpview
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) warpUpDown +=  0.05 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) warpUpDown -=  0.05 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) warpLeftRight +=  0.05* deltaT ;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) warpLeftRight -= 0.05* deltaT ;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) warpUpDown +=  0.1 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) warpUpDown -=  0.1 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) warpLeftRight -=  0.1* deltaT ;
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) warpLeftRight += 0.1* deltaT ;
 
 
         if(minRange>=maxRange){
@@ -218,9 +242,8 @@ int main(int argc, char *argv[]) {
         aView = rotate(aView, warpUpDown, vec3(1,0,0));
         aView = rotate(aView, warpLeftRight, vec3(0,1,0));
 
-        mat4 invAView = inverse(aView);
-       // mat4 invAltView = inverse(altView);
-
+       // mat4 invAView = inverse(aView);
+       // mat4 latAView = latency(aView, 20);
 
         vec4 pos = invView * vec4(0,0,0,1);
         vec4 dir = normalize(invView * vec4(0,0,1,0));
@@ -279,12 +302,13 @@ int main(int argc, char *argv[]) {
 			-> clear(0,0,0,0)
             -> update("warpView", warpView)
 			-> update("altView", aView)
-			-> update("view", view)
+			//-> update("view", view)
 			//-> update("rotationOnly",rotationOnly)
 			-> update("invViewProjection", invViewProjection)
 			-> update("projection", projection)
 			-> texture("color", pass1->get("fragColor"))
 			-> texture("depth", passLin->get("fragColor"))
+			//-> texture("extraDepth", pass1->get("extraDepthTex"))
 			-> run();
 
         }
