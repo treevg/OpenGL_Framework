@@ -99,7 +99,7 @@ int main(int argc, char *argv[]) {
 //    compSP -> printOutputInfo();
 
     // Load mesh
-    objl->loadOBJ(RESOURCES_PATH "/Objects/originalMesh.obj", objl->vertices, objl->uvs, objl->normals);
+    objl->loadOBJ(RESOURCES_PATH "/obj/originalMesh.obj", objl->vertices, objl->uvs, objl->normals);
 
 
 
