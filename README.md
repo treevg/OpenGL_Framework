@@ -41,10 +41,10 @@ Dieses Repository ist mit ```git``` Versioniert. Wer git noch nicht kennt, sollt
 
 ## Struktur
 
-```resources``` Enthält alle Datein, die kein Programmcode sind (z.b. Texturen, Modelle)
-    ```└``` 
-```src``` Enthällt alle Dateien, die zum Sourcecode zählen
-    ```└ cmake``` Enthällt CMake Module, die z.B. 3rd-Party-Bibliotheken suchen
-    ```└ executable``` Enthällt Code von allen ausführbaren Programmen
-    ```└ libraries``` Enthällt Code von Bibliotheken
-    ```└ shaders``` Enthällt Shader-Code
+- ```resources``` Enthält alle Datein, die kein Programmcode sind (z.b. Texturen, Modelle)
+    - ```└``` Pro Dateiendung gibt es einen Unterordner (z.b. ```jpg``` für JPEG-Bilder oder ``obj`` für Object-Modelle)
+- ```src``` Enthällt alle Dateien, die zum Sourcecode zählen
+    - ```└ cmake``` Enthällt CMake Module, die z.B. 3rd-Party-Bibliotheken suchen
+    - ```└ executable``` Enthällt Code von allen ausführbaren Programmen
+    - ```└ libraries``` Enthällt Code von Bibliotheken
+    - ```└ shaders``` Enthällt Shader-Code
