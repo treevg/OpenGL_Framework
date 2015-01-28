@@ -14,7 +14,7 @@ using namespace glm;
 
 //TODO Himmel soll nachziehen bei Rotation - Skybox?
 //TODO verzerrungsartefakte ausmerzen
-//TODO fix vector upload
+//TODO fix vector upload - custom Texture (Octree)
 
 //global variables
 
@@ -251,7 +251,7 @@ int main(int argc, char *argv[]) {
         mat4 projection = perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
         mat4 invProjection = inverse(projection);
         mat4 invViewProjection = inverse(projection * view);
-        // cout << to_string(dir) << endl;
+        cout << to_string(dir) << endl;
 
         mat4 rotationOnly = mat4( 1.0, 1.0, 1.0, 0.0,
         					  	  1.0, 1.0, 1.0, 0.0,
