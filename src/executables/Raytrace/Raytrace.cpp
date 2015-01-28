@@ -157,14 +157,18 @@ int main(int argc, char *argv[]) {
 //    mesh.push_back(glm::vec3(2.0, 2.8, 2.0));
 
 
-//    meshAr[0] = vec3(0.5, -0.5, 1.5);
-//    meshAr[1] = vec3(0.0, 0.8, 1.5);
-//    meshAr[2] = vec3(-0.5, -0.5, 1.5);
+struct meshStruct {
+    	vector<vec3> meshX;
+    };
+
+//meshStruct.meshX.push_back(glm::vec3(0.5, -0.5, 1.5));
+   mesh.push_back(glm::vec3(0.0, 0.8, 1.5));
+   mesh.push_back(glm::vec3(-0.5, -0.5, 1.5));
 
     lastTime = glfwGetTime();
 
     pass1 -> update("sphereVec[0]", sphereVec);
-    pass1 -> update("mesh[0]", mesh);
+    pass1 -> update("meshy[0]", mesh);
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
     //pass1 -> update("mesh[0]", objl->vertices);
@@ -251,7 +255,7 @@ int main(int argc, char *argv[]) {
         mat4 projection = perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
         mat4 invProjection = inverse(projection);
         mat4 invViewProjection = inverse(projection * view);
-        cout << to_string(dir) << endl;
+       // cout << to_string(dir) << endl;
 
         mat4 rotationOnly = mat4( 1.0, 1.0, 1.0, 0.0,
         					  	  1.0, 1.0, 1.0, 0.0,
