@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
         new ShaderProgram({"/Filters/fullscreen.vert","/Filters/boxBlur.frag"}), 
         getWidth(window), 
         getHeight(window)))
-            ->texture("tex", TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg"))
+            ->texture("tex", TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg"))
             ->update("width", getWidth(window))
             ->update("height", getHeight(window))
             ->update("strength", blurStrength);
@@ -59,11 +59,11 @@ int main(int argc, char *argv[]) {
         }
 
         blurring
-            ->clear(0,0,0,0)
+            ->clear(0,0,1,0)
             ->run();
 
         tonemapping
-            ->clear(0,0,0,0)
+            ->clear(0,0,1,0)
             ->run();
     });
 }
