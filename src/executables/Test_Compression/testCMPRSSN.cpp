@@ -333,7 +333,6 @@ int main(int argc, char *argv[]) {
 //        ->texture("tex2", pass->get("fragColor"))
         ->texture("tex2", tex2Handle)
         ->run();
-
 //        int wiggle;
 //        glBindTexture(GL_TEXTURE_2D, tex3Handle);
 //        glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &wiggle);
