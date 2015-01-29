@@ -178,7 +178,7 @@ double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
 			glfwSetWindowTitle(window, pszConstString);
 		}
 		else {
-			std::cout << "Frames per second: " + std::to_string(fps) << endl;
+			std::cout << "Frames per second: " + glm::to_string(fps) << endl;
 		}
 		frames = 0.0;
 		tZero = glfwGetTime();
