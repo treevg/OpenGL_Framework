@@ -3,14 +3,14 @@
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 
-#include "SlicemapUtilities.h"
-#include "OpenGLTestUtilities.h"
+#include "VoxelizationTools/SlicemapUtilities.h"
+#include "VoxelizationTools/OpenGLTestUtilities.h"
 
 #define PI 3.14159265359f
 
 // DESCRIPTION
 /*
- * This program creates a 128-slices slicemap from an object encoded in a RGBA texture of a 32bit unsigned integer format
+ * This program creates a 128-slices slicemap (1280 x 720 x 128 voxel grid) from an object encoded in a RGBA texture of a 32bit unsigned integer format
  * For simplicity, the voxelization camera and the first person camera use the same matrices and the slicemap is overlayed additively onto the scene.
  */
 

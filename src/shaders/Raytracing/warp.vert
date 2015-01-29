@@ -1,13 +1,15 @@
 #version 430
 
 uniform mat4 		altView;
+uniform mat4 		view;
 uniform sampler2D 	depth;
 uniform sampler2D 	color;
 uniform int 		warpView;
 uniform mat4		invViewProjection;
 uniform mat4		projection;
 uniform mat4		rotationOnly;
-uniform mat4 		altinvViewProjection;
+//uniform sampler2D	extraDepth;
+
 in vec2 pos;
 
 out vec2 passPosition;
@@ -15,19 +17,29 @@ out vec4 passColor;
 
 void main() {
 	vec4 w;
-	float z = texture(depth, pos).x;
+	float z = texture(depth, pos);
+	//float d = texture(extraDepth, pos);
+	
+//	mat4 exD = mat4( d, 1, d, 0,
+	//				  1, 1,  1, 0,
+		//			 d, 1, d, 0,
+			//		  0, 0,  0, 1 );
 	
 	if(warpView==0){
 		if(z>=999){
-			//mat4 altinvViewProjection = inverse(projection * view * rotationOnly);
-			w =   invViewProjection * vec4(pos * 2 - 1, z, 1);
+			
+			w =   invViewProjection * vec4(pos * 2 - 1, 0.999, 1);
+			
+			gl_Position = projection * altView * w;
+			
 		}
 		
 		else {
 			w	= invViewProjection * vec4(pos * 2 - 1, z,1);
+			gl_Position = projection * altView * w;
 		}
 		
-		gl_Position = projection * altView * w;
+		
 	}
 	
 	else{

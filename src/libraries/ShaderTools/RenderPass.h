@@ -10,8 +10,8 @@ public:
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
-	void run();
-	void runInFBO();
+	RenderPass* run();
+	RenderPass* runInFBO();
 	void autoGenerateFrameBufferObject(int width, int height);
 	GLuint get(std::string name);
 

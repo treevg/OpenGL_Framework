@@ -15,10 +15,14 @@ uniform vec3 	mesh[6];
 uniform vec3 	colorSphere[3];
 uniform vec3 	colorTriangle[3];
 
+in 		vec4	passPosition;
+
 //direct 
 out 	vec4	fragColor;
 out 	vec4 	fragPosition;
 out 	vec4	fragDepth;
+out 	float	extraDepthTex;
+
 //indirect
 out 	vec4	fragColor2;
 out 	vec4 	fragPosition2;
@@ -108,12 +112,21 @@ int indirections = 2;
 vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
 vec3 initialPos=currentPos;
+
+vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.04+zoom, 0.0)).xyz);
 vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
+
+float lengthCurrentDirOffset = length(currentDirOffset);
+float lengthUv = length(uv);
+float lengthExtraDepth = sqrt(lengthCurrentDirOffset*lengthCurrentDirOffset + lengthUv*lengthUv);
+float extraDepth = abs(lengthCurrentDirOffset-lengthExtraDepth);
+
 vec3 initialDir = currentDir;
 
-
 void main(void)
-{
+
+{ 
+extraDepthTex = extraDepth;
 	for (int i = 0; i <= indirections; i++) {
 		currentDepth = 999999;
 		int hitSphere = -1;
@@ -159,7 +172,7 @@ void main(void)
 			currentColor *= colorSphere[hitSphere];
 
 			// make new Ray
-			currentPos = currentPos + currentDir * currentDepth;
+			currentPos = currentPos + currentDir * currentDepth ;
 			currentNormal = normalize(currentPos - sphereVec[hitSphere].xyz);
 			currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		}
@@ -169,35 +182,12 @@ void main(void)
 		 if (hitTriangle >= 0) {	
 			// multiply Colors
 			//currentColor *= vec3(1.0,0,0);
-			
 			currentColor *=colorTriangle[hitTriangle/3];
-		 	currentPos = currentPos + currentDir * currentDepth;
+		 	
+			currentPos = (currentPos + currentDir * currentDepth);
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
 		
-		
-		// if(i==0){
-		// 	if(timesReflected<1){
-		// 		fragColor = vec4(0,0,0,1);
-		// 	}
-		// 	else{
-		// 		currentColor *= background(currentDepth, currentDir);
-		// 		fragColor = vec4(currentColor,1);
-		// 		fragPosition = vec4(vec3(currentPos),1);
-		// 		float d= (distance(initialPos, fragPosition.xyz));
-		// 		fragDepth = vec4(d,d,d, 1);
-		// 	}
-		// }
-		// if(i==1){
-		// 	if(timesReflected<2){
-		// 		fragColor2 = vec4(0,0,0,1);
-		// 	}else{
-		// 		currentColor *= background(currentDepth,currentDir);
-		// 		fragColor2 = vec4(currentColor,1);
-		// 		fragPosition2= vec4(vec3(currentPos),1);
-		// 		fragDepth2 = vec4(vec3(currentDepth),1);
-		// 	}
-		// }
 		if(i == 0){
 			if (hitTriangle == -1 && hitSphere == -1) {
 				fragColor = vec4(background(currentDir),1);
