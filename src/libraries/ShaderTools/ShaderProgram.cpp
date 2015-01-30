@@ -189,6 +189,7 @@ ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec2> vector)
 	return this;
 }
 
+
 ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec3> vector) {
 	Info* updateInfo = checkUpdate(name, "vec3");
 	if (updateInfo != NULL) {
@@ -203,6 +204,22 @@ ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec4> vector)
 	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform4fv(updateInfo->location, sizeof(vector), glm::value_ptr((&vector[0])[0]));
+	}
+	return this;
+}
+
+ShaderProgram* ShaderProgram::update(string name, meshStruct mStr) {
+	Info* updateInfo = checkUpdate(name, "meshStruct");
+	if (updateInfo != NULL) {
+		glUseProgram(shaderProgramHandle);
+		GLuint structBufferID;
+		glGenBuffers(1,&structBufferID);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, structBufferID);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mStr) , NULL, GL_STATIC_READ);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, structBufferID);
+
+		//necessary?
+		glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, structBufferID, 0, 128);
 	}
 	return this;
 }

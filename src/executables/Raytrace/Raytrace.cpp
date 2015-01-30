@@ -15,6 +15,7 @@ using namespace glm;
 //TODO Himmel soll nachziehen bei Rotation - Skybox?
 //TODO verzerrungsartefakte ausmerzen
 //TODO fix vector upload - custom Texture (Octree)
+//TODO design - struct
 
 //global variables
 
@@ -44,6 +45,10 @@ vector<mat4> matVec;
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
 auto objl = new Objectloader();
+
+//struct meshStruct {
+//    	vector<vec3> meshX;
+//    };
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
@@ -80,7 +85,7 @@ if(lengthMatVec<=lat){
 else {
 	matVec.erase(matVec.begin());
 	return returnMat = matVec[lengthMatVec-lat-1];
-}
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -94,9 +99,6 @@ int main(int argc, char *argv[]) {
 //       warp -> printInputInfo();
 //       warp -> printOutputInfo();
 
-//    compSP -> printUniformInfo();
-//    compSP -> printInputInfo();
-//    compSP -> printOutputInfo();
 
     // Load mesh
     objl->loadOBJ(RESOURCES_PATH "/Objects/originalMesh.obj", objl->vertices, objl->uvs, objl->normals);
@@ -120,8 +122,8 @@ int main(int argc, char *argv[]) {
 //    sphereVec.push_back(glm::vec4(5, 0.5, 0.5, 0.5));
 //
 //    sphereVec.push_back(glm::vec4(-2, 0.5, 0.5, 0.5));
-//        sphereVec.push_back(glm::vec4(-2.5, 0.5, 0.5, 0.5));
-//        sphereVec.push_back(glm::vec4(-3, 0.5, 0.5, 0.5));
+//    sphereVec.push_back(glm::vec4(-2.5, 0.5, 0.5, 0.5));
+//    sphereVec.push_back(glm::vec4(-3, 0.5, 0.5, 0.5));
 //
 
     //needs to be same size as sphereVec
@@ -157,21 +159,34 @@ int main(int argc, char *argv[]) {
 //    mesh.push_back(glm::vec3(2.0, 2.8, 2.0));
 
 
-struct meshStruct {
-    	vector<vec3> meshX;
-    };
+//GLuint meshBufferID;
+//glGenBuffers(1,&meshBufferID);
+//glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshBufferID);
+//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mesh) , glm::value_ptr((&mesh[0])[0]), GL_STATIC_READ);
+//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, meshBufferID);
 
-//meshStruct.meshX.push_back(glm::vec3(0.5, -0.5, 1.5));
-   mesh.push_back(glm::vec3(0.0, 0.8, 1.5));
-   mesh.push_back(glm::vec3(-0.5, -0.5, 1.5));
+
+meshStruct str;
+//str.meshX[vec3(0.5, -0.5, 1.5)];
+//str.meshX.push_back(vec3(0.5, -0.5, 1.5));
+//str.meshX.push_back(glm::vec3(0.0, 0.8, 1.5));
+//str.meshX.push_back(glm::vec3(-0.5, -0.5, 1.5));
+//
+//str.meshX.push_back(glm::vec3(0.0, 0.5, 1.0));
+//str.meshX.push_back(glm::vec3(-0.5, 1.8, 1.0));
+//str.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
+
+str.meshX[0] = mesh;
+
 
     lastTime = glfwGetTime();
 
     pass1 -> update("sphereVec[0]", sphereVec);
-    pass1 -> update("meshy[0]", mesh);
+    //pass1 -> update("mesh[0]", mesh);
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
     //pass1 -> update("mesh[0]", objl->vertices);
+    pass1 -> update("meshObj", str);
 
     renderLoop([]{
         currentTime = glfwGetTime();

@@ -13,8 +13,13 @@
 #include <glm/ext.hpp>
 #include <map>
 
+	struct meshStruct {
+	    	std::vector<glm::vec3> meshX[];
+	    };
 class ShaderProgram {
 public:
+
+
 	ShaderProgram();
 	ShaderProgram(std::vector<std::string> attachShaders);
 	ShaderProgram(GLenum type, std::string path);
@@ -37,6 +42,8 @@ public:
 	ShaderProgram* update(std::string name, std::vector<glm::vec2> vector);
 	ShaderProgram* update(std::string name, std::vector<glm::vec3> vector);
 	ShaderProgram* update(std::string name, std::vector<glm::vec4> vector);
+	ShaderProgram* update(std::string name, struct meshStruct mStr);
+
 	void printUniformInfo();
 	void printInputInfo();
 	void printOutputInfo();
