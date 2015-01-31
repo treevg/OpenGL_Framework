@@ -93,60 +93,97 @@ vector<ColorField> doRLE(float *array){
 	return data;
 }
 
-vector<ColorField> doRLE2(float *array){
-	vector<ColorField> data;
+vector<ColorField*> doRLE2(float *array){
+	vector<ColorField*> data;
 	float rOld = array[0];
 	float gOld = array[4];
 	float bOld = array[8];
 	float aOld = array[12];
-	int count = 0;
-	for(int i = 0; i < (tWidth * tHeight) * 4; i+=16){
+	int count = 1;
+
+	int i = 16;
+
+	do{
 		float r = array[i];
 		float g = array[i + 4];
 		float b = array[i + 8];
 		float a = array[i + 12];
+
 		if (rOld == r && gOld == g && bOld == b && aOld == a){
 			count++;
 		}
 		else{
 		ColorField *temp = new ColorField(count, rOld, gOld, bOld, aOld);
-		data.push_back(*temp);
+		data.push_back(temp);
 		rOld = r;
 		gOld = g;
 		bOld = b;
 		aOld = a;
 		count = 1;
 		}
+	i += 16;
 	}
+	while (i < (tWidth * tHeight) *4);
+
+	ColorField *temp = new ColorField(count, rOld, gOld, bOld, aOld);
+	data.push_back(temp);
+
+	cout << "array had: " << i << endl;
+
 	return data;
 }
 
-void doRLEDecode(vector<ColorField> data, float* array){
+void doRLEDecode(vector<ColorField*> data, float* array){
 	int count;
 	for(int i = 0; i < (tWidth * tHeight) * 4; i+=16){
-		count = data.back().appearence;
+		count = data.back()->appearence;
 		if (count == 1){
-			array[i] = data.back().r;
-			array[i + 4] = data.back().g;
-			array[i + 8] = data.back().b;
-			array[i + 12] = data.back().a;
-
-			data.pop_back();
+			array[i] = data.back()->r;
+			array[i + 4] = data.back()->g;
+			array[i + 8] = data.back()->b;
+			array[i + 12] = data.back()->a;
 		}
 		else{
 			for(int j = 0; j < count; j++){
-				array[i] = data.back().r;
-				array[i + 4] = data.back().g;
-				array[i + 8] = data.back().b;
-				array[i + 12] = data.back().a;
+				array[i] = data.back()->r;
+				array[i + 4] = data.back()->g;
+				array[i + 8] = data.back()->b;
+				array[i + 12] = data.back()->a;
 				i += 16;
 				}
-			i-= 16;
-			data.pop_back();
 		}
+			data.pop_back();
+	}
+}
+
+void doRLEDecode2(vector<ColorField*> data, float* array){
+	int count;
+	int i = 0;
+
+	for (ColorField* c : data){
+		count = data.back()->appearence;
+		if (count == 1){
+			array[i] = data.back()->r;
+			array[i + 4] = data.back()->g;
+			array[i + 8] = data.back()->b;
+			array[i + 12] = data.back()->a;
+
+			i += 16;
+		}
+		else{
+			for(int j = 0; j < count; j++){
+				array[i] = data.back()->r;
+				array[i + 4] = data.back()->g;
+				array[i + 8] = data.back()->b;
+				array[i + 12] = data.back()->a;
+				i += 16;
+			}
+		}
+
+		data.pop_back();
 	}
 
-	//return array;
+	cout << "array has now: " << i << " Entries" << endl;
 }
 
 double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
@@ -281,18 +318,18 @@ int main(int argc, char *argv[]) {
         -> texture("tex2", textureHandle)
         -> run();
 
-//        RGBtoYCbCr->use();
-//        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);		//INPUT texture
-//        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        RGBtoYCbCr->use();
+        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);		//INPUT texture
+        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        compressCbCr->use();
-//        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
-//        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture2  Brightness-Channel (Y) and Depth-Channel/transperancy (A)
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        compressCbCr->use();
+        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
+        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture2  Brightness-Channel (Y) and Depth-Channel/transperancy (A)
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 //        YCbCrToRGB->use();
 //        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
@@ -300,34 +337,40 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        compressedYCbCrToRGB->use();
-//        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
-//        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
-//        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        compressedYCbCrToRGB->use();
+        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
+        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
+        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-//        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
 //        double lastTime = glfwGetTime();
-//        vector<ColorField> test = doRLE2(data);
+        vector<ColorField*> test = doRLE2(data);
+
+//        test.clear();
+
 //        double thisTime = glfwGetTime();
-//
+
+        doRLEDecode2(test, data2);
+
+        for (ColorField* x : test){
+     	   delete x;
+        }
 //        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
 //
 //        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
 //        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
 
-//        cout<< test.front().appearence << " times the Color: " << test.front().r << endl;
-
-//        doRLEDecode(test, data2);
 
 
-//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data);
-//        glBindTexture(GL_TEXTURE, 0);
+
+        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data2);
+        glBindTexture(GL_TEXTURE, 0);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
