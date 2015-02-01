@@ -396,8 +396,6 @@ int main(int argc, char *argv[]) {
 //        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
 
 
-
-
         glBindTexture(GL_TEXTURE_2D, tex2Handle);
         glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data2);
         glBindTexture(GL_TEXTURE, 0);
