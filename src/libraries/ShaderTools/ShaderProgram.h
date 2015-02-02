@@ -13,12 +13,13 @@
 #include <glm/ext.hpp>
 #include <map>
 
-	struct meshStruct {
-	    	std::vector<glm::vec3> meshX[];
-	    };
+
 class ShaderProgram {
 public:
 
+	struct meshStruct {
+	    	std::vector<glm::vec3> meshX;
+	    } meshData;
 
 	ShaderProgram();
 	ShaderProgram(std::vector<std::string> attachShaders);

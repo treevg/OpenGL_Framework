@@ -159,24 +159,18 @@ int main(int argc, char *argv[]) {
 //    mesh.push_back(glm::vec3(2.0, 2.8, 2.0));
 
 
-//GLuint meshBufferID;
-//glGenBuffers(1,&meshBufferID);
-//glBindBuffer(GL_SHADER_STORAGE_BUFFER, meshBufferID);
-//glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mesh) , glm::value_ptr((&mesh[0])[0]), GL_STATIC_READ);
-//glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, meshBufferID);
+//sp->meshData.meshX[0]=mesh;
+
+sp->meshData.meshX.push_back(vec3(0.5, -0.5, 1.5));
+sp->meshData.meshX.push_back(glm::vec3(0.0, 0.8, 1.5));
+sp->meshData.meshX.push_back(glm::vec3(-0.5, -0.5, 1.5));
+
+sp->meshData.meshX.push_back(glm::vec3(0.0, 0.5, 1.0));
+sp->meshData.meshX.push_back(glm::vec3(-0.5, 1.8, 1.0));
+sp->meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
 
 
-meshStruct str;
-//str.meshX[vec3(0.5, -0.5, 1.5)];
-//str.meshX.push_back(vec3(0.5, -0.5, 1.5));
-//str.meshX.push_back(glm::vec3(0.0, 0.8, 1.5));
-//str.meshX.push_back(glm::vec3(-0.5, -0.5, 1.5));
-//
-//str.meshX.push_back(glm::vec3(0.0, 0.5, 1.0));
-//str.meshX.push_back(glm::vec3(-0.5, 1.8, 1.0));
-//str.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
-
-str.meshX[0] = mesh;
+//meshData.meshX[0] = mesh;
 
 
     lastTime = glfwGetTime();
@@ -186,7 +180,7 @@ str.meshX[0] = mesh;
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
     //pass1 -> update("mesh[0]", objl->vertices);
-    pass1 -> update("meshObj", str);
+    //pass1 -> update("meshObj", str);
 
     renderLoop([]{
         currentTime = glfwGetTime();

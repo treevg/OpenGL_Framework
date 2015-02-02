@@ -212,14 +212,21 @@ ShaderProgram* ShaderProgram::update(string name, meshStruct mStr) {
 	Info* updateInfo = checkUpdate(name, "meshStruct");
 	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
-		GLuint structBufferID;
-		glGenBuffers(1,&structBufferID);
-		glBindBuffer(GL_SHADER_STORAGE_BUFFER, structBufferID);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mStr) , NULL, GL_STATIC_READ);
-		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, structBufferID);
 
+		GLuint ssbi = 0;
+		ssbi = glGetProgramResourceIndex(shaderProgramHandle, GL_SHADER_STORAGE_BLOCK, "meshData");
+		//GLuint index = 16;
+		glShaderStorageBlockBinding(shaderProgramHandle,ssbi, updateInfo->location );
+
+
+
+//		GLuint structBufferID = glGetUniformBlockIndex(shaderProgramHandle, "meshStruct");
+//		glGenBuffers(1,&structBufferID);
+//		glBindBuffer(GL_SHADER_STORAGE_BUFFER, structBufferID);
+//		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(mStr) , &mStr, GL_STATIC_READ);
+//		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, structBufferID);
 		//necessary?
-		glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, structBufferID, 0, 128);
+		//glBindBufferRange(GL_SHADER_STORAGE_BUFFER, 0, structBufferID, 0, 128);
 	}
 	return this;
 }

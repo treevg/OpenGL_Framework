@@ -10,6 +10,7 @@ uniform mat4		projection;
 uniform mat4		rotationOnly;
 //uniform sampler2D	extraDepth;
 
+
 in vec2 pos;
 
 out vec2 passPosition;
