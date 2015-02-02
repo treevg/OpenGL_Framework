@@ -27,6 +27,7 @@ auto RGBtoYCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rgbToYCbCr.
 auto YCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/YCbCrToRGB.comp");
 auto compressCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressCbCr.comp");
 auto compressedYCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressedYCbCrToRGB.comp");
+auto rleEncoder = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rle.comp");
 
 float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
@@ -373,6 +374,11 @@ int main(int argc, char *argv[]) {
 //        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+        rleEncoder->use();
+        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);
+        glDispatchCompute(width, 1, 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         glBindTexture(GL_TEXTURE_2D, pass->get("fragColor"));
         glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
