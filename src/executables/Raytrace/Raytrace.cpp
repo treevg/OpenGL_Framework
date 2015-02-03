@@ -13,8 +13,7 @@ using namespace std;
 using namespace glm;
 
 //TODO Himmel soll nachziehen bei Rotation - Skybox?
-//TODO verzerrungsartefakte ausmerzen
-//TODO fix vector upload - custom Texture (Octree)
+//TODO fix vector upload - custom Texture (Octree?)
 //TODO design - struct
 
 //global variables
@@ -176,7 +175,7 @@ sp->meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
     lastTime = glfwGetTime();
 
     pass1 -> update("sphereVec[0]", sphereVec);
-    //pass1 -> update("mesh[0]", mesh);
+    pass1 -> update("mesh[0]", mesh);
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
     //pass1 -> update("mesh[0]", objl->vertices);
