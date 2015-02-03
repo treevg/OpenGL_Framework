@@ -2,10 +2,10 @@
 layout ( binding = 0, rgba32f ) readonly uniform image2D inImg;
 layout ( binding = 1, rgba32f ) writeonly uniform image2D outImg;
 
-layout (local_size_x = 16) in;
+layout (local_size_x = 256) in;
 
-shared vec4 scanline[16];
-shared uint count[16];
+shared vec4 scanline[256];
+shared uint count[256];
 
 void main() {
 
@@ -30,6 +30,8 @@ void main() {
 			same = false;
 			}
 		}
+	
+	barrier();
 		
 		
 		

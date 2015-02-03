@@ -194,19 +194,19 @@ void doRLEDecode3(vector<ColorField*> data, float* array){
 	for (ColorField* c : data){
 		count = data.back()->appearence;
 		if (count == 1){
-			array[i] = data.back()->r;
+			array[i] = data.back()->a;
 			array[i + 4] = data.back()->b;
 			array[i + 8] = data.back()->g;
-			array[i + 12] = data.back()->a;
+			array[i + 12] = data.back()->r;
 
 			i += 16;
 		}
 		else{
 			for(int j = 0; j < count; j++){
-				array[i] = data.back()->r;
+				array[i] = data.back()->a;
 				array[i + 4] = data.back()->b;
 				array[i + 8] = data.back()->g;
-				array[i + 12] = data.back()->a;
+				array[i + 12] = data.back()->r;
 				i += 16;
 			}
 		}
@@ -375,37 +375,37 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        rleEncoder->use();
-        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-        glDispatchCompute(int(width/16), height, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//        rleEncoder->use();
+//        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+//        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+//        glDispatchCompute(1, (height), 1);
+//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        glBindTexture(GL_TEXTURE_2D, pass->get("fragColor"));
-//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-//        glBindTexture(GL_TEXTURE_2D, 0);
+        glBindTexture(GL_TEXTURE_2D, pass->get("fragColor"));
+        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
-//        double lastTime = glfwGetTime();
-//        vector<ColorField*> test = doRLE2(data);
+        double lastTime = glfwGetTime();
+        vector<ColorField*> test = doRLE2(data);
 
 //        test.clear();
 
-//        double thisTime = glfwGetTime();
+        double thisTime = glfwGetTime();
 
-//        doRLEDecode3(test, data2);
-//
+        doRLEDecode3(test, data2);
+
 //        for (ColorField* x : test){
 //     	   delete x;
 //        }
-//        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
-//
-//        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
-//        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
+        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
+
+        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
+        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
 
 
-//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data2);
-//        glBindTexture(GL_TEXTURE, 0);
+        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data2);
+        glBindTexture(GL_TEXTURE, 0);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
