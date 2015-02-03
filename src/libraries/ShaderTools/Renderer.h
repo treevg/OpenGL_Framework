@@ -9,6 +9,16 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+//
+// @brief Erzeugt ein Fenster
+// @details [long description]
+// 
+// @param width		Breite des Fensters
+// @param height	Höhe des Fenster
+// @param posX 		Position des Fensters in X-Richtung
+// @param posY 		Position des Fensters in Y-Richtung
+// @return 			Pointer auf das Fenster
+// 
 GLFWwindow* generateWindow(int width = 1280, int height = 720, int posX = 100, int posY = 100) {
 	glfwInit();
 
@@ -24,6 +34,14 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720, int posX = 100, i
 	return window;
 }
 
+// @brief Default Render-Loop
+// @details Der Default Render-Loop wartet darauf, dass das Fenster geschlossen
+// 			wird löscht es dann und terminiert GLFW. Außerdem wird schon ein
+// 			Delta Zeiwert berechnet und die Framebuffer gtauscht (SwapBuffers)
+// 
+// @param window 	Fenster in das gerendert werden soll
+// @param loop 		Function pointer zur Function, die im Render-Loop ausgeführt
+// 					werden soll
 void render(GLFWwindow* window, std::function<void (double)> loop) {
 	float lastTime = 0.0;
 	while ( !glfwWindowShouldClose(window)) {
@@ -38,6 +56,7 @@ void render(GLFWwindow* window, std::function<void (double)> loop) {
 	glfwDestroyWindow(window);
 	glfwTerminate();
 }
+
 
 void setKeyCallback(GLFWwindow* window, std::function<void (int, int, int, int)> func) {
 	static std::function<void (int, int, int, int)> func_bounce = func;
