@@ -180,7 +180,7 @@ sp->meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
     //pass1 -> update("mesh[0]", objl->vertices);
-    //pass1 -> update("meshObj", str);
+    pass1 -> update("meshData", sp->meshData);
 
     renderLoop([]{
         currentTime = glfwGetTime();
@@ -250,10 +250,11 @@ sp->meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
 
 
         //slightly different VM
-        mat4 aView = view;
-        aView = translate(aView, vec3(0.05, 0, 0.0));
-        aView = rotate(aView, warpUpDown, vec3(1,0,0));
-        aView = rotate(aView, warpLeftRight, vec3(0,1,0));
+        mat4 aView (1);
+        aView = translate(aView, vec3(0.05, 0, -4.0));
+        aView = rotate(aView, warpUpDown-verticalAngle, vec3(1,0,0));
+        aView = rotate(aView, warpLeftRight-horizontalAngle, vec3(0,1,0));
+
 
        // mat4 invAView = inverse(aView);
        // mat4 latAView = latency(aView, 20);

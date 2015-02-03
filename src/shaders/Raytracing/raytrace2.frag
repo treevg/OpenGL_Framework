@@ -11,7 +11,7 @@ uniform mat4 	invView;
 uniform mat4	invViewProjection;
 
 uniform vec4 	sphereVec[3];
-//uniform vec3 	mesh[6];
+uniform vec3 	mesh[6];
 uniform vec3 	colorSphere[3];
 uniform vec3 	colorTriangle[3];
 
@@ -32,10 +32,10 @@ out 	vec4	fragDepth2;
 //	vec3 meshX[6];
 //};
 
-buffer meshData{
+ buffer meshData{
 	vec3 meshX[6];
 	//meshStruct meshObj;
-}meshObj;
+};
 
 float	t = 0;
 vec3 	light = normalize(vec3(sin(t), 0.6, cos(t)));
@@ -160,8 +160,8 @@ extraDepthTex = extraDepth;
 
 		// determine if it is a triangle
  
-		  for (int t = 0; t <  meshObj.meshX.length() && t != hitTriangle; t+=3) {
-		  	float hitDepth = triangle(currentPos, currentDir, meshObj.meshX[t], meshObj.meshX[t+1], meshObj.meshX[t+2]);
+		  for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
+		  	float hitDepth = triangle(currentPos, currentDir, meshX[t], meshX[t+1], meshX[t+2]);
 		  	if (hitDepth < currentDepth && hitDepth>0.0) {
 		  		hitSphere = -1;
 		  		hitTriangle = t;

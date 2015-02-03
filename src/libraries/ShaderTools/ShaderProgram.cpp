@@ -213,9 +213,19 @@ ShaderProgram* ShaderProgram::update(string name, meshStruct mStr) {
 	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 
+		// http://www.geeks3d.com/20140704/tutorial-introduction-to-opengl-4-3-shader-storage-buffers-objects-ssbo-demo/
+		GLuint ssbo = 0;
+		glGenBuffers(1, &ssbo);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(meshData), &meshData, GL_STATIC_READ);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+		GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+		memcpy(p, &meshData, sizeof(meshData));
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
 		GLuint ssbi = 0;
 		ssbi = glGetProgramResourceIndex(shaderProgramHandle, GL_SHADER_STORAGE_BLOCK, "meshData");
-		//GLuint index = 16;
 		glShaderStorageBlockBinding(shaderProgramHandle,ssbi, updateInfo->location );
 
 

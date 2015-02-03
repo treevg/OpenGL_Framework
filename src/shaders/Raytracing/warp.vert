@@ -1,6 +1,7 @@
 #version 430
 
 uniform mat4 		altView;
+uniform mat4 		rotMat;
 uniform mat4 		view;
 uniform sampler2D 	depth;
 uniform sampler2D 	color;
@@ -20,11 +21,15 @@ void main() {
 	vec4 w;
 	float z = texture(depth, pos);
 	//float d = texture(extraDepth, pos);
+
 	
-//	mat4 exD = mat4( d, 1, d, 0,
-	//				  1, 1,  1, 0,
-		//			 d, 1, d, 0,
-			//		  0, 0,  0, 1 );
+	mat4 exD = 
+	mat4(1, 0, 0, 0,
+	     0, 1, 0, 0,
+	     0, 0, 1, 0,
+	     0, 0, 0, 1 );
+	
+	
 	
 	if(warpView==0){
 		if(z>=999){
