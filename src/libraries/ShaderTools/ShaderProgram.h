@@ -17,9 +17,7 @@
 class ShaderProgram {
 public:
 
-	struct meshStruct {
-	    	std::vector<glm::vec3> meshX;
-	    } meshData;
+
 
 	ShaderProgram();
 	ShaderProgram(std::vector<std::string> attachShaders);
@@ -43,7 +41,7 @@ public:
 	ShaderProgram* update(std::string name, std::vector<glm::vec2> vector);
 	ShaderProgram* update(std::string name, std::vector<glm::vec3> vector);
 	ShaderProgram* update(std::string name, std::vector<glm::vec4> vector);
-	ShaderProgram* update(std::string name, struct meshStruct mStr);
+	//ShaderProgram* update(std::string name, struct meshStruct mStr);
 
 	void printUniformInfo();
 	void printInputInfo();

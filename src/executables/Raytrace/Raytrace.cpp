@@ -45,9 +45,9 @@ auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
 auto objl = new Objectloader();
 
-//struct meshStruct {
-//    	vector<vec3> meshX;
-//    };
+struct meshStruct {
+    	std::vector<glm::vec3> meshX;
+    } meshData;
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
@@ -160,13 +160,29 @@ int main(int argc, char *argv[]) {
 
 //sp->meshData.meshX[0]=mesh;
 
-sp->meshData.meshX.push_back(vec3(0.5, -0.5, 1.5));
-sp->meshData.meshX.push_back(glm::vec3(0.0, 0.8, 1.5));
-sp->meshData.meshX.push_back(glm::vec3(-0.5, -0.5, 1.5));
+meshData.meshX.push_back(vec3(0.5, -0.5, 1.5));
+meshData.meshX.push_back(glm::vec3(0.0, 0.8, 1.5));
+meshData.meshX.push_back(glm::vec3(-0.5, -0.5, 1.5));
 
-sp->meshData.meshX.push_back(glm::vec3(0.0, 0.5, 1.0));
-sp->meshData.meshX.push_back(glm::vec3(-0.5, 1.8, 1.0));
-sp->meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
+meshData.meshX.push_back(glm::vec3(0.0, 0.5, 1.0));
+meshData.meshX.push_back(glm::vec3(-0.5, 1.8, 1.0));
+meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
+
+
+GLuint ssbo = 0;
+glGenBuffers(1, &ssbo);
+glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(meshData), &meshData, GL_STATIC_READ);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+memcpy(p, &meshData, sizeof(meshData));
+glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+GLuint ssbi = 0;
+ssbi = glGetProgramResourceIndex(sp->getProgramHandle(), GL_SHADER_STORAGE_BLOCK, "meshData");
+glShaderStorageBlockBinding(sp->getProgramHandle(),ssbi, 15 );
+cout<<ssbi<<"  SSBI  "<< endl;
 
 
 //meshData.meshX[0] = mesh;
@@ -179,7 +195,7 @@ sp->meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
     //pass1 -> update("mesh[0]", objl->vertices);
-    pass1 -> update("meshData", sp->meshData);
+  //  pass1 -> update("meshData", meshData);
 
     renderLoop([]{
         currentTime = glfwGetTime();

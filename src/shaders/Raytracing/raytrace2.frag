@@ -161,7 +161,7 @@ extraDepthTex = extraDepth;
 		// determine if it is a triangle
  
 		  for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
-		  	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
+		  	float hitDepth = triangle(currentPos, currentDir, meshX[t], meshX[t+1], meshX[t+2]);
 		  	if (hitDepth < currentDepth && hitDepth>0.0) {
 		  		hitSphere = -1;
 		  		hitTriangle = t;

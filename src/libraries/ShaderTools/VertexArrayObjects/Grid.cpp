@@ -9,9 +9,11 @@
 
 Grid::Grid(int w, int h) {
     mode = GL_POINTS;
+
     glEnable(GL_POINT_SMOOTH);
     glHint(GL_POINT_SMOOTH,GL_NICEST);
 
+    //glPointSize(2.0);
     glGenVertexArrays(1, &vertexArrayObjectHandle);
     glBindVertexArray(vertexArrayObjectHandle);
 
