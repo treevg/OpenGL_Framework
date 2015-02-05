@@ -1,4 +1,6 @@
 #include "FrameBufferObject.h"
+#include <thread>
+#include <chrono>
 
 FrameBufferObject::FrameBufferObject() {
 	frameBufferObjectHandle = 0;
@@ -26,7 +28,7 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
     	textureMap[e.first] = handle;
 	    drawBufferHandles[e.second.location] = currentAttachment;
     }
-
+    
     glDrawBuffers(size, &drawBufferHandles[0]);
 
 	GLuint depthTexture;

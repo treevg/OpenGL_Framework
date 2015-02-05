@@ -1,4 +1,6 @@
 #include "RenderPass.h"
+#include <thread>
+#include <chrono>
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram)
 	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0)
@@ -20,6 +22,7 @@ RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shad
 void RenderPass::run() {
 	frameBufferObject->bind();
 	shaderProgram->use();
+    //std::this_thread::sleep_for(std::chrono::seconds(1));
 	vertexArrayObject->draw();
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
@@ -47,3 +50,4 @@ RenderPass* RenderPass::clear(float r, float g, float b, float a) {
 GLuint RenderPass::get(std::string name) {
 	return frameBufferObject->get(name);
 }
+

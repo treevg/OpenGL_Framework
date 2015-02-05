@@ -1,9 +1,26 @@
 #include "Model.h"
 
-Model::Model(vector<float>positions, vector<unsigned int> textCoordinates) {
-	mode = GL_TRIANGLE_STRIP;
 
+   
+
+
+Model::Model(const string& path) {
+	mode = GL_TRIANGLE_FAN;
+    
+    this->loader = new ObjModelLoader(path);
+    cout<<" loading model" << endl;
+
+    std::vector<float> positions = loader->getVerticies();
+    std::vector<float> textCoordinates  = loader->getTexturePositions();
+
+    int numberVert = loader->getNumberOfIndicies();
+    delete loader;
+
+  
+    this->setnumberOfIndicies(numberVert);
+ 
     int sizeOfPositions = positions.size();
+  
     cout<< " Positions: " << sizeOfPositions << endl;
 
     int sizeOfTexturePositions= textCoordinates.size();
@@ -17,7 +34,7 @@ Model::Model(vector<float>positions, vector<unsigned int> textCoordinates) {
     GLuint vertexBufferHandles[2];
     glGenBuffers(2, vertexBufferHandles);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);             
-    glBufferData(GL_ARRAY_BUFFER, sizeOfPositions*sizeof(float) , &positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeOfPositions*sizeof(float) , &positions[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
 
@@ -43,7 +60,7 @@ Model::Model(vector<float>positions, vector<unsigned int> textCoordinates) {
     };
 
     glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[1]);
-    glBufferData(GL_ARRAY_BUFFER, sizeOfTexturePositions*sizeof(int), &textCoordinates, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeOfTexturePositions*sizeof(float), &textCoordinates[0], GL_STATIC_DRAW);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);
 }
@@ -52,6 +69,13 @@ Model::Model(vector<float>positions, vector<unsigned int> textCoordinates) {
 //calculate vericies number for verticies
 void Model::draw() {
     glBindVertexArray(vertexArrayObjectHandle);
-    glDrawArrays(mode, 0, 12*3);
+    glDrawArrays(mode, 0, this->numberOfIndicies);
+}
+
+
+void Model::setnumberOfIndicies(int number){
+this->numberOfIndicies = number;
+
+
 }
 

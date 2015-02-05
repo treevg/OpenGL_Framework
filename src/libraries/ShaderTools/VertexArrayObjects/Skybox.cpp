@@ -57,11 +57,11 @@ Skybox::Skybox() {
 
 void Skybox::draw() {
 
-    glDepthMask(0);
+  
     glBindVertexArray(vertexArrayObjectHandle);
  //   glDepthRange(1.0,1.0);
     glDrawArrays(mode, 0, 12*3);
-    glDepthMask(1);
+
 
 }
 

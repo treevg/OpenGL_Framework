@@ -7,7 +7,7 @@ string(REPLACE " " "_" ProjectId ${ProjectId})
 project(${ProjectId})
 
 include_directories(
-	${OpenGL3_INCLUDE_PATH}
+    ${OpenGL3_INCLUDE_PATH}
     ${GLEW_INCLUDE_PATH}
     ${GLFW3_INCLUDE_PATH}
     ${GLM_INCLUDE_PATH}
