@@ -46,6 +46,7 @@ vec3 	currentNormal;
 vec3 	tempNormal;
 const float INFINITY = 1e10;
 
+vec3 currentDirNotnorm;
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 {
@@ -123,6 +124,7 @@ vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
 vec3 initialPos=currentPos;
 
 vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.04+zoom, 0.0)).xyz);
+vec3 initialDirNotnorm = (invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz;
 vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 
 float lengthCurrentDirOffset = length(currentDirOffset);
@@ -161,7 +163,7 @@ extraDepthTex = extraDepth;
 		// determine if it is a triangle
  
 		  for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
-		  	float hitDepth = triangle(currentPos, currentDir, meshX[t], meshX[t+1], meshX[t+2]);
+		  	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
 		  	if (hitDepth < currentDepth && hitDepth>0.0) {
 		  		hitSphere = -1;
 		  		hitTriangle = t;
@@ -194,6 +196,7 @@ extraDepthTex = extraDepth;
 			currentColor *=colorTriangle[hitTriangle/3];
 		 	
 			currentPos = (currentPos + currentDir * currentDepth);
+			currentDirNotnorm = reflect(normalize(currentDir), currentNormal);
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
 		
@@ -211,10 +214,11 @@ extraDepthTex = extraDepth;
 				vec3  phongAmbient = vec3(0.0, 0.02, 0.01);
 				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
 				fragPosition = vec4(vec3(currentPos),1);
-				//fragDepth = vec4(distance(initialPos, fragPosition.xyz));
+				
 				vec3 dist = fragPosition.xyz - initialPos;
-				vec3 temps = cross(dist, initialDir);
-				fragDepth = vec4(temps,1);
+				float temps = dot(currentDirNotnorm, initialDirNotnorm);
+				fragDepth = vec4(temps,temps,temps,1);
+				//fragDepth = vec4(distance(initialPos, fragPosition.xyz));
 				
 			}
 		} 

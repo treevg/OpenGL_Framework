@@ -242,8 +242,8 @@ cout<<ssbi<<"  SSBI  "<< endl;
         if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)warpView =0;
 
         // Warpview
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) warpUpDown +=  0.1 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) warpUpDown -=  0.1 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) warpUpDown +=  0.1 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) warpUpDown -=  0.1 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) warpLeftRight -=  0.1* deltaT ;
         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) warpLeftRight += 0.1* deltaT ;
 
