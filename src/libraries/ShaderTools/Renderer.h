@@ -24,6 +24,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720, int posX = 100, i
 
 	GLFWwindow* window = glfwCreateWindow(width, height, "OpenGL Window", NULL, NULL);
 	glfwSetWindowPos(window, posX, posY);
+	glfwSetWindowSize(window, width, height);
 	glfwMakeContextCurrent(window);
 
 	glewInit();
@@ -102,13 +103,13 @@ void setCursorEnterCallback(GLFWwindow* window, std::function<void (int)> func) 
 
 int getWidth(GLFWwindow* window) {
 	int w, h;
-    glfwGetWindowSize(window, &w, &h);
+    glfwGetFramebufferSize(window, &w, &h);
     return w;
 }
 
 int getHeight(GLFWwindow* window) {
     int w, h;
-    glfwGetWindowSize(window, &w, &h);
+    glfwGetFramebufferSize(window, &w, &h);
     return h;
 }
 

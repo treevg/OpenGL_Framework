@@ -2,7 +2,8 @@
  * Objectloader.cpp
  *
  *  Created on: 04.01.2015
- *      Author: Moe
+ *      Author: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+ *		Edited by: Moe
  */
 
 #include "Objectloader.h"
