@@ -1,7 +1,9 @@
 # OpenGL_Framework
 
+**For English version see `README.en.md`**
+
 ## Erste Schritte
-Dieses Repository ist mit ```git``` Versioniert. Wer git noch nicht kennt, sollte zuerst die Grundlagen lernen. Eine gute Anlaufstelle dafür ist z.B. [Pro git](http://git-scm.com/book/de/v1).
+Dieses Repository ist mit `git Versioniert. Wer git noch nicht kennt, sollte zuerst die Grundlagen lernen. Eine gute Anlaufstelle dafür ist z.B. [Pro git](http://git-scm.com/book/de/v1).
 
 **TL;DR:**
 * git-Grundlagen können und verstehen :)
@@ -20,7 +22,7 @@ Dieses Repository ist mit ```git``` Versioniert. Wer git noch nicht kennt, sollt
 
 2. **Build-Verzeichnis erstellen**
 
-    Auf eurem Rechner einen Ordner erstellen (z.b. `build-vs2012` oder einfach nur `build`), indem mit CMake dann Projektfiles erstellt werden, die mit einer IDE (z.B. Visual Studio) geöffnet werden können. Der Ordnerpfad ist prinzipiell egal, meist wird dieser aber im Repository erstellt und dann **nicht mit gepusht!**
+    Auf eurem Rechner einen Ordner erstellen (z.b. `build-vs2012` für Visual Studio 2012 oder einfach nur `build`), indem mit CMake dann Projektfiles erstellt werden, die mit einer IDE (z.B. Visual Studio) geöffnet werden können. Der Ordnerpfad ist prinzipiell egal, meist wird dieser aber im Repository erstellt und dann **nicht mit gepusht!**
 
 3. **CMake auführen**
 
