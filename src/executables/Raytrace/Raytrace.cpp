@@ -203,10 +203,18 @@ cout<<"  SSBI  "<<ssbi<< endl;
         float deltaT = currentTime - lastTime;
         lastTime = currentTime;
 
-        glfwGetCursorPos(window, &xpos,&ypos);
-        glfwSetCursorPos(window, float(width)/2, float(height)/2);
-        horizontalAngle += 0.5 * deltaT * float(float(width)/2 - xpos );
-        verticalAngle   += 0.5 * deltaT * float( float(height)/2 - ypos );
+        // double xold = xpos;
+        // double yold = ypos;
+        if (glfwGetMouseButton(window, 0) == GLFW_PRESS) {
+            glfwGetCursorPos(window, &xpos,&ypos);
+            xpos = xpos / (double)width * 2.0 - 1.0;
+            ypos = ypos / (double)height * 2.0 - 1.0;
+        }
+        // glfwSetCursorPos(window, float(width)/2, float(height)/2);
+        cout << xpos << " " << ypos << endl;
+
+        horizontalAngle = xpos;
+        verticalAngle   = ypos;
 //        warpUpDown = horizontalAngle;
 //        warpLeftRight = verticalAngle;
 
@@ -262,7 +270,7 @@ cout<<"  SSBI  "<<ssbi<< endl;
         view = rotate(view, -horizontalAngle, vec3(0,1,0));
 
         mat4 invView = inverse(view);
-        mat4 lat = latency(invView,20);
+        mat4 lat = latency(invView,10);
 
 
         //slightly different VM

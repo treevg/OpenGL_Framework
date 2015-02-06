@@ -2,9 +2,10 @@
  * Objectloader.cpp
  *
  *  Created on: 04.01.2015
- *      Author: Moe
+ *      Author: http://www.opengl-tutorial.org/beginners-tutorials/tutorial-7-model-loading/
+ *		Edited by: Moe
  */
-using namespace std;
+
 #include "Objectloader.h"
 Objectloader::Objectloader(){
 
@@ -75,8 +76,7 @@ bool Objectloader::loadOBJ(
 	    	unsigned int vertexIndex = vertexIndices[i];
 	    	glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
 	    	out_vertices.push_back(vertex);
-	    	//cout <<"LOOK HERE: "<< to_string(vertex) <<endl;
-
+	    	//cout <<"LOOK HERE: "<< to_string(vertex) << endl;
 	    }
 
 
