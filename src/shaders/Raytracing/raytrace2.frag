@@ -2,6 +2,13 @@
 
 in vec4 gl_FragCoord;
 
+
+// DEBUG
+uniform int enter;
+vec3 t1 = vec3(0.0, 0.0, 0.0);
+vec3 t2 = vec3(.75, 0.5, 0.5);
+vec3 t3 = vec3(-0.75, 0.5, 0.5);
+
 uniform vec3	iResolution; 	
 uniform mat4	projection;
 uniform float 	zoom;
@@ -29,9 +36,9 @@ out 	vec4 	fragPosition2;
 out 	vec4	fragDepth2;
 
 
-layout(std430, binding=15) buffer meshData{
-	vec3 meshX[6];
-};
+layout(std430, binding=7) buffer meshData{
+	vec4 pos[3];
+} myMesh;
 
 float	t = 0;
 vec3 	light = normalize(vec3(sin(t), 0.6, cos(t)));
@@ -66,6 +73,12 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     v = vertex2 - vertex0;
     n = normalize( cross(u,v) );
 	tempNormal = n;
+
+
+	// vec3 q = cross(dir,v);
+	// float a = dot(u,q);
+
+
 
     w0	= orig - vertex0;
     a	= -dot(n, w0);
@@ -158,15 +171,16 @@ extraDepthTex = extraDepth;
 
 		// determine if it is a triangle
  
-		  for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
-		  	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
+		for (int t = 0; t < myMesh.pos.length() && t != hitTriangle; t+=3) {
+		  		float hitDepth = triangle(currentPos, normalize(currentDir), myMesh.pos[t].xyz, myMesh.pos[t+1].xyz, myMesh.pos[t+2].xyz);
+				if (enter == 1) hitDepth = triangle(currentPos, normalize(currentDir), t1, t2, t3);
 		  	if (hitDepth < currentDepth && hitDepth>0.0) {
 		  		hitSphere = -1;
 		  		hitTriangle = t;
 		  		currentDepth = hitDepth;
 				currentNormal = tempNormal;
 		  	}
-		  }
+		}
 
 		//============================//
 		// compute new ray parameters //
@@ -188,8 +202,10 @@ extraDepthTex = extraDepth;
 
 		 if (hitTriangle >= 0) {	
 			// multiply Colors
-			//currentColor *= vec3(1.0,0,0);
-			currentColor *=colorTriangle[hitTriangle/3];
+			// currentColor *= currentPos;
+			currentColor *= abs(currentNormal);
+			// currentColor *= vec3(1.0,0,0);
+			// currentColor *=colorTriangle[hitTriangle/3];
 		 	
 			currentPos = (currentPos + currentDir * currentDepth);
 			currentDirNotnorm = reflect(normalize(currentDir), currentNormal);
@@ -206,7 +222,7 @@ extraDepthTex = extraDepth;
 				fragDepth2 = vec4(9999);
 				break;
 			} else {
-				float phongDiffuse = max(dot(currentNormal, light),0) * 0.5;
+				float phongDiffuse = 1.0;//max(dot(currentNormal, light),0) * 0.5;
 				vec3  phongAmbient = vec3(0.0, 0.02, 0.01);
 				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
 				fragPosition = vec4(vec3(currentPos),1);

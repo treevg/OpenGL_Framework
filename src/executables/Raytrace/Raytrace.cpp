@@ -9,6 +9,8 @@
 #include "ShaderTools/VertexArrayObjects/Grid.h"
 #include "Objectloader/Objectloader.h"
 
+#include "ShaderTools/ShaderStorageBuffer.h"
+
 using namespace std;
 using namespace glm;
 
@@ -48,6 +50,10 @@ auto objl = new Objectloader();
 struct meshStruct {
     	std::vector<glm::vec3> meshX;
     } meshData;
+
+
+
+auto ssbo = new ShaderStorageBuffer();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
@@ -104,9 +110,9 @@ int main(int argc, char *argv[]) {
 
 
 
-    sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
-    sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
-    sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.5));
+    sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.1));
+    sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.1));
+    sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.1));
 
 //    sphereVec.push_back(glm::vec4(1, 0.5, 0.5, 0.5));
 //    sphereVec.push_back(glm::vec4(1.5, 0.5, 0.5, 0.5));
@@ -167,23 +173,6 @@ meshData.meshX.push_back(glm::vec3(-0.5, -0.5, 1.5));
 meshData.meshX.push_back(glm::vec3(0.0, 0.5, 1.0));
 meshData.meshX.push_back(glm::vec3(-0.5, 1.8, 1.0));
 meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
-
-
-GLuint ssbo = 0;
-glGenBuffers(1, &ssbo);
-glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(meshData), &meshData, GL_DYNAMIC_COPY);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
-memcpy(p, &meshData, sizeof(meshData));
-glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-GLuint ssbi = 7;
-ssbi = glGetProgramResourceIndex(sp->getProgramHandle(), GL_SHADER_STORAGE_BLOCK, "meshData");
-GLuint ssbo_binding_point_index = 15;
-glShaderStorageBlockBinding(sp->getProgramHandle(),ssbi, ssbo_binding_point_index );
-cout<<"  SSBI  "<<ssbi<< endl;
 
 
 //meshData.meshX[0] = mesh;
@@ -310,12 +299,14 @@ cout<<"  SSBI  "<<ssbi<< endl;
         }
         else {
 
+            ssbo->bind(7);
         	pass1
         	-> clear(0, 0, 0, 0)
         	-> update("iResolution", glm::vec3(width, height, 1))
         	-> update("zoom", rad)
             -> update("invViewProjection", invViewProjection)
         	-> update("invView",lat)
+            -> update("enter", (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
         	-> run();
 
         	passLin
