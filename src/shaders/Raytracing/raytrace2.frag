@@ -28,13 +28,9 @@ out 	vec4	fragColor2;
 out 	vec4 	fragPosition2;
 out 	vec4	fragDepth2;
 
-//struct meshStruct {
-//	vec3 meshX[6];
-//};
 
- buffer meshData{
+layout(std430, binding=15) buffer meshData{
 	vec3 meshX[6];
-	//meshStruct meshObj;
 };
 
 float	t = 0;
@@ -163,7 +159,7 @@ extraDepthTex = extraDepth;
 		// determine if it is a triangle
  
 		  for (int t = 0; t < mesh.length() && t != hitTriangle; t+=3) {
-		  	float hitDepth = triangle(currentPos, currentDir, mesh[t], mesh[t+1], mesh[t+2]);
+		  	float hitDepth = triangle(currentPos, currentDir, meshX[t], meshX[t+1], meshX[t+2]);
 		  	if (hitDepth < currentDepth && hitDepth>0.0) {
 		  		hitSphere = -1;
 		  		hitTriangle = t;

@@ -172,17 +172,18 @@ meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
 GLuint ssbo = 0;
 glGenBuffers(1, &ssbo);
 glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(meshData), &meshData, GL_STATIC_READ);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
-	//glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
-GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(meshData), &meshData, GL_DYNAMIC_COPY);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
+GLvoid* p = glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_WRITE_ONLY);
 memcpy(p, &meshData, sizeof(meshData));
 glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-GLuint ssbi = 0;
+GLuint ssbi = 7;
 ssbi = glGetProgramResourceIndex(sp->getProgramHandle(), GL_SHADER_STORAGE_BLOCK, "meshData");
-glShaderStorageBlockBinding(sp->getProgramHandle(),ssbi, 15 );
-cout<<ssbi<<"  SSBI  "<< endl;
+GLuint ssbo_binding_point_index = 15;
+glShaderStorageBlockBinding(sp->getProgramHandle(),ssbi, ssbo_binding_point_index );
+cout<<"  SSBI  "<<ssbi<< endl;
 
 
 //meshData.meshX[0] = mesh;
