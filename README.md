@@ -61,3 +61,15 @@ Falls ihr euch eine Dokumentation über alle vorhandenen Klassen und Methoden er
     - `└ executable` Enthällt Code von allen ausführbaren Programmen
     - `└ libraries` Enthällt Code von Bibliotheken
     - `└ shaders` Enthällt Shader-Code
+
+---
+
+## OpenGL Debugging Tools
+
+OpenGL Porgrammierung kann frustrierend werden und Debugging kann sich als echt schwierig erweisen. Es gibt allerdings mittlerweile ein paar sinnvolle Tools, die einem z.B. pro Frame Texturen, Buffer, Uniforms etc. ausgeben und visuell anzeigen. Hier die bekanntesten:
+
+* [apitrace](https://github.com/apitrace/apitrace)
+* [vogl](https://github.com/ValveSoftware/vogl)
+* [gDebugger](http://www.gremedy.com/)
+* [AMD CodeXL](http://developer.amd.com/tools-and-sdks/opencl-zone/codexl/)
+* [Nvidia Nsight](http://www.nvidia.com/object/nsight.html)

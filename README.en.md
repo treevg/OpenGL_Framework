@@ -58,3 +58,14 @@ If you would like to have a documentation of all classes and functions of the li
     - `└ executable` Contains source code of all executables
     - `└ libraries` Contains source code of all libraries
     - `└ shaders` Contains shader source code
+---
+
+## OpenGL Debugging Tools
+
+Programming OpenGL can be frustrating and debugging can be a hard task. Indeed there are some tools to explorefor instance function calls, frames, textures, buffers, uniforms, etc. Here are most commonly known:
+
+* [apitrace](https://github.com/apitrace/apitrace)
+* [vogl](https://github.com/ValveSoftware/vogl)
+* [gDebugger](http://www.gremedy.com/)
+* [AMD CodeXL](http://developer.amd.com/tools-and-sdks/opencl-zone/codexl/)
+* [Nvidia Nsight](http://www.nvidia.com/object/nsight.html)
