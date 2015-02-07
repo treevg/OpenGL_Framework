@@ -1,3 +1,14 @@
+/**
+ * @file   		ShaderProgram.h
+ * @author 		Gerrit Lochmann
+ * @date   		@todo
+ * @copyright	@todo
+ *
+ * @brief  		OpenGL shader program wrapper
+ *
+ * The ShaderProgram class wraps OpenGL Shader Programs and maintains uniform
+ * as input/output-buffers using standard c++ maps.
+ */
 #ifndef SHADER_PROGRAM_H
 #define SHADER_PROGRAM_H
 
@@ -47,14 +58,13 @@ public:
 	 */
 	void use();
 
-
 	virtual ShaderProgram* texture(std::string name, GLuint textureHandle);
 	virtual ShaderProgram* texture(std::string name, GLuint textureHandle, GLuint samplerHandle);
-	
+
 	/**
 	 * @brief Updates a boolean uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -63,7 +73,7 @@ public:
 	/**
 	 * @brief Updates an integer uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -72,7 +82,7 @@ public:
 	/**
 	 * @brief Updates a float uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -81,7 +91,7 @@ public:
 	/**
 	 * @brief Updates a double uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name  Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -90,7 +100,7 @@ public:
 	/**
 	 * @brief Updates a 2D integer vector uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -99,7 +109,7 @@ public:
 	/**
 	 * @brief Updates a 3D integer vector uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -108,7 +118,7 @@ public:
 	/**
 	 * @brief Updates a 4D integer vector uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -117,7 +127,7 @@ public:
 	/**
 	 * @brief Updates a 2D float vector uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -126,7 +136,7 @@ public:
 	/**
 	 * @brief Updates a 3D float vector uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -135,7 +145,7 @@ public:
 	/**
 	 * @brief Updates a 4D float vector uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -144,7 +154,7 @@ public:
 	/**
 	 * @brief Updates a 2x2 matrix uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -153,7 +163,7 @@ public:
 	/**
 	 * @brief Updates a 3x3 matrix uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -162,7 +172,7 @@ public:
 	/**
 	 * @brief Updates a 4x4 matrix uniform variable
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
 	 * 
 	 * @return The shader program
@@ -171,7 +181,7 @@ public:
 	/**
 	 * @brief Updates a list of 2D vector uniform variables
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The vector witch stores the values to update the unform with
 	 * 
 	 * @return The shader program
@@ -180,7 +190,7 @@ public:
 	/**
 	 * @brief Updates a list of 3D vector uniform variables
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The vector witch stores the values to update the unform with
 	 * 
 	 * @return The shader program
@@ -189,7 +199,7 @@ public:
 	/**
 	 * @brief Updates a list of 4D vector uniform variables
 	 * 
-	 * @param name Name of the uniform variable in GLSL
+	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The vector witch stores the values to update the unform with
 	 * 
 	 * @return The shader program
