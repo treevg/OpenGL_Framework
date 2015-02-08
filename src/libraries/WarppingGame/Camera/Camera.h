@@ -2,6 +2,9 @@
 #define CAMERA_H
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include <vector>
 #include <iostream>
 
@@ -26,14 +29,13 @@ Camera(CameraMode mode);
 Camera();
 ~Camera();
 
-void update();
-void lookAt();
+mat4 looksAt();
 void setCamera(vec3 position, vec3 view, vec3 upVector);
 void moveCamera(float speed);
 void strafeCamera(float speed);
-void rotateAroundObject(float x, float y, float z, vec3 center);
+void rotatePoint(float x, float y, float z, vec3 center);
 void rotate(float angle, vec3 rotationVector);
-void moveWithKeybord();
+void rotateWithMouse();
 
 /* getters and setters */
 
@@ -54,10 +56,10 @@ void setSpeed(float speed);
 
 protected:
 
-vec3 c_position;
-vec3 c_view;
-vec3 c_upVector;
-vec3 c_strafeVector;
+glm::vec3 c_position;
+glm::vec3 c_view;
+glm::vec3 c_upVector;
+glm::vec3 c_strafeVector;
 float c_speed;
    
 

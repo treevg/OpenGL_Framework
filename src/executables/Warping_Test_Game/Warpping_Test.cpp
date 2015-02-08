@@ -90,8 +90,8 @@ int main(int argc, char *argv[]) {
 
         mat4 viewC = lookAt(vec3(0,15,15), vec3(0.0f),vec3(0.0, 1.0, 0.0)); 
        
-         mat4   modelC = rotate(mat4(1.0), horizAngle, vec3(0.0,1.0,0.0));
-                modelC = translate (modelC, vec3(0.0, 0.1, 0.0));
+        mat4   modelC = rotate(mat4(1.0), horizAngle, vec3(0.0,1.0,0.0));
+               modelC = translate (modelC, vec3(0.0, 0.1, 0.0));
 
 
         mat4 modelPyramide = scale(mat4(1), vec3(2,2,2));

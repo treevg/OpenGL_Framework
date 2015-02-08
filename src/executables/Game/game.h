@@ -19,13 +19,16 @@ public:
         ~Game() = default;
         void init();
         void drawSkybox();
-	void renderSzene();
+	    void renderSzene();
         void close();
+     //   void moveWithKeybord(Camera* camera);
+        //if "escape" -> free resourcen
+        void exit();
 
  //RenderPass* skyBox ;
  //RenderPass* plane ;
  //RenderPass* pyramid;
-Camera* cam;
+
 
 
 };

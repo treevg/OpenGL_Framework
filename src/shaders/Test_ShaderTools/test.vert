@@ -2,7 +2,7 @@
 
 in vec4 pos;
 
-uniform float scale;
+
 uniform mat4 uniformView;
 uniform mat4 uniformModel;
 uniform mat4 uniformProjection;
