@@ -1,22 +1,14 @@
 
 #include <cmath>
 #include <assert.h>
-#include "ShaderTools/DefaultRenderLoop.h"
-#include "Camera.h"
 
-//helpers
+#include "Camera.h"
 
 
 //todo: camera by mouse
-//implement all functions
 
-/*vec3 c_position;
-vec3 c_view;
-vec3 c_upVector;
-vec3 c_strafeVector; */
 
-/* initial position of camera*/
-//TODO -> find out right position for game
+//TODO -> find out right initial position of camera
 Camera::Camera(){
 
 this->c_position = vec3(0.0, 1.0, 50.0);
@@ -55,19 +47,6 @@ return (float) sqrt((vector.x * vector.x) + (vector.y * vector.y) + (vector.z * 
 }
 
 
-/* returns vector, that is 90 degrees from 2 passing vectors */
-static vec3 calculateCrossProd(vec3 vec1, vec3 vec2){
-
-vec3 result;
-
-result.x = ((vec1.y * vec2.z) - (vec1.z * vec2.y));
-result.y = ((vec1.z * vec2.x) - (vec1.x * vec2.z));
-result.z = ((vec1.x * vec2.y) - (vec1.y * vec2.x));
-
-return result;
-
-
-}
 
 void Camera::moveCamera(float speed){
 
@@ -88,15 +67,14 @@ this->c_view.z = this->c_view.z + direction.z*this->c_speed;
 
 }
 
-/* approch and code for this funktion from http://www.tomdalling.com/blog/modern-opengl/04-cameras-vectors-and-input/ */
 
 void Camera::strafeCamera(float speed){
 
 this->setSpeed(speed);
 
 vec3 direction = c_view - c_position;
-
-vec3 cross = calculateCrossProd(direction, this->c_upVector);
+//calculate x_axis of the camera
+vec3 cross = glm::cross(direction, this->c_upVector);
 
 this->c_strafeVector = cross/lengthOfVector(cross);
 
@@ -112,8 +90,88 @@ this->c_view.z = this->c_view.z + this->c_strafeVector.z*this->c_speed;
 }
 
 
-void Camera::rotatePoint(float x, float y, float z, vec3 center){
+void Camera::rotateWithMouse(GLFWwindow* window,const int width, const int height){
 
+
+
+ // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+
+  float curRotAroundX = 0.0f;
+  float yAngle = 0.0f;
+  float zAngle = 0.0f;
+  //use sinsitivity to make mouse movement not to strong
+  float sinsitivity = 0.0001f;
+
+double middleX = width/2;
+double middleY = height/2;
+
+double xpos, ypos;
+
+
+ 
+glfwGetCursorPos(window, &xpos, &ypos);
+
+
+if(  xpos==middleX && ypos==middleY ) return;
+
+
+glfwSetCursorPos(window, middleX, middleY  );
+
+std::cout << " mouse in: " << xpos<< " " << ypos << std::endl;
+
+yAngle = (float)(middleX -xpos)*sinsitivity;
+// along z axis
+zAngle = (float)(middleY -ypos)*sinsitivity;
+
+
+float lastRotationx = curRotAroundX;
+
+
+curRotAroundX += zAngle;
+
+if(curRotAroundX > 1.0f){
+
+  curRotAroundX = 1.0f;
+
+  if (lastRotationx != 1.0f) {
+
+    vec3 direction = this->getView() - this->getPosition();
+
+       vec3 axis = glm::cross(direction, this->getUpVector());
+       axis = glm::normalize(axis);
+
+         this->rotate(1.0f - lastRotationx, axis );
+  } 
+
+
+}else if (curRotAroundX < -1.0f){
+
+curRotAroundX = -1.0f;
+
+if (lastRotationx != 1.0f) {
+
+    vec3 direction = this->getView() - this->getPosition();
+
+       vec3 axis = glm::cross(direction, this->getUpVector());
+       axis = glm::normalize(axis);
+
+         this->rotate(-1.0f - lastRotationx, axis );
+  } 
+
+  
+}else{
+
+  vec3 direction = this->getView() - this->getPosition();
+
+ vec3 axis = glm::cross(direction, this->getUpVector());
+      axis = glm::normalize(axis);
+      this->rotate(zAngle, axis );
+
+
+}
+
+ this->rotate(yAngle, vec3(0,1,0));
 
 
 }
@@ -131,7 +189,7 @@ void Camera::rotate(float angle, vec3 rotationVector){
    float sinAlpha = (float) sin (angle);
    vec3 nView;
 
-    nView.x  = (cosAlpha + (1 - cosAlpha) * rotationVector.x * rotationVector.x)	* direction.x;
+    nView.x  = (cosAlpha + (1 - cosAlpha) * rotationVector.x * rotationVector.x)* direction.x;
 	nView.x += ((1 - cosAlpha) * rotationVector.x * rotationVector.y - rotationVector.z * sinAlpha)	* direction.y;
 	nView.x += ((1 - cosAlpha) * rotationVector.x * rotationVector.z + rotationVector.y * sinAlpha)	* direction.z;
 	nView.y  = ((1 - cosAlpha) * rotationVector.x * rotationVector.y + rotationVector.z * sinAlpha)	* direction.x;
@@ -147,7 +205,39 @@ void Camera::rotate(float angle, vec3 rotationVector){
 
 
 
+void Camera::moveWithKey(GLFWwindow* window, float speed){
 
+
+if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS )  {
+
+ 
+     this->moveCamera(speed);
+
+}
+
+//move camera backward
+if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS )  {
+
+     this->moveCamera(-speed);
+
+}
+
+//move camera to the left
+if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS )  {
+
+     this->strafeCamera(-speed);
+
+}
+
+//move camera to the right
+if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS )  {
+
+      this->strafeCamera(speed);
+
+}
+
+
+}
 
 /* getters and setters */
 

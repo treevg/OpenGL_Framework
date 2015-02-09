@@ -47,6 +47,15 @@ static void printMatrix(mat4 matrix){
 
   }
 
+  Game::~Game(){
+   
+   delete skyBox;
+   delete camera;
+   delete plane;
+   delete pyramid;
+
+  }
+
 
   void Game::init(){
 
@@ -60,6 +69,8 @@ static void printMatrix(mat4 matrix){
  }
 
 
+ 
+
   void  Game::drawSkybox(){
 
     //implement
@@ -67,12 +78,9 @@ static void printMatrix(mat4 matrix){
 
   static glm::mat4 getLookAt(){
 
-  
-     mat4 view = camera->looksAt();
+  mat4 view = camera->looksAt();
 
- 
-
-    return view;
+     return view;
 
   }
 
@@ -82,43 +90,16 @@ static void printMatrix(mat4 matrix){
 static void quit(){
 
   if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
+
   //free all resources
 
 }
 
+/*input from keybord */
 
 static void  moveWithKeybord(){
-  std::cout << " key pressed" << std::endl;
-
-//move camera forward
-
-if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS )  {
-
- 
-     camera->moveCamera(speed);
-
-}
-
-//move camera backward
-if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS )  {
-
-     camera->moveCamera(-speed);
-
-}
-
-//move camera to the left
-if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS )  {
-
-     camera->strafeCamera(-speed);
-
-}
-
-//move camera to the right
-if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS || glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS )  {
-
-      camera->strafeCamera(speed);
-
-}
+  
+camera->moveWithKey(window, speed);
 quit();
 
 }
@@ -126,9 +107,8 @@ quit();
 /*input from mouse */
 static void  lookAround(){
 
-  
-  
-
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  camera->rotateWithMouse(window, width, height);
 }
 
 
@@ -145,9 +125,8 @@ static void  lookAround(){
     glm::mat4 modelPyramide= glm::scale(glm::mat4(1),glm::vec3(5,20,5));
 
     glm::mat4 modelS = glm::scale(glm::mat4(1), glm::vec3(10,10,10));
- 
- 
-    
+   
+    lookAround(); 
     moveWithKeybord();
    
       plane
@@ -161,9 +140,9 @@ static void  lookAround(){
 
 for (int i = 2; i < 50; i=i+3){
   
-    for (int j = -6; j < 7; j+=12){
+      for (int j = -6; j < 7; j+=12){
  
-  modelPyramide= glm::translate(modelPyramide, glm::vec3(j,1,50-i));
+              modelPyramide= glm::translate(modelPyramide, glm::vec3(j,1,50-i));
 
        pyramid
         -> update("uniformView", viewMat)
@@ -189,10 +168,9 @@ for (int i = 2; i < 50; i=i+3){
 
 
 
-
 int main(int argc, char *argv[]) { 
 
 Game * g = new Game();
 
-
+delete g;
 }

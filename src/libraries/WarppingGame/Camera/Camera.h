@@ -35,7 +35,8 @@ void moveCamera(float speed);
 void strafeCamera(float speed);
 void rotatePoint(float x, float y, float z, vec3 center);
 void rotate(float angle, vec3 rotationVector);
-void rotateWithMouse();
+void rotateWithMouse(GLFWwindow* window, const int  width, const int height);
+void moveWithKey(GLFWwindow* window,float speed);
 
 /* getters and setters */
 

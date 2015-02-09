@@ -16,7 +16,7 @@ using namespace glm;
 class Game {
 public:
 	Game();
-        ~Game() = default;
+        ~Game();
         void init();
         void drawSkybox();
 	    void renderSzene();
