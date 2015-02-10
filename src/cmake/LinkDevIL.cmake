@@ -1,15 +1,14 @@
-cmake_minimum_required(VERSION 2.8)
-
-find_package(DevIL REQUIRED)
+find_package(DevIL)
 
 include_directories(
-	${IL_INCLUDE_PATHS}
+	${IL_INCLUDE_DIR}
 )
 
-set(ALL_LIBRARIES ${ALL_LIBRARIES}
-	${IL_LIBRARIES}
-    ${ILU_LIBRARIES}
-    ${ILUT_LIBRARIES}
-) 
+target_link_libraries(
+	${ProjectId}
+	${IL_LIBRARIES} ${ILU_LIBRARIES} ${ILUT_LIBRARIES}
+)
 
-add_definitions(-ILUT_USE_OPENGL)
+add_definitions(
+	-ILUT_USE_OPENGL
+)

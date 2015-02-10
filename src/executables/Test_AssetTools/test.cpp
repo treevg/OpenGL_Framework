@@ -1,6 +1,7 @@
 #include "ShaderTools/Renderer.h"
 #include "ShaderTools/RenderPass.h"
 #include "AssetTools/Texture.h"
+#include "AssetTools/Mesh.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include <typeinfo>
 
