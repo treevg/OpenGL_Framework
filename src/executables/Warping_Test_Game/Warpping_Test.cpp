@@ -7,7 +7,6 @@
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Skybox.h"
 #include "ShaderTools/VertexArrayObjects/Pyramid.h"
-#include "ShaderTools/VertexArrayObjects/Model.h"
 #include "WarppingGame/CubemapTexture/CubemapTexture.h"
 
 using namespace std;

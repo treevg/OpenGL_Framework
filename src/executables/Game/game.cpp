@@ -98,7 +98,7 @@ static void quit(){
 /*input from keybord */
 
 static void  moveWithKeybord(){
-  
+
 camera->moveWithKey(window, speed);
 quit();
 
@@ -106,7 +106,6 @@ quit();
 
 /*input from mouse */
 static void  lookAround(){
-
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   camera->rotateWithMouse(window, width, height);
 }
@@ -156,12 +155,9 @@ for (int i = 5; i < 50; i=i+6){
          modelPyramide = glm::mat4(1.0);
 
       }
-
-
 }
 
-
-    });
+   });
 
 
   }
