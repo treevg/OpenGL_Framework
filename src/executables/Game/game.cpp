@@ -119,6 +119,7 @@ static void  lookAround(){
     
  
     renderLoop([]{
+     
     glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
     glm::mat4 model=glm::mat4(1.0);
     glm::mat4  viewMat= getLookAt();

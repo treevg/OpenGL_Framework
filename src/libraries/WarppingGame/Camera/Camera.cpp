@@ -1,11 +1,7 @@
 
 #include <cmath>
 #include <assert.h>
-
 #include "Camera.h"
-
-
-//todo: camera by mouse
 
 
 //TODO -> find out right initial position of camera

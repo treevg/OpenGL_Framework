@@ -11,13 +11,6 @@ using namespace std;
 using namespace glm;
 
 
-struct Vertex {
-
-vec3 position;
-vec3 normal;
-vec2 textCoordin;
-
-};
 
 struct Texture {
 GLuint id;
@@ -27,17 +20,23 @@ string type;
 
 class Mesh : public VertexArrayObject {
 public:
-	Mesh(vector<Vertex> verticies, vector<GLuint> indicies, vector<Texture> textures);
+	Mesh(vector<vec3> verticies, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indicies);
+	Mesh(vector<vec3> verticies, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indicies, vector<Texture> textures);
 	void draw();
-	vector<Vertex> getVerticies() const;
+	vector<vec3> getVerticies() const;
+	vector<vec3> getNormals() const;
+	vector<vec2> getTexCoords() const;
 	vector<GLuint> getIndicies() const;
 	vector<Texture> getTextures() const;
 	
 protected: 
 
-vector<Vertex> verticies;
-vector<GLuint> indicies;
-vector<Texture> textures;
+vector<vec3> m_verticies;
+vector<vec3> m_normals;
+vector<vec2> m_texCoords;
+vector<GLuint> m_indicies;
+vector<Texture> m_textures;
+
 
 
 	};

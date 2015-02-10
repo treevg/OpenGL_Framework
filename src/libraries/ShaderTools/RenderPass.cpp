@@ -22,8 +22,25 @@ RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shad
 void RenderPass::run() {
 	frameBufferObject->bind();
 	shaderProgram->use();
-    //std::this_thread::sleep_for(std::chrono::seconds(1));
 	vertexArrayObject->draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+
+void RenderPass::runMeshes(vector<Mesh> meshes) {
+
+	for (int i=0; i<meshes.size(); i++ ){
+	//	vertexArrayObject = meshes[i];
+		//Gerrit fragen -> muss für jedes Mesh ein FBO generiert werden? 
+		frameBufferObject->bind();
+        shaderProgram->use();
+        meshes[i].draw();
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	
+	
+    //std::this_thread::sleep_for(std::chrono::seconds(1));
+
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 

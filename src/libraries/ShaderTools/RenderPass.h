@@ -3,6 +3,7 @@
 
 #include "VertexArrayObject.h"
 #include "FrameBufferObject.h"
+#include "ShaderTools/VertexArrayObjects/Mesh.h"
 
 class RenderPass
 {
@@ -11,6 +12,7 @@ public:
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 	void run();
+	void runMeshes(vector<Mesh> meshes);
 	void autoGenerateFrameBufferObject(int width, int height);
 	GLuint get(std::string name);
 
