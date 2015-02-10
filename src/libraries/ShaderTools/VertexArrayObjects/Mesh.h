@@ -1,27 +1,45 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MESH_H
+#define MESH_H
 
 
 #include <vector>
+#include <string>
+#include <glm/glm.hpp>
 #include "../VertexArrayObject.h"
-#include "WarppingGame/Modelloader/ObjModelLoader.h"
 
 using namespace std;
+using namespace glm;
 
-class Model : public VertexArrayObject {
+
+struct Vertex {
+
+vec3 position;
+vec3 normal;
+vec2 textCoordin;
+
+};
+
+struct Texture {
+GLuint id;
+string type;
+};
+
+
+class Mesh : public VertexArrayObject {
 public:
-	Model(vector<float> positions, vector<float> uvCoordinates);
-	Model(const string& path);
+	Mesh(vector<Vertex> verticies, vector<GLuint> indicies, vector<Texture> textures);
 	void draw();
-	void setnumberOfIndicies(int number);
+	vector<Vertex> getVerticies() const;
+	vector<GLuint> getIndicies() const;
+	vector<Texture> getTextures() const;
 	
-protected:
+protected: 
 
-vector<float> positions;
-vector<float> uvCoordinates;
-int numberOfIndicies;
-ObjModelLoader* loader;
+vector<Vertex> verticies;
+vector<GLuint> indicies;
+vector<Texture> textures;
+
 
 	};
 
-#endif // MODEL_H
+#endif // MESH_H

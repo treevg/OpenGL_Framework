@@ -115,6 +115,8 @@ static void  lookAround(){
   void  Game::renderSzene(){
 
    //render loop for game
+
+    
  
     renderLoop([]{
     glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
@@ -136,13 +138,15 @@ static void  lookAround(){
         -> update("luminance", lum)
         -> run();
 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 for (int i = 5; i < 50; i=i+6){
   
       for (int j = -6; j < 7; j+=12){
         
-         modelPyramide= glm::translate(modelPyramide, glm::vec3(j,0.5,50-i));
-         modelPyramide=   glm::scale(modelPyramide,glm::vec3(10,20,10));
-
+         modelPyramide= glm::translate(modelPyramide, glm::vec3(j,5.5,50-i));
+         modelPyramide=   glm::scale(modelPyramide,glm::vec3(10,10,10));
+         
 
        pyramid
         -> update("uniformView", viewMat)
@@ -157,11 +161,12 @@ for (int i = 5; i < 50; i=i+6){
       }
 }
 
+
+glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
    });
 
 
   }
-
 
 
 
