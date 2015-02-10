@@ -118,12 +118,11 @@ static void  lookAround(){
    //render loop for game
  
     renderLoop([]{
-    glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.0f);
+    glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
     glm::mat4 model=glm::mat4(1.0);
     glm::mat4  viewMat= getLookAt();
 
-    glm::mat4 modelPyramide= glm::scale(glm::mat4(1),glm::vec3(5,20,5));
-
+    glm::mat4 modelPyramide;    //= glm::scale(glm::mat4(1.0),glm::vec3(10,40,10));
     glm::mat4 modelS = glm::scale(glm::mat4(1), glm::vec3(10,10,10));
    
     lookAround(); 
@@ -138,11 +137,13 @@ static void  lookAround(){
         -> update("luminance", lum)
         -> run();
 
-for (int i = 2; i < 50; i=i+3){
+for (int i = 5; i < 50; i=i+6){
   
       for (int j = -6; j < 7; j+=12){
- 
-              modelPyramide= glm::translate(modelPyramide, glm::vec3(j,1,50-i));
+        
+         modelPyramide= glm::translate(modelPyramide, glm::vec3(j,0.5,50-i));
+         modelPyramide=   glm::scale(modelPyramide,glm::vec3(10,20,10));
+
 
        pyramid
         -> update("uniformView", viewMat)
@@ -151,7 +152,8 @@ for (int i = 2; i < 50; i=i+3){
         -> update("color", glm::vec4(1,0,0,1))
         -> update("luminance", lum)
         -> run();
-          modelPyramide = glm::mat4(1.0);
+
+         modelPyramide = glm::mat4(1.0);
 
       }
 
