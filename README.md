@@ -1,7 +1,9 @@
 # OpenGL_Framework
 
+**For English version see `README.en.md`**
+
 ## Erste Schritte
-Dieses Repository ist mit ```git``` Versioniert. Wer git noch nicht kennt, sollte zuerst die Grundlagen lernen. Eine gute Anlaufstelle dafür ist z.B. [Pro git](http://git-scm.com/book/de/v1).
+Dieses Repository ist mit `git Versioniert. Wer git noch nicht kennt, sollte zuerst die Grundlagen lernen. Eine gute Anlaufstelle dafür ist z.B. [Pro git](http://git-scm.com/book/de/v1).
 
 **TL;DR:**
 * git-Grundlagen können und verstehen :)
@@ -20,7 +22,7 @@ Dieses Repository ist mit ```git``` Versioniert. Wer git noch nicht kennt, sollt
 
 2. **Build-Verzeichnis erstellen**
 
-    Auf eurem Rechner einen Ordner erstellen (z.b. `build-vs2012` oder einfach nur `build`), indem mit CMake dann Projektfiles erstellt werden, die mit einer IDE (z.B. Visual Studio) geöffnet werden können. Der Ordnerpfad ist prinzipiell egal, meist wird dieser aber im Repository erstellt und dann **nicht mit gepusht!**
+    Auf eurem Rechner einen Ordner erstellen (z.b. `build-vs2012` für Visual Studio 2012 oder einfach nur `build`), indem mit CMake dann Projektfiles erstellt werden, die mit einer IDE (z.B. Visual Studio) geöffnet werden können. Der Ordnerpfad ist prinzipiell egal, meist wird dieser aber im Repository erstellt und dann **nicht mit gepusht!**
 
 3. **CMake auführen**
 
@@ -59,3 +61,15 @@ Falls ihr euch eine Dokumentation über alle vorhandenen Klassen und Methoden er
     - `└ executable` Enthällt Code von allen ausführbaren Programmen
     - `└ libraries` Enthällt Code von Bibliotheken
     - `└ shaders` Enthällt Shader-Code
+
+---
+
+## OpenGL Debugging Tools
+
+OpenGL Porgrammierung kann frustrierend werden und Debugging kann sich als echt schwierig erweisen. Es gibt allerdings mittlerweile ein paar sinnvolle Tools, die einem z.B. pro Frame Texturen, Buffer, Uniforms etc. ausgeben und visuell anzeigen. Hier die bekanntesten:
+
+* [apitrace](https://github.com/apitrace/apitrace)
+* [vogl](https://github.com/ValveSoftware/vogl)
+* [gDebugger](http://www.gremedy.com/)
+* [AMD CodeXL](http://developer.amd.com/tools-and-sdks/opencl-zone/codexl/)
+* [Nvidia Nsight](http://www.nvidia.com/object/nsight.html)
