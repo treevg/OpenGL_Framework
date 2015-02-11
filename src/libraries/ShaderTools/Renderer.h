@@ -193,4 +193,16 @@ int getHeight(GLFWwindow* window) {
     return h;
 }
 
+/**
+ * @brief Returns the windows aspect ratio
+ * 
+ * @param window Window to get the ratio of
+ * @return The ratio of the given window
+ */
+float getRatio(GLFWwindow* window) {
+    int w, h;
+    glfwGetFramebufferSize(window, &w, &h);
+    return float(w)/float(h);
+}
+
 #endif // DEFAULT_RENDER_LOOP_H

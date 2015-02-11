@@ -57,6 +57,8 @@ class RenderPass
 		 * @return The RenderPass instance
 		 */
 		RenderPass* clear(float r, float g, float b, float a);
+		RenderPass* clear();
+		RenderPass* clearDepth();
 		RenderPass* texture(std::string name, GLuint textureID);
 		RenderPass* texture(std::string name, GLuint textureID, GLuint samplerID);
 

@@ -15,8 +15,8 @@ void main() {
 
 	vec4 color = vec4(0,0,0,0);
 	float i = 0;
-	for (int x = -strength; x < strength; x++) {
-		for (int y = -strength; y < strength; y++) {
+	for (int x = -strength; x <= strength; x++) {
+		for (int y = -strength; y <= strength; y++) {
 			i++;
 			color += texture(tex, passPosition.xy + delta * vec2(x,y));
 		}

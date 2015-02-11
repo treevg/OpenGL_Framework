@@ -1,16 +1,27 @@
 #ifndef MESH_H
 #define MESH_H
 
-#include "assimp/mesh.h"
+#include <iostream>
+#include <stdio.h>
+#include <string>
+#include <string.h>
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+#include <ShaderTools/VertexArrayObject.h>
 
-class Mesh
+
+class Mesh : public VertexArrayObject
 {
 public:
-	Mesh();
+	Mesh(std::string path);
 	~Mesh();
 
-	void print();
+	int count;
+	void draw();
 	
+private:
+	void dumpSceneToVAO(const aiScene *scene);
 };
 
 #endif // MESH_H
