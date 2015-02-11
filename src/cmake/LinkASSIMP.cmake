@@ -1,10 +1,9 @@
 find_package(ASSIMP)
 
 include_directories(
-	${ASSIMP_INCLUDE_DIR}
+	${ASSIMP_INCLUDE_DIRS}
 )
 
-target_link_libraries(
-	${ProjectId}
-	${ASSIMP_LIBRARY}
+link_libraries(
+	${ASSIMP_LIBRARIES}
 )

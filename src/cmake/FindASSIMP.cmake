@@ -1,86 +1,70 @@
-# - Try to find Assimp
-# Once done this will define
+# Copyright (C) 2014 Barry Deeney
+# Copyright (C) 2014 Benny Bobaganoosh
 #
-#  ASSIMP_FOUND - system has Assimp
-#  ASSIMP_INCLUDE_DIR - the Assimp include directory
-#  ASSIMP_LIBRARY - Link these to use Assimp
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-set(_assimp_INCLUDE_SEARCH_DIRS_SYSTEM
-    C:/assimp/include
-    C:/assimp
-    "$ENV{ProgramFiles}/assimp/include"
-    "$ENV{ProgramFiles}/assimp"
-    /sw/local/include
-  )
+#############################################
+# Try to find ASSMIP and set the following: #
+#                                           #
+# ASSIMP_FOUND                              #
+# ASSIMP_INCLUDE_DIRS                       #
+# ASSIMP_LIBRARIES                          #
+#############################################
 
-set(_assimp_LIB_SEARCH_DIRS_SYSTEM
-    C:/assimp/lib
-    C:/assimp
-    "$ENV{ProgramFiles}/assimp/lib"
-    "$ENV{ProgramFiles}/assimp"
-    /sw/local/lib
-  )
+SET( ASSIMP_SEARCH_PATHS
+    ${ASSIMP_ROOT_DIR}                  # ASSIMP!
+    ./lib/Assimp
+    $ENV{PROGRAMFILES}/ASSIMP           # WINDOWS
+    ~/Library/Frameworks                # MAC
+    /Library/Frameworks                 # MAC
+    /usr/local                          # LINUX/MAC/UNIX
+    /usr                                # LINUX/MAC/UNIX
+    /opt                                # LINUX/MAC/UNIX
+    /sw                                 # Fink
+    /opt/local                          # DarwinPorts
+    /opt/csw                            # Blastwave
+)
 
-FIND_PATH(ASSIMP_INCLUDE_DIR assimp/assimp.hpp
- $ENV{ASSIMPSDIR}/include
- $ENV{ASSIMPSDIR}
- $ENV{ASSIMPSDIR}/..
- ~/Library/Frameworks/AssImp.framework/Headers
- /Library/Frameworks/AssImp.framework/Headers
- /usr/local/include/assimp
- /usr/local/include
- /usr/include/assimp
- /usr/include
- /sw/include/assimp # Fink
- /sw/include
- /opt/local/include/assimp # DarwinPorts
- /opt/local/include
- /opt/csw/include/assimp # Blastwave
- /opt/csw/include
- /opt/include/assimp
- /opt/include
- ${_assimp_INCLUDE_SEARCH_DIRS_SYSTEM}
- )
+FIND_PATH( ASSIMP_INCLUDE_DIRS
+    NAMES
+        assimp/mesh.h
+    PATHS
+        ${ASSIMP_SEARCH_PATHS}
+    PATH_SUFFIXES
+        include
+    DOC
+        "The directory where assimp/mesh.h resides"
+)
 
-FIND_LIBRARY(ASSIMP_LIBRARY_DEBUG
- NAMES assimpD
- PATHS
- $ENV{ASSIMPSDIR}/lib
- /usr/local/lib
- /usr/lib
- /sw/lib
- /opt/local/lib
- /opt/csw/lib
- /opt/lib
- ${_assimp_LIB_SEARCH_DIRS_SYSTEM}
- )
+FIND_LIBRARY( ASSIMP_LIBRARIES
+    NAMES
+        assimp ASSIMP
+    PATHS
+        ${ASSIMP_SEARCH_PATHS}
+    PATH_SUFFIXES
+        lib
+        lib64
+        lib/x86
+        lib/x64
+    DOC
+        "The ASSIMP library"
+)
 
-FIND_LIBRARY(ASSIMP_LIBRARY_RELEASE
- NAMES assimp
- PATHS
- $ENV{ASSIMPSDIR}/lib
- /usr/local/lib
- /usr/lib
- /sw/lib
- /opt/local/lib
- /opt/csw/lib
- /opt/lib
- ${_assimp_LIB_SEARCH_DIRS_SYSTEM}
- )
-
-SET(ASSIMP_FOUND "NO")
-IF(ASSIMP_INCLUDE_DIR AND ASSIMP_LIBRARY_DEBUG AND ASSIMP_LIBRARY_RELEASE)
- SET(ASSIMP_FOUND "YES")
- SET(ASSIMP_LIBRARY debug ${ASSIMP_LIBRARY_DEBUG} optimized ${ASSIMP_LIBRARY_RELEASE})
-ENDIF(ASSIMP_INCLUDE_DIR AND ASSIMP_LIBRARY_DEBUG AND ASSIMP_LIBRARY_RELEASE)
-
-if(ASSIMP_DEBUG)
- message(STATUS "assimp inc: ${ASSIMP_INCLUDE_DIR}")
- message(STATUS "assimp lib: ${ASSIMP_LIBRARY}")
-ENDIF(ASSIMP_DEBUG)
-
-if(AssImp_FIND_REQUIRED AND NOT (ASSIMP_LIBRARY AND ASSIMP_INCLUDE_DIR))
- message(FATAL_ERROR "Could not find assimp")
-ENDIF(AssImp_FIND_REQUIRED AND NOT (ASSIMP_LIBRARY AND ASSIMP_INCLUDE_DIR))
-
-mark_as_advanced(ASSIMP_LIBRARY_DEBUG ASSIMP_LIBRARY_RELEASE ASSIMP_INCLUDE_DIR)
+# Check if we found it!
+IF ( ASSIMP_INCLUDE_DIRS AND ASSIMP_LIBRARIES )
+    SET( ASSIMP_FOUND TRUE )
+    MESSAGE(STATUS "Looking for ASSIMP - found")
+ELSE ( ASSIMP_INCLUDE_DIRS AND ASSIMP_LIBRARIES )
+    SET( ASSIMP_FOUND FALSE )
+    MESSAGE(STATUS "Looking for ASSIMP - not found")
+ENDIF ( ASSIMP_INCLUDE_DIRS AND ASSIMP_LIBRARIES )

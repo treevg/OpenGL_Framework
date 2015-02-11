@@ -4,8 +4,7 @@ include_directories(
 	${IL_INCLUDE_DIR}
 )
 
-target_link_libraries(
-	${ProjectId}
+link_libraries(
 	${IL_LIBRARIES} ${ILU_LIBRARIES} ${ILUT_LIBRARIES}
 )
 
