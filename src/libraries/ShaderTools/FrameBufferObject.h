@@ -11,6 +11,7 @@ public:
 	void bind();
 	FrameBufferObject* clear(float r, float g, float b, float a);
 	FrameBufferObject* clear();
+	FrameBufferObject* clearDepth();
 	GLuint get(std::string name);
 
 

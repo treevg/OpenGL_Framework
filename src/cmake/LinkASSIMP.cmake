@@ -1,11 +1,9 @@
-cmake_minimum_required(VERSION 2.8)
-
-find_package(DevIL REQUIRED)
+find_package(ASSIMP)
 
 include_directories(
-	${ASSIMP_INCLUDE_DIR}
+	${ASSIMP_INCLUDE_DIRS}
 )
 
-set(ALL_LIBRARIES ${ALL_LIBRARIES}
-	${ASSIMP_LIBRARY}
+link_libraries(
+	${ASSIMP_LIBRARIES}
 )

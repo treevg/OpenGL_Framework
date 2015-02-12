@@ -54,6 +54,18 @@ RenderPass* RenderPass::clear(float r, float g, float b, float a) {
 	return this;
 }
 
+
+RenderPass* RenderPass::clear() {
+	frameBufferObject->clear();
+	return this;
+}
+
+
+RenderPass* RenderPass::clearDepth() {
+	frameBufferObject->clearDepth();
+	return this;
+}
+
 GLuint RenderPass::get(std::string name) {
 	return frameBufferObject->get(name);
 }
