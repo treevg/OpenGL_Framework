@@ -38,7 +38,6 @@ void AssimpLoader::processScene()
         aiQuaternion aiRotation;
         _scene->mRootNode->mChildren[i]->mTransformation.Decompose(aiScale, aiRotation, aiPosition);
 
-        glm::mat4 modelMatrix;
         glm::translate(modelMatrix, glm::vec3(aiPosition.x, aiPosition.z, aiPosition.y) +
                                     glm::vec3(aiRootPosition.x, aiRootPosition.z, aiRootPosition.y));
     }
@@ -91,68 +90,10 @@ void AssimpLoader::processMesh(aiMesh* mesh)
     }
     else
         std::cout << "Mesh has no faces!" << std::endl;
-
-    vao = createVAO();
-    createVertexBuffer(vertices);
-    createIndexBuffer(indices);
-    std::vector<GLuint> material0meshList;
-    material0meshList.push_back(vao);
-    vaoList[0] = material0meshList;
 }
 
 
 GLuint AssimpLoader::getVAO(unsigned int position)
 {
     return vao;
-}
-
-GLuint AssimpLoader::createVAO()
-{
-    //! Create vertex array object
-    GLuint vertexArrayObject;
-    glGenVertexArrays(1, &vertexArrayObject);
-    glBindVertexArray(vertexArrayObject);
-    return vertexArrayObject;
-}
-
-GLuint AssimpLoader::createVertexBuffer(std::vector<GLfloat> vertices)
-{
-    //! Create vertex buffer
-    GLuint bufferVertices;
-    glGenBuffers(1, &bufferVertices);
-    glBindBuffer(GL_ARRAY_BUFFER, bufferVertices);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), &vertices[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-}
-
-GLuint AssimpLoader::createIndexBuffer(std::vector<GLint> indices)
-{
-    //! Create index buffer
-    GLuint bufferIndices;
-    glGenBuffers(1, &bufferIndices);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferIndices);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLint), &indices[0], GL_STATIC_DRAW);
-}
-
-GLuint AssimpLoader::createNormalBuffer(std::vector<GLfloat> normals)
-{
-    //! Create normal buffer
-    GLuint bufferNormals;
-    glGenBuffers(1, &bufferNormals);
-    glBindBuffer(GL_ARRAY_BUFFER, bufferNormals);
-    glBufferData(GL_ARRAY_BUFFER, normals.size() * sizeof(GLfloat), &normals[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-    glEnableVertexAttribArray(1);
-}
-
-GLuint AssimpLoader::createUVBuffer(std::vector<GLfloat> uvs)
-{
-    //! Create uv buffer
-    GLuint bufferUV;
-    glGenBuffers(1, &bufferUV);
-    glBindBuffer(GL_ARRAY_BUFFER, bufferUV);
-    glBufferData(GL_ARRAY_BUFFER, uvs.size() * sizeof(GLfloat), &uvs[0], GL_STATIC_DRAW);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-    glEnableVertexAttribArray(2);
 }

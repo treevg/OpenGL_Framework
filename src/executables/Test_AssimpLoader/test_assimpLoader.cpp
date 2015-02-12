@@ -3,7 +3,7 @@
 #include "Compression/TextureTools.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "AssimpLoader/AssimpLoader.h"
-#include "AssimpLoader/GenericVertexArrayObject.h"
+#include "AssimpLoader/Mesh.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include <typeinfo>
 #include <glm/gtc/matrix_transform.hpp>
@@ -16,30 +16,42 @@ int main(int argc, char *argv[]) {
 
     AssimpLoader* scene = new AssimpLoader();
     scene->loadDAEFile(RESOURCES_PATH "/obj/cube.obj");
-    GLuint vao = scene->getVAO(0);
-    GenericVertexArrayObject* mymesh = new GenericVertexArrayObject(vao);
-    auto cube = new Cube();
+    Mesh* mesh = new Mesh({0.0, 0.5, 0.0, -0.5, -0.5, 0.0, 0.5, -0.5, 0.0},
+                          {0, 1, 2},
+                          {0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0},
+                          {0.0, 0.5, 0.0, 0.0, 1.0, 0.0},
+                          {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0});
     auto shaderProgram = new ShaderProgram({"/AssimpLoader/minimal.vert", "/AssimpLoader/minimal.frag"});
 
-    glm::mat4 model      = glm::mat4(1.0);
-    glm::mat4 view       = glm::lookAt(glm::vec3(2,0,-2), glm::vec3(0,0,0), glm::vec3(0,1,0));
+    glm::mat4 model      = scene->getModelMatrix();
+    glm::mat4 view       = glm::lookAt(glm::vec3(0, 0, -1), glm::vec3(0,0,0), glm::vec3(0,1,0));
     glm::mat4 projection = glm::perspective(90.0, 1.0, 0.1, 100.0);
 
     auto pass = new RenderPass(
-        cube,
+        mesh,
         shaderProgram
     );
 
     setKeyCallback(window, [&](int key, int scancode, int action, int mode)
     {
+        float speedX = 0.0;
+        float speedY = 0.0;
+        float speedZ = 0.0;
+
         if(key == GLFW_KEY_W)
-            view = glm::translate(view, glm::vec3( 0.0,  0.0, -0.1));
+            speedZ -= 0.1;
         if(key == GLFW_KEY_A)
-            view = glm::translate(view, glm::vec3(-0.1,  0.0,  0.0));
+            speedX -= 0.1;
         if(key == GLFW_KEY_S)
-            view = glm::translate(view, glm::vec3( 0.1,  0.0,  0.0));
+            speedZ += 0.1;
         if(key == GLFW_KEY_D)
-            view = glm::translate(view, glm::vec3( 0.0,  0.0,  0.1));
+            speedX += 0.1;
+        if(key == GLFW_KEY_E)
+            speedY += 0.1;
+        if(key == GLFW_KEY_Q)
+            speedY -= 0.1;
+
+        view = glm::translate(view, glm::vec3(speedX, speedY, speedZ));
     });
 
     render(window, [&] (float deltaTime)

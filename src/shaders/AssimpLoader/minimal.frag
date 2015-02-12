@@ -1,12 +1,9 @@
-#version 330
-
-uniform vec4 color;
-uniform float luminance;
-uniform vec4 newColor;
-uniform float bla;
+#version 440
 
 in vec4 passPosition;
 in vec2 passUV;
+in vec4 passNormal;
+in vec3 passColor;
 
 out vec4 fragColor;
 
