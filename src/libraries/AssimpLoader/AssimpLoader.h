@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
 #include <GL/glew.h>
 #include <GL/gl.h>
 
@@ -17,6 +18,8 @@ class AssimpLoader
     private:
         Assimp::Importer     _importer;
         const aiScene*       _scene;
+        GLuint               vao;
+        std::map<unsigned int, std::vector<GLuint>> vaoList;
 
         void printLog();
         void processScene();

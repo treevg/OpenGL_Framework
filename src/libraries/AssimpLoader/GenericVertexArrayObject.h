@@ -8,7 +8,7 @@ class GenericVertexArrayObject : public VertexArrayObject
     private:
         unsigned int triangleCount;
     public:
-        GenericVertexArrayObject();
+        GenericVertexArrayObject(GLuint vao);
         void draw();
 };
 

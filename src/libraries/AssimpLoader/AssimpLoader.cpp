@@ -17,8 +17,9 @@ bool AssimpLoader::loadDAEFile(std::string filename)
                         aiProcess_JoinIdenticalVertices);
 
     std::cout << "Scene: " << filename << std::endl;
-    std::cout << " └ Children:  " << _scene->mRootNode->mNumChildren << std::endl;
-    std::cout << " └ Meshcount: " << _scene->mNumMeshes << std::endl;
+    std::cout << " └ Materialcount : " << _scene->mNumMaterials << std::endl;
+    std::cout << " └ Children      : " << _scene->mRootNode->mNumChildren << std::endl;
+    std::cout << " └ Meshcount     : " << _scene->mNumMeshes << std::endl;
 
     processScene();
 }
@@ -43,20 +44,17 @@ void AssimpLoader::processScene()
     }
 
     aiMesh* mesh = _scene->mMeshes[0];
-    std::cout << _scene->mMeshes[0]->mNumVertices << std::endl;
     processMesh(mesh);
-}
-
-GLuint AssimpLoader::getVAO(unsigned int position)
-{
-    aiMesh* mesh = _scene->mMeshes[0];
-    GLuint vao = createVAO();
-    processMesh(mesh);
-    return vao;
 }
 
 void AssimpLoader::processMesh(aiMesh* mesh)
 {
+    std::cout << "\n  Mesh " << mesh->mName.C_Str() << std::endl;
+    std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
+    std::cout << "  > Materialindex : " << mesh->mMaterialIndex << std::endl;
+    std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
+    std::cout << "  > Facecount     : " << mesh->mNumFaces << std::endl;
+
     std::vector<GLfloat> vertices;
     std::vector<GLint>   indices;
     std::vector<GLfloat> normals;
@@ -94,15 +92,20 @@ void AssimpLoader::processMesh(aiMesh* mesh)
     else
         std::cout << "Mesh has no faces!" << std::endl;
 
-    std::cout << "Mesh " << mesh->mName.C_Str() << std::endl;
-    std::cout << " └ Vertexcount " << mesh->mNumVertices << std::endl;
-    std::cout << " └ Facecount   " << mesh->mNumFaces << std::endl;
-
+    vao = createVAO();
     createVertexBuffer(vertices);
     createIndexBuffer(indices);
-
+    std::vector<GLuint> material0meshList;
+    material0meshList.push_back(vao);
+    vaoList[0] = material0meshList;
 }
- 
+
+
+GLuint AssimpLoader::getVAO(unsigned int position)
+{
+    return vao;
+}
+
 GLuint AssimpLoader::createVAO()
 {
     //! Create vertex array object
