@@ -15,12 +15,8 @@ int main(int argc, char *argv[]) {
     GLFWwindow* window = generateWindow();
 
     AssimpLoader* scene = new AssimpLoader();
-    scene->loadDAEFile(RESOURCES_PATH "/obj/cube.obj");
-    Mesh* mesh = new Mesh({0.0, 0.5, 0.0, -0.5, -0.5, 0.0, 0.5, -0.5, 0.0},
-                          {0, 1, 2},
-                          {0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0},
-                          {0.0, 0.5, 0.0, 0.0, 1.0, 0.0},
-                          {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0});
+    scene->loadDAEFile(RESOURCES_PATH "/obj/cv-logo.obj");
+    Mesh* mesh = scene->getMesh();
     auto shaderProgram = new ShaderProgram({"/AssimpLoader/minimal.vert", "/AssimpLoader/minimal.frag"});
 
     glm::mat4 model      = scene->getModelMatrix();

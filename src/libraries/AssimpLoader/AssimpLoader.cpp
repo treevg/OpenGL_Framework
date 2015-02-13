@@ -54,8 +54,8 @@ void AssimpLoader::processMesh(aiMesh* mesh)
     std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
     std::cout << "  > Facecount     : " << mesh->mNumFaces << std::endl;
 
-    std::vector<GLfloat> vertices;
     std::vector<GLint>   indices;
+    std::vector<GLfloat> vertices;
     std::vector<GLfloat> normals;
     std::vector<GLfloat> uvs;
 
@@ -73,8 +73,6 @@ void AssimpLoader::processMesh(aiMesh* mesh)
                 normals.push_back(mesh->mNormals[v].y);
                 normals.push_back(mesh->mNormals[v].z);
             }
-            else
-                continue;
         }
     }
     else
@@ -90,10 +88,13 @@ void AssimpLoader::processMesh(aiMesh* mesh)
     }
     else
         std::cout << "Mesh has no faces!" << std::endl;
+
+    std::cout << "  > Indexcount: " << indices.size() << std::endl;
+
+    firstMesh = new Mesh(vertices, indices, normals, uvs);
 }
 
-
-GLuint AssimpLoader::getVAO(unsigned int position)
+Mesh* AssimpLoader::getMesh()
 {
-    return vao;
+    return firstMesh;
 }

@@ -23,7 +23,7 @@ class AssimpLoader
 
         glm::mat4            modelMatrix;
         GLuint               vao;
-        std::map<unsigned int, std::vector<GLuint>> vaoList;
+        Mesh*               firstMesh;
 
         void printLog();
         void processScene();
@@ -36,7 +36,7 @@ class AssimpLoader
     public:
         AssimpLoader();
         bool loadDAEFile(std::string filename);
-        GLuint getVAO(unsigned int position);
+        Mesh* getMesh();
         inline glm::mat4 getModelMatrix(){ return modelMatrix; };
 };
 

@@ -8,7 +8,7 @@ Mesh::Mesh(std::vector<GLfloat> vertices,
 {
     const float size = 1.0f;
     mode = GL_TRIANGLES;
-    triangleCount = vertices.size() / 3;
+    triangleCount = indices.size();
 
     glGenVertexArrays(1, &vertexArrayObjectHandle);
     glBindVertexArray(vertexArrayObjectHandle);
@@ -38,9 +38,9 @@ Mesh::Mesh(std::vector<GLfloat> vertices,
 
 void Mesh::createElementArrayBuffer(std::vector<GLint> values)
 {
-    GLuint bufferIndices;
-    glGenBuffers(1, &bufferIndices);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, bufferIndices);
+    GLuint buffer;
+    glGenBuffers(1, &buffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, values.size() * sizeof(GLint), &values[0], GL_STATIC_DRAW);
 }
 
@@ -59,5 +59,6 @@ void Mesh::createArrayBuffer(unsigned int pointerIndex,
 void Mesh::draw()
 {
     glBindVertexArray(vertexArrayObjectHandle);
-    glDrawArrays(mode, 0, triangleCount*3);
+    glDrawElements(GL_TRIANGLES, triangleCount, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
 }
