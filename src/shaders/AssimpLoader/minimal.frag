@@ -10,19 +10,31 @@ out vec4 fragColor;
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec3 materialColor;
 
-vec3 lightPosition = vec3(0, 8, 0);
+vec3 lightPosition = vec3(view *vec4(0, 2, 8, 1));
+float intensity = 1.0;
+const float PI = 3.141519;
 
-vec3 lambert(in vec3 position, in vec3 normal)
+vec3 phong(in vec3 position, in vec3 normal)
 {
-    vec3 ambientColor = vec3(0.25);
-    vec3 lightVector = normalize(position - lightPosition);
-    float diffuse = max(dot(lightVector, normal), 0.0);
-    vec3 diffuseColor = diffuse * vec3(1.0);
-    return ambientColor + diffuseColor;
+    
+    vec3 ambientColor  = vec3(0.015);
+    vec3 diffuseColor  = materialColor;
+    vec3 specularColor = materialColor;
+    
+    vec3 lightVector      = normalize(position - lightPosition);
+    vec3 eye              = normalize(-position);
+    vec3 reflectionVector = normalize(reflect(lightVector, normal));
+
+    float diffuse  = 1/PI * max(dot(lightVector, normal), 0);
+    float n        = 2;
+    float specular = (n + 2)/(2 * PI) * max(pow(dot(reflectionVector, eye), n), 0);
+
+    return ambientColor + intensity * diffuse * diffuseColor + intensity * specular * specularColor;
 }
 
 void main()
 {
-    fragColor = vec4(lambert(passPosition.xyz, passNormal.xyz), 1.0);
+    fragColor = vec4(phong(passPosition.xyz, normalize(passNormal.xyz)), 1.0);
 }

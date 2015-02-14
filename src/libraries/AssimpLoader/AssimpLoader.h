@@ -23,6 +23,7 @@ class AssimpLoader
         const aiScene*          _scene;
         std::vector<Mesh*>      _meshes;
         std::vector<glm::mat4>  _modelMatrices;
+        std::vector<glm::vec3>  _materialColors;
 
         void processScene();
         void processMesh(aiMesh* mesh);
@@ -32,8 +33,11 @@ class AssimpLoader
         AssimpLoader* loadDAEFile(std::string filename);
         AssimpLoader* printLog();
         Mesh* getMesh(unsigned int position);
-        inline glm::mat4 getModelMatrix(unsigned int position){
-            return _modelMatrices[position];
+        inline glm::mat4 getModelMatrix(unsigned int meshIndex){
+            return _modelMatrices[meshIndex];
+        };
+        inline glm::vec3 getMaterialColor(unsigned int materialIndex){
+            return _materialColors[materialIndex];
         };
 };
 

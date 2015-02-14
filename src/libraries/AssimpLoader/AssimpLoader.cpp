@@ -47,22 +47,25 @@ void AssimpLoader::processScene()
         _modelMatrices.push_back(modelMatrix);
     }
 
+    for(unsigned int i=0; i < _scene->mNumMaterials; ++i)
+    {
+        aiColor3D color;
+        aiMaterial* material = _scene->mMaterials[i];
+        material->Get(AI_MATKEY_COLOR_DIFFUSE, color);
+        _materialColors.push_back(glm::vec3(color.r, color.g, color.b));
+    }
+
     for(unsigned int i=0; i < _scene->mNumMeshes; ++i)
         processMesh(_scene->mMeshes[i]);
 }
 
 void AssimpLoader::processMesh(aiMesh* mesh)
 {
-    //std::cout << "\n  Mesh " << mesh->mName.C_Str() << std::endl;
-    //std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
-    //std::cout << "  > Materialindex : " << mesh->mMaterialIndex << std::endl;
-    //std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
-    //std::cout << "  > Facecount     : " << mesh->mNumFaces << std::endl;
-
     std::vector<GLint>   indices;
     std::vector<GLfloat> vertices;
     std::vector<GLfloat> normals;
     std::vector<GLfloat> uvs;
+
 
     if(mesh->HasPositions())
     {
@@ -86,17 +89,15 @@ void AssimpLoader::processMesh(aiMesh* mesh)
     if(mesh->HasFaces())
     {
         for(unsigned int f=0; f < mesh->mNumFaces; f++)
-        {
             for(unsigned int i=0; i < mesh->mFaces[f].mNumIndices; i++)
                 indices.push_back(mesh->mFaces[f].mIndices[i]);
-        }
     }
     else
-        std::cout << "Mesh has no faces!" << std::endl;
+        std::cerr << "Error: AssimLoader: Mesh has no faces!" << std::endl;
 
-    std::cout << "  > Indexcount: " << indices.size() << std::endl;
-
-    _meshes.push_back(new Mesh(vertices, indices, normals, uvs));
+    Mesh* newMesh = new Mesh(vertices, indices, normals, uvs);
+    newMesh->setMaterialIndex(mesh->mMaterialIndex);
+    _meshes.push_back(newMesh);
 }
 
 Mesh* AssimpLoader::getMesh(unsigned int position)
