@@ -17,7 +17,7 @@ uniform mat4 projection;
 
 void main()
 {
-    passPosition = projection * view * model * vec4(pos, 1.0);
+    passPosition = model * vec4(pos, 1.0);
     passUV       = uv;
     passNormal   = inverse(transpose(view * model)) * vec4(normal, 0.0);
     passColor    = color;

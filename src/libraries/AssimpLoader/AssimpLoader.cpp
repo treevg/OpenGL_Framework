@@ -4,24 +4,26 @@ AssimpLoader::AssimpLoader()
 {
 }
 
-void AssimpLoader::printLog()
+AssimpLoader* AssimpLoader::printLog()
 {
-
+    std::cout << "--- ASSIMP LOADER LOG ---" << std::endl;
+    std::cout << "Loaded scene file   : " << _loadedFile << std::endl
+              << "  └ Materialcount : " << _scene->mNumMaterials << std::endl
+              << "  └ Children      : " << _scene->mRootNode->mNumChildren << std::endl
+              << "  └ Meshcount     : " << _scene->mNumMeshes << std::endl
+              << std::endl;
+    return this;
 }
 
-bool AssimpLoader::loadDAEFile(std::string filename)
+AssimpLoader* AssimpLoader::loadDAEFile(std::string filename)
 {
+    _loadedFile = filename;
     _scene = _importer.ReadFile(filename,
                         aiProcess_Triangulate |
                         aiProcess_SortByPType |
                         aiProcess_JoinIdenticalVertices);
-
-    std::cout << "Scene: " << filename << std::endl;
-    std::cout << " └ Materialcount : " << _scene->mNumMaterials << std::endl;
-    std::cout << " └ Children      : " << _scene->mRootNode->mNumChildren << std::endl;
-    std::cout << " └ Meshcount     : " << _scene->mNumMeshes << std::endl;
-
     processScene();
+    return this;
 }
 
 void AssimpLoader::processScene()
