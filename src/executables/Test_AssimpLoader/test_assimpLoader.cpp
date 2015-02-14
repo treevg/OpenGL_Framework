@@ -15,10 +15,13 @@ int main(int argc, char *argv[]) {
     GLFWwindow* window = generateWindow(800, 600);
 
     AssimpLoader* scene = new AssimpLoader();
-    scene->loadDAEFile(RESOURCES_PATH "/obj/cv-logo.obj")
+    scene->loadDAEFile(RESOURCES_PATH "/obj/cornell-box.obj")
          ->printLog();
 
-    Mesh* mesh = scene->getMesh();
+    Mesh* mesh0 = scene->getMesh(0);
+    Mesh* mesh1 = scene->getMesh(1);
+    Mesh* mesh2 = scene->getMesh(2);
+    Mesh* mesh3 = scene->getMesh(3);
     auto shaderProgram = new ShaderProgram({"/AssimpLoader/minimal.vert", "/AssimpLoader/minimal.frag"});
 
     glm::mat4 view       = glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0,0,0), glm::vec3(0,1,0));
@@ -26,7 +29,7 @@ int main(int argc, char *argv[]) {
     glm::mat4 projection = glm::perspective(45.0, aspectRatio, 0.1, 100.0);
 
     auto pass = new RenderPass(
-        mesh,
+        mesh0,
         shaderProgram
     );
 
@@ -57,12 +60,24 @@ int main(int argc, char *argv[]) {
     {
         pass->clear(1, 1, 1, 1);
 
-        glm::mat4 model = glm::rotate(scene->getModelMatrix(), rotateY, glm::vec3(0, 1, 0));
-        rotateY += 0.00025f;
-        shaderProgram->update("model", model);
         shaderProgram->update("view", view);
         shaderProgram->update("projection", projection);
 
+        glm::mat4 model = glm::rotate(scene->getModelMatrix(1), rotateY, glm::vec3(0, 1, 0));
+        shaderProgram->update("model", model);
+        mesh1->draw();
+        model = glm::rotate(scene->getModelMatrix(2), rotateY, glm::vec3(0, 1, 0));
+        shaderProgram->update("model", model);
+        mesh2->draw();
+        model = glm::rotate(scene->getModelMatrix(3), rotateY, glm::vec3(0, 1, 0));
+        shaderProgram->update("model", model);
+        mesh3->draw();
+
+
+        model = glm::rotate(scene->getModelMatrix(0), rotateY, glm::vec3(0, 1, 0));
+        shaderProgram->update("model", model);
         pass->run();
+
+        rotateY += 0.00025f;
     });
 }

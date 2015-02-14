@@ -28,6 +28,7 @@ AssimpLoader* AssimpLoader::loadDAEFile(std::string filename)
 
 void AssimpLoader::processScene()
 {
+    glm::mat4 modelMatrix;
     for(unsigned int i = 0; i < _scene->mRootNode->mNumChildren; i++)
     {
         // Get location, scale and rotation of the root node
@@ -42,19 +43,21 @@ void AssimpLoader::processScene()
 
         glm::translate(modelMatrix, glm::vec3(aiPosition.x, aiPosition.z, aiPosition.y) +
                                     glm::vec3(aiRootPosition.x, aiRootPosition.z, aiRootPosition.y));
+
+        _modelMatrices.push_back(modelMatrix);
     }
 
-    aiMesh* mesh = _scene->mMeshes[0];
-    processMesh(mesh);
+    for(unsigned int i=0; i < _scene->mNumMeshes; ++i)
+        processMesh(_scene->mMeshes[i]);
 }
 
 void AssimpLoader::processMesh(aiMesh* mesh)
 {
-    std::cout << "\n  Mesh " << mesh->mName.C_Str() << std::endl;
-    std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
-    std::cout << "  > Materialindex : " << mesh->mMaterialIndex << std::endl;
-    std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
-    std::cout << "  > Facecount     : " << mesh->mNumFaces << std::endl;
+    //std::cout << "\n  Mesh " << mesh->mName.C_Str() << std::endl;
+    //std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
+    //std::cout << "  > Materialindex : " << mesh->mMaterialIndex << std::endl;
+    //std::cout << "  > Vertexcount   : " << mesh->mNumVertices << std::endl;
+    //std::cout << "  > Facecount     : " << mesh->mNumFaces << std::endl;
 
     std::vector<GLint>   indices;
     std::vector<GLfloat> vertices;
@@ -93,10 +96,15 @@ void AssimpLoader::processMesh(aiMesh* mesh)
 
     std::cout << "  > Indexcount: " << indices.size() << std::endl;
 
-    firstMesh = new Mesh(vertices, indices, normals, uvs);
+    _meshes.push_back(new Mesh(vertices, indices, normals, uvs));
 }
 
-Mesh* AssimpLoader::getMesh()
+Mesh* AssimpLoader::getMesh(unsigned int position)
 {
-    return firstMesh;
+    if(position < _meshes.size())
+        return _meshes[position];
+    else {
+        std::cerr << "ERROR: mesh index out of bounds!" << std::endl;
+        return new Mesh();
+    }
 }

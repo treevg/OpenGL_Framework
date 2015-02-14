@@ -18,12 +18,11 @@
 class AssimpLoader
 {
     private:
-        Assimp::Importer     _importer;
-        std::string          _loadedFile;
-        const aiScene*       _scene;
-
-        glm::mat4            modelMatrix;
-        Mesh*               firstMesh;
+        Assimp::Importer        _importer;
+        std::string             _loadedFile;
+        const aiScene*          _scene;
+        std::vector<Mesh*>      _meshes;
+        std::vector<glm::mat4>  _modelMatrices;
 
         void processScene();
         void processMesh(aiMesh* mesh);
@@ -32,8 +31,10 @@ class AssimpLoader
         AssimpLoader();
         AssimpLoader* loadDAEFile(std::string filename);
         AssimpLoader* printLog();
-        Mesh* getMesh();
-        inline glm::mat4 getModelMatrix(){ return modelMatrix; };
+        Mesh* getMesh(unsigned int position);
+        inline glm::mat4 getModelMatrix(unsigned int position){
+            return _modelMatrices[position];
+        };
 };
 
 #endif
