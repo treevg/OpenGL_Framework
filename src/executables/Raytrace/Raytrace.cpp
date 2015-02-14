@@ -7,7 +7,7 @@
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
 #include "ShaderTools/VertexArrayObjects/Grid.h"
-#include "Objectloader/Objectloader.h"
+//#include "Objectloader/Objectloader.h"
 
 #include "ShaderTools/ShaderStorageBuffer.h"
 
@@ -15,8 +15,10 @@ using namespace std;
 using namespace glm;
 
 //TODO Himmel soll nachziehen bei Rotation - Skybox?
-//TODO fix vector upload - custom Texture (Octree?)
-//TODO design - struct
+//TODO fix vector upload
+//TODO normals for correct shading
+//TODO try reflective warping (first, add spec textures)
+//TODO switch between textures
 
 //global variables
 
@@ -40,20 +42,12 @@ vector<vec3> mesh;
 vector<vec3> colorSphere;
 vector<vec3> colorTriangle;
 vector<mat4> matVec;
-//vec3 *meshAr = new vec3[3];
-//float *float_array = new float[w * h * 2];
 
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
-auto objl = new Objectloader();
 
-struct meshStruct {
-    	std::vector<glm::vec3> meshX;
-    } meshData;
-
-
-
-auto ssbo = new ShaderStorageBuffer();
+auto ssbo2 = new ShaderStorageBuffer("/Objects/originalMesh.obj");
+//auto ssbo = new ShaderStorageBuffer();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
@@ -104,32 +98,9 @@ int main(int argc, char *argv[]) {
 //       warp -> printInputInfo();
 //       warp -> printOutputInfo();
 
-
-    // Load mesh
-    objl->loadOBJ(RESOURCES_PATH "/Objects/originalMesh.obj", objl->vertices, objl->uvs, objl->normals);
-
-
-
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.1));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.1));
     sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.1));
-
-//    sphereVec.push_back(glm::vec4(1, 0.5, 0.5, 0.5));
-//    sphereVec.push_back(glm::vec4(1.5, 0.5, 0.5, 0.5));
-//    sphereVec.push_back(glm::vec4(2, 0.5, 0.5, 0.5));
-//
-//    sphereVec.push_back(glm::vec4(2.5, 0.5, 0.5, 0.5));
-//    sphereVec.push_back(glm::vec4(3, 0.5, 0.5, 0.5));
-//    sphereVec.push_back(glm::vec4(3.5, 0.5, 0.5, 0.5));
-//
-//    sphereVec.push_back(glm::vec4(4, 0.5, 0.5, 0.5));
-//    sphereVec.push_back(glm::vec4(4.5, 0.5, 0.5, 0.5));
-//    sphereVec.push_back(glm::vec4(5, 0.5, 0.5, 0.5));
-//
-//    sphereVec.push_back(glm::vec4(-2, 0.5, 0.5, 0.5));
-//    sphereVec.push_back(glm::vec4(-2.5, 0.5, 0.5, 0.5));
-//    sphereVec.push_back(glm::vec4(-3, 0.5, 0.5, 0.5));
-//
 
     //needs to be same size as sphereVec
     colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
@@ -151,41 +122,12 @@ int main(int argc, char *argv[]) {
     mesh.push_back(glm::vec3(-0.5, 1.8, 1.0));
     mesh.push_back(glm::vec3(-1., 0.5, 1.0));
 
-//    mesh.push_back(glm::vec3(0.5, -0.5, 1.0));
-//    mesh.push_back(glm::vec3(0.8, 0.25, 1.25));
-//    mesh.push_back(glm::vec3(0.0, 0.8, 1.0));
-//
-//    mesh.push_back(glm::vec3(0.5, 1.5, 1.0));
-//    mesh.push_back(glm::vec3(0.8, -1.25, 1.25));
-//    mesh.push_back(glm::vec3(0.0, -1.8, 1.0));
-//
-//    mesh.push_back(glm::vec3(0.0, 0.0, 0.0));
-//    mesh.push_back(glm::vec3(0.0, -2.25, 2.25));
-//    mesh.push_back(glm::vec3(2.0, 2.8, 2.0));
-
-
-//sp->meshData.meshX[0]=mesh;
-
-meshData.meshX.push_back(vec3(0.5, -0.5, 1.5));
-meshData.meshX.push_back(glm::vec3(0.0, 0.8, 1.5));
-meshData.meshX.push_back(glm::vec3(-0.5, -0.5, 1.5));
-
-meshData.meshX.push_back(glm::vec3(0.0, 0.5, 1.0));
-meshData.meshX.push_back(glm::vec3(-0.5, 1.8, 1.0));
-meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
-
-
-//meshData.meshX[0] = mesh;
-
-
     lastTime = glfwGetTime();
 
     pass1 -> update("sphereVec[0]", sphereVec);
     pass1 -> update("mesh[0]", mesh);
     pass1 -> update("colorSphere[0]", colorSphere);
     pass1 -> update("colorTriangle[0]", colorTriangle);
-    //pass1 -> update("mesh[0]", objl->vertices);
-  //  pass1 -> update("meshData", meshData);
 
     renderLoop([]{
         currentTime = glfwGetTime();
@@ -200,7 +142,7 @@ meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
             ypos = ypos / (double)height * 2.0 - 1.0;
         }
         // glfwSetCursorPos(window, float(width)/2, float(height)/2);
-        cout << xpos << " " << ypos << endl;
+       // cout << xpos << " " << ypos << endl;
 
         horizontalAngle = xpos;
         verticalAngle   = ypos;
@@ -299,7 +241,7 @@ meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
         }
         else {
 
-            ssbo->bind(7);
+            ssbo2->bind(7);
         	pass1
         	-> clear(0, 0, 0, 0)
         	-> update("iResolution", glm::vec3(width, height, 1))
@@ -331,13 +273,10 @@ meshData.meshX.push_back(glm::vec3(-1., 0.5, 1.0));
 			-> clear(0,0,0,0)
             -> update("warpView", warpView)
 			-> update("altView", aView)
-			//-> update("view", view)
-			//-> update("rotationOnly",rotationOnly)
 			-> update("invViewProjection", invViewProjection)
 			-> update("projection", projection)
 			-> texture("color", pass1->get("fragColor"))
 			-> texture("depth", passLin->get("fragColor"))
-			//-> texture("extraDepth", pass1->get("extraDepthTex"))
 			-> run();
 
         }

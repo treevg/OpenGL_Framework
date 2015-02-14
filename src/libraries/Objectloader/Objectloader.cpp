@@ -17,10 +17,13 @@ bool Objectloader::loadOBJ(
     std::vector < glm::vec2 > & out_uvs,
     std::vector < glm::vec3 > & out_normals
 ){
+	std::cout<<"HHHHHHHHHHHH"<<path<<std::endl;
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
 	std::vector< glm::vec2 > temp_uvs;
 	std::vector< glm::vec3 > temp_normals;
+
+	std::vector<float> temp_vert_to_array;
 
 	FILE * file = fopen(path, "r");
 	if( file == NULL ){
@@ -50,7 +53,7 @@ bool Objectloader::loadOBJ(
 	        fscanf(file, "%f %f %f\n", &normal.x, &normal.y, &normal.z );
 	        temp_normals.push_back(normal);
 	    }else if ( strcmp( lineHeader, "f" ) == 0 ){
-	        std::string vertex1, vertex2, vertex3;
+	       // std::string vertex1, vertex2, vertex3;
 	        unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
 	        //int matches2 = fscanf(file, "%d %d %d\n", &vertexIndex[0],  &vertexIndex[1], &vertexIndex[2] );
 	        int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
@@ -76,10 +79,14 @@ bool Objectloader::loadOBJ(
 	    	unsigned int vertexIndex = vertexIndices[i];
 	    	glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
 	    	out_vertices.push_back(vertex);
+	    	temp_vert_to_array.push_back(vertex.x);
+	    	temp_vert_to_array.push_back(vertex.y);
+	    	temp_vert_to_array.push_back(vertex.z);
+	    	temp_vert_to_array.push_back(0.0);
 	    	//cout <<"LOOK HERE: "<< to_string(vertex) << endl;
 	    }
 
-
+	    std::copy(temp_vert_to_array.begin(),temp_vert_to_array.end(),meshData);
 }
 
 

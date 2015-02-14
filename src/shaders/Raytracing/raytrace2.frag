@@ -37,7 +37,7 @@ out 	vec4	fragDepth2;
 
 
 layout(std430, binding=7) buffer meshData{
-	vec4 pos[36];
+	vec4 pos[72];
 } myMesh;
 
 float	t = 0;

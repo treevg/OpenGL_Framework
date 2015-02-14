@@ -26,6 +26,8 @@ public:
 	std::vector< glm::vec2 > uvs;
 	std::vector< glm::vec3 > normals;
 
+	float meshData[500];
+
 	Objectloader();
 
 	bool loadOBJ(
