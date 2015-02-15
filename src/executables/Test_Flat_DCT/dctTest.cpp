@@ -124,29 +124,29 @@ void print_elements ( short N, short* f ){
 	}
 }
 
-//int main(){
-//	short f[8][8], F[8][8];
-//	int i, j, N;
-//	char temp[8][8];
-//	N = 8;
-//
-//	//try some values for testing
-//	for ( i = 0; i < N; ++i ) {
-//		for ( j = 0; j < N; ++j ) {
-//			f[i][j] = i + j;
-//		}
-//	}
-//	cout<<("\nOriginal sample values");
-//	print_elements ( N, &f[0][0] );
-//	cout<<("\n--------------------\n");
-//
-//	dct ( N, &f[0][0], &F[0][0] ); //performing DCT
-//	cout<<("\nCoefficients of DCT:");
-//	print_elements ( N, &F[0][0] );
-//	cout<<("\n--------------------\n");
-//
-//	idct ( N, &F[0][0], &f[0][0] ); //performing IDCT
-//	cout<<("\nValues recovered by IDCT:");
-//	print_elements ( N, &f[0][0] );
-//	cout<<("\n");
-//}
+int main(){
+	short f[8][8], F[8][8];
+	int i, j, N;
+	char temp[8][8];
+	N = 8;
+
+	//try some values for testing
+	for ( i = 0; i < N; ++i ) {
+		for ( j = 0; j < N; ++j ) {
+			f[i][j] = i + j;
+		}
+	}
+	cout<<("\nOriginal sample values");B
+	print_elements ( N, &f[0][0] );
+	cout<<("\n--------------------\n");
+
+	dct ( N, &f[0][0], &F[0][0] ); //performing DCT
+	cout<<("\nCoefficients of DCT:");
+	print_elements ( N, &F[0][0] );
+	cout<<("\n--------------------\n");
+
+	idct ( N, &F[0][0], &f[0][0] ); //performing IDCT
+	cout<<("\nValues recovered by IDCT:");
+	print_elements ( N, &f[0][0] );
+	cout<<("\n");
+}

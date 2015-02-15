@@ -15,3 +15,28 @@ void main() {
 	imageStore(outImgCbCr, ivec2(index.x / 2 , index.y), vec4(vec2(resulting_color.gb), 0, 0));
 	imageStore(outImgYA, index, vec4(resulting_color.r, resulting_color.a, 0, 0));
 }
+
+int main(){
+	short f[8][8], F[8][8];
+	int i, j, N;
+	char temp[8][8];
+	N = 8;
+	//try some values for testing
+	for ( i = 0; i < N; ++i ) {
+		for ( j = 0; j < N; ++j ) {
+			f[i][j] = i + j;
+		}
+	}
+	
+printf("\nOriginal sample values");
+print_elements ( N, &f[0][0] );
+printf("\n--------------------\n");
+dct ( N, &f[0][0], &F[0][0] ); //performing DCT
+printf("\nCoefficients of DCT:");
+print_elements ( N, &F[0][0] );
+printf("\n--------------------\n");
+idct ( N, &F[0][0], &f[0][0] ); //performing IDCT
+printf("\nValues recovered by IDCT:");
+print_elements ( N, &f[0][0] );
+printf("\n");
+}
