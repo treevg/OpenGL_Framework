@@ -28,6 +28,7 @@ auto YCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/YCbCrToRGB.
 auto compressCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressCbCr.comp");
 auto compressedYCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressedYCbCrToRGB.comp");
 auto rleEncoder = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rle.comp");
+auto dct = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct.comp");
 
 float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
@@ -349,11 +350,11 @@ int main(int argc, char *argv[]) {
         -> texture("tex2", textureHandle)
         -> run();
 
-//        RGBtoYCbCr->use();
-//        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);		//INPUT texture
-//        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        RGBtoYCbCr->use();
+        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);		//INPUT texture
+        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 //        compressCbCr->use();
 //        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
@@ -362,18 +363,25 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+        dct->use();
+        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
+        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture2  Brightness-Channel (Y) and Depth-Channel/transperancy (A)
+        glDispatchCompute(int(width/8), int(height/8), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
 //        YCbCrToRGB->use();
 //        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 //        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        compressedYCbCrToRGB->use();
-//        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
-//        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
-//        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        compressedYCbCrToRGB->use();
+        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
+        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
+        glBindImageTexture(2, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 //        rleEncoder->use();
 //        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
@@ -381,31 +389,31 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(1, (height), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        glBindTexture(GL_TEXTURE_2D, pass->get("fragColor"));
-        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-        glBindTexture(GL_TEXTURE_2D, 0);
-
-        double lastTime = glfwGetTime();
-        vector<ColorField*> test = doRLE2(data);
+//        glBindTexture(GL_TEXTURE_2D, pass->get("fragColor"));
+//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
+//        glBindTexture(GL_TEXTURE_2D, 0);
+//
+//        double lastTime = glfwGetTime();
+//        vector<ColorField*> test = doRLE2(data);
 
 //        test.clear();
 
-        double thisTime = glfwGetTime();
-
-        doRLEDecode3(test, data2);
+//        double thisTime = glfwGetTime();
+//
+//        doRLEDecode3(test, data2);
 
 //        for (ColorField* x : test){
 //     	   delete x;
 //        }
-        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
-
-        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
-        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
-
-
-        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data2);
-        glBindTexture(GL_TEXTURE, 0);
+//        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
+//
+//        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
+//        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
+//
+//
+//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data2);
+//        glBindTexture(GL_TEXTURE, 0);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
