@@ -1,5 +1,9 @@
-using namespace std;
+#include "math.h"
+#include <iostream>
+
 #define PI 3.141592653589
+
+using namespace std;
 
 //input: f, N; output: F
 short dct_direct( short N, double* f, double* F){
@@ -7,7 +11,7 @@ short dct_direct( short N, double* f, double* F){
 	short i, j, u, v;
 
 	if ( N > 32 || N <= 0 ) {
-		printf ("\ninappropriate N\n");
+		cout<<"\n inappropriate N\n"<<endl;
 		return -1;
 	}
 
@@ -37,7 +41,7 @@ short idct_direct( short N, double*F, double*f ){
 	double a[32], sum, coef;
 	short i, j, u, v;
 	if ( N > 32 || N <= 0 ) {
-		printf ("\ninappropriate N\n");
+		cout<< ("\ninappropriate N\n")<<endl;
 		return -1;
 	}
 	a[0] = sqrt ( 1.0 / N );
@@ -67,7 +71,7 @@ short dct ( short N, short* f, short* F ){
 	double tempx[1024], tempy[1024];
 	int total, i;
 	if ( N > 32 || N <= 0 ) {
-		printf ("\ninappropriate N\n");
+		cout<< ("\ninappropriate N\n")<<endl;
 		return -1;
 	}
 
@@ -92,7 +96,7 @@ short idct ( short N, short* F, short* f ){
 	double tempx[1024], tempy[1024];
 	int total, i;
 	if ( N > 32 || N <= 0 ) {
-		printf ("\ninappropriate N\n");
+		cout<< ("\ninappropriate N\n")<<endl;
 		return -1;
 	}
 
@@ -113,36 +117,36 @@ return 1;
 void print_elements ( short N, short* f ){
 	short i, j;
 	for ( i = 0; i < N; ++i ){
-		printf("\n");
+		cout<<("\n");
 		for ( j = 0; j < N; ++j ) {
-			printf ("%4d, ",*(f+N*i+j) );
+			cout<< ("%4d, ",*(f+N*i+j) );
 		}
 	}
 }
 
-int main(){
-	short f[8][8], F[8][8];
-	int i, j, N;
-	char temp[8][8];
-	N = 8;
-
-	//try some values for testing
-	for ( i = 0; i < N; ++i ) {
-		for ( j = 0; j < N; ++j ) {
-			f[i][j] = i + j;
-		}
-	}
-	printf("\nOriginal sample values");
-	print_elements ( N, &f[0][0] );
-	printf("\n--------------------\n");
-
-	dct ( N, &f[0][0], &F[0][0] ); //performing DCT
-	printf("\nCoefficients of DCT:");
-	print_elements ( N, &F[0][0] );
-	printf("\n--------------------\n");
-
-	idct ( N, &F[0][0], &f[0][0] ); //performing IDCT
-	printf("\nValues recovered by IDCT:");
-	print_elements ( N, &f[0][0] );
-	printf("\n");
-}
+//int main(){
+//	short f[8][8], F[8][8];
+//	int i, j, N;
+//	char temp[8][8];
+//	N = 8;
+//
+//	//try some values for testing
+//	for ( i = 0; i < N; ++i ) {
+//		for ( j = 0; j < N; ++j ) {
+//			f[i][j] = i + j;
+//		}
+//	}
+//	cout<<("\nOriginal sample values");
+//	print_elements ( N, &f[0][0] );
+//	cout<<("\n--------------------\n");
+//
+//	dct ( N, &f[0][0], &F[0][0] ); //performing DCT
+//	cout<<("\nCoefficients of DCT:");
+//	print_elements ( N, &F[0][0] );
+//	cout<<("\n--------------------\n");
+//
+//	idct ( N, &F[0][0], &f[0][0] ); //performing IDCT
+//	cout<<("\nValues recovered by IDCT:");
+//	print_elements ( N, &f[0][0] );
+//	cout<<("\n");
+//}
