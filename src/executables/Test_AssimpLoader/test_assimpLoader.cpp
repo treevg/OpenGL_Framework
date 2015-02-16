@@ -8,6 +8,8 @@
 #include <typeinfo>
 #include <glm/gtc/matrix_transform.hpp>
 #include <Compression/NewRenderLoop.h>
+#include <ShaderTools/DefaultRenderLoop.h>
+#include <caca_conio.h>
 
 using namespace std;
 using namespace glm;
@@ -19,12 +21,7 @@ int main(int argc, char *argv[]) {
     scene->loadDAEFile(RESOURCES_PATH "/obj/cornell-box.obj")
          ->printLog();
 
-    Mesh* mesh0 = scene->getMesh(0);
-    Mesh* mesh1 = scene->getMesh(1);
-    Mesh* mesh2 = scene->getMesh(2);
-    Mesh* mesh3 = scene->getMesh(3);
-    Mesh* mesh4 = scene->getMesh(4);
-    Mesh* mesh5 = scene->getMesh(5);
+    std::vector<Mesh*>* _meshes = scene->getMeshList();
     auto shaderProgram = new ShaderProgram({"/AssimpLoader/minimal.vert", "/AssimpLoader/minimal.frag"});
 
     glm::mat4 view       = glm::lookAt(glm::vec3(0, 0, -7), glm::vec3(0,0,0), glm::vec3(0,1,0));
@@ -32,9 +29,10 @@ int main(int argc, char *argv[]) {
     glm::mat4 projection = glm::perspective(45.0, aspectRatio, 0.1, 100.0);
 
     auto pass = new RenderPass(
-        mesh0,
+        _meshes->at(0),
         shaderProgram
     );
+
 
     setKeyCallback(window, [&](int key, int scancode, int action, int mode)
     {
@@ -57,6 +55,36 @@ int main(int argc, char *argv[]) {
         view = glm::translate(view, glm::vec3(speedX, speedY, speedZ));
     });
 
+    setMouseButtonCallback(window, [&](int button, int action, int modKey){
+        double mouseX, mouseY;
+        glfwGetCursorPos(window, &mouseX, &mouseY);
+        std::cout << mouseX << ", " << mouseY << std::endl;
+        if(action == GLFW_PRESS)
+            if(button == GLFW_MOUSE_BUTTON_1)
+                std::cout << "Mouse 1 was pressed" << std::endl;
+            if(button == GLFW_MOUSE_BUTTON_2)
+                std::cout << "Mouse 2 was pressed" << std::endl;
+            if(button == GLFW_MOUSE_BUTTON_3)
+                std::cout << "Mouse 3 was pressed" << std::endl;
+    });
+
+    setCursorPosCallback(window, [&](double mouseX, double mouseY){
+        float angleX = 0.0;
+        float angleY = 0.0;
+        float angleZ = 0.0;
+        if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+        {
+            if(mouseX < getWidth(window)/2)
+                angleX = -0.1f;
+            if(mouseX > getWidth(window)/2)
+                angleX =  0.1f;
+        }
+
+        view = glm::rotate(view, angleX, glm::vec3(view[1].x, view[1].y, view[1].z));
+        //view = glm::rotate(view, angleY, glm::vec3(view[1].x, view[1].y, view[1].z));
+        //view = glm::rotate(view, angleZ, glm::vec3(view[2].x, view[2].y, view[2].z));
+    });
+
     float rotateY = 0;
     render(window, [&] (float deltaTime)
     {
@@ -65,33 +93,19 @@ int main(int argc, char *argv[]) {
         shaderProgram->update("view", view);
         shaderProgram->update("projection", projection);
 
-        glm::mat4 model = glm::rotate(scene->getModelMatrix(1), rotateY, glm::vec3(0, 1, 0));
-        shaderProgram->update("model", model);
-        shaderProgram->update("materialColor", scene->getMaterialColor(mesh1->getMaterialIndex()));
-        mesh1->draw();
-        model = glm::rotate(scene->getModelMatrix(2), rotateY, glm::vec3(0, 1, 0));
-        shaderProgram->update("model", model);
-        shaderProgram->update("materialColor", scene->getMaterialColor(mesh2->getMaterialIndex()));
-        mesh2->draw();
-        model = glm::rotate(scene->getModelMatrix(3), rotateY, glm::vec3(0, 1, 0));
-        shaderProgram->update("model", model);
-        shaderProgram->update("materialColor", scene->getMaterialColor(mesh3->getMaterialIndex()));
-        mesh3->draw();
-        model = glm::rotate(scene->getModelMatrix(4), rotateY, glm::vec3(0, 1, 0));
-        shaderProgram->update("model", model);
-        shaderProgram->update("materialColor", scene->getMaterialColor(mesh4->getMaterialIndex()));
-        mesh4->draw();
-        model = glm::rotate(scene->getModelMatrix(5), rotateY, glm::vec3(0, 1, 0));
-        shaderProgram->update("model", model);
-        shaderProgram->update("materialColor", scene->getMaterialColor(mesh5->getMaterialIndex()));
-        mesh5->draw();
+        for(unsigned int m = 1; m < _meshes->size(); ++m)
+        {
+            glm::mat4 model = glm::rotate(scene->getModelMatrix(m), rotateY, glm::vec3(0, 1, 0));
+            shaderProgram->update("model", model);
+            shaderProgram->update("materialColor", scene->getMaterialColor(_meshes->at(m)->getMaterialIndex()));
+            _meshes->at(m)->draw();
+        }
 
-
-        model = glm::rotate(scene->getModelMatrix(0), rotateY, glm::vec3(0, 1, 0));
+        glm::mat4 model = glm::rotate(scene->getModelMatrix(0), rotateY, glm::vec3(0, 1, 0));
         shaderProgram->update("model", model);
-        shaderProgram->update("materialColor", scene->getMaterialColor(mesh0->getMaterialIndex()));
+        shaderProgram->update("materialColor", scene->getMaterialColor(_meshes->at(0)->getMaterialIndex()));
         pass->run();
 
-        //rotateY += 0.00125f;
+        //rotateY += 0.0005f;
     });
 }

@@ -1,8 +1,9 @@
+//FRAGMENT SHADER
 #version 440
 
 in vec4 passPosition;
-in vec2 passUV;
 in vec4 passNormal;
+in vec2 passUV;
 in vec3 passColor;
 
 out vec4 fragColor;
@@ -12,9 +13,10 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec3 materialColor;
 
-vec3 lightPosition = vec3(view *vec4(0, 2, 8, 1));
+vec3 lightPosition = vec3(view * vec4(0, 2, 8, 1));
 float intensity = 1.0;
 const float PI = 3.141519;
+
 
 vec3 phong(in vec3 position, in vec3 normal)
 {
@@ -36,5 +38,6 @@ vec3 phong(in vec3 position, in vec3 normal)
 
 void main()
 {
-    fragColor = vec4(phong(passPosition.xyz, normalize(passNormal.xyz)), 1.0);
+    vec3 color = phong(passPosition.xyz, passNormal.xyz);
+    fragColor = vec4(color, 1.0);
 }

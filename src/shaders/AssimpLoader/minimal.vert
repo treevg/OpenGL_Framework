@@ -1,9 +1,10 @@
+//VERTEX SHADER
 #version 440
 
-layout (location=0) in vec3 pos;
-layout (location=1) in vec3 normal;
-layout (location=2) in vec2 uv;
-layout (location=3) in vec3 color;
+in vec3 pos;
+in vec3 normal;
+in vec2 uv;
+in vec3 color;
 
 out vec4 passPosition;
 out vec2 passUV;

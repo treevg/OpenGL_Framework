@@ -53,7 +53,7 @@ void Mesh::createArrayBuffer(unsigned int pointerIndex,
     glBindBuffer(GL_ARRAY_BUFFER, buffer);
     glBufferData(GL_ARRAY_BUFFER, values.size() * sizeof(GLfloat), &values[0], GL_STATIC_DRAW);
     glVertexAttribPointer(pointerIndex, valueCount, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(pointerIndex);
 }
 
 void Mesh::draw()

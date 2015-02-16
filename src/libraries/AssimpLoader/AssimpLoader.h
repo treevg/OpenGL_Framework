@@ -33,6 +33,9 @@ class AssimpLoader
         AssimpLoader* loadDAEFile(std::string filename);
         AssimpLoader* printLog();
         Mesh* getMesh(unsigned int position);
+        inline std::vector<Mesh*>* getMeshList() {
+            return &_meshes;
+        }
         inline glm::mat4 getModelMatrix(unsigned int meshIndex){
             return _modelMatrices[meshIndex];
         };

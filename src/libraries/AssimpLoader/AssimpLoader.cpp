@@ -66,7 +66,6 @@ void AssimpLoader::processMesh(aiMesh* mesh)
     std::vector<GLfloat> normals;
     std::vector<GLfloat> uvs;
 
-
     if(mesh->HasPositions())
     {
         for(unsigned int v = 0; v < mesh->mNumVertices; ++v)
