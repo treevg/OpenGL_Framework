@@ -15,7 +15,7 @@ using namespace std;
 using namespace glm;
 
 int main(int argc, char *argv[]) {
-    GLFWwindow* window = generateWindow(600, 800);
+    GLFWwindow* window = generateWindow(800, 600);
 
     AssimpLoader* scene = new AssimpLoader();
     scene->loadDAEFile(RESOURCES_PATH "/obj/cornell-box.obj")
@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
     std::vector<Mesh*>* _meshes = scene->getMeshList();
     auto shaderProgram = new ShaderProgram({"/AssimpLoader/minimal.vert", "/AssimpLoader/minimal.frag"});
 
-    glm::mat4 view       = glm::lookAt(glm::vec3(0, 0, -7), glm::vec3(0,0,0), glm::vec3(0,1,0));
+    glm::mat4 view       = glm::lookAt(glm::vec3(0, 1.5, -2.5), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
     double aspectRatio   = getWidth(window)/(double)getHeight(window);
     glm::mat4 projection = glm::perspective(45.0, aspectRatio, 0.1, 100.0);
 
