@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     GLFWwindow* window = generateWindow(800, 600);
 
     AssimpLoader* scene = new AssimpLoader();
-    scene->loadDAEFile(RESOURCES_PATH "/obj/cornell-box.obj")
+    scene->loadFile(RESOURCES_PATH "/obj/cornell-box.obj")
          ->printLog();
 
     std::vector<Mesh*>* _meshes = scene->getMeshList();

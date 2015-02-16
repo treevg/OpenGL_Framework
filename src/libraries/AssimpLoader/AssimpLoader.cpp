@@ -15,7 +15,7 @@ AssimpLoader* AssimpLoader::printLog()
     return this;
 }
 
-AssimpLoader* AssimpLoader::loadDAEFile(std::string filename)
+AssimpLoader* AssimpLoader::loadFile(std::string filename)
 {
     _loadedFile = filename;
     _scene = _importer.ReadFile(filename,

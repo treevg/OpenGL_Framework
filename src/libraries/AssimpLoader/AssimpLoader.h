@@ -29,8 +29,13 @@ class AssimpLoader
         void processMesh(aiMesh* mesh);
 
     public:
+        /**
+         * @brief Creates an AssimpLoader instance
+         * @details 
+         */
         AssimpLoader();
-        AssimpLoader* loadDAEFile(std::string filename);
+        
+        AssimpLoader*loadFile(std::string filename);
         AssimpLoader* printLog();
         Mesh* getMesh(unsigned int position);
         inline std::vector<Mesh*>* getMeshList() {
