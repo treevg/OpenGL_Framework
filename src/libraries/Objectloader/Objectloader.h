@@ -27,6 +27,7 @@ public:
 	std::vector< glm::vec3 > normals;
 
 	float meshData[500];
+	float meshNormal[500];
 
 	Objectloader();
 

@@ -17,17 +17,17 @@ bool Objectloader::loadOBJ(
     std::vector < glm::vec2 > & out_uvs,
     std::vector < glm::vec3 > & out_normals
 ){
-	std::cout<<"HHHHHHHHHHHH"<<path<<std::endl;
 	std::vector< unsigned int > vertexIndices, uvIndices, normalIndices;
 	std::vector< glm::vec3 > temp_vertices;
 	std::vector< glm::vec2 > temp_uvs;
 	std::vector< glm::vec3 > temp_normals;
 
 	std::vector<float> temp_vert_to_array;
+	std::vector<float> temp_norm_to_array;
 
 	FILE * file = fopen(path, "r");
 	if( file == NULL ){
-	    printf("Impossible to open the file !\n");
+	    printf("Impossible to open the file !\n Check, if path is correct");
 	    return false;
 	}
 
@@ -78,15 +78,24 @@ bool Objectloader::loadOBJ(
 	    for( unsigned int i=0; i<vertexIndices.size(); i++ ){
 	    	unsigned int vertexIndex = vertexIndices[i];
 	    	glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
+	    	glm::vec3 normal = temp_normals[vertexIndex-1 ];
 	    	out_vertices.push_back(vertex);
+	    	out_normals.push_back(normal);
+
 	    	temp_vert_to_array.push_back(vertex.x);
 	    	temp_vert_to_array.push_back(vertex.y);
 	    	temp_vert_to_array.push_back(vertex.z);
 	    	temp_vert_to_array.push_back(0.0);
+
+	    	temp_norm_to_array.push_back(normal.x);
+	    	temp_norm_to_array.push_back(normal.y);
+	    	temp_norm_to_array.push_back(normal.z);
+	    	temp_norm_to_array.push_back(0);
 	    	//cout <<"LOOK HERE: "<< to_string(vertex) << endl;
 	    }
 
 	    std::copy(temp_vert_to_array.begin(),temp_vert_to_array.end(),meshData);
+	    std::copy(temp_norm_to_array.begin(),temp_norm_to_array.end(),meshNormal);
 }
 
 

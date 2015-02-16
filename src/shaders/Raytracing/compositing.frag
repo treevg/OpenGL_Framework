@@ -5,12 +5,10 @@ uniform sampler2D color;
 uniform sampler2D indirectionColor;
 uniform sampler2D depth;
 uniform sampler2D indirectionDepth;
-uniform sampler2D fragPos;
-uniform sampler2D fragPos2;
+//uniform sampler2D fragPos;
+//uniform sampler2D fragPos2;
 
 uniform int texNum;
-uniform float minRange;
-uniform float maxRange;
 
 
 in vec4 passPosition;
@@ -22,7 +20,7 @@ void main() {
  
  
 	if(texNum==0){
-		fragColor = texture(color, (passPosition.xy - 1) * 0.5) + texture(indirectionColor, (passPosition.xy - 1) * 0.5);
+		fragColor = texture(color, (passPosition.xy - 1) * 0.5);// + texture(indirectionColor, (passPosition.xy - 1) * 0.5);
 	}
 	if(texNum==1){
 		fragColor = texture(color, (passPosition.xy - 1) * 0.5);

@@ -16,6 +16,7 @@ uniform int		indirection;
 
 uniform mat4 	invView;
 uniform mat4	invViewProjection;
+uniform mat3	normalMat;
 
 uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[6];
@@ -28,7 +29,7 @@ in 		vec4	passPosition;
 out 	vec4	fragColor;
 out 	vec4 	fragPosition;
 out 	vec4	fragDepth;
-out 	float	extraDepthTex;
+//out 	float	extraDepthTex;
 
 //indirect
 out 	vec4	fragColor2;
@@ -39,6 +40,10 @@ out 	vec4	fragDepth2;
 layout(std430, binding=7) buffer meshData{
 	vec4 pos[72];
 } myMesh;
+
+layout(std430, binding=14) buffer meshNormal{
+	vec4 posNorm[72];
+} myNormals;
 
 float	t = 0;
 vec3 	light = normalize(vec3(sin(t), 0.6, cos(t)));
@@ -75,8 +80,8 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
 	tempNormal = n;
 
 
-	// vec3 q = cross(dir,v);
-	// float a = dot(u,q);
+	//vec3 q = cross(dir,v);
+	//float a = dot(u,q);
 
 
 
@@ -136,17 +141,17 @@ vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0
 vec3 initialDirNotnorm = (invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz;
 vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
 
-float lengthCurrentDirOffset = length(currentDirOffset);
-float lengthUv = length(uv);
-float lengthExtraDepth = sqrt(lengthCurrentDirOffset*lengthCurrentDirOffset + lengthUv*lengthUv);
-float extraDepth = abs(lengthCurrentDirOffset-lengthExtraDepth);
+//float lengthCurrentDirOffset = length(currentDirOffset);
+//float lengthUv = length(uv);
+//float lengthExtraDepth = sqrt(lengthCurrentDirOffset*lengthCurrentDirOffset + lengthUv*lengthUv);
+//float extraDepth = abs(lengthCurrentDirOffset-lengthExtraDepth);
 
 vec3 initialDir = currentDir;
 
 void main(void)
 
 { 
-extraDepthTex = extraDepth;
+//extraDepthTex = extraDepth;
 	for (int i = 0; i <= indirections; i++) {
 		currentDepth = 999999;
 		int hitSphere = -1;
@@ -178,7 +183,9 @@ extraDepthTex = extraDepth;
 		  		hitSphere = -1;
 		  		hitTriangle = t;
 		  		currentDepth = hitDepth;
+
 				currentNormal = tempNormal;
+				//currentNormal = (myNormals.posNorm[t].xyz)+0.5;
 		  	}
 		}
 
@@ -203,10 +210,12 @@ extraDepthTex = extraDepth;
 		 if (hitTriangle >= 0) {	
 			// multiply Colors
 			// currentColor *= currentPos;
-			currentColor *= abs(currentNormal);
-			// currentColor *= vec3(1.0,0,0);
+			//currentColor *= abs(currentNormal);
+			 currentColor *= vec3(1.0,0,0);
 			// currentColor *=colorTriangle[hitTriangle/3];
-		 	
+			
+			// === compute correct and interpolated normal here ==== //
+			
 			currentPos = (currentPos + currentDir * currentDepth);
 			currentDirNotnorm = reflect(normalize(currentDir), currentNormal);
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
@@ -222,8 +231,10 @@ extraDepthTex = extraDepth;
 				fragDepth2 = vec4(9999);
 				break;
 			} else {
-				float phongDiffuse = 1.0;//max(dot(currentNormal, light),0) * 0.5;
-				vec3  phongAmbient = vec3(0.0, 0.02, 0.01);
+				vec3 ph = normalize(normalMat * currentNormal);
+				//vec3 phongNormal = vec3( myNormals.posNorm[hitTriangle].xyz + myNormals.posNorm[hitTriangle+1].xyz + myNormals.posNorm[hitTriangle+2].xyz) / 3.0 + 0.4;
+				float phongDiffuse = max(dot(ph, light),0) * 0.5;
+				vec3  phongAmbient = vec3(0.0, 0.02, 0.01)*0.3;
 				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
 				fragPosition = vec4(vec3(currentPos),1);
 				

@@ -9,7 +9,6 @@
 class ShaderStorageBuffer
 {
 public:
-	//float meshData[];
 
 	ShaderStorageBuffer();
 	~ShaderStorageBuffer();
@@ -17,9 +16,9 @@ public:
 	ShaderStorageBuffer(const char * path);
 
 	ShaderStorageBuffer* bind(GLuint binding);
-
 protected:
 	GLuint shaderStorageObjectHandle;
+	GLuint shaderStorageObjectHandle2;
 };
 
 #endif // SHADER_STORAGE_BUFFER_H
