@@ -10,6 +10,6 @@ uniform mat4 uniformProjection;
 out vec4 passPosition;
 
 void main() {
-	passPosition =uniformView*uniformModel*pos;
+	passPosition = uniformModel*pos;
         gl_Position = uniformProjection*uniformView*uniformModel*pos;
 }

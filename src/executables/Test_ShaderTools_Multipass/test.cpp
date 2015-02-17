@@ -1,11 +1,8 @@
 #include "ShaderTools/DefaultRenderLoop.h"
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
-#include "ShaderTools/VertexArrayObjects/Pyramid.h"
 
 auto quadVAO = new Quad();
-auto  cube = new Pyramid();
-
 auto singleColorSP = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
 
 auto pass1 = new RenderPass(
@@ -14,7 +11,7 @@ auto pass1 = new RenderPass(
     width, height);
 
 auto pass2 = new RenderPass(
-    cube, 
+    quadVAO, 
     singleColorSP,
     width, height);
 
@@ -33,7 +30,9 @@ float lum2 = 0.5;
 float lum3 = 0.5;
 
 int main(int argc, char *argv[]) {
-    compSP->printUniformInfo();
+    singleColorSP->printUniformInfo();
+    singleColorSP->printInputInfo();
+    singleColorSP->printOutputInfo();
 
     renderLoop([]{
         float delta = 0.0;

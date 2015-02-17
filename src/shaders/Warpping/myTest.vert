@@ -12,7 +12,7 @@ out vec4 passPosition;
 
 
 void main() {
-	 passPosition =  uniformView * uniformModel *vertex_modelSpace ;
+	 	passPosition =  uniformModel * vertex_modelSpace ;
         gl_Position =  uniformProjection *  uniformView * uniformModel *vertex_modelSpace ;
         // passUV = vertexUV;
    
