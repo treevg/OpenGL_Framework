@@ -2,26 +2,59 @@
 
 in vec4 gl_FragCoord;
 
-uniform vec3	iResolution; 	//viewport resolution in pixels
-uniform float	iGlobalTime;	//shader playback time in seconds	
+
+// DEBUG
+uniform int enter;
+vec3 t1 = vec3(0.0, 0.0, 0.0);
+vec3 t2 = vec3(.75, 0.5, 0.5);
+vec3 t3 = vec3(-0.75, 0.5, 0.5);
+
+uniform vec3	iResolution; 	
 uniform mat4	projection;
 uniform float 	zoom;
 uniform int		indirection;
 
 uniform mat4 	invView;
 uniform mat4	invViewProjection;
+uniform mat3	normalMat;
 
 uniform vec4 	sphereVec[3];
-uniform vec3 	mesh[20];
+uniform vec3 	mesh[6];
 uniform vec3 	colorSphere[3];
+uniform vec3 	colorTriangle[3];
 
-out vec4		fragColor;
-out vec4 		fragPosition;
+in 		vec4	passPosition;
 
-vec2 			closestHit=vec2(100.0,0.0);  //meaning: closestHit.x == value .y==0 hitPoint of a sphere
-float 			mint;
-int 			currentGeom;
+//direct 
+out 	vec4	fragColor;
+out 	vec4 	fragPosition;
+out 	vec4	fragDepth;
+//out 	float	extraDepthTex;
 
+//indirect
+out 	vec4	fragColor2;
+out 	vec4 	fragPosition2;
+out 	vec4	fragDepth2;
+
+
+layout(std430, binding=7) buffer meshData{
+	vec4 pos[72];
+} myMesh;
+
+layout(std430, binding=14) buffer meshNormal{
+	vec4 posNorm[72];
+} myNormals;
+
+float	t = 0;
+vec3 	light = normalize(vec3(sin(t), 0.6, cos(t)));
+vec3 	currentColor = vec3(1,1,1);
+vec3 	currentColor2 = vec3(1,1,1);
+float 	currentDepth;
+vec3 	currentNormal;
+vec3 	tempNormal;
+const float INFINITY = 1e10;
+
+vec3 currentDirNotnorm;
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 {
@@ -34,9 +67,61 @@ float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
 	return mix(-1.0, t, st);
 }
 
-vec3 background(float t, vec3 rd)
+float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
 {
-	vec3 light = normalize(vec3(sin(t), 0.6, cos(t)));
+    vec3 u, v, n; // triangle vectors
+    vec3 w0, w;  // ray vectors
+    float r, a, b; // params to calc ray-plane intersect
+
+    // get triangle edge vectors and plane normal
+    u = vertex1 - vertex0;
+    v = vertex2 - vertex0;
+    n = normalize( cross(u,v) );
+	tempNormal = n;
+
+
+	//vec3 q = cross(dir,v);
+	//float a = dot(u,q);
+
+
+
+    w0	= orig - vertex0;
+    a	= -dot(n, w0);
+    b	= dot(n, dir);
+    if (abs(b) < 1e-5){
+        // ray is parallel to triangle plane, and thus can never intersect.
+        return -1.0;
+    }
+
+    // get intersect point of ray with triangle plane
+    r = a / b;
+    if (r < 0.0)
+        return -1.0; // ray goes away from triangle.
+
+    vec3 I = orig + r * dir;
+    float uu, uv, vv, wu, wv, D;
+    uu = dot(u, u);
+    uv = dot(u, v);
+    vv = dot(v, v);
+    w = I - vertex0;
+    wu = dot(w, u);
+    wv = dot(w, v);
+    D = uv * uv - uu * vv;
+
+    // get and test parametric coords
+    float s, t;
+    s = (uv * wv - vv * wu) / D;
+    if (s < 0.0 || s > 1.0)
+        return -1.0;
+    t = (uv * wu - uu * wv) / D;
+    if (t < 0.0 || (s + t) > 1.0)
+        return -1.0;
+
+    return (r > 1e-5) ? r : -1.0;
+}
+
+vec3 background(vec3 rd)
+{
 	float sun = max(0.0, dot(rd, light));
 	float sky = max(0.0, dot(rd, vec3(0.0, 1.0, 1.0)));
 	float ground = max(0.0, -dot(rd, vec3(0.0, 1.0, 0.0)));
@@ -45,122 +130,130 @@ vec3 background(float t, vec3 rd)
 		pow(ground, 0.5)*vec3(0.4, 0.3, 0.2)+pow(sky, 1.0)*vec3(0.5, 0.6, 0.7);
 }
 
-vec3 refSphere(vec3 rd, int geomBase, int refDepth){
-	vec3 color=vec3(0.0);
-	vec3 nml2=vec3(0.0);
-	int sphereHit;
-	//vec3 tempColor=vec3(0.0);
-	//float tempHit=100.0;
 
-	if(refDepth==0){
-		mint=100.0;
-		return color;
-	}
+int indirections = 2;
 
-	for(int a=1; a<refDepth+1;a++){
-		for(int i=0;i<sphereVec.length;i++){
-		
-			if(geomBase==i){continue;}
-				
-			//hittest from intersected point
-			float t2= sphere(vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z), rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z),sphereVec[i].w);
-				
-			if(t2>0 && t2<mint){
-				mint=t2;
-				sphereHit=i;
-				//vec3 nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (ro+rd*t2));
-				//nml2 = normalize(vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z) - (vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2));
-				nml2 = normalize((vec3(sphereVec[geomBase].x,sphereVec[geomBase].y,sphereVec[geomBase].z)+rd*t2) - vec3(sphereVec[sphereHit].x,sphereVec[sphereHit].y,sphereVec[sphereHit].z) );
-				color = background(iGlobalTime, nml2) * (vec3(colorSphere[sphereHit].x , colorSphere[sphereHit].y, colorSphere[sphereHit].z));
-			}	
-		}
-		// troublemaker here
-		geomBase=sphereHit;
-		
-		rd=reflect(rd,nml2);
-	}	
-	return color;
-}
+vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
+vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
+vec3 initialPos=currentPos;
 
+vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.05+zoom, 0.0)).xyz);
+vec3 initialDirNotnorm = (invViewProjection * vec4(uv, 0.05+zoom, 0.0)).xyz;
+vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.05+zoom, 0.0)).xyz);
 
-void hit(vec3 ro, vec3 rd){	
+//float lengthCurrentDirOffset = length(currentDirOffset);
+//float lengthUv = length(uv);
+//float lengthExtraDepth = sqrt(lengthCurrentDirOffset*lengthCurrentDirOffset + lengthUv*lengthUv);
+//float extraDepth = abs(lengthCurrentDirOffset-lengthExtraDepth);
 
-	float hitSphere, hitTriangle;
-
-	for(int i=0; i<sphereVec.length();i++){
-		hitSphere = sphere(ro, rd, vec3(sphereVec[i].x,sphereVec[i].y,sphereVec[i].z), sphereVec[i].w);
-	
-		if(hitSphere>0 && hitSphere<closestHit.x){
-			closestHit=vec2(hitSphere,0.0);
-			currentGeom=i;
-		}
-	}
-	
-	for(int i=0; i<mesh.length();i++){
-	
-		// hitTriangle = triangle();
-		hitTriangle=100.0; // placeholder
-	
-		if(hitTriangle>0 && hitTriangle<closestHit.x){
-			closestHit=vec2(hitTriangle,1.0);
-			currentGeom=i;
-		}
-	}
-}
-
-
-void draw(vec3 bgCol,vec3 ro, vec3 rd){
-
-	mint=100.0;	
-	
-	//hittest with every geometry
-	hit(ro,rd);
-		
-	if(closestHit.x > 50){
-		return;
-	}
-//TODO make drawSphere method
-
-	//sphere was hit
-	if(closestHit.y==0.0){
-	
-		// normal of intersected point of sphere
-		vec3 nml = normalize(vec3(sphereVec[currentGeom].x,sphereVec[currentGeom].y,sphereVec[currentGeom].z) - (ro+rd*closestHit.x));
-		
-		//get reflectionvector of intersected spherepoint
-		rd = reflect(rd, nml);
-
-		vec3 col = background(iGlobalTime, rd) * vec3(colorSphere[currentGeom].x,colorSphere[currentGeom].y,colorSphere[currentGeom].z);
-		
-		// gets reflection color
-		vec3 color = refSphere(rd,currentGeom,indirection);
-			
-		if(mint==100.0){
-			gl_FragColor = vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 )+0.05;	
-		} 
-		else {
-			// draws reflected point 
-			//todo: fix normals  , choose gewichtungsfaktor correctly
-			vec4 temp= vec4( mix(bgCol, col, step(0.0, closestHit.x)), 1.0 );
-			gl_FragColor = vec4( mix(vec3(temp.y,temp.y,temp.z), color, mint), 1.0 )+0.05;
-		}
-		
-	}
-	//triangle was hit
-	else{}	 
-}
+vec3 initialDir = currentDir;
 
 void main(void)
-{
-	//vec4 pos = invView * vec4(0,0,0,1);
-	//vec4 dir = normalize(invView * vec4(0,0,1,0));
 
-	vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
-	vec3 ro = (invView * vec4(0,0,0,1)).xyz;
-	vec3 rd = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
+{ 
+//extraDepthTex = extraDepth;
+	for (int i = 0; i <= indirections; i++) {
+		currentDepth = 999999;
+		int hitSphere = -1;
+		int hitTriangle = -1;
+		currentNormal = vec3(0,0,0);
 
-	vec3 bgCol = background(iGlobalTime, rd);
-	gl_FragColor=vec4(bgCol,1.0);
+		//============================//
+		// get the closest hit object //
+		//============================//
 
-	draw(bgCol, ro, rd);
+		// determine if it is a sphere
+
+		for (int s = 0; s < sphereVec.length(); s++) {
+			if (s != hitSphere) {			
+				float hitDepth = sphere(currentPos, currentDir, vec3(sphereVec[s].xyz), sphereVec[s].w);
+				if (hitDepth > 0.0 && hitDepth < currentDepth) {
+					hitSphere = s;
+					currentDepth = hitDepth;
+				}
+			}
+		}
+
+		// determine if it is a triangle
+ 
+		for (int t = 0; t < myMesh.pos.length() && t != hitTriangle; t+=3) {
+		  		float hitDepth = triangle(currentPos, normalize(currentDir), myMesh.pos[t].xyz, myMesh.pos[t+1].xyz, myMesh.pos[t+2].xyz);
+				if (enter == 1) hitDepth = triangle(currentPos, normalize(currentDir), t1, t2, t3);
+		  	if (hitDepth < currentDepth && hitDepth>0.0) {
+		  		hitSphere = -1;
+		  		hitTriangle = t;
+		  		currentDepth = hitDepth;
+
+				currentNormal = tempNormal;
+				//currentNormal = (myNormals.posNorm[t].xyz)+0.5;
+		  	}
+		}
+
+		//============================//
+		// compute new ray parameters //
+		//============================//
+
+		// in case it is a sphere
+
+		if (hitSphere >= 0) {
+			// multiply Colors
+			currentColor *= colorSphere[hitSphere];
+
+			// make new Ray
+			currentPos = currentPos + currentDir * currentDepth ;
+			currentNormal = normalize(currentPos - sphereVec[hitSphere].xyz);
+			currentDir = normalize(reflect(normalize(currentDir), currentNormal));
+		}
+		
+		// in case it is a triangle
+
+		 if (hitTriangle >= 0) {	
+			// multiply Colors
+			// currentColor *= currentPos;
+			//currentColor *= abs(currentNormal);
+			 currentColor *= vec3(1.0,0,0);
+			// currentColor *=colorTriangle[hitTriangle/3];
+			
+			// === compute correct and interpolated normal here ==== //
+			
+			currentPos = (currentPos + currentDir * currentDepth);
+			currentDirNotnorm = reflect(normalize(currentDir), currentNormal);
+		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
+		 }
+		
+		if(i == 0){
+			if (hitTriangle == -1 && hitSphere == -1) {
+				fragColor = vec4(background(currentDir),1);
+				fragPosition = vec4(currentDir,0);
+				fragDepth = vec4(9999);
+				fragColor2 = vec4(0,0,0,0);
+				fragPosition2 = vec4(0,0,0,0);
+				fragDepth2 = vec4(9999);
+				break;
+			} else {
+				vec3 ph = normalize(normalMat * currentNormal);
+				//vec3 phongNormal = vec3( myNormals.posNorm[hitTriangle].xyz + myNormals.posNorm[hitTriangle+1].xyz + myNormals.posNorm[hitTriangle+2].xyz) / 3.0 + 0.4;
+				float phongDiffuse = max(dot(currentNormal, light),0) * 0.5;
+				vec3  phongAmbient = vec3(0.0, 0.02, 0.01)*0.3;
+				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
+				fragPosition = vec4(vec3(currentPos),1);
+				
+				vec3 dist = fragPosition.xyz - initialPos;
+				float temps = dot(currentDirNotnorm, initialDirNotnorm);
+				// fragDepth = vec4(temps,temps,temps,1);
+				fragDepth = vec4(distance(initialPos, fragPosition.xyz));
+				
+			}
+		} 
+
+		if (i == 1) {		
+			fragPosition2= vec4(vec3(currentPos),1);
+			fragDepth2 = vec4(vec3(currentDepth),1);
+		}
+
+		if (i > 0) {			
+			currentColor *= background(currentDir);
+			fragColor2 = vec4(currentColor,1);
+		}
+	}
 }
