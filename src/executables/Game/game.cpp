@@ -23,7 +23,10 @@ float speed = 0.1f;
  RenderPass*  skyBox ;
  RenderPass*  plane ;
  RenderPass*  pyramid;
+ RenderPass* ladybird;
  Camera* camera;
+ Model* myModel;
+ vector<Mesh*> meshes;
 
 static void log(ShaderProgram* s){
 
@@ -53,6 +56,8 @@ static void printMatrix(mat4 matrix){
    delete camera;
    delete plane;
    delete pyramid;
+   delete ladybird;
+   delete myModel;
 
   }
 
@@ -60,16 +65,20 @@ static void printMatrix(mat4 matrix){
   void Game::init(){
 
    auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
+   auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
    plane = new RenderPass( new Plane(), sp);
-   pyramid  = new RenderPass(   new Pyramid(),  sp);
+   pyramid  = new RenderPass(  new Pyramid(),  sp);
    camera =  new Camera();
+   myModel = new Model("/home/ivanna/git_repo/OpenGL_Framework/resources/ladybird.obj");
+   meshes = myModel->getMeshes();
+   ladybird = new RenderPass(meshes, sp1);
+   
 
    log (sp);
 
  }
 
 
- 
 
   void  Game::drawSkybox(){
 
@@ -83,7 +92,6 @@ static void printMatrix(mat4 matrix){
      return view;
 
   }
-
 
 
 
@@ -127,6 +135,12 @@ static void  lookAround(){
     glm::mat4 modelPyramide;    //= glm::scale(glm::mat4(1.0),glm::vec3(10,40,10));
     glm::mat4 modelS = glm::scale(glm::mat4(1), glm::vec3(10,10,10));
    
+
+    glm:: mat4 modelLadyBird = translate(mat4(1), vec3(0.0,0.0,30.0));
+     modelLadyBird = scale(modelLadyBird, vec3(0.01,0.01,0.01));
+     modelLadyBird = rotate(modelLadyBird, 135.0f,  vec3(0.0,1.0,0.0));
+
+   
     lookAround(); 
     moveWithKeybord();
    
@@ -145,7 +159,7 @@ for (int i = 5; i < 50; i=i+6){
   
       for (int j = -6; j < 7; j+=12){
         
-         modelPyramide= glm::translate(modelPyramide, glm::vec3(j,5.5,50-i));
+         modelPyramide= glm::translate(modelPyramide, glm::vec3(j,5.0,50-i));
          modelPyramide=   glm::scale(modelPyramide,glm::vec3(10,10,10));
          
 
@@ -161,6 +175,13 @@ for (int i = 5; i < 50; i=i+6){
 
       }
 }
+ 
+        ladybird
+        ->  update("uniformModel", modelLadyBird)
+        ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  update("color", vec4(1,1,0,1))
+        ->  runMeshes();
 
 
 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

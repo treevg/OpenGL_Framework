@@ -1,12 +1,24 @@
 #include "RenderPass.h"
-#include <thread>
-#include <chrono>
+
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram)
 	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0)
 {
 	frameBufferObject = new FrameBufferObject();
 }
+
+RenderPass::RenderPass(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram)
+	: meshes(meshes), shaderProgram(shaderProgram), frameBufferObject(0)
+{
+	frameBufferObject = new FrameBufferObject();
+}
+
+RenderPass::RenderPass(Mesh* mesh, ShaderProgram* shaderProgram)
+	: mesh(mesh), shaderProgram(shaderProgram), frameBufferObject(0)
+{
+	frameBufferObject = new FrameBufferObject();
+}
+
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height)
 	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0)
@@ -19,6 +31,8 @@ RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shad
 {
 }
 
+
+
 void RenderPass::run() {
 	frameBufferObject->bind();
 	shaderProgram->use();
@@ -26,22 +40,30 @@ void RenderPass::run() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+void RenderPass::runOneMesh() {
+	cout << "drawing mesh" << endl;
+	frameBufferObject->bind();
+	shaderProgram->use();
+	mesh->draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
 
-void RenderPass::runMeshes(vector<Mesh> meshes) {
 
-	for (int i=0; i<meshes.size(); i++ ){
-	//	vertexArrayObject = meshes[i];
-		//Gerrit fragen -> muss für jedes Mesh ein FBO generiert werden? 
-		frameBufferObject->bind();
+
+void RenderPass::runMeshes() {
+      frameBufferObject->bind();
+
+     cout << "DEBUG: meshes count "<< this->meshes.size() << endl;
+
+	for (int i=0; i<this->meshes.size(); i++ ){
+
+	    vertexArrayObject = meshes[i];
         shaderProgram->use();
-        meshes[i].draw();
+        vertexArrayObject->draw();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
-	
-	
-    //std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	
 }
 
 void RenderPass::autoGenerateFrameBufferObject(int width, int height) {

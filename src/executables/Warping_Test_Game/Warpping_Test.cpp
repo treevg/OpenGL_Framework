@@ -8,11 +8,20 @@
 #include "ShaderTools/VertexArrayObjects/Skybox.h"
 #include "ShaderTools/VertexArrayObjects/Pyramid.h"
 #include "WarppingGame/CubemapTexture/CubemapTexture.h"
+#include "WarppingGame/Modelloader/Model.h"
 
 using namespace std;
 using namespace glm;
 
+Model* m = new Model("/home/ivanna/git_repo/OpenGL_Framework/resources/cube.obj");
+
+
+vector<Mesh*> meshes = m->getMeshes();
+Mesh* mesh = meshes[0];
+
 auto sp = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
+
+auto myModel = new ShaderProgram({"/Warpping/lat.vert", "/Warpping/lat.frag"});
 
 
 auto spSkybox = new ShaderProgram({"/Warpping/skybox.vert", "/Warpping/skybox.frag"});
@@ -28,6 +37,14 @@ auto passQuoad= new RenderPass(
     sp
 );
 
+
+
+auto passModel= new RenderPass(
+   meshes, 
+   myModel
+);
+
+
 auto passPyram = new RenderPass(new Pyramid(), sp);
 
 
@@ -38,7 +55,7 @@ GLuint texHandle = ComputeShaderTools::generateTexture();
 
 CubemapTexture* cubeText = new CubemapTexture();
 
-GLuint test = cubeText->create_cube_map("/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_rt.jpg",
+/*GLuint test = cubeText->create_cube_map("/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_rt.jpg",
     "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_lf.jpg",
     "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_up.jpg",
     "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_dn.jpg",
@@ -46,7 +63,7 @@ GLuint test = cubeText->create_cube_map("/home/ivanna/git_repo/OpenGL_Framework/
     "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_ft.jpg"    
  );
 
-
+*/
 float gScale = 0.5;
 float lScale =0.0;
 float lum = 0.5;
@@ -76,7 +93,7 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
    
-
+   cout<< "texture handle " << texHandle << endl;
 
  lasttime = glfwGetTime();
 
@@ -93,8 +110,8 @@ int main(int argc, char *argv[]) {
                modelC = translate (modelC, vec3(0.0, 0.1, 0.0));
 
 
-        mat4 modelPyramide = scale(mat4(1), vec3(2,2,2));
-        modelPyramide = translate (modelPyramide, vec3 (0,0,-3));
+        mat4 modelPyramide =mat4(1);
+          modelPyramide = translate (modelPyramide, vec3 (0,0,-3));
        
 
       //for skybox
@@ -102,8 +119,9 @@ int main(int argc, char *argv[]) {
         model = scale(model, vec3(10,10,10));
        
         mat4 view(1);
-        view = translate(view, vec3(0.0, 0.0, moveSpeed));
+      //   view = translate(view, vec3(0.0, -2.0,  -10));
         view = rotate(view, verticAngle, vec3(0.0,1.0,0.0));
+        
 
     //for plane
         mat4 modelQ=mat4(1.0);
@@ -116,8 +134,10 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) lum  = glm::max(lum - 0.001, 0.);
         if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) lum = glm::min(lum + 0.001, 1.);
 
-       if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
-
+       if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+         glfwSetWindowShouldClose(window, GL_TRUE);
+         delete m;
+       } 
 
        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) z += 0.01;
        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) z -=  0.01;
@@ -134,7 +154,7 @@ int main(int argc, char *argv[]) {
        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
 
 
-        viewC = glm::lookAt( glm::vec3(0,10,10), // Camera is at (0,10,10), in World Space
+        viewC = glm::lookAt( glm::vec3(0,10,100), // Camera is at (0,10,10), in World Space
                                          glm::vec3(0,0,0), // and looks at the origin
                                          glm::vec3(0,1,0));
 
@@ -147,8 +167,8 @@ int main(int argc, char *argv[]) {
          if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) lScale  = lScale + 0.01;
          if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) lScale = lScale - 0.01;
 
-  passCube
-        ->  clear(0, 0, 0.3, 0)
+   /*passCube
+      
         ->  update("uniformModel", model)
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
@@ -157,7 +177,7 @@ int main(int argc, char *argv[]) {
          
        
 
-       passQuoad
+      passQuoad
      
         ->  update("uniformModel", modelQ)
         ->  update("uniformView", view)
@@ -165,18 +185,18 @@ int main(int argc, char *argv[]) {
         ->  update("color", vec4(0,1,0,1))
         ->  run(); 
 
-
-        passPyram
-      
+*/
+        passModel
+        ->  clear(0, 0, 0.3, 0)
         ->  update("uniformModel", modelPyramide)
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
-        ->  update("color", vec4(1,0,0,1))
-        ->  run();
+        ->  texture("tex",texHandle)
+        ->  runMeshes();
 
 
 
     });
 
-
+   
 }

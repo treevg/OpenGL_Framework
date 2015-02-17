@@ -1,6 +1,7 @@
 #ifndef RENDER_PASS_H
 #define RENDER_PASS_H
 
+#include <vector>
 #include "VertexArrayObject.h"
 #include "FrameBufferObject.h"
 #include "ShaderTools/VertexArrayObjects/Mesh.h"
@@ -9,10 +10,13 @@ class RenderPass
 {
 public:
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
+	RenderPass(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram);
+	RenderPass(Mesh* mesh, ShaderProgram* shaderProgram);
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 	void run();
-	void runMeshes(vector<Mesh> meshes);
+	void runMeshes();
+	void runOneMesh();
 	void autoGenerateFrameBufferObject(int width, int height);
 	GLuint get(std::string name);
 
@@ -29,6 +33,9 @@ public:
 	ShaderProgram* shaderProgram;
 	VertexArrayObject* vertexArrayObject;
 	FrameBufferObject* frameBufferObject;
+    std::vector<Mesh*> meshes;
+    Mesh* mesh;
+	
 protected:
 };
 

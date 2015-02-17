@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 #include <glm/glm.hpp>
 #include "../VertexArrayObject.h"
 
@@ -18,25 +19,31 @@ string type;
 };
 
 
-class Mesh : public VertexArrayObject {
+class Mesh: public VertexArrayObject  {
 public:
-	Mesh(vector<vec3> verticies, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indicies);
-	Mesh(vector<vec3> verticies, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indicies, vector<Texture> textures);
+	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices);
+	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<Texture> textures);
 	void draw();
-	vector<vec3> getVerticies() const;
+	void printInd();
+	vector<vec3> getVertices() const;
 	vector<vec3> getNormals() const;
 	vector<vec2> getTexCoords() const;
-	vector<GLuint> getIndicies() const;
+	vector<GLuint> getIndices() const;
 	vector<Texture> getTextures() const;
+
+	
 	
 protected: 
 
-vector<vec3> m_verticies;
+vector<vec3> m_vertices;
 vector<vec3> m_normals;
 vector<vec2> m_texCoords;
-vector<GLuint> m_indicies;
+vector<GLuint> m_indices;
 vector<Texture> m_textures;
 
+GLuint IBO;
+GLuint VBO;
+GLuint tVBO;
 
 
 	};

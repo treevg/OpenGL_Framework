@@ -8,6 +8,7 @@
 #include "ShaderTools/VertexArrayObjects/Plane.h"
 #include "WarppingGame/CubemapTexture/CubemapTexture.h"
 #include  "WarppingGame/Camera/Camera.h"
+#include  "WarppingGame/Modelloader/Model.h"
 
 
 using namespace std;
