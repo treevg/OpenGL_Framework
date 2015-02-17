@@ -2,6 +2,7 @@
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include <array>
+#include <queue>
 
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "Compression/TextureTools.h"
@@ -45,6 +46,11 @@ vector<vec3> colorSphere;
 vector<vec3> colorTriangle;
 vector<mat4> matVec;
 
+// latency stuff
+int latencyFrameNumber = 60;
+queue<mat4> latencyQueue;
+
+
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
 
@@ -55,16 +61,20 @@ auto ssbo2 = new ShaderStorageBuffer("/Objects/originalMesh.obj");
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
 auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
-auto pass1 = new RenderPass(quadVAO, sp,width, height);
+auto raytracePass = new RenderPass(quadVAO, sp
+    ,width, height
+    );
 
 //Tonemap shader for depth
 auto spLin = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/toneMap.frag"});
-auto passLin = new RenderPass(quadVAO,spLin,width, height);
+auto tonemappingPass = new RenderPass(quadVAO,spLin
+    // ,width, height
+    );
 
 //For Compression
 auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
 auto pass2 = new RenderPass(new Cube(), sp2);
-GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
+// GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 GLuint texHandle = ComputeShaderTools::generateTexture();
 
 //Composite shader
@@ -76,19 +86,24 @@ auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}
 auto diffWarp = new RenderPass(grid, warp);
 
 // Simulate latency
-mat4 latency(mat4 newMat, int lat){
-matVec.push_back(newMat);
-int lengthMatVec = matVec.size();
+// mat4 latency(mat4 newMat, int lat){
+//     latencyQueue.push_back(newMat);
 
-mat4 returnMat;
-if(lengthMatVec<=lat){
-	return newMat;
-}
-else {
-	matVec.erase(matVec.begin());
-	return returnMat = matVec[lengthMatVec-lat-1];
-	}
-}
+
+
+//     matVec.push_back(newMat);
+//     int lengthMatVec = matVec.size();
+
+//     mat4 returnMat;
+//     if(lengthMatVec<=lat){
+//         return newMat;
+//     }
+//     else {
+//         matVec.erase(matVec.begin());
+//         return returnMat = matVec[lengthMatVec-lat-1];
+//     }
+// }
+
 
 int main(int argc, char *argv[]) {
 
@@ -98,9 +113,13 @@ int main(int argc, char *argv[]) {
 //       warp -> printInputInfo();
 //       warp -> printOutputInfo();
 
-    sphereVec.push_back(glm::vec4(2.0, 0.0, 0.0, 0.2));
-    sphereVec.push_back(glm::vec4(2.75, 0.5, 0.5, 0.2));
-    sphereVec.push_back(glm::vec4(1.75, 0.5, 0.5, 0.2));
+    // sphereVec.push_back(glm::vec4(2.0, 0.0, 0.0, 0.2));
+    // sphereVec.push_back(glm::vec4(2.75, 0.5, 0.5, 0.2));
+    // sphereVec.push_back(glm::vec4(1.75, 0.5, 0.5, 0.2));
+
+    sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
+    sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
+    sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.5));
 
     //needs to be same size as sphereVec
     colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
@@ -123,10 +142,10 @@ int main(int argc, char *argv[]) {
 
     lastTime = glfwGetTime();
 
-   // pass1 -> update("mesh[0]", mesh);
-    pass1 -> update("sphereVec[0]", sphereVec);
-    pass1 -> update("colorSphere[0]", colorSphere);
-    pass1 -> update("colorTriangle[0]", colorTriangle);
+   // raytracePass -> update("mesh[0]", mesh);
+    raytracePass -> update("sphereVec[0]", sphereVec);
+    raytracePass -> update("colorSphere[0]", colorSphere);
+    raytracePass -> update("colorTriangle[0]", colorTriangle);
 
 
     renderLoop([]{
@@ -191,10 +210,6 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)maxRange +=0.5;
         if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)maxRange -=0.5;
 
-        // Warpview on/off
-        if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS)warpView =1;
-        if (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)warpView =0;
-
         // Warpview
         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) warpUpDown +=  0.1 * deltaT;
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) warpUpDown -=  0.1 * deltaT;
@@ -207,6 +222,8 @@ int main(int argc, char *argv[]) {
         	maxRange=20.0;
         }
 
+        mat4 projection = perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
+        mat4 invProjection = inverse(projection);
 
         //original
         mat4 view(1);
@@ -214,77 +231,93 @@ int main(int argc, char *argv[]) {
         view = rotate(view, -verticalAngle, vec3(1,0,0));
         view = rotate(view, -horizontalAngle, vec3(0,1,0));
 
+        latencyQueue.push(view);
+        while (latencyQueue.size() > latencyFrameNumber) {
+            latencyQueue.pop();
+        }
+        mat4 view_old = latencyQueue.front();
+
         mat4 invView = inverse(view);
-        mat4 lat = latency(invView,10);
+        mat4 invView_old = inverse(view_old);
 
-
-        //slightly different VM
-        mat4 aView (1);
-        aView = translate(aView, vec3(0.05, 0, -4.0));
-        aView = rotate(aView, warpUpDown-verticalAngle, vec3(1,0,0));
-        aView = rotate(aView, warpLeftRight-horizontalAngle, vec3(0,1,0));
-
-       // mat4 latAView = latency(aView, 20);
-        mat3 modIncTrans = transpose(inverse(mat3(1)));
-
-        vec4 pos = invView * vec4(0,0,0,1);
-        vec4 dir = normalize(invView * vec4(0,0,1,0));
-
-        mat4 projection = perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
-        mat4 invProjection = inverse(projection);
         mat4 invViewProjection = inverse(projection * view);
-       // cout << to_string(dir) << endl;
+        mat4 invViewProjection_old = inverse(projection * view_old);
+
+
+       //  //slightly different VM
+       //  mat4 aView (1);
+       //  aView = translate(aView, vec3(0.05, 0, -4.0));
+       //  aView = rotate(aView, warpUpDown-verticalAngle, vec3(1,0,0));
+       //  aView = rotate(aView, warpLeftRight-horizontalAngle, vec3(0,1,0));
+
+       // // mat4 latAView = latency(aView, 20);
+       //  mat3 modIncTrans = transpose(inverse(mat3(1)));
+
+       //  vec4 pos = invView * vec4(0,0,0,1);
+       //  vec4 dir = normalize(invView * vec4(0,0,1,0));
+
 
         if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS) {
-            pass2
-            -> clear(1, 1, 1, 0)
-            -> update("uniformView", view)
-            -> update("uniformProjection", glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f))
-            -> update("uniformModel", mat4(1))
-            -> texture("tex2", textureHandle)
-            -> run();
+            // pass2
+            // -> clear(1, 1, 1, 0)
+            // -> update("uniformView", view)
+            // -> update("uniformProjection", glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f))
+            // -> update("uniformModel", mat4(1))
+            // -> texture("tex2", textureHandle)
+            // -> run();
         }
         else {
 
             ssbo2->bind(7);
-        	pass1
+        	raytracePass
         	-> clear(0, 0, 0, 0)
         	-> update("iResolution", glm::vec3(width, height, 1))
         	-> update("zoom", rad)
-            -> update("invViewProjection", invViewProjection)
-        	-> update("invView",lat)
-			-> update("normalMat",modIncTrans)
+            -> update("invViewProjection", invViewProjection_old)
+        	-> update("invView",invView_old)
+			// -> update("normalMat",modIncTrans)
             -> update("enter", (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
         	-> run();
 
-        	passLin
-			-> clear(0,0,0,0)
-			-> update("minRange",minRange)
-			-> update("maxRange",maxRange)
-			-> texture("depth", pass1->get("fragDepth"))
-			-> run();
 
-            compositing
-			-> clear(0, 1, 0, 0)
-			-> update("texNum", texNum)
-			-> texture("color", pass1->get("fragColor"))
-			-> texture("indirectionColor", pass1->get("fragColor2"))
-			-> texture("depth", passLin->get("fragColor"))
-			-> texture("indirectionDepth", pass1->get("fragDepth2"))
-			//-> texture("fragPos", pass1->get("fragPosition"))
-			//-> texture("indirectionFragPos", pass1->get("fragPosition2"))
-			-> run();
-
-           diffWarp
-			-> clear(0,0,0,0)
-            -> update("warpView", warpView)
-			-> update("altView", aView)
-			-> update("invViewProjection", invViewProjection)
-			-> update("projection", projection)
-			-> texture("color", pass1->get("fragColor"))
-			-> texture("depth", passLin->get("fragColor"))
-			-> texture("indirectColor", pass1->get("fragColor2"))
-			-> run();
+   //          compositing
+            // -> clear(0, 1, 0, 0)
+            // -> update("texNum", texNum)
+            // -> texture("color", raytracePass->get("fragColor"))
+            // -> texture("indirectionColor", raytracePass->get("fragColor2"))
+            // -> texture("depth", raytracePass->get("fragDepth"))
+            // -> texture("indirectionDepth", raytracePass->get("fragDepth2"))
+            // //-> texture("fragPos", raytracePass->get("fragPosition"))
+            // //-> texture("indirectionFragPos", raytracePass->get("fragPosition2"))
+            // -> run();
+            
+            if (glfwGetKey(window, GLFW_KEY_Y /*Z*/) == GLFW_PRESS) {
+                tonemappingPass
+                    -> clear(0,0,0,0)
+                    -> update("minRange",minRange)
+                    -> update("maxRange",maxRange)
+                    -> texture("depth", raytracePass->get("fragDepth"))
+                    -> run();
+            } else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+            	tonemappingPass
+        			-> clear(0,0,0,0)
+        			-> update("minRange",0.0f)
+        			-> update("maxRange",1.0f)
+        			-> texture("depth", raytracePass->get("fragPosition"))
+    			    -> run();
+            } else  {            
+                diffWarp
+        			-> clear(0,0,0,0)
+                    -> update("warpView", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+        			-> update("altView", view)
+        			-> update("invViewProjection", invViewProjection_old)
+        			-> update("projection", projection)
+        			-> texture("colorTexture", raytracePass->get("fragColor"))
+                    -> texture("depthTexture", raytracePass->get("fragDepth"))
+        			-> texture("positionTexture", raytracePass->get("fragPosition"))
+        			-> texture("indirectColor", raytracePass->get("fragColor2"))
+        			-> run();
+            }
 
         }
 

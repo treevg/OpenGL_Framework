@@ -240,8 +240,8 @@ void main(void)
 				
 				vec3 dist = fragPosition.xyz - initialPos;
 				float temps = dot(currentDirNotnorm, initialDirNotnorm);
-				fragDepth = vec4(temps,temps,temps,1);
-				//fragDepth = vec4(distance(initialPos, fragPosition.xyz));
+				// fragDepth = vec4(temps,temps,temps,1);
+				fragDepth = vec4(distance(initialPos, fragPosition.xyz));
 				
 			}
 		} 
