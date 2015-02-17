@@ -233,7 +233,7 @@ void main(void)
 			} else {
 				vec3 ph = normalize(normalMat * currentNormal);
 				//vec3 phongNormal = vec3( myNormals.posNorm[hitTriangle].xyz + myNormals.posNorm[hitTriangle+1].xyz + myNormals.posNorm[hitTriangle+2].xyz) / 3.0 + 0.4;
-				float phongDiffuse = max(dot(ph, light),0) * 0.5;
+				float phongDiffuse = max(dot(currentNormal, light),0) * 0.5;
 				vec3  phongAmbient = vec3(0.0, 0.02, 0.01)*0.3;
 				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
 				fragPosition = vec4(vec3(currentPos),1);
