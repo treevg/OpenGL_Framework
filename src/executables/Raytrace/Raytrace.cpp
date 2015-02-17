@@ -47,7 +47,7 @@ vector<vec3> colorTriangle;
 vector<mat4> matVec;
 
 // latency stuff
-int latencyFrameNumber = 60;
+int latencyFrameNumber = 12;
 queue<mat4> latencyQueue;
 
 
@@ -192,8 +192,14 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 
         // Zoom
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) rad +=0.03 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)rad -= 0.03 * deltaT;
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+            cout << (rad) << endl;
+            rad +=0.03 * deltaT;
+        }
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+            cout << (rad) << endl;
+            rad -= 0.03 * deltaT;
+        }
 
 
         // Change between rendered textures

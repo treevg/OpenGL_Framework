@@ -137,9 +137,9 @@ vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
 vec3 initialPos=currentPos;
 
-vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.04+zoom, 0.0)).xyz);
-vec3 initialDirNotnorm = (invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz;
-vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.04+zoom, 0.0)).xyz);
+vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.05+zoom, 0.0)).xyz);
+vec3 initialDirNotnorm = (invViewProjection * vec4(uv, 0.05+zoom, 0.0)).xyz;
+vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.05+zoom, 0.0)).xyz);
 
 //float lengthCurrentDirOffset = length(currentDirOffset);
 //float lengthUv = length(uv);
