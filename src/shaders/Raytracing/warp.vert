@@ -1,7 +1,7 @@
 #version 430
 
 uniform mat4 		altView;
-uniform int 		warpView;
+uniform int 		warpOnOff;
 uniform mat4		invViewProjection;
 uniform mat4		projection;
 uniform sampler2D	indirectColor;
@@ -25,7 +25,7 @@ void main() {
 	//vec4 passIndColor 	= texture(indirectColor, pos);
 
 	
-	if(warpView==0){
+	if(warpOnOff==0){
 		if(z>=999){
 			
 			w =   invViewProjection * vec4(pos * 2 - 1, 0.999, 1);
@@ -38,7 +38,7 @@ void main() {
 			w	= texture(positionTexture, pos);
 
 			gl_Position = projection * altView * w;
-			tempColor = texture(colorTexture,pos);// * texture(indirectColor, pos);
+			tempColor = texture(colorTexture,pos) * texture(indirectColor, pos);
 		}	
 	}
 	

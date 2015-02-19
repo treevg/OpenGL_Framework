@@ -17,11 +17,9 @@ using namespace glm;
 
 //		High priority
 //TODO try reflective warping
-//TODO normals for correct shading - mesh structure?
+//TODO interpolate normals for correct shading and pass them as texture
 
 //		Low priority
-//TODO switch between textures
-//TODO Himmel soll nachziehen bei Rotation - Skybox?
 
 //global variables
 
@@ -36,7 +34,7 @@ float 	horizontalAngle=0.0;
 float 	verticalAngle=0.0;
 float 	offsetHorizontalAngle=0.01;
 float 	offsetVerticalAngle=-0.01;
-int		warpView=0;
+int		warpOnOff=0;
 float 	warpUpDown = 0.0;
 float	warpLeftRight = 0.0;
 
@@ -55,7 +53,7 @@ auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
 
 //Load mesh: parameter is resources path
-auto ssbo2 = new ShaderStorageBuffer("/Objects/originalMesh.obj");
+auto ssbo2 = new ShaderStorageBuffer("/Objects/icosphere.obj", false);
 //auto ssbo = new ShaderStorageBuffer();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
@@ -109,9 +107,9 @@ int main(int argc, char *argv[]) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-//       warp -> printUniformInfo();
-//       warp -> printInputInfo();
-//       warp -> printOutputInfo();
+       sp -> printUniformInfo();
+      // sp -> printInputInfo();
+      // sp -> printOutputInfo();
 
     // sphereVec.push_back(glm::vec4(2.0, 0.0, 0.0, 0.2));
     // sphereVec.push_back(glm::vec4(2.75, 0.5, 0.5, 0.2));
@@ -152,13 +150,9 @@ int main(int argc, char *argv[]) {
         currentTime = glfwGetTime();
         float deltaT = currentTime - lastTime;
         lastTime = currentTime;
-        bool mouseForGerrit = true;
+        bool mouseForGerrit = false;
 
         if(!mouseForGerrit){
-//             double xold = xpos;
-//             double yold = ypos;
-//             xpos = xpos- xold;
-//             ypos = ypos-yold;
              glfwGetCursorPos(window, &xpos,&ypos);
              glfwSetCursorPos(window, float(width)/2, float(height)/2);
 
@@ -237,6 +231,7 @@ int main(int argc, char *argv[]) {
         view = rotate(view, -verticalAngle, vec3(1,0,0));
         view = rotate(view, -horizontalAngle, vec3(0,1,0));
 
+        // Latency simulation
         latencyQueue.push(view);
         while (latencyQueue.size() > latencyFrameNumber) {
             latencyQueue.pop();
@@ -263,25 +258,14 @@ int main(int argc, char *argv[]) {
        //  vec4 dir = normalize(invView * vec4(0,0,1,0));
 
 
-        if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS) {
-            // pass2
-            // -> clear(1, 1, 1, 0)
-            // -> update("uniformView", view)
-            // -> update("uniformProjection", glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f))
-            // -> update("uniformModel", mat4(1))
-            // -> texture("tex2", textureHandle)
-            // -> run();
-        }
-        else {
+            ssbo2->bind(11);
 
-            ssbo2->bind(7);
         	raytracePass
         	-> clear(0, 0, 0, 0)
         	-> update("iResolution", glm::vec3(width, height, 1))
         	-> update("zoom", rad)
             -> update("invViewProjection", invViewProjection_old)
         	-> update("invView",invView_old)
-			// -> update("normalMat",modIncTrans)
             -> update("enter", (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
         	-> run();
 
@@ -314,7 +298,7 @@ int main(int argc, char *argv[]) {
             } else  {            
                 diffWarp
         			-> clear(0,0,0,0)
-                    -> update("warpView", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+                    -> update("warpOnOff", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         			-> update("altView", view)
         			-> update("invViewProjection", invViewProjection_old)
         			-> update("projection", projection)
@@ -323,7 +307,6 @@ int main(int argc, char *argv[]) {
         			-> texture("positionTexture", raytracePass->get("fragPosition"))
         			-> texture("indirectColor", raytracePass->get("fragColor2"))
         			-> run();
-            }
 
         }
 

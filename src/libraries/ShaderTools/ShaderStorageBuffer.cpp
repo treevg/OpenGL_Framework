@@ -3,7 +3,7 @@
 ShaderStorageBuffer::ShaderStorageBuffer() {
 
 	auto objl = new Objectloader();
-	objl->loadOBJ(RESOURCES_PATH "/Objects/originalMesh.obj", objl->vertices, objl->uvs, objl->normals);
+	objl->loadOBJ(RESOURCES_PATH "/Objects/originalMesh.obj", objl->vertices, objl->uvs, objl->normals,true);
     glGenBuffers(1, &shaderStorageObjectHandle);
 
     float size = 1;
@@ -47,12 +47,12 @@ ShaderStorageBuffer::ShaderStorageBuffer() {
 }
 
 
-ShaderStorageBuffer::ShaderStorageBuffer(const char * path) {
+ShaderStorageBuffer::ShaderStorageBuffer(const char * path, bool hasUvs) {
 	char result[200];
 	strcpy(result,(const char*)RESOURCES_PATH);
 	strcat(result,path);
 	auto objl = new Objectloader();
-	objl->loadOBJ(result , objl->vertices, objl->uvs, objl->normals);
+	objl->loadOBJ(result , objl->vertices, objl->uvs, objl->normals, hasUvs);
 
     glGenBuffers(1, &shaderStorageObjectHandle);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, shaderStorageObjectHandle);
@@ -65,6 +65,6 @@ ShaderStorageBuffer::ShaderStorageBuffer(const char * path) {
 
 ShaderStorageBuffer* ShaderStorageBuffer::bind(GLuint binding) {
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding, shaderStorageObjectHandle);  
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2*binding, shaderStorageObjectHandle2);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, binding+1, shaderStorageObjectHandle2);
     // glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }

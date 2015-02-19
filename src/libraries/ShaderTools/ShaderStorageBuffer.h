@@ -13,7 +13,7 @@ public:
 	ShaderStorageBuffer();
 	~ShaderStorageBuffer();
 
-	ShaderStorageBuffer(const char * path);
+	ShaderStorageBuffer(const char * path, bool hasUvs);
 
 	ShaderStorageBuffer* bind(GLuint binding);
 protected:
