@@ -62,7 +62,9 @@ bool Objectloader::loadOBJ(
 	        	 matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] );
 	        }
 	        else {
-	        	 matches = fscanf(file, "%d//%d %d//%d %d//%d\n", &vertexIndex[0], &normalIndex[0], &vertexIndex[1], &normalIndex[1], &vertexIndex[2], &normalIndex[2] );
+	        	// matches = fscanf(file, "%d//%d %d//%d %d//%d\n" ,&normalIndex[0], &vertexIndex[0],&normalIndex[1],  &vertexIndex[1],&normalIndex[2],  &vertexIndex[2] );
+
+	        	 matches = fscanf(file, "%d//%d %d//%d %d//%d\n" , &vertexIndex[0],&normalIndex[0],  &vertexIndex[1],&normalIndex[1],  &vertexIndex[2],&normalIndex[2] );
 	        }
 
 	        if (matches == 9){
@@ -80,9 +82,6 @@ bool Objectloader::loadOBJ(
 	            vertexIndices.push_back(vertexIndex[0]);
 	    		vertexIndices.push_back(vertexIndex[1]);
 	    		vertexIndices.push_back(vertexIndex[2]);
-//	    		uvIndices    .push_back(uvIndex[0]);
-//	    		uvIndices    .push_back(uvIndex[1]);
-//	    		uvIndices    .push_back(uvIndex[2]);
 	    		normalIndices.push_back(normalIndex[0]);
 	    		normalIndices.push_back(normalIndex[1]);
 	    		normalIndices.push_back(normalIndex[2]);
@@ -90,7 +89,8 @@ bool Objectloader::loadOBJ(
 	        else {
 
 	        	printf("File can't be read by our simple parser. Try exporting with other options\n"
-	        			"Supported options in Blender: Apply Modifiers, Include:Normals&UVs, Triangulate faces, Objects as OBJ objects \n");
+	        			"Supported options in Blender: Apply Modifiers, Include:Normals&UVs, Triangulate faces, Objects as OBJ objects \n"
+	        			"Model needs to be `smooth` \n");
 	        	return false;
 	        }
 	    }
@@ -99,20 +99,25 @@ bool Objectloader::loadOBJ(
 	    for( unsigned int i=0; i<vertexIndices.size(); i++ ){
 	    	unsigned int vertexIndex = vertexIndices[i];
 	    	glm::vec3 vertex = temp_vertices[ vertexIndex-1 ];
-	    	glm::vec3 normal = temp_normals[vertexIndex-1 ];
+	    	//glm::vec3 normal = temp_normals[vertexIndex-1 ];
 	    	out_vertices.push_back(vertex);
-	    	out_normals.push_back(normal);
+	    	//out_normals.push_back(normal);
 
 	    	temp_vert_to_array.push_back(vertex.x);
 	    	temp_vert_to_array.push_back(vertex.y);
 	    	temp_vert_to_array.push_back(vertex.z);
 	    	temp_vert_to_array.push_back(0.0);
-
+	    }
+	    	for(int i=0; i<normalIndices.size();i++){
+	    	unsigned int normalIndex = normalIndices[i];
+	    	glm::vec3 normal = temp_normals[normalIndex-1 ];
+	    	out_normals.push_back(normal);
 	    	temp_norm_to_array.push_back(normal.x);
 	    	temp_norm_to_array.push_back(normal.y);
 	    	temp_norm_to_array.push_back(normal.z);
 	    	temp_norm_to_array.push_back(0);
-	    	//cout <<"LOOK HERE: "<< to_string(vertex) << endl;
+
+	    	//std::cout <<"LOOK HERE: "<< normal.x<<" "<<normal.y<<" "<<normal.z << std::endl;
 	    }
 
 	    std::copy(temp_vert_to_array.begin(),temp_vert_to_array.end(),meshData);

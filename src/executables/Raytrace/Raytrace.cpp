@@ -53,7 +53,7 @@ auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
 
 //Load mesh: parameter is resources path
-auto ssbo2 = new ShaderStorageBuffer("/Objects/icosphere.obj", false);
+auto ssbo2 = new ShaderStorageBuffer("/Objects/icosphere2.obj", false);
 //auto ssbo = new ShaderStorageBuffer();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
