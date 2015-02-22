@@ -115,7 +115,7 @@ bool Objectloader::loadOBJ(
 	    	temp_norm_to_array.push_back(normal.x);
 	    	temp_norm_to_array.push_back(normal.y);
 	    	temp_norm_to_array.push_back(normal.z);
-	    	temp_norm_to_array.push_back(0);
+	    	temp_norm_to_array.push_back(0.0);
 
 	    	//std::cout <<"LOOK HERE: "<< normal.x<<" "<<normal.y<<" "<<normal.z << std::endl;
 	    }

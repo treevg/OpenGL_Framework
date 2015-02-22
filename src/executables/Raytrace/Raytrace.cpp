@@ -18,6 +18,7 @@ using namespace glm;
 //		High priority
 //TODO try reflective warping
 //TODO interpolate normals for correct shading and pass them as texture
+//TODO fix zoom for warping?
 
 //		Low priority
 
@@ -39,7 +40,6 @@ float 	warpUpDown = 0.0;
 float	warpLeftRight = 0.0;
 
 vector<vec4> sphereVec;
-vector<vec3> mesh;
 vector<vec3> colorSphere;
 vector<vec3> colorTriangle;
 vector<mat4> matVec;
@@ -48,13 +48,11 @@ vector<mat4> matVec;
 int latencyFrameNumber = 12;
 queue<mat4> latencyQueue;
 
-
 auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
 
 //Load mesh: parameter is resources path
 auto ssbo2 = new ShaderStorageBuffer("/Objects/icosphere2.obj", false);
-//auto ssbo = new ShaderStorageBuffer();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
@@ -69,12 +67,6 @@ auto tonemappingPass = new RenderPass(quadVAO,spLin
     // ,width, height
     );
 
-//For Compression
-auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-auto pass2 = new RenderPass(new Cube(), sp2);
-// GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
-GLuint texHandle = ComputeShaderTools::generateTexture();
-
 //Composite shader
 auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
 auto compositing = new RenderPass(quadVAO, compSP);
@@ -83,67 +75,30 @@ auto compositing = new RenderPass(quadVAO, compSP);
 auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
 auto diffWarp = new RenderPass(grid, warp);
 
-// Simulate latency
-// mat4 latency(mat4 newMat, int lat){
-//     latencyQueue.push_back(newMat);
-
-
-
-//     matVec.push_back(newMat);
-//     int lengthMatVec = matVec.size();
-
-//     mat4 returnMat;
-//     if(lengthMatVec<=lat){
-//         return newMat;
-//     }
-//     else {
-//         matVec.erase(matVec.begin());
-//         return returnMat = matVec[lengthMatVec-lat-1];
-//     }
-// }
-
 
 int main(int argc, char *argv[]) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-       sp -> printUniformInfo();
+     //  sp -> printUniformInfo();
       // sp -> printInputInfo();
       // sp -> printOutputInfo();
 
-    // sphereVec.push_back(glm::vec4(2.0, 0.0, 0.0, 0.2));
-    // sphereVec.push_back(glm::vec4(2.75, 0.5, 0.5, 0.2));
-    // sphereVec.push_back(glm::vec4(1.75, 0.5, 0.5, 0.2));
-
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
-    sphereVec.push_back(glm::vec4(-0.75, 0.5, 0.5, 0.5));
+    sphereVec.push_back(glm::vec4(-0.75, 0.5, 3.0, 0.5));
 
     //needs to be same size as sphereVec
     colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
     colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
     colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
 
-    colorTriangle.push_back(glm::vec3(0.4,0.7,0.7));
-    colorTriangle.push_back(glm::vec3(0.7,0.7,0.4));
-    colorTriangle.push_back(glm::vec3(0.6,0.4,0.8));
-    colorTriangle.push_back(glm::vec3(0.7,0.3,0.3));
-    colorTriangle.push_back(glm::vec3(0.1,0.4,0.8));
-
-    // initialize mesh
-    mesh.push_back(glm::vec3(0.5, -0.5, 1.5));
-    mesh.push_back(glm::vec3(0.0, 0.8, 1.5));
-    mesh.push_back(glm::vec3(-0.5, -0.5, 1.5));
-    mesh.push_back(glm::vec3(0.0, 0.5, 1.0));
-    mesh.push_back(glm::vec3(-0.5, 1.8, 1.0));
-    mesh.push_back(glm::vec3(-1., 0.5, 1.0));
-
     lastTime = glfwGetTime();
 
-   // raytracePass -> update("mesh[0]", mesh);
     raytracePass -> update("sphereVec[0]", sphereVec);
     raytracePass -> update("colorSphere[0]", colorSphere);
     raytracePass -> update("colorTriangle[0]", colorTriangle);
+	raytracePass-> update("iResolution", glm::vec3(width, height, 1));
 
 
     renderLoop([]{
@@ -176,23 +131,17 @@ int main(int argc, char *argv[]) {
 //        warpUpDown = horizontalAngle;
 //        warpLeftRight = verticalAngle;
 
-//
-//        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) size  = glm::max(size - 0.5 * deltaT, 0.);
-//        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) size = glm::min(size + 0.5 * deltaT, 1.);
-//        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) lum  = glm::max(lum - 0.5 * deltaT, 0.);
-//        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) lum = glm::min(lum + 0.5 * deltaT, 1.);
-
         // Close window
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 
         // Zoom
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
             cout << (rad) << endl;
-            rad +=0.03 * deltaT;
+            rad +=0.3 * deltaT;
         }
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
             cout << (rad) << endl;
-            rad -= 0.03 * deltaT;
+            rad -= 0.3 * deltaT;
         }
 
 
@@ -222,7 +171,7 @@ int main(int argc, char *argv[]) {
         	maxRange=20.0;
         }
 
-        mat4 projection = perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
+        mat4 projection = perspective(45.0f-rad, float(width)/float(height), 0.1f, 100.0f);
         mat4 invProjection = inverse(projection);
 
         //original
@@ -237,6 +186,7 @@ int main(int argc, char *argv[]) {
             latencyQueue.pop();
         }
         mat4 view_old = latencyQueue.front();
+      //  view_old = translate(view_old,vec3(0,0,-4+rad) );
 
         mat4 invView = inverse(view);
         mat4 invView_old = inverse(view_old);
@@ -251,22 +201,13 @@ int main(int argc, char *argv[]) {
        //  aView = rotate(aView, warpUpDown-verticalAngle, vec3(1,0,0));
        //  aView = rotate(aView, warpLeftRight-horizontalAngle, vec3(0,1,0));
 
-       // // mat4 latAView = latency(aView, 20);
-       //  mat3 modIncTrans = transpose(inverse(mat3(1)));
-
-       //  vec4 pos = invView * vec4(0,0,0,1);
-       //  vec4 dir = normalize(invView * vec4(0,0,1,0));
-
-
             ssbo2->bind(11);
 
         	raytracePass
         	-> clear(0, 0, 0, 0)
-        	-> update("iResolution", glm::vec3(width, height, 1))
-        	-> update("zoom", rad)
+        	//-> update("zoom", rad)
             -> update("invViewProjection", invViewProjection_old)
         	-> update("invView",invView_old)
-            -> update("enter", (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
         	-> run();
 
 
@@ -296,8 +237,9 @@ int main(int argc, char *argv[]) {
         			-> texture("depth", raytracePass->get("fragPosition"))
     			    -> run();
             } else  {            
-                diffWarp
+            		diffWarp
         			-> clear(0,0,0,0)
+		        	-> update("zoom", rad)
                     -> update("warpOnOff", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         			-> update("altView", view)
         			-> update("invViewProjection", invViewProjection_old)
@@ -307,8 +249,6 @@ int main(int argc, char *argv[]) {
         			-> texture("positionTexture", raytracePass->get("fragPosition"))
         			-> texture("indirectColor", raytracePass->get("fragColor2"))
         			-> run();
-
         }
-
     });
 }

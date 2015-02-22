@@ -2,6 +2,7 @@
 
 uniform mat4 		altView;
 uniform int 		warpOnOff;
+uniform float 		zoom;
 uniform mat4		invViewProjection;
 uniform mat4		projection;
 uniform sampler2D	indirectColor;
@@ -18,7 +19,10 @@ out vec4 tempColor;
 
 void main() {
 	vec4 w;
-	float z = texture(depthTexture, pos);
+	float z = texture(depthTexture, pos).x;
+	vec3 currentDir = texture(depthTexture, pos).yzw;
+	
+	currentDir *= vec4(pos, 0.05+zoom, 0.0).xyz;
 	
 	
 	//vec4 passColor	= texture(color,pos);
@@ -34,17 +38,18 @@ void main() {
 			
 		}
 		else {
-			// w	= invViewProjection * vec4(pos * 2 - 1, z, 1);
+			//w	= invViewProjection * vec4(pos * 2 - 1, z, 1);
 			w	= texture(positionTexture, pos);
-
-			gl_Position = projection * altView * w;
+			
+			gl_Position = projection  * altView *  w ;
+			//gl_Position += vec4(0,0,0.05+zoom,0);
 			tempColor = texture(colorTexture,pos) * texture(indirectColor, pos);
 		}	
 	}
 	
 	else{
 		gl_Position = vec4(pos * 2 - 1, 0, 1);
-		tempColor = texture(colorTexture, pos);// + (texture(indirectColor,pos)-0.2);
+		tempColor =texture(colorTexture, pos) + (texture(indirectColor,pos)-0.2);
 	}
 
 	passPosition = pos;
