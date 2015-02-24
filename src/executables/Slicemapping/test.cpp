@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
 		if (glfwGetKey(window, GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS) {backgroundTransparency = glm::clamp( backgroundTransparency - 0.02f, 0.0f, 1.0f);}
 
 		// clear slicemap
-		glBindFramebuffer( GL_FRAMEBUFFER, slicemappingPass->frameBufferObject->getFrameBufferObjectHandle());
+	//	glBindFramebuffer( GL_FRAMEBUFFER, slicemappingPass->frameBufferObject->getFrameBufferObjectHandle());
 		glClearBufferuiv(GL_COLOR, 0, clearSlicemap);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

@@ -29,9 +29,20 @@ float speed = 0.1f;
  Camera* camera;
  Model* myModel;
  vector<Mesh*> meshes;
-
-std::queue<glm::mat4> latencyQueue;
+ std::queue<glm::mat4> latencyQueue;
 int latencyFrameCount = 6;
+
+/* static methods */
+
+
+  static glm::mat4 getLookAt(){
+
+  mat4 view = camera->looksAt();
+
+  return view;
+
+  }
+
 
 static void log(ShaderProgram* s){
 
@@ -46,63 +57,6 @@ static void printMatrix(mat4 matrix){
    std::cout<<"matrix:  "<<glm::to_string(matrix)<<std::endl;
 
 }
-
-
-  Game::Game(){
-    init();
-    renderSzene();
-
-
-  }
-
-  Game::~Game(){
-   
-   delete skyBox;
-   delete camera;
-   delete plane;
-   delete pyramid;
-   delete ladybird;
-   delete myModel;
-
-  }
-
-
-  void Game::init(){
-
-  auto grid = new Grid(width,height);
-  //Warping shader
-  auto warp = new ShaderProgram({"/Warpping/warp.vert", "/Raytracing/warp.frag"});
-  diffWarp = new RenderPass(grid, warp);
-
-   auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
-   auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
-   plane = new RenderPass( new Plane(), sp, width, height);
-   pyramid  = new RenderPass(  new Pyramid(),  sp);
-   camera =  new Camera();
-   myModel = new Model(RESOURCES_PATH "/ladybird.obj");
-   meshes = myModel->getMeshes();
-   ladybird = new RenderPass(meshes, sp1);
-   
-
-   log (sp);
-
- }
-
-
-
-  void  Game::drawSkybox(){
-
-    //implement
-  }
-
-  static glm::mat4 getLookAt(){
-
-  mat4 view = camera->looksAt();
-
-     return view;
-
-  }
-
 
 
 static void quit(){
@@ -130,7 +84,66 @@ static void  lookAround(){
 
 
 
+static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
 
+   latencyQueue.push(viewMat);
+
+    if (latencyQueue.size() > frameCount) {
+
+      latencyQueue.pop();
+    }
+}
+
+
+
+  Game::Game(){
+    init();
+    renderSzene();
+
+
+  }
+
+
+  Game::~Game(){
+   
+   delete skyBox;
+   delete camera;
+   delete plane;
+   delete pyramid;
+   delete ladybird;
+   delete myModel;
+
+  }
+
+
+  void Game::init(){
+
+  auto grid = new Grid(width,height);
+  //Warping shader
+  auto warp = new ShaderProgram({"/Warpping/warp.vert", "/Raytracing/warp.frag"});
+  diffWarp = new RenderPass(grid, warp);
+
+   auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
+   auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
+   
+   plane = new RenderPass( new Plane(), sp, width, height);
+   pyramid  = new RenderPass(  new Pyramid(),  sp);
+   camera =  new Camera();
+   myModel = new Model(RESOURCES_PATH "/ladybird.obj");
+   meshes = myModel->getMeshes();
+   ladybird = new RenderPass(meshes, sp1);
+   
+
+   log (sp);
+
+ }
+
+
+
+  void  Game::drawSkybox(){
+
+    //implement
+  }
 
 
 
@@ -146,10 +159,8 @@ static void  lookAround(){
     glm::mat4 model=glm::mat4(1.0);
     glm::mat4  viewMat= getLookAt();
 
-    latencyQueue.push(viewMat);
-    if (latencyQueue.size() > latencyFrameCount) {
-      latencyQueue.pop();
-    }
+     simulateLanetcy (latencyFrameCount, viewMat);
+
     glm::mat4 viewMat_old = latencyQueue.front();
 
     glm::mat4 modelPyramide;    //= glm::scale(glm::mat4(1.0),glm::vec3(10,40,10));

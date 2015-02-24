@@ -22,8 +22,6 @@ public:
         void drawSkybox();
 	    void renderSzene();
         void close();
-     //   void moveWithKeybord(Camera* camera);
-        //if "escape" -> free resourcen
         void exit();
 
  //RenderPass* skyBox ;

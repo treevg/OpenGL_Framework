@@ -93,7 +93,7 @@ int main(int argc, char *argv[]) {
 
 		// SLICE MAP:
 		// clear slice map
-		glBindFramebuffer( GL_FRAMEBUFFER, slicemappingPass->frameBufferObject->getFrameBufferObjectHandle());
+		//glBindFramebuffer( GL_FRAMEBUFFER, slicemappingPass->frameBufferObject->getFrameBufferObjectHandle());
 		glClearBufferuiv(GL_COLOR, 0, clearSlicemap);
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
