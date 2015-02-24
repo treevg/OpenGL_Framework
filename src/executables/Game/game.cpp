@@ -4,11 +4,7 @@
 
 using namespace glm;
 
-/*RenderPass* skyBox;
-RenderPass* plane;
-RenderPass* pyramid;
-Camera* camera;
-*/
+
 
 //helpers
 
@@ -30,7 +26,10 @@ float speed = 0.1f;
  Model* myModel;
  vector<Mesh*> meshes;
  std::queue<glm::mat4> latencyQueue;
-int latencyFrameCount = 6;
+ int latencyFrameCount = 6;
+
+
+GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 
 /* static methods */
 
@@ -124,9 +123,11 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
   diffWarp = new RenderPass(grid, warp);
 
    auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
-   auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
+   auto sp1 = new ShaderProgram({"/Warpping/lat.vert", "/Warpping/lat.frag"});
    
-   plane = new RenderPass( new Plane(), sp, width, height);
+   //TODO -> render to texture
+
+   plane = new RenderPass( new Plane(), sp);
    pyramid  = new RenderPass(  new Pyramid(),  sp);
    camera =  new Camera();
    myModel = new Model(RESOURCES_PATH "/ladybird.obj");
@@ -146,9 +147,6 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
   }
 
 
-
-
-
   void  Game::renderSzene(){
 
    //render loop for game
@@ -160,10 +158,11 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
     glm::mat4  viewMat= getLookAt();
 
      simulateLanetcy (latencyFrameCount, viewMat);
-
+     
+     //use this matrix for simulating latency
     glm::mat4 viewMat_old = latencyQueue.front();
 
-    glm::mat4 modelPyramide;    //= glm::scale(glm::mat4(1.0),glm::vec3(10,40,10));
+    glm::mat4 modelPyramide;   
     glm::mat4 modelS = glm::scale(glm::mat4(1), glm::vec3(10,10,10));
    
 
@@ -177,7 +176,7 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
    
       plane
         -> clear(0.6, 0.6, 0.8, 0)
-        -> update("uniformView", viewMat_old)
+        -> update("uniformView", viewMat)
         -> update("uniformModel",model)
         -> update("uniformProjection", projMat)
         -> update("color", glm::vec4(0,1,0,1))
@@ -186,36 +185,36 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-// for (int i = 5; i < 50; i=i+6){
+for (int i = 5; i < 50; i=i+6){
   
-//       for (int j = -6; j < 7; j+=12){
+      for (int j = -6; j < 7; j+=12){
         
-//          modelPyramide= glm::translate(modelPyramide, glm::vec3(j,5.0,50-i));
-//          modelPyramide=   glm::scale(modelPyramide,glm::vec3(10,10,10));
+         modelPyramide= glm::translate(modelPyramide, glm::vec3(j,5.0,50-i));
+         modelPyramide=   glm::scale(modelPyramide,glm::vec3(10,10,10));
          
 
-//        pyramid
-//         -> update("uniformView", viewMatOld)
-//         -> update("uniformModel",modelPyramide)
-//         -> update("uniformProjection", projMat)
-//         -> update("color", glm::vec4(1,0,0,1))
-//         -> update("luminance", lum)
-//         -> run();
+       pyramid
+        -> update("uniformView", viewMat)
+        -> update("uniformModel",modelPyramide)
+        -> update("uniformProjection", projMat)
+        -> update("color", glm::vec4(1,0,0,1))
+        -> update("luminance", lum)
+        -> run();
 
-//          modelPyramide = glm::mat4(1.0);
+         modelPyramide = glm::mat4(1.0);
 
-//       }
-// }
+      }
+}
  
-//         ladybird
-//         ->  update("uniformModel", modelLadyBird)
-//         ->  update("uniformView", viewMatOld)
-//         ->  update("uniformProjection", projMat)
-//         ->  update("color", vec4(1,1,0,1))
-//         ->  runMeshes();
+        ladybird
+        ->  update("uniformModel", modelLadyBird)
+        ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  texture("tex", textureHandle)
+        ->  runMeshes();
 
 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        diffWarp
+    /*   diffWarp
         -> clear(0,0,0,0)
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
@@ -223,11 +222,10 @@ glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         -> update("projection", projMat)
         -> texture("colorTexture", plane->get("fragPosition"))
         -> texture("positionTexture", plane->get("fragPosition"))
-        -> run();
+        -> run(); */
    });
 
   }
-
 
 
 

@@ -1,6 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+/* this class is an interface between opengl framewarc and assimp library*/
 
 #include <vector>
 #include <string>
@@ -11,6 +12,8 @@
 #include <assimp/postprocess.h> 
 #include <assert.h>
 #include "ShaderTools/VertexArrayObjects/Mesh.h"
+#include "Compression/TextureTools.h"
+#include "Compression/ComputeShaderTools.h"
 
 
 using namespace std;
@@ -23,16 +26,16 @@ public:
      Model(const string& path);
      ~Model();
      vector<Mesh*> getMeshes() const;
-     vector<Texture> textures_loaded;
-//
-private:
-    vector<Mesh*> meshes;
+     vector<MeshTexture> getTextures() const;
+     
 
+private:
+    vector<Mesh*> m_meshes;
+    vector<MeshTexture> m_textures;
     bool loadModel(const string& path);
     void processNode(aiNode* node, const aiScene* scene);
      Mesh* convertMesh(const aiScene* scene, aiMesh* aSmesh);
-   //find out, how to load material and texture from model file and bind to opengl
-    vector<Texture> loadMatTex();
+     vector<MeshTexture> loadTextures(aiMaterial* material, string materialType, aiTextureType type);
 
 	};
 

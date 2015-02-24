@@ -53,7 +53,7 @@ void RenderPass::runOneMesh() {
 void RenderPass::runMeshes() {
       frameBufferObject->bind();
 
-     cout << "DEBUG: meshes count "<< this->meshes.size() << endl;
+   //  cout << "DEBUG: meshes count "<< this->meshes.size() << endl;
 
 	for (int i=0; i<this->meshes.size(); i++ ){
 
@@ -73,6 +73,16 @@ void RenderPass::autoGenerateFrameBufferObject(int width, int height) {
 
 RenderPass* RenderPass::texture(std::string name, GLuint textureHandle) {
 	shaderProgram->texture(name, textureHandle);
+	return this;
+}
+
+RenderPass* RenderPass::texture(std::string name, std::vector<GLuint> textureHandle) {
+	for (auto i: textureHandle ){
+
+     shaderProgram->texture(name, i);
+
+	}
+	
 	return this;
 }
 

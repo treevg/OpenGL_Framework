@@ -22,6 +22,7 @@ public:
 
 	RenderPass* clear(float r, float g, float b, float a);
 	RenderPass* texture(std::string name, GLuint textureID);
+	RenderPass* texture(std::string name, std::vector<GLuint> textureHandle);
 	RenderPass* texture(std::string name, GLuint textureID, GLuint samplerID);
 
 	template <class T>

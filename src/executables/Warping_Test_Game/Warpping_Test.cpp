@@ -13,7 +13,7 @@
 using namespace std;
 using namespace glm;
 
-Model* m = new Model("/home/ivanna/git_repo/OpenGL_Framework/resources/cube.obj");
+Model* m = new Model(RESOURCES_PATH "/cube.obj");
 
 
 vector<Mesh*> meshes = m->getMeshes();
@@ -51,7 +51,6 @@ auto passPyram = new RenderPass(new Pyramid(), sp);
 
 
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
-GLuint texHandle = ComputeShaderTools::generateTexture();
 
 CubemapTexture* cubeText = new CubemapTexture();
 
@@ -93,9 +92,9 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
    
-   cout<< "texture handle " << texHandle << endl;
+   cout<< "texture handle " << textureHandle << endl;
 
- lasttime = glfwGetTime();
+    lasttime = glfwGetTime();
 
     renderLoop([]{
 
@@ -191,7 +190,7 @@ int main(int argc, char *argv[]) {
         ->  update("uniformModel", modelPyramide)
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
-        ->  texture("tex",texHandle)
+        ->  texture("tex",textureHandle)
         ->  runMeshes();
 
 

@@ -10,22 +10,29 @@ using namespace Assimp;
  }
 
  Model::~Model(){
-	this->meshes.clear();
+	for (auto mesh : this->m_meshes){
+        delete mesh;
+    }
  }
  
 
  vector<Mesh*>  Model::getMeshes() const{
 
-     	return this->meshes;
+     	return this->m_meshes;
      }
 
+
+   vector<MeshTexture> Model::getTextures() const{
+
+    return this->m_textures;
+   }
     
    bool  Model::loadModel(const string& path){
      
       bool loaded = false;
 
       Importer importer;
-      const aiScene* scene = importer.ReadFile( path,  aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |aiProcess_FlipUVs);
+      const aiScene* scene = importer.ReadFile( path,  aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |aiProcess_FlipUVs | aiProcess_GenNormals  );
       
       //check for errors
      if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -36,9 +43,10 @@ using namespace Assimp;
 
      }else {
 
-      cout << "Number of  meshes" <<  scene->mNumMeshes << endl;
-      cout << "Number of  materials" <<  scene->mNumMaterials << endl;
-      cout << "Number of  textures" <<  scene->mNumTextures << endl;
+      cout << "Number of  meshes " <<  scene->mNumMeshes << endl;
+      cout << "Number of  materials " <<  scene->mNumMaterials << endl;
+      cout << "Number of  textures " <<  scene->mNumTextures << endl;
+      
 
      cout << "Model loaded from : " << path << endl;
      
@@ -77,51 +85,49 @@ using namespace Assimp;
 
 
 
-/*  static  vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName,vector<Texture> textures_loaded)
+    vector<MeshTexture> Model::loadTextures(aiMaterial* material, string materialType, aiTextureType type)
     {
-        vector<Texture> textures;
+        vector<MeshTexture> textures;
 
-        for(GLuint i = 0; i < mat->GetTextureCount(type); i++)
+        for(int i = 0; i < material->GetTextureCount(type); i++)
         {
-            aiString str;
-            mat->GetTexture(type, i, &str);
+            aiString pathToTexture;
+
+            material->GetTexture(type, i, &pathToTexture);
             
-            GLboolean skip = false;
-            for(GLuint j = 0; j < this->textures_loaded.size(); j++)
+            bool skip = false;
+
+            for(int j = 0; j < this->m_textures.size(); j++)
             {
-                if(textures_loaded[j].path == str)
+                aiString getPath (textures[j].path);
+
+                if(getPath == pathToTexture)
                 {
-                    textures.push_back(this->textures_loaded[j]);
+                    textures.push_back(this->m_textures[j]);
                     skip = true; 
                     break;
                 }
             }
             if(!skip)
             {  
-                Texture texture;
-                texture.id = TextureFromFile(str.C_Str(), this->directory);
-                texture.type = typeName;
-                texture.path = str;
+                MeshTexture texture;
+                string converted =  pathToTexture.C_Str();
+                texture.id = TextureTools::loadTexture(converted);
+                cout << "texture id " << texture.id << endl;
+                texture.type = materialType;
+                cout << "texture type " << texture.type << endl;
+                
+                texture.path = converted;
+
                 textures.push_back(texture);
-                this->textures_loaded.push_back(texture);  // Store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+                this->m_textures.push_back(texture);  
+                cout << "texture type " << texture.type << endl;
             }
         }
         return textures;
     }
-}*/
-
-    static void getMaterialFromMesh(const aiScene* scene, aiMesh* aSmesh){
-
-         if(scene->HasMaterials())
-        {
-
-            cout << "number of materials " << scene->mNumMaterials << endl;
-            aiMaterial* material = scene->mMaterials[aSmesh->mMaterialIndex];
-
-        }
 
 
-    }
 
 
     //for every mesh of the model
@@ -133,7 +139,7 @@ using namespace Assimp;
     vector<vec3> normals;
     vector<vec2> texCoords;
     vector<GLuint> indices;
-    vector<Texture> textures;
+    vector<MeshTexture> textures;
 
        for(int i = 0; i < aSmesh->mNumVertices; i++)
         {      
@@ -174,6 +180,14 @@ using namespace Assimp;
               texCoords.push_back(textCoord2);
 
             }
+
+            if(aSmesh->mMaterialIndex > 0){
+                //get material
+                aiMaterial* material = scene->mMaterials[aSmesh->mMaterialIndex];
+
+            }
+
+
          
         }
 
@@ -182,11 +196,8 @@ using namespace Assimp;
            //   cout << "size of indices after filling " << indices.size() << endl;
 
 
-           getMaterialFromMesh(scene, aSmesh);
 
-        //  cout << "size of texture coordinates " << texCoords.size() << endl;
-
-     Mesh* m = new  Mesh(vertices, normals, texCoords, indices);
+     Mesh* m = new  Mesh(vertices, normals, texCoords, indices, textures);
 
      return m;
 
@@ -203,7 +214,7 @@ using namespace Assimp;
 
          aiMesh* aSmesh = scene->mMeshes[node->mMeshes[i]]; 
          Mesh* m = this->convertMesh(scene,aSmesh);
-         this->meshes.push_back(m);
+         this->m_meshes.push_back(m);
 
     }
   

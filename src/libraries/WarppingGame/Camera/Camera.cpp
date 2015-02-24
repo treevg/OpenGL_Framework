@@ -77,6 +77,7 @@ this->c_strafeVector = cross/lengthOfVector(cross);
 
 this->c_position.x = this->c_position.x + this->c_strafeVector.x*this->c_speed;
 this->c_position.z = this->c_position.z + this->c_strafeVector.z*this->c_speed;
+
 //acceleration to view
 
 this->c_view.x = this->c_view.x + this->c_strafeVector.x*this->c_speed;
@@ -96,7 +97,7 @@ void Camera::rotateWithMouse(GLFWwindow* window,const int width, const int heigh
   float curRotAroundX = 0.0f;
   float yAngle = 0.0f;
   float zAngle = 0.0f;
-  //use sinsitivity to make mouse movement not to strong
+  //use sinsitivity to make mouse movement not too strong
   float sinsitivity = 0.0001f;
 
 double middleX = width/2;
@@ -114,7 +115,7 @@ if(  xpos==middleX && ypos==middleY ) return;
 
 glfwSetCursorPos(window, middleX, middleY  );
 
-std::cout << " mouse in: " << xpos<< " " << ypos << std::endl;
+//std::cout << " mouse in: " << xpos<< " " << ypos << std::endl;
 
 yAngle = (float)(middleX -xpos)*sinsitivity;
 // along z axis
