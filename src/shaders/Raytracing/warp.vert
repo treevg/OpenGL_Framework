@@ -2,13 +2,13 @@
 
 uniform mat4 		altView;
 uniform int 		warpOnOff;
-uniform float 		zoom;
 uniform mat4		invViewProjection;
 uniform mat4		projection;
-uniform sampler2D	indirectColor;
+uniform sampler2D	indirectColorTexture;
 uniform sampler2D 	depthTexture;
 uniform sampler2D 	colorTexture;
 uniform sampler2D 	positionTexture;
+uniform sampler2D 	pixelNormalTexture;
 
 in vec2 pos;
 
@@ -20,13 +20,9 @@ out vec4 tempColor;
 void main() {
 	vec4 w;
 	float z = texture(depthTexture, pos).x;
-	vec3 currentDir = texture(depthTexture, pos).yzw;
-	
-	currentDir *= vec4(pos, 0.05+zoom, 0.0).xyz;
-	
-	
+
 	//vec4 passColor	= texture(color,pos);
-	//vec4 passIndColor 	= texture(indirectColor, pos);
+	//vec4 passIndColor 	= texture(indirectColorTexture, pos);
 
 	
 	if(warpOnOff==0){
@@ -34,7 +30,7 @@ void main() {
 			
 			w =   invViewProjection * vec4(pos * 2 - 1, 0.999, 1);
 			gl_Position = projection * altView * w;
-			tempColor = texture(colorTexture,pos) + texture(indirectColor, pos);
+			tempColor = texture(colorTexture,pos) + texture(indirectColorTexture, pos);
 			
 		}
 		else {
@@ -42,14 +38,13 @@ void main() {
 			w	= texture(positionTexture, pos);
 			
 			gl_Position = projection  * altView *  w ;
-			//gl_Position += vec4(0,0,0.05+zoom,0);
-			tempColor = texture(colorTexture,pos) * texture(indirectColor, pos);
+			tempColor = texture(colorTexture,pos) + texture(indirectColorTexture, pos);
 		}	
 	}
 	
 	else{
 		gl_Position = vec4(pos * 2 - 1, 0, 1);
-		tempColor =texture(colorTexture, pos) + (texture(indirectColor,pos)-0.2);
+		tempColor =texture(pixelNormalTexture, pos) ;// + (texture(indirectColorTexture,pos)-0.2);
 	}
 
 	passPosition = pos;

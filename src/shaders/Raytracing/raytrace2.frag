@@ -143,7 +143,7 @@ vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.05, 0.0)).xyz);
 vec3 initialDir = currentDir;
 
 void main(void) { 
-//pixelNormal = vec3(0.0);
+pixelNormal = vec3(0.0);
 
 	for (int i = 0; i <= indirections; i++) {
 		currentDepth = 999999;
@@ -195,7 +195,6 @@ void main(void) {
 			currentPos = currentPos + currentDir * currentDepth ;
 			currentNormal = normalize(currentPos - sphereVec[hitSphere].xyz);
 			currentDir = normalize(reflect(normalize(currentDir), currentNormal));
-			//pixelNormal = currentNormal;
 		}
 		
 		// in case it is a triangle
@@ -204,7 +203,7 @@ void main(void) {
 			// multiply Colors
 			// currentColor *= currentPos;
 			//currentColor *= abs(currentNormal);
-			 currentColor *= vec3(0.7,0.4,0.2);
+			 currentColor *= vec3(0.8,0.4,0.2);
 			// currentColor *=colorTriangle[hitTriangle/3];
 			
 			
@@ -227,27 +226,46 @@ void main(void) {
 				float phongDiffuse;
 				
 				// compute interpolated normal for triangle
-				if(hitSphere == -1){
+				if(hitTriangle >= 0){
 					// interpolation taken from: https://www.c-plusplus.net/forum/88578-full
+					// edited by moe11elf
 				
-					vec3 ab = myMesh.pos[hitTriangle+1].xyz - myMesh.pos[hitTriangle].xyz ;
-					vec3 ac = myMesh.pos[hitTriangle+2].xyz  - myMesh.pos[hitTriangle].xyz ;
-				
-					//vec3 derp = (invViewProjection * vec4(currentPos,1)).xyz;
-				
-					vec3 ap = currentPos - myMesh.pos[hitTriangle].xyz ;
-					float area = cross(ab, ac).length();
-					float gamma = cross(ab, ap).length() / area;
-					float beta = cross(ap, ac).length() / area;
-					float alpha = 1.0 - beta - gamma;
-					vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * alpha) + (myNormals.posNorm[hitTriangle+1].xyz * beta) + (myNormals.posNorm[hitTriangle+2].xyz * gamma));
-					phongDiffuse = max(dot(nor, light),0) * 0.3;
+					vec3 ab = myMesh.pos[hitTriangle+1].xyz - myMesh.pos[hitTriangle].xyz;
+					vec3 ac = myMesh.pos[hitTriangle+2].xyz  - myMesh.pos[hitTriangle].xyz;
+					vec3 bc = myMesh.pos[hitTriangle+2].xyz  - myMesh.pos[hitTriangle+1].xyz;
+					vec3 ap = currentPos - myMesh.pos[hitTriangle].xyz; 	
+					vec3 bp = currentPos - myMesh.pos[hitTriangle+1].xyz;
+					vec3 cp = currentPos - myMesh.pos[hitTriangle+2].xyz;
 					
-					//pixelNormal = nor;
+				//	float area = (cross(ab, ac).length() ) /2;
+				//	float gamma = (cross(ab, ap).length() )/2  / area;
+				//	float beta = (cross(ap, ac).length())/2 / area;
+				//	float alpha = 1.0 - beta - gamma;
+				//	vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * alpha) + (myNormals.posNorm[hitTriangle+1].xyz * beta) + (myNormals.posNorm[hitTriangle+2].xyz * gamma));
+					
+					vec3 areaVec = cross(ab, ac);
+					vec3 alphaVec = cross(ab, ap);
+					vec3 betaVec = cross(ap,ac);
+					vec3 gammaVec = cross(bc,bp);
+					
+					float area = areaVec.length() /2.0  ;
+					float alpha = alphaVec.length() /2.0 /area;
+					float beta = betaVec.length() /2.0 /area;
+					float gamma = gammaVec.length() /2.0 /area;
+					
+					//vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * alpha) + (myNormals.posNorm[hitTriangle+1].xyz * beta) + (myNormals.posNorm[hitTriangle+2].xyz * gamma));
+					
+					// different solution for interpolation//
+					mat3 a = mat3(vec3(myMesh.pos[hitTriangle].xyz), vec3(myMesh.pos[hitTriangle+1].xyz), vec3(myMesh.pos[hitTriangle+2].xyz));
+					vec3 x = inverse(a) * currentPos;
+					vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
+					phongDiffuse = max(dot(nor, light),0) * 0.3;
+					pixelNormal = nor;
 				
 				}
 				else{
 					phongDiffuse = max(dot(currentNormal, light),0) * 0.3;
+					pixelNormal = currentNormal;
 				}
 				vec3  phongAmbient = vec3(0.0, 0.02, 0.01)*0.3;
 				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
@@ -255,7 +273,9 @@ void main(void) {
 				
 				float temps = dot(currentDirNotnorm, initialDirNotnorm);
 				//fragDepth = vec4(temps,temps,temps,1);
-				fragDepth = vec4(distance(initialPos, fragPosition.xyz), currentDir);
+				fragDepth = vec4(distance(initialPos, fragPosition.xyz));
+				
+				//pixelNormal = currentNormal;
 			}
 		} 
 

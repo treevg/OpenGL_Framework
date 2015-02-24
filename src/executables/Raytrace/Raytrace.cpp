@@ -1,16 +1,13 @@
 #include "ShaderTools/DefaultRenderLoop.h"
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
-#include <array>
-#include <queue>
-
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
 #include "ShaderTools/VertexArrayObjects/Grid.h"
-//#include "Objectloader/Objectloader.h"
-
 #include "ShaderTools/ShaderStorageBuffer.h"
+#include <array>
+#include <queue>
 
 using namespace std;
 using namespace glm;
@@ -18,7 +15,6 @@ using namespace glm;
 //		High priority
 //TODO try reflective warping
 //TODO interpolate normals for correct shading and pass them as texture
-//TODO fix zoom for warping?
 
 //		Low priority
 
@@ -66,7 +62,6 @@ auto spLin = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/toneMa
 auto tonemappingPass = new RenderPass(quadVAO,spLin
     // ,width, height
     );
-
 //Composite shader
 auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
 auto compositing = new RenderPass(quadVAO, compSP);
@@ -86,7 +81,7 @@ int main(int argc, char *argv[]) {
 
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
-    sphereVec.push_back(glm::vec4(-0.75, 0.5, 3.0, 0.5));
+    sphereVec.push_back(glm::vec4(-1.0, 0.5, 2.5, 0.3));
 
     //needs to be same size as sphereVec
     colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
@@ -239,7 +234,6 @@ int main(int argc, char *argv[]) {
             } else  {            
             		diffWarp
         			-> clear(0,0,0,0)
-		        	-> update("zoom", rad)
                     -> update("warpOnOff", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         			-> update("altView", view)
         			-> update("invViewProjection", invViewProjection_old)
@@ -247,8 +241,9 @@ int main(int argc, char *argv[]) {
         			-> texture("colorTexture", raytracePass->get("fragColor"))
                     -> texture("depthTexture", raytracePass->get("fragDepth"))
         			-> texture("positionTexture", raytracePass->get("fragPosition"))
-        			-> texture("indirectColor", raytracePass->get("fragColor2"))
-        			-> run();
+        			-> texture("indirectColorTexture", raytracePass->get("fragColor2"))
+        			-> texture("pixelNormalTexture", raytracePass->get("pixelNormal"))
+					-> run();
         }
     });
 }
