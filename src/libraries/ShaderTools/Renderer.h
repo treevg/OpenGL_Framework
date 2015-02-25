@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <glm/ext.hpp>
 
 /**
  * @brief Creates a window using GLFW library
@@ -191,6 +192,18 @@ int getHeight(GLFWwindow* window) {
     int w, h;
     glfwGetFramebufferSize(window, &w, &h);
     return h;
+}
+
+/**
+ * @brief Returns the windows aspect ratio
+ * 
+ * @param window Window to get the ratio of
+ * @return The ratio of the given window
+ */
+glm::vec2 getResolution(GLFWwindow* window) {
+    int w, h;
+    glfwGetFramebufferSize(window, &w, &h);
+    return glm::vec2(float(w), float(h));
 }
 
 /**

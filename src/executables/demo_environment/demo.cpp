@@ -3,7 +3,6 @@
 #include "AssetTools/Texture.h"
 #include "AssetTools/Mesh.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
-#include "ShaderTools/VertexArrayObjects/Cube.h"
 #include <typeinfo>
 
 using namespace std;
@@ -30,7 +29,7 @@ int main(int argc, char *argv[]) {
         new Mesh(RESOURCES_PATH "/obj/cv-logo.obj", aiProcess_GenSmoothNormals | aiProcess_Triangulate), 
         new ShaderProgram({"/3DObject/modelViewProjection.vert","/3DObject/environmentMapping.frag"})))
             ->texture("tex", texture->getHandle())
-            ->update("resolution", vec2(getWidth(window), getHeight(window)))
+            ->update("resolution", getResolution(window))
             ->update("projection", projection)
             ->update("color", vec4(0.9,0.8,0.4,0))
             ->update("blendColor", 0.3f);
