@@ -9,6 +9,8 @@ uniform sampler2D 	depthTexture;
 uniform sampler2D 	colorTexture;
 uniform sampler2D 	positionTexture;
 uniform sampler2D 	pixelNormalTexture;
+uniform sampler2D 	depth2Texture;
+uniform sampler2D 	position2Texture;
 
 in vec2 pos;
 
@@ -26,7 +28,7 @@ void main() {
 
 	
 	if(warpOnOff==0){
-		if(z>=999){
+		if(z>=99999999){
 			
 			w =   invViewProjection * vec4(pos * 2 - 1, 0.999, 1);
 			gl_Position = projection * altView * w;
@@ -36,9 +38,18 @@ void main() {
 		else {
 			//w	= invViewProjection * vec4(pos * 2 - 1, z, 1);
 			w	= texture(positionTexture, pos);
-			
+	
+			//Reconstruct position of first indirection
+			vec4 refRay = normalize( reflect(w , texture(pixelNormalTexture, pos)));
+			float refDist = texture(depth2Texture, pos).x;
+			vec4 refPos =  w + refRay + refDist;
+	
+	
 			gl_Position = projection  * altView *  w ;
-			tempColor = texture(colorTexture,pos) + texture(indirectColorTexture, pos);
+			//tempColor = texture(colorTexture,pos) + texture(indirectColorTexture, pos);
+			tempColor = refPos;
+			//tempColor = texture(position2Texture, pos);
+
 		}	
 	}
 	
