@@ -1,6 +1,20 @@
 #include <iostream>
 #include "Mesh.h"
 
+
+Mesh::Mesh(std::string path, int aiPostProcessSteps) {
+	mode = GL_TRIANGLES;
+	Assimp::Importer importer;
+	const aiScene* scene = importer.ReadFile( path, aiPostProcessSteps);
+
+	if(!scene) {
+		std::cerr << "ERROR LOADING " << path << std::endl;
+	} else {
+		std::cerr << "SUCCESS LOADING " << path << std::endl;
+		dumpSceneToVAO(scene);
+	}
+}
+
 Mesh::Mesh(std::string path) {
 	mode = GL_TRIANGLES;
 	Assimp::Importer importer;

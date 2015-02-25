@@ -15,6 +15,7 @@ class Mesh : public VertexArrayObject
 {
 public:
 	Mesh(std::string path);
+	Mesh(std::string path, int aiPostProcessSteps);
 	~Mesh();
 
 	int count;
