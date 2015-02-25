@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
 
-    auto texture = new Texture(RESOURCES_PATH "/equirectangular/park.jpg");
+    auto texture = new Texture(RESOURCES_PATH "/equirectangular/plaza.png");
 
     RenderPass* sky = (new RenderPass(
         new Quad(), 
