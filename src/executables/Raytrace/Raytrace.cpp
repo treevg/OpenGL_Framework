@@ -14,9 +14,10 @@ using namespace glm;
 
 //		High priority
 //TODO try reflective warping
-//TODO reflected position
-//TODO interpolate normals for correct shading and pass them as texture - correct?
-//TODO position2texture - correct?
+//TODO diffuse flow
+
+//TODO interpolate normals for correct shading - correct?
+//TODO position2texture & reflected position - correct?
 //TODO refraction?
 
 
@@ -248,7 +249,7 @@ int main(int argc, char *argv[]) {
         			-> texture("indirectColorTexture", raytracePass->get("fragColor2"))
         			-> texture("pixelNormalTexture", raytracePass->get("pixelNormal"))
 					-> texture("depth2Texture", raytracePass->get("fragDepth2"))
-					-> texture("position2Texture", raytracePass->get("fragPosition2"))
+					-> texture("reflectedPositionTexture", raytracePass->get("fragPosition2"))
 					-> run();
         }
     });

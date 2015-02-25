@@ -10,7 +10,7 @@ uniform sampler2D 	colorTexture;
 uniform sampler2D 	positionTexture;
 uniform sampler2D 	pixelNormalTexture;
 uniform sampler2D 	depth2Texture;
-uniform sampler2D 	position2Texture;
+uniform sampler2D 	reflectedPositionTexture;
 
 in vec2 pos;
 
@@ -28,7 +28,7 @@ void main() {
 
 	
 	if(warpOnOff==0){
-		if(z>=99999999){
+		if(z>=999){
 			
 			w =   invViewProjection * vec4(pos * 2 - 1, 0.999, 1);
 			gl_Position = projection * altView * w;
@@ -44,11 +44,18 @@ void main() {
 			float refDist = texture(depth2Texture, pos).x;
 			vec4 refPos =  w + refRay + refDist;
 	
-	
 			gl_Position = projection  * altView *  w ;
-			//tempColor = texture(colorTexture,pos) + texture(indirectColorTexture, pos);
-			tempColor = refPos;
-			//tempColor = texture(position2Texture, pos);
+	
+			//diffuse flow
+			vec4 diffFlow = gl_Position - w;
+			//tempColor = diffFlow;
+	
+			//vec4 dd = splat(diffFlow, z);
+			
+			
+			tempColor = texture(colorTexture,pos) + texture(indirectColorTexture, pos);
+			//tempColor = refPos;
+			//tempColor = texture(reflectedPositionTexture, pos);
 
 		}	
 	}
