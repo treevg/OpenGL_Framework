@@ -3,7 +3,6 @@
 #include "AssetTools/Texture.h"
 #include "AssetTools/Mesh.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
-#include <typeinfo>
 
 using namespace std;
 using namespace glm;
