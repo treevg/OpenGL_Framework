@@ -13,7 +13,7 @@
 using namespace std;
 using namespace glm;
 
-Model* m = new Model(RESOURCES_PATH "/hemlock.3ds");
+Model* m = new Model(RESOURCES_PATH "/nanosuit.obj");
 
 
 vector<Mesh*> meshes = m->getMeshes();
@@ -21,7 +21,7 @@ Mesh* mesh = meshes[0];
 
 auto sp = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
 
-auto myModel = new ShaderProgram({"/Warpping/lat.vert", "/Warpping/lat.frag"});
+auto myModel = new ShaderProgram({"/Warpping/tree.vert", "/Warpping/tree.frag"});
 
 
 auto spSkybox = new ShaderProgram({"/Warpping/skybox.vert", "/Warpping/skybox.frag"});
@@ -106,8 +106,8 @@ int main(int argc, char *argv[]) {
 
 
         mat4 modelPyramide =mat4(1);
-          modelPyramide = translate (modelPyramide, vec3 (0,0,-3));
-          modelPyramide =  rotate(modelPyramide, 80.0f, vec3(1.0,0.0,0.0));
+          modelPyramide = translate (modelPyramide, vec3 (0,-7,-16));
+      //    modelPyramide =  rotate(modelPyramide, 80.0f, vec3(0.0,1.0,0.0));
        
 
       //for skybox

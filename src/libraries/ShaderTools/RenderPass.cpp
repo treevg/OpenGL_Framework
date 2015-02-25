@@ -13,6 +13,15 @@ RenderPass::RenderPass(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram)
 	frameBufferObject = new FrameBufferObject();
 }
 
+
+RenderPass::RenderPass(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram, int width, int height)
+: meshes(meshes), shaderProgram(shaderProgram), frameBufferObject(0)
+{
+
+    autoGenerateFrameBufferObject(width, height);
+
+}
+
 RenderPass::RenderPass(Mesh* mesh, ShaderProgram* shaderProgram)
 	: mesh(mesh), shaderProgram(shaderProgram), frameBufferObject(0)
 {
@@ -62,11 +71,14 @@ void RenderPass::runModel() {
         shaderProgram->texture("diffuse_text", tex.id);
 
         vertexArrayObject->draw();
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        
 	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
 }
+
+
 
 void RenderPass::autoGenerateFrameBufferObject(int width, int height) {
 	if (frameBufferObject) delete frameBufferObject;

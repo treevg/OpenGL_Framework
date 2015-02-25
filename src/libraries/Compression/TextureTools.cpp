@@ -1,4 +1,7 @@
 #include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 #include "stb_image.h"
 #include "TextureTools.h"
 
@@ -6,7 +9,12 @@ namespace TextureTools {
     GLuint loadTexture(std::string fileName){
       
         int width, height, bytesPerPixel;
-        std::string new_name = "/home/ivanna/git_repo/sandbox_Ivanna07/src/../resources/" + fileName;
+
+        std::string new_name;
+        
+        new_name.append(RESOURCES_PATH);
+        new_name.append("/");  
+        new_name.append(fileName);
 
         unsigned char *data = stbi_load(new_name.c_str(), &width, &height, &bytesPerPixel, 0);
 

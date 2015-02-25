@@ -11,6 +11,7 @@ class RenderPass
 public:
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
 	RenderPass(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram);
+	RenderPass(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram, int width, int height);
 	RenderPass(Mesh* mesh, ShaderProgram* shaderProgram);
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);

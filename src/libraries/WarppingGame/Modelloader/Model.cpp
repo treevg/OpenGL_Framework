@@ -95,19 +95,13 @@ using namespace Assimp;
         {
             aiString pathToTexture;
 
-      //      cout << "checking texture " << endl;
-
             material->GetTexture(type, i, &pathToTexture);
-
-       //     cout << " path to texture " <<  pathToTexture.C_Str() << endl;
             
             bool skip = false;
 
             for(int j = 0; j < this->m_textures.size(); j++)
             {
                
-            //    cout << "Path to texture from material "<< pathToTexture.C_Str() << endl;
-
                 aiString getPath(this->m_textures[j].path);
 
                 if(getPath == pathToTexture)
@@ -122,7 +116,6 @@ using namespace Assimp;
 
             if(!skip)
             {  
-              //  cout << "creating MeshTexture " << endl;
              
                 MeshTexture texture;
 
@@ -133,8 +126,7 @@ using namespace Assimp;
                 cout << "texture id " << texture.id << endl;
                
                 texture.type = materialType;
-               
-               // cout << "texture type " << texture.type << endl;
+            
                 
                 texture.path = converted;
 
@@ -218,9 +210,9 @@ using namespace Assimp;
 
                 aiMaterial* material = scene->mMaterials[aSmesh->mMaterialIndex];
                
-                // aiString pathD;
-                //  material->Get(AI_MATKEY_NAME,pathD);
-                //  cout<< pathD.C_Str() << endl;
+                aiString pathD;
+                 material->Get(AI_MATKEY_NAME,pathD);
+                 cout<< pathD.C_Str() << endl;
                  
                 //  aiString textureD;
                 //  material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE ,0),textureD);
@@ -231,9 +223,13 @@ using namespace Assimp;
                 //  cout<< textureA.C_Str() << endl;
                  
                 // //I need colors also
-                //  aiColor3D color (0.f,0.f,0.f);
-                //  material->Get(AI_MATKEY_COLOR_DIFFUSE,color);
-                //   cout<< color[0] << " "<< color[1] << endl;
+                aiColor3D colorD (0.f,0.f,0.f);
+                 material->Get(AI_MATKEY_COLOR_DIFFUSE,colorD);
+                 cout<< "difusse color" << colorD[0] << " "<< colorD[1] << endl;
+
+                 aiColor3D colorA (0.f,0.f,0.f);
+                 material->Get(AI_MATKEY_COLOR_AMBIENT,colorA);
+                 cout<<"ambient_color"<<  colorA[0] << "  "<< colorA[1] << endl;
 
 
                 vector<MeshTexture> diffuse = this->loadTextures(material, "texture_diffuse", aiTextureType_DIFFUSE);
@@ -243,6 +239,28 @@ using namespace Assimp;
                        textures.insert(textures.end(),diffuse.begin(), diffuse.end());
 
                 }
+
+
+            vector<MeshTexture> ambient = this->loadTextures(material, "texture_ambient", aiTextureType_AMBIENT);
+
+            if(ambient.size()>0){
+
+                       textures.insert(textures.end(),ambient.begin(), ambient.end());
+
+                }
+
+
+
+
+            vector<MeshTexture> specular = this->loadTextures(material, "texture_specular", aiTextureType_SPECULAR);
+
+            if(specular.size()>0){
+
+                       textures.insert(textures.end(),specular.begin(), specular.end());
+
+                }
+
+
             }
 
 
