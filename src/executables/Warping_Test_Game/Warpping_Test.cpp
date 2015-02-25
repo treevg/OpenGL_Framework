@@ -13,7 +13,7 @@
 using namespace std;
 using namespace glm;
 
-Model* m = new Model(RESOURCES_PATH "/cube.obj");
+Model* m = new Model(RESOURCES_PATH "/hemlock.3ds");
 
 
 vector<Mesh*> meshes = m->getMeshes();
@@ -47,10 +47,6 @@ auto passModel= new RenderPass(
 
 auto passPyram = new RenderPass(new Pyramid(), sp);
 
-
-
-
-GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 
 CubemapTexture* cubeText = new CubemapTexture();
 
@@ -92,7 +88,7 @@ int main(int argc, char *argv[]) {
     sp -> printInputInfo();
     sp -> printOutputInfo();
    
-   cout<< "texture handle " << textureHandle << endl;
+
 
     lasttime = glfwGetTime();
 
@@ -111,6 +107,7 @@ int main(int argc, char *argv[]) {
 
         mat4 modelPyramide =mat4(1);
           modelPyramide = translate (modelPyramide, vec3 (0,0,-3));
+          modelPyramide =  rotate(modelPyramide, 80.0f, vec3(1.0,0.0,0.0));
        
 
       //for skybox
@@ -190,8 +187,7 @@ int main(int argc, char *argv[]) {
         ->  update("uniformModel", modelPyramide)
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
-        ->  texture("tex",textureHandle)
-        ->  runMeshes();
+        ->  runModel();
 
 
 

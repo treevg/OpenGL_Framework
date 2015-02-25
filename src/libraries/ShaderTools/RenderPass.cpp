@@ -50,15 +50,17 @@ void RenderPass::runOneMesh() {
 
 
 
-void RenderPass::runMeshes() {
+void RenderPass::runModel() {
       frameBufferObject->bind();
 
-   //  cout << "DEBUG: meshes count "<< this->meshes.size() << endl;
-
 	for (int i=0; i<this->meshes.size(); i++ ){
-
 	    vertexArrayObject = meshes[i];
         shaderProgram->use();
+
+		MeshTexture tex = this->meshes[i]->getTextures()[0];
+     //   cout << "DEBUG: use handler "<< tex.id << endl;
+        shaderProgram->texture("diffuse_text", tex.id);
+
         vertexArrayObject->draw();
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
@@ -76,15 +78,6 @@ RenderPass* RenderPass::texture(std::string name, GLuint textureHandle) {
 	return this;
 }
 
-RenderPass* RenderPass::texture(std::string name, std::vector<GLuint> textureHandle) {
-	for (auto i: textureHandle ){
-
-     shaderProgram->texture(name, i);
-
-	}
-	
-	return this;
-}
 
 RenderPass* RenderPass::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
 	shaderProgram->texture(name, textureHandle, samplerHandle);

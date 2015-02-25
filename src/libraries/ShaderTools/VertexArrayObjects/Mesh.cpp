@@ -22,10 +22,11 @@ for ( int i = 0; i< this->m_indices.size(); i++){
    this->m_indices = indices;
    this->m_textures = textures;
 
-   cout<< "size indices " << this->m_indices.size()  << endl;
+    cout<< "size indices " << this->m_indices.size()  << endl;
     cout<< "size  vertices " << this->m_vertices.size()  << endl;
     cout<< "size  normals " << this->m_normals.size()  << endl;
-     cout<< "size  textCoord " << this->m_texCoords.size()  << endl;
+    cout<< "size  textCoord " << this->m_texCoords.size()  << endl;
+    cout<< "number of texture: " << this->m_textures.size()  << endl;
      
     glGenVertexArrays(1, &vertexArrayObjectHandle);
     glBindVertexArray(vertexArrayObjectHandle);
@@ -100,6 +101,8 @@ vector<vec3> Mesh::getVertices() const{
           return this->m_textures;
 
     }
+
+
     
 
 

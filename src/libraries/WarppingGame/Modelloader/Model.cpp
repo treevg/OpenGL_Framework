@@ -88,40 +88,61 @@ using namespace Assimp;
     vector<MeshTexture> Model::loadTextures(aiMaterial* material, string materialType, aiTextureType type)
     {
         vector<MeshTexture> textures;
+        textures.clear();
+
 
         for(int i = 0; i < material->GetTextureCount(type); i++)
         {
             aiString pathToTexture;
 
+      //      cout << "checking texture " << endl;
+
             material->GetTexture(type, i, &pathToTexture);
+
+       //     cout << " path to texture " <<  pathToTexture.C_Str() << endl;
             
             bool skip = false;
 
             for(int j = 0; j < this->m_textures.size(); j++)
             {
-                aiString getPath (textures[j].path);
+               
+            //    cout << "Path to texture from material "<< pathToTexture.C_Str() << endl;
+
+                aiString getPath(this->m_textures[j].path);
 
                 if(getPath == pathToTexture)
                 {
                     textures.push_back(this->m_textures[j]);
+
                     skip = true; 
+                  
                     break;
                 }
             }
+
             if(!skip)
             {  
+              //  cout << "creating MeshTexture " << endl;
+             
                 MeshTexture texture;
+
                 string converted =  pathToTexture.C_Str();
+
                 texture.id = TextureTools::loadTexture(converted);
+
                 cout << "texture id " << texture.id << endl;
+               
                 texture.type = materialType;
-                cout << "texture type " << texture.type << endl;
+               
+               // cout << "texture type " << texture.type << endl;
                 
                 texture.path = converted;
 
                 textures.push_back(texture);
+               
                 this->m_textures.push_back(texture);  
-                cout << "texture type " << texture.type << endl;
+               
+               
             }
         }
         return textures;
@@ -141,6 +162,7 @@ using namespace Assimp;
     vector<GLuint> indices;
     vector<MeshTexture> textures;
 
+     
        for(int i = 0; i < aSmesh->mNumVertices; i++)
         {      
          if (aSmesh->HasPositions()) {
@@ -181,20 +203,47 @@ using namespace Assimp;
 
             }
 
-            if(aSmesh->mMaterialIndex > 0){
-                //get material
-                aiMaterial* material = scene->mMaterials[aSmesh->mMaterialIndex];
+          
 
-            }
-
-
+            
          
         }
 
            indices = getIndexFromFace(aSmesh);
 
            //   cout << "size of indices after filling " << indices.size() << endl;
+           if(aSmesh->mMaterialIndex >= 0){
+                //get material
+               
 
+                aiMaterial* material = scene->mMaterials[aSmesh->mMaterialIndex];
+               
+                // aiString pathD;
+                //  material->Get(AI_MATKEY_NAME,pathD);
+                //  cout<< pathD.C_Str() << endl;
+                 
+                //  aiString textureD;
+                //  material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE ,0),textureD);
+                //  cout<< textureD.C_Str() << endl;
+
+                //   aiString textureA;
+                //  material->Get(AI_MATKEY_TEXTURE(aiTextureType_AMBIENT ,0),textureA);
+                //  cout<< textureA.C_Str() << endl;
+                 
+                // //I need colors also
+                //  aiColor3D color (0.f,0.f,0.f);
+                //  material->Get(AI_MATKEY_COLOR_DIFFUSE,color);
+                //   cout<< color[0] << " "<< color[1] << endl;
+
+
+                vector<MeshTexture> diffuse = this->loadTextures(material, "texture_diffuse", aiTextureType_DIFFUSE);
+             
+                if(diffuse.size()>0){
+
+                       textures.insert(textures.end(),diffuse.begin(), diffuse.end());
+
+                }
+            }
 
 
      Mesh* m = new  Mesh(vertices, normals, texCoords, indices, textures);

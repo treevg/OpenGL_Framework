@@ -20,7 +20,7 @@ float speed = 0.1f;
  RenderPass*  skyBox ;
  RenderPass*  plane ;
  RenderPass*  pyramid;
- RenderPass* ladybird;
+ RenderPass* trees;
  RenderPass* diffWarp;
  Camera* camera;
  Model* myModel;
@@ -28,8 +28,6 @@ float speed = 0.1f;
  std::queue<glm::mat4> latencyQueue;
  int latencyFrameCount = 6;
 
-
-GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 
 /* static methods */
 
@@ -98,8 +96,6 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
   Game::Game(){
     init();
     renderSzene();
-
-
   }
 
 
@@ -109,7 +105,7 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
    delete camera;
    delete plane;
    delete pyramid;
-   delete ladybird;
+   delete trees;
    delete myModel;
 
   }
@@ -130,9 +126,9 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
    plane = new RenderPass( new Plane(), sp);
    pyramid  = new RenderPass(  new Pyramid(),  sp);
    camera =  new Camera();
-   myModel = new Model(RESOURCES_PATH "/ladybird.obj");
+   myModel = new Model(RESOURCES_PATH "/tree/hemlock.3ds");
    meshes = myModel->getMeshes();
-   ladybird = new RenderPass(meshes, sp1);
+   trees = new RenderPass(meshes, sp1);
    
 
    log (sp);
@@ -166,9 +162,8 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
     glm::mat4 modelS = glm::scale(glm::mat4(1), glm::vec3(10,10,10));
    
 
-    glm:: mat4 modelLadyBird = translate(mat4(1), vec3(0.0,0.0,30.0));
-     modelLadyBird = scale(modelLadyBird, vec3(0.01,0.01,0.01));
-     modelLadyBird = rotate(modelLadyBird, 135.0f,  vec3(0.0,1.0,0.0));
+    glm:: mat4 modelTree(1) ;
+
 
    
     lookAround(); 
@@ -205,13 +200,26 @@ for (int i = 5; i < 50; i=i+6){
 
       }
 }
- 
-        ladybird
-        ->  update("uniformModel", modelLadyBird)
+
+ for (int i = 5; i < 50; i=i+6){
+  
+      for (int j = -6; j < 7; j+=12){
+        
+       modelTree  = translate(modelTree, vec3(j,1.5,50.0-i));
+
+       modelTree = rotate(modelTree, 80.0f,  vec3(1.0,0.0,0.0));
+       
+        trees
+        ->  update("uniformModel", modelTree)
         ->  update("uniformView", viewMat)
         ->  update("uniformProjection", projMat)
-        ->  texture("tex", textureHandle)
-        ->  runMeshes();
+        ->  runModel();
+     
+        modelTree = glm::mat4(1);
+    
+      }
+
+    }
 
 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     /*   diffWarp

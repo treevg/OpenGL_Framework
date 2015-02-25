@@ -4,8 +4,11 @@
 
 namespace TextureTools {
     GLuint loadTexture(std::string fileName){
+      
         int width, height, bytesPerPixel;
-        unsigned char *data = stbi_load(fileName.c_str(), &width, &height, &bytesPerPixel, 0);
+        std::string new_name = "/home/ivanna/git_repo/sandbox_Ivanna07/src/../resources/" + fileName;
+
+        unsigned char *data = stbi_load(new_name.c_str(), &width, &height, &bytesPerPixel, 0);
 
         //create new texture
         GLuint textureHandle;
@@ -16,7 +19,7 @@ namespace TextureTools {
      
         //send image data to the new texture
         if (bytesPerPixel < 3) {
-            std::cout << "ERROR: Unable to open image"  << fileName << std::endl;
+            std::cout << "ERROR: Unable to open image "  << fileName << std::endl;
             return -1;
         } else if (bytesPerPixel == 3){
             glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
