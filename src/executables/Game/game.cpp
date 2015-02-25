@@ -119,7 +119,7 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
   diffWarp = new RenderPass(grid, warp);
 
    auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
-   auto sp1 = new ShaderProgram({"/Warpping/lat.vert", "/Warpping/lat.frag"});
+   auto sp1 = new ShaderProgram({"/Warpping/tree.vert", "/Warpping/tree.frag"});
    
    //TODO -> render to texture
 

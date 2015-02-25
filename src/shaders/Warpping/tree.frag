@@ -3,6 +3,7 @@
 
 uniform float luminance;
 uniform sampler2D diffuse_text;
+//uniform sampler2D specular_text;
 
 
 in vec4 passPosition;
@@ -13,7 +14,7 @@ out vec4 fragPosition;
 
 
 void main() {
-
+  //get color from the model and calculate fragColor
    // fragColor = color * luminance + newColor + texture(tex2, passUV);
    //  fragColor = color; 
    fragColor = texture(diffuse_text, passUV);
