@@ -45,7 +45,7 @@ vector<vec3> colorTriangle;
 vector<mat4> matVec;
 
 // latency stuff
-int latencyFrameNumber = 12;
+int latencyFrameNumber = 2;
 queue<mat4> latencyQueue;
 
 auto quadVAO = new Quad();
@@ -73,6 +73,8 @@ auto compositing = new RenderPass(quadVAO, compSP);
 //Warping shader
 auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
 auto diffWarp = new RenderPass(grid, warp);
+
+auto environmentTexture = TextureTools::loadTexture(RESOURCES_PATH "/equirectangular/park.jpg");
 
 
 int main(int argc, char *argv[]) {
@@ -205,6 +207,7 @@ int main(int argc, char *argv[]) {
         	raytracePass
         	-> clear(0, 0, 0, 0)
         	//-> update("zoom", rad)
+            -> texture("environmentTexture", environmentTexture)
             -> update("invViewProjection", invViewProjection_old)
         	-> update("invView",invView_old)
         	-> run();

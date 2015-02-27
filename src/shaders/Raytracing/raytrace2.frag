@@ -6,6 +6,7 @@ uniform vec3	iResolution;
 uniform mat4	projection;
 uniform float 	zoom;
 uniform int		indirection;
+uniform sampler2D environmentTexture;
 
 uniform mat4 	invView;
 uniform mat4	invViewProjection;
@@ -115,12 +116,13 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
 
 vec3 background(vec3 rd)
 {
-	float sun = max(0.0, dot(rd, light));
-	float sky = max(0.0, dot(rd, vec3(0.0, 1.0, 1.0)));
-	float ground = max(0.0, -dot(rd, vec3(0.0, 1.0, 0.0)));
-	return  
-		(pow(sun, 256.0)+0.35*pow(sun, 2.0))*vec3(2.0, 1.6, 1.0) +
-		pow(ground, 0.5)*vec3(0.4, 0.3, 0.2)+pow(sky, 1.0)*vec3(0.5, 0.6, 0.7);
+	return vec3(texture(environmentTexture, vec2(atan(rd.x, rd.z) / 6.2832 + 0.5, acos(rd.y) / 3.1416)));
+	// float sun = max(0.0, dot(rd, light));
+	// float sky = max(0.0, dot(rd, vec3(0.0, 1.0, 1.0)));
+	// float ground = max(0.0, -dot(rd, vec3(0.0, 1.0, 0.0)));
+	// return  
+	// 	(pow(sun, 256.0)+0.35*pow(sun, 2.0))*vec3(2.0, 1.6, 1.0) +
+	// 	pow(ground, 0.5)*vec3(0.4, 0.3, 0.2)+pow(sky, 1.0)*vec3(0.5, 0.6, 0.7);
 }
 
 
