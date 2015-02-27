@@ -11,6 +11,7 @@ uniform sampler2D 	positionTexture;
 uniform sampler2D 	pixelNormalTexture;
 uniform sampler2D 	depth2Texture;
 uniform sampler2D 	reflectedPositionTexture;
+uniform int 		texSwitch;
 
 in vec2 pos;
 
@@ -45,18 +46,15 @@ void main() {
 			vec4 refPos =  w + refRay + refDist;
 	
 			gl_Position = projection  * altView *  w ;
-	
-			//diffuse flow
-			vec4 diffFlow = gl_Position - w;
-			//tempColor = diffFlow;
-	
-			//vec4 dd = splat(diffFlow, z);
 			
-			
+			if(texSwitch==1){
+			tempColor = refPos;
+			}
+			else{
 			tempColor = texture(colorTexture,pos) + texture(indirectColorTexture, pos);
-			//tempColor = refPos;
+			
 			//tempColor = texture(reflectedPositionTexture, pos);
-
+			}
 		}	
 	}
 	

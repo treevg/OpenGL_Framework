@@ -14,7 +14,6 @@ using namespace glm;
 
 //		High priority
 //TODO try reflective warping
-//TODO diffuse flow
 
 //TODO interpolate normals for correct shading - correct?
 //TODO position2texture & reflected position - correct?
@@ -240,6 +239,7 @@ int main(int argc, char *argv[]) {
             		diffWarp
         			-> clear(0,0,0,0)
                     -> update("warpOnOff", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+                    -> update("texSwitch", (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)?1:0)
         			-> update("altView", view)
         			-> update("invViewProjection", invViewProjection_old)
         			-> update("projection", projection)
