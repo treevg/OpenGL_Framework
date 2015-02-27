@@ -70,7 +70,7 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     u = vertex1 - vertex0;
     v = vertex2 - vertex0;
     n = normalize( cross(u,v) );
-	tempNormal = n;
+	// tempNormal = n;
 
 
 	//vec3 q = cross(dir,v);
@@ -175,9 +175,6 @@ pixelNormal = vec3(0.0);
 		  		hitSphere = -1;
 		  		hitTriangle = t;
 		  		currentDepth = hitDepth;
-
-				currentNormal = tempNormal;
-				//currentNormal = (myNormals.posNorm[t].xyz)+0.5;
 		  	}
 		}
 
@@ -208,6 +205,10 @@ pixelNormal = vec3(0.0);
 			
 			
 			currentPos = currentPos + currentDir * currentDepth;
+			mat3 a = mat3(vec3(myMesh.pos[hitTriangle].xyz), vec3(myMesh.pos[hitTriangle+1].xyz), vec3(myMesh.pos[hitTriangle+2].xyz));
+			vec3 x = inverse(a) * (currentPos);
+			vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
+			currentNormal = nor;
 			currentDirNotnorm = reflect(normalize(currentDir), currentNormal);
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }

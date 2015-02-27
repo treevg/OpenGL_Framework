@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
         currentTime = glfwGetTime();
         float deltaT = currentTime - lastTime;
         lastTime = currentTime;
-        bool mouseForGerrit = false;
+        bool mouseForGerrit = true;
 
         if(!mouseForGerrit){
              glfwGetCursorPos(window, &xpos,&ypos);
