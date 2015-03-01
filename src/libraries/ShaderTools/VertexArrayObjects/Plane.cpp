@@ -30,12 +30,12 @@ Plane::Plane() {
 
    GLfloat uvCoordinates[] = {
         
-        0,1, 
+        0,16, 
         0,0,
-        1,1,
-        1,1,
+        16,16,
+        16,16,
         0,0,
-        1.0
+        16,0
     };
     glBindBuffer(GL_ARRAY_BUFFER, positionTextureBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(uvCoordinates), uvCoordinates, GL_STATIC_DRAW);

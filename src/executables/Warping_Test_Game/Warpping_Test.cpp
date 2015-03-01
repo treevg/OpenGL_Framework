@@ -13,7 +13,7 @@
 using namespace std;
 using namespace glm;
 
-Model* m = new Model(RESOURCES_PATH "/nanosuit.obj");
+Model* m = new Model(RESOURCES_PATH "/cube.obj");
 
 
 vector<Mesh*> meshes = m->getMeshes();
@@ -21,7 +21,7 @@ Mesh* mesh = meshes[0];
 
 auto sp = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
 
-auto myModel = new ShaderProgram({"/Warpping/tree.vert", "/Warpping/tree.frag"});
+auto myModel = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
 
 
 auto spSkybox = new ShaderProgram({"/Warpping/skybox.vert", "/Warpping/skybox.frag"});

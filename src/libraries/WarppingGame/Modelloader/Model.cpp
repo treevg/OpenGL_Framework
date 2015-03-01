@@ -95,7 +95,7 @@ using namespace Assimp;
         {
             aiString pathToTexture;
 
-            material->GetTexture(type, i, &pathToTexture);
+          material->GetTexture(type, i, &pathToTexture);
             
             bool skip = false;
 

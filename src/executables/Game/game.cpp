@@ -29,7 +29,7 @@ float speed = 0.1f;
  int latencyFrameCount = 6;
 
 
- GLuint textureHandle = TextureTools::loadTexture("/bambus.jpg");
+ GLuint textureHandle = TextureTools::loadTexture("/grass_repeating.jpg");
 
 
 /* static methods */

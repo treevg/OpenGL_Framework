@@ -17,6 +17,12 @@ void main() {
     //fragColor = color * luminance + newColor + texture(tex2, passTextureCoordinate);
     
      fragColor = texture(diffuse_text, passTextureCoordinate);
+     if (fragColor == 0){
+
+     fragColor = vec4 (1,1,0,0);
+     
+     }
+
      fragPosition = passPosition;
    
 

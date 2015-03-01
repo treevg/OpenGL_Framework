@@ -61,16 +61,22 @@ void RenderPass::runOneMesh() {
 
 void RenderPass::runModel() {
       frameBufferObject->bind();
+    //   cout << "DEBUG: drawing meshes  "<< endl;
 
 	for (int i=0; i<this->meshes.size(); i++ ){
 	    vertexArrayObject = meshes[i];
         shaderProgram->use();
 
+     if (this->meshes[i]->getTextures().size() > 0) {
+
 		MeshTexture tex = this->meshes[i]->getTextures()[0];
-     //   cout << "DEBUG: use handler "<< tex.id << endl;
         shaderProgram->texture("diffuse_text", tex.id);
 
-        vertexArrayObject->draw();
+     } else{
+     	cout << "please use external tuxture " << endl;
+     }
+        
+     	vertexArrayObject->draw();       
         
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
