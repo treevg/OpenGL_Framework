@@ -1,6 +1,5 @@
 #version 430
 
-
 uniform float luminance;
 uniform sampler2D diffuse_text;
 //uniform sampler2D specular_text;

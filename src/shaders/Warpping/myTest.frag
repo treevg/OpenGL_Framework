@@ -3,11 +3,10 @@
 uniform vec4 color;
 uniform float luminance;
 
-
-//uniform sampler2D tex;
+uniform sampler2D diffuse_text;
 
 in vec4 passPosition;
-//in vec2 passUV;
+in vec2 passTextureCoordinate;
 
 out vec4 fragColor;
 out vec4 fragPosition;
@@ -15,11 +14,10 @@ out vec4 fragPosition;
 
 void main() {
 
-    //fragColor = color * luminance + newColor + texture(tex2, passUV);
+    //fragColor = color * luminance + newColor + texture(tex2, passTextureCoordinate);
     
- //   fragColor = texture(tex, passUV);
-      fragColor = color;
-      fragPosition = passPosition;
+     fragColor = texture(diffuse_text, passTextureCoordinate);
+     fragPosition = passPosition;
    
 
 }

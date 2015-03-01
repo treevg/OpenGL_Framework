@@ -27,7 +27,7 @@ namespace TextureTools {
      
         //send image data to the new texture
         if (bytesPerPixel < 3) {
-            std::cout << "ERROR: Unable to open image "  << fileName << std::endl;
+            std::cout << "ERROR: Unable to open image "  << new_name << std::endl;
             return -1;
         } else if (bytesPerPixel == 3){
             glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -48,7 +48,7 @@ namespace TextureTools {
 
         stbi_image_free(data);
 
-        std::cout << "SUCCESS: image loaded from " << fileName << std::endl;
+        std::cout << "SUCCESS: image loaded from " << new_name << std::endl;
         return textureHandle;
     }
 }

@@ -32,7 +32,7 @@ using namespace Assimp;
       bool loaded = false;
 
       Importer importer;
-      const aiScene* scene = importer.ReadFile( path,  aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |aiProcess_FlipUVs | aiProcess_GenNormals  );
+      const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_JoinIdenticalVertices |aiProcess_FlipUVs | aiProcess_GenNormals  );
       
       //check for errors
      if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) {
@@ -64,6 +64,7 @@ using namespace Assimp;
 
 
    static  vector<GLuint>  getIndexFromFace(aiMesh* aSmesh){
+
         vector<GLuint> indices;
         indices.clear();
 
@@ -72,14 +73,13 @@ using namespace Assimp;
         for(int i = 0; i < aSmesh->mNumFaces; i++)
         {
             aiFace face = aSmesh->mFaces[i];
-        
-          
+           
             for(int j = 0; j < face.mNumIndices; j++)
 
                 indices.push_back(face.mIndices[j]);
         }
       
-        return indices;
+            return indices;
 
     }
 
@@ -234,33 +234,31 @@ using namespace Assimp;
 
                 vector<MeshTexture> diffuse = this->loadTextures(material, "texture_diffuse", aiTextureType_DIFFUSE);
              
-                if(diffuse.size()>0){
+              if(diffuse.size()>0){
 
                        textures.insert(textures.end(),diffuse.begin(), diffuse.end());
 
                 }
 
-
             vector<MeshTexture> ambient = this->loadTextures(material, "texture_ambient", aiTextureType_AMBIENT);
 
             if(ambient.size()>0){
-
                        textures.insert(textures.end(),ambient.begin(), ambient.end());
-
                 }
 
-
-
-
+         //dont need for warping...
             vector<MeshTexture> specular = this->loadTextures(material, "texture_specular", aiTextureType_SPECULAR);
 
-            if(specular.size()>0){
+            if( specular.size()>0){
 
                        textures.insert(textures.end(),specular.begin(), specular.end());
-
                 }
 
+          vector<MeshTexture> emissive = this->loadTextures(material, "texture_specular", aiTextureType_EMISSIVE);
 
+            if( emissive.size()>0){
+                       textures.insert(textures.end(), emissive.begin(), emissive.end());
+                }
             }
 
 
@@ -275,8 +273,7 @@ using namespace Assimp;
    void  Model::processNode(aiNode* node, const aiScene* scene){
 
     cout << "DEBUG:  Num of meshes: " <<  node->mNumMeshes << endl;
-
-
+    
     for (int i=0; i < node->mNumMeshes; i++){
 
          aiMesh* aSmesh = scene->mMeshes[node->mMeshes[i]]; 

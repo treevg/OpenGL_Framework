@@ -29,6 +29,9 @@ float speed = 0.1f;
  int latencyFrameCount = 6;
 
 
+ GLuint textureHandle = TextureTools::loadTexture("/bambus.jpg");
+
+
 /* static methods */
 
 
@@ -119,17 +122,14 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
   diffWarp = new RenderPass(grid, warp);
 
    auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
-   auto sp1 = new ShaderProgram({"/Warpping/tree.vert", "/Warpping/tree.frag"});
-   
-   //TODO -> render to texture
+   auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
 
-   plane = new RenderPass( new Plane(), sp);
+   plane = new RenderPass( new Plane(), sp1);
    pyramid  = new RenderPass(  new Pyramid(),  sp);
    camera =  new Camera();
-   myModel = new Model(RESOURCES_PATH "/tree/hemlock.3ds");
+   myModel = new Model(RESOURCES_PATH "/hemlock.3ds");
    meshes = myModel->getMeshes();
    trees = new RenderPass(meshes, sp1);
-   
 
    log (sp);
 
@@ -174,8 +174,7 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
         -> update("uniformView", viewMat)
         -> update("uniformModel",model)
         -> update("uniformProjection", projMat)
-        -> update("color", glm::vec4(0,1,0,1))
-        -> update("luminance", lum)
+        -> texture("diffuse_text", textureHandle)
         -> run();
 
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

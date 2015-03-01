@@ -12,19 +12,10 @@ using namespace std;
 using namespace glm;
 
 
-enum CameraMode {
-   FIRSTPERSON,
-   THIRDPERSON,
-   LOOKDOWN
-};
 
 class Camera {
 
 public:
-
-//default Camera in FirstPersonPerspective  -> to implement 
-
-Camera(CameraMode mode);
 
 Camera();
 ~Camera();
