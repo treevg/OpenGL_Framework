@@ -24,8 +24,8 @@ public:
 	    void renderSzene();
         void close();
         void exit();
-        vec3 setChestPosition();
-        void fillPositions(float);
+     //   void setChestPosition();
+        void fillPositions();
         
 
  //RenderPass* skyBox ;

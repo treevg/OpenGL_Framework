@@ -13,7 +13,7 @@
 using namespace std;
 using namespace glm;
 
-Model* m = new Model(RESOURCES_PATH "/windmill02.obj");
+Model* m = new Model(RESOURCES_PATH "/stone_1.obj");
 
 
 vector<Mesh*> meshes = m->getMeshes();
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
         mat4 modelPyramide =mat4(1);
        
           modelPyramide = translate (modelPyramide, vec3 (0,0,-10));
-             modelPyramide =  scale(modelPyramide, vec3(0.001, 0.001, 0.001));
+    //         modelPyramide =  scale(modelPyramide, vec3(0.001, 0.001, 0.001));
       
        
 

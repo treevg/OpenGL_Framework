@@ -14,12 +14,12 @@ Plane::Plane(float repeating_factor) {
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
    
     float positions[] = {
-     -50.0f, 0.0f, -50.0f,
-     -50.0f, 0.0f, 50.0f,
-      50.0f, 0.0f, -50.0f,
-      50.0f, 0.0f, -50.0f,
-     -50.0f, 0.0f, 50.0f,
-      50.0f, 0.0f, 50.0f 
+     -70.0f, 0.0f, -70.0f,
+     -70.0f, 0.0f, 70.0f,
+      70.0f, 0.0f, -70.0f,
+      70.0f, 0.0f, -70.0f,
+     -70.0f, 0.0f, 70.0f,
+      70.0f, 0.0f, 70.0f 
     };
 
     glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);

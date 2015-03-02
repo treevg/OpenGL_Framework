@@ -17,8 +17,14 @@ float speed = 0.1f;
 double lasttime;
 
  
+ /* GAME LOGIC*/
+float castel_y = -0.28;
 vector<vec3> chestPositions;
+vec3 currentChestPosition;
 
+
+
+/* TODO: pack into vector */
 
  RenderPass*  skyBox ;
  RenderPass*  plane ;
@@ -115,15 +121,12 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
 }
 
 
-
-
-
 void Game::init(){
    /* Camera  */
 
    camera =  new Camera();
    
-   followMe = new FollowObject(camera);
+   followMe = new FollowObject(camera, 1.5);
 
   auto grid = new Grid(width,height);
   //Warping shader
@@ -160,7 +163,7 @@ void Game::init(){
    windMillPass = new RenderPass(windMillMeshes, model );
   
     
-
+    fillPositions();
 
   
    log (sp);
@@ -192,28 +195,39 @@ void Game::init(){
 
  
 
-  void Game::fillPositions(float y){
+  void Game::fillPositions(){
 
       chestPositions.clear();
-
-      //fill with data
+      chestPositions.push_back(glm::vec3(-20, castel_y, -16));
+      
 
 }
 
 
-  vec3 Game::setChestPosition(){
+  static void setChestPosition(){
 
     //get randomly 
+  currentChestPosition = chestPositions[0];
 
-    vec3 position;
-    return position;
   }
 
   void  Game::renderSzene(){
 
+    lasttime = glfwGetTime();
+
    //render loop for game
 
     renderLoop([]{
+
+    double  currentTime = glfwGetTime();
+    float deltaTime = (float)currentTime-lasttime;
+    followMe->moveToTarget(vec3(0,followMe->getCurrentPosition().y, 0), deltaTime);
+  
+    lasttime = currentTime;
+
+
+     /*  MATRIX STUFF */
+
      
     glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
     glm::mat4 model=glm::mat4(1.0);
@@ -233,13 +247,15 @@ void Game::init(){
     /*   MODEL FOR CASTLE   */
 
     glm:: mat4 modelCastle(1);
-    float castel_y = -0.28;
+  
     modelCastle= glm::translate(modelCastle, glm::vec3(1,castel_y, -20));
     modelCastle = glm::scale(modelCastle, glm::vec3(0.05,0.05,0.05));
 
+
      /*   MODEL FOR CHEST   */
+     setChestPosition();
      glm:: mat4 modelChest(1);
-     modelChest = translate(modelChest, glm::vec3(-20, castel_y, -16));
+     modelChest = translate(modelChest, currentChestPosition);
 
 
 
@@ -250,18 +266,12 @@ void Game::init(){
       
 
 
-
-
      /*   MODEL FOR CUBE   */
     glm:: mat4 followMeModel(1);
     followMeModel = translate(followMeModel, followMe->getCurrentPosition());
     followMeModel = scale(followMeModel, vec3(0.2, 0.2, 0.2));
       
 
-
-
-
-   
     lookAround(); 
   
     moveWithKeybord();
@@ -308,12 +318,25 @@ followMePass
 
 
 
- for (int i = 5; i < 30; i=i+6){
+ for (int i = 6; i < 130; i=i+6){
   
-      for (int j = -6; j < 7; j+=12){
+      for (int j = -50; j < 51; j+=100){
+
+        if( i == 6   ||  i == 120){
+
+        modelTree  = translate(modelTree, vec3(j/4, 3, 70.0-i));
+
+
+        }else{
+       
+       modelTree  = translate(modelTree, vec3(j, 3, 60.0-i));
+
+        }
         
-       modelTree  = translate(modelTree, vec3(j,3, 50.0-i));
-       modelTree=   glm::scale(modelTree,glm::vec3(2,2,2));
+      
+
+       modelTree=   glm::scale(modelTree,glm::vec3(2, 2 ,2));
+
        modelTree = rotate(modelTree, 80.0f,  vec3(1.0,0.0,0.0));
        
        

@@ -18,9 +18,9 @@ class FollowObject {
 
 public:
 
-FollowObject(Camera* c);
+FollowObject(Camera* c, float);
 ~FollowObject();
-void moveToTarget(vec3 target);
+void moveToTarget(vec3 target,float deltaTime);
 void waitForCamera();
 
 Cube* getCube() const;
@@ -34,6 +34,7 @@ protected:
  vec3 m_target;
  vector<vec3> m_boundingBox;
  bool m_waiting;
+ float m_speed;
  Cube* m_cube;
 
 };

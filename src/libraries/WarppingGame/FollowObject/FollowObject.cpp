@@ -5,8 +5,9 @@
 
 //TODO Bullet
 
-FollowObject::FollowObject(Camera* camera){
+FollowObject::FollowObject(Camera* camera, float speed) {
    this->m_cube = new Cube();
+   this->m_speed= speed;
    this->m_currentPosition = vec3(camera->getPosition().x , camera->getPosition().y ,  camera->getPosition().z - 4);
    
 
@@ -30,11 +31,17 @@ delete this->m_cube;
 }
 
 
-void FollowObject::moveToTarget(vec3 target) {
-
-//move to center of the castle  and calculate left or right side
+void FollowObject::moveToTarget(vec3 target, float deltaTime) {
 
 
+//check, if current x and z pos! >70 ! < -70
+
+//position += direction * speed * elapsed;
+  vec3 direction = normalize(target - this->m_currentPosition);
+
+    this->m_currentPosition += direction * this->m_speed *deltaTime;
+  //   while (horizAngle > 360.0f) horizAngle -= 360;
+  //  while (this-> > target.x) y_position -= 10;
 
 
 }
