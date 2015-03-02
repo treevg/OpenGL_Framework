@@ -9,6 +9,7 @@
 #include "WarppingGame/CubemapTexture/CubemapTexture.h"
 #include  "WarppingGame/Camera/Camera.h"
 #include  "WarppingGame/Modelloader/Model.h"
+#include  "WarppingGame/FollowObject/FollowObject.h"
 
 
 using namespace std;
@@ -23,6 +24,9 @@ public:
 	    void renderSzene();
         void close();
         void exit();
+        vec3 setChestPosition();
+        void fillPositions(float);
+        
 
  //RenderPass* skyBox ;
  //RenderPass* plane ;

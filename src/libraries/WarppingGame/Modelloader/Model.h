@@ -35,7 +35,7 @@ private:
     bool loadModel(const string& path);
     void processNode(aiNode* node, const aiScene* scene);
      Mesh* convertMesh(const aiScene* scene, aiMesh* aSmesh);
-     vector<MeshTexture> loadTextures(aiMaterial* material, string materialType, aiTextureType type);
+     vector<MeshTexture> loadTextures(aiMaterial* material, char materialType, aiTextureType type);
 
 	};
 

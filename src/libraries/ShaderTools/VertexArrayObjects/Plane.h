@@ -6,7 +6,7 @@
 
 class Plane : public VertexArrayObject {
 public:
-	Plane();
+	Plane(float);
 	void draw();
 };
 

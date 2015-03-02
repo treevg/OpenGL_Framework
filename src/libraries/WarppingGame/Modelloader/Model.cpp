@@ -85,7 +85,7 @@ using namespace Assimp;
 
 
 
-    vector<MeshTexture> Model::loadTextures(aiMaterial* material, string materialType, aiTextureType type)
+    vector<MeshTexture> Model::loadTextures(aiMaterial* material, char materialType, aiTextureType type)
     {
         vector<MeshTexture> textures;
         textures.clear();
@@ -95,9 +95,9 @@ using namespace Assimp;
         {
             aiString pathToTexture;
 
-          material->GetTexture(type, i, &pathToTexture);
+           material->GetTexture(type, i, &pathToTexture);
             
-            bool skip = false;
+          bool skip = false;
 
             for(int j = 0; j < this->m_textures.size(); j++)
             {
@@ -123,11 +123,10 @@ using namespace Assimp;
 
                 texture.id = TextureTools::loadTexture(converted);
 
-                cout << "texture id " << texture.id << endl;
+             //   cout << "DEBUG: texture id " << texture.id << endl;
                
                 texture.type = materialType;
-            
-                
+               
                 texture.path = converted;
 
                 textures.push_back(texture);
@@ -222,7 +221,7 @@ using namespace Assimp;
                 //  material->Get(AI_MATKEY_TEXTURE(aiTextureType_AMBIENT ,0),textureA);
                 //  cout<< textureA.C_Str() << endl;
                  
-                // //I need colors also
+                // //I need colors for lighting
                 aiColor3D colorD (0.f,0.f,0.f);
                  material->Get(AI_MATKEY_COLOR_DIFFUSE,colorD);
                  cout<< "difusse color" << colorD[0] << " "<< colorD[1] << endl;
@@ -232,7 +231,7 @@ using namespace Assimp;
                  cout<<"ambient_color"<<  colorA[0] << "  "<< colorA[1] << endl;
 
 
-                vector<MeshTexture> diffuse = this->loadTextures(material, "texture_diffuse", aiTextureType_DIFFUSE);
+                vector<MeshTexture> diffuse = this->loadTextures(material, 'd', aiTextureType_DIFFUSE);
              
               if(diffuse.size()>0){
 
@@ -240,21 +239,21 @@ using namespace Assimp;
 
                 }
 
-            vector<MeshTexture> ambient = this->loadTextures(material, "texture_ambient", aiTextureType_AMBIENT);
+            vector<MeshTexture> ambient = this->loadTextures(material, 'a', aiTextureType_AMBIENT);
 
             if(ambient.size()>0){
                        textures.insert(textures.end(),ambient.begin(), ambient.end());
                 }
 
          //dont need for warping...
-            vector<MeshTexture> specular = this->loadTextures(material, "texture_specular", aiTextureType_SPECULAR);
+            vector<MeshTexture> specular = this->loadTextures(material, 's', aiTextureType_SPECULAR);
 
             if( specular.size()>0){
 
                        textures.insert(textures.end(),specular.begin(), specular.end());
                 }
 
-          vector<MeshTexture> emissive = this->loadTextures(material, "texture_specular", aiTextureType_EMISSIVE);
+          vector<MeshTexture> emissive = this->loadTextures(material, 'e', aiTextureType_EMISSIVE);
 
             if( emissive.size()>0){
                        textures.insert(textures.end(), emissive.begin(), emissive.end());

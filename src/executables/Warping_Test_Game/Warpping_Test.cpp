@@ -13,7 +13,7 @@
 using namespace std;
 using namespace glm;
 
-Model* m = new Model(RESOURCES_PATH "/cube.obj");
+Model* m = new Model(RESOURCES_PATH "/windmill02.obj");
 
 
 vector<Mesh*> meshes = m->getMeshes();
@@ -23,6 +23,7 @@ auto sp = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
 
 auto myModel = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
 
+auto plane = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
 
 auto spSkybox = new ShaderProgram({"/Warpping/skybox.vert", "/Warpping/skybox.frag"});
 
@@ -33,8 +34,8 @@ auto passCube = new RenderPass(
 );
 
 auto passQuoad= new RenderPass(
-    new Plane(), 
-    sp
+    new Plane(16.0f), 
+    plane
 );
 
 
@@ -45,7 +46,6 @@ auto passModel= new RenderPass(
 );
 
 
-auto passPyram = new RenderPass(new Pyramid(), sp);
 
 
 CubemapTexture* cubeText = new CubemapTexture();
@@ -68,6 +68,8 @@ float z= 0.0;
 float verticAngle = 0.0; 
 double lasttime;
 
+double y_position = 0.0;
+
 
 
 glm::mat4 projMat = glm::perspective(45.0f, (float)width/(float)height, 0.1f, 1000.0f);
@@ -75,9 +77,11 @@ glm::mat4 projMat = glm::perspective(45.0f, (float)width/(float)height, 0.1f, 10
 
 void update(float time) {
 
-    const GLfloat degPerSec = 2.0f;
-    horizAngle+=time*degPerSec;
-     while (horizAngle > 360.0f) horizAngle -= 360;
+ //  const GLfloat degPerSec = 2.0f;
+  const GLfloat speed = 0.005f;
+    y_position+=time+speed;
+  //   while (horizAngle > 360.0f) horizAngle -= 360;
+    while (y_position > 10.0f) y_position -= 10;
 
 }
 
@@ -97,6 +101,7 @@ int main(int argc, char *argv[]) {
     double  currentTime = glfwGetTime();
 
     update ((float)(currentTime -lasttime));
+  
     lasttime = currentTime;
 
         mat4 viewC = lookAt(vec3(0,15,15), vec3(0.0f),vec3(0.0, 1.0, 0.0)); 
@@ -106,8 +111,10 @@ int main(int argc, char *argv[]) {
 
 
         mat4 modelPyramide =mat4(1);
-          modelPyramide = translate (modelPyramide, vec3 (0,-7,-16));
-      //    modelPyramide =  rotate(modelPyramide, 80.0f, vec3(0.0,1.0,0.0));
+       
+          modelPyramide = translate (modelPyramide, vec3 (0,0,-10));
+             modelPyramide =  scale(modelPyramide, vec3(0.001, 0.001, 0.001));
+      
        
 
       //for skybox
@@ -170,7 +177,7 @@ int main(int argc, char *argv[]) {
         ->  update("uniformProjection", projMat)
         ->  texture("tex",test)
         ->  run();
-         
+   *  
        
 
       passQuoad

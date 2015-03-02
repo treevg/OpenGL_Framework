@@ -7,6 +7,8 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <iostream>
+#include "../Camera/Camera.h"
+#include "../../ShaderTools/VertexArrayObjects/Cube.h"
 
 using namespace std;
 using namespace glm;
@@ -16,13 +18,23 @@ class FollowObject {
 
 public:
 
-FollowObject();
+FollowObject(Camera* c);
 ~FollowObject();
+void moveToTarget(vec3 target);
+void waitForCamera();
 
+Cube* getCube() const;
+vec3 getCurrentPosition() const;
+
+//getters and setters
 
 protected:
- 
-   
+
+ vec3 m_currentPosition;
+ vec3 m_target;
+ vector<vec3> m_boundingBox;
+ bool m_waiting;
+ Cube* m_cube;
 
 };
 

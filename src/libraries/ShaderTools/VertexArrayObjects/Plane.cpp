@@ -2,7 +2,7 @@
 #include <glm/glm.hpp> 
 #include "Plane.h"
 
-Plane::Plane() {
+Plane::Plane(float repeating_factor) {
   mode = GL_TRIANGLE_STRIP;
    
     glLineWidth(3);
@@ -30,12 +30,12 @@ Plane::Plane() {
 
    GLfloat uvCoordinates[] = {
         
-        0,16, 
+        0,repeating_factor, 
         0,0,
-        16,16,
-        16,16,
+        repeating_factor,repeating_factor,
+        repeating_factor,repeating_factor,
         0,0,
-        16,0
+        repeating_factor,0
     };
     glBindBuffer(GL_ARRAY_BUFFER, positionTextureBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(uvCoordinates), uvCoordinates, GL_STATIC_DRAW);

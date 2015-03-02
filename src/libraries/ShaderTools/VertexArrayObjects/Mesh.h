@@ -11,11 +11,11 @@
 using namespace std;
 using namespace glm;
 
-
+/*diffuse: d, ambient: a, specular: s*/
 
 struct MeshTexture {
 GLuint id;
-string type;
+char type;
 string path;
 };
 

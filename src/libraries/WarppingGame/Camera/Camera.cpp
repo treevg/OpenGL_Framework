@@ -7,8 +7,8 @@
 //TODO -> find out right initial position of camera
 Camera::Camera(){
 
-this->c_position = vec3(0.0, 1.0, 50.0);
-this->c_view = vec3(0.0, 1.0, 0.0);
+this->c_position = vec3(0.0, 2.0, 50.0);
+this->c_view = vec3(0.0, 1.5, 0.0);
 this->c_upVector = vec3(0.0, 1.0, 0.0); 
 this->c_speed = 0.1f;
 

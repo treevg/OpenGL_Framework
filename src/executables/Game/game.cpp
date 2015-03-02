@@ -14,17 +14,37 @@ float x=0.0;
 float size = 0.5;
 float lum = 0.5;
 float speed = 0.1f;
+double lasttime;
 
  
+vector<vec3> chestPositions;
+
 
  RenderPass*  skyBox ;
  RenderPass*  plane ;
- RenderPass*  pyramid;
  RenderPass* trees;
  RenderPass* diffWarp;
+ RenderPass* castlePass;
+ RenderPass* chestPass;
+ RenderPass* followMePass;
+ RenderPass* windMillPass;
+
  Camera* camera;
  Model* myModel;
+ Model* castle;
+ Model* chest;
+ Model* windMill;
+
+
  vector<Mesh*> meshes;
+ vector<Mesh*> castleMeshes;
+ vector<Mesh*> chestMeshes;
+ vector<Mesh*> windMillMeshes;
+
+
+ FollowObject* followMe;
+
+
  std::queue<glm::mat4> latencyQueue;
  int latencyFrameCount = 6;
 
@@ -96,6 +116,57 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
 
 
 
+
+
+void Game::init(){
+   /* Camera  */
+
+   camera =  new Camera();
+   
+   followMe = new FollowObject(camera);
+
+  auto grid = new Grid(width,height);
+  //Warping shader
+  auto warp = new ShaderProgram({"/Warpping/warp.vert", "/Raytracing/warp.frag"});
+  diffWarp = new RenderPass(grid, warp);
+
+   auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
+   auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
+   auto model = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
+
+        /* Models */
+
+   myModel = new Model(RESOURCES_PATH "/hemlock.3ds");
+   castle = new Model(RESOURCES_PATH "/castle.obj");
+   chest = new Model(RESOURCES_PATH "/chest.obj");
+   windMill = new Model(RESOURCES_PATH "/windmill02.obj");
+   
+
+     /* Meshes */
+
+   meshes = myModel->getMeshes();
+   castleMeshes = castle->getMeshes();
+   chestMeshes  = chest->getMeshes();
+   windMillMeshes = windMill->getMeshes();
+
+
+     /* Render Passes */
+
+   plane = new RenderPass( new Plane(32.0f), sp1);
+   trees = new RenderPass(meshes, sp1);
+   castlePass = new RenderPass(castleMeshes, model );
+   chestPass = new RenderPass(chestMeshes, model );
+   followMePass = new RenderPass(followMe->getCube(),sp);
+   windMillPass = new RenderPass(windMillMeshes, model );
+  
+    
+
+
+  
+   log (sp);
+
+ }
+
   Game::Game(){
     init();
     renderSzene();
@@ -107,41 +178,36 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
    delete skyBox;
    delete camera;
    delete plane;
-   delete pyramid;
    delete trees;
    delete myModel;
+   delete castle;
+   delete chest;
 
   }
-
-
-  void Game::init(){
-
-  auto grid = new Grid(width,height);
-  //Warping shader
-  auto warp = new ShaderProgram({"/Warpping/warp.vert", "/Raytracing/warp.frag"});
-  diffWarp = new RenderPass(grid, warp);
-
-   auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
-   auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
-
-   plane = new RenderPass( new Plane(), sp1);
-   pyramid  = new RenderPass(  new Pyramid(),  sp);
-   camera =  new Camera();
-   myModel = new Model(RESOURCES_PATH "/hemlock.3ds");
-   meshes = myModel->getMeshes();
-   trees = new RenderPass(meshes, sp1);
-
-   log (sp);
-
- }
-
-
 
   void  Game::drawSkybox(){
 
     //implement
   }
 
+ 
+
+  void Game::fillPositions(float y){
+
+      chestPositions.clear();
+
+      //fill with data
+
+}
+
+
+  vec3 Game::setChestPosition(){
+
+    //get randomly 
+
+    vec3 position;
+    return position;
+  }
 
   void  Game::renderSzene(){
 
@@ -153,60 +219,103 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
     glm::mat4 model=glm::mat4(1.0);
     glm::mat4  viewMat= getLookAt();
 
-     simulateLanetcy (latencyFrameCount, viewMat);
+   simulateLanetcy (latencyFrameCount, viewMat);
      
      //use this matrix for simulating latency
     glm::mat4 viewMat_old = latencyQueue.front();
 
-    glm::mat4 modelPyramide;   
-    glm::mat4 modelS = glm::scale(glm::mat4(1), glm::vec3(10,10,10));
-   
+      
 
+      /*   MODEL FOR TREES   */
     glm:: mat4 modelTree(1) ;
+
+
+    /*   MODEL FOR CASTLE   */
+
+    glm:: mat4 modelCastle(1);
+    float castel_y = -0.28;
+    modelCastle= glm::translate(modelCastle, glm::vec3(1,castel_y, -20));
+    modelCastle = glm::scale(modelCastle, glm::vec3(0.05,0.05,0.05));
+
+     /*   MODEL FOR CHEST   */
+     glm:: mat4 modelChest(1);
+     modelChest = translate(modelChest, glm::vec3(-20, castel_y, -16));
+
+
+
+       /*   MODEL FOR WINDMILL   */
+    glm:: mat4 modelWindMill(1);
+    modelWindMill = translate(modelWindMill, vec3(-20, 0, 25) );
+    modelWindMill = scale(modelWindMill, vec3(0.005, 0.005, 0.005));
+      
+
+
+
+
+     /*   MODEL FOR CUBE   */
+    glm:: mat4 followMeModel(1);
+    followMeModel = translate(followMeModel, followMe->getCurrentPosition());
+    followMeModel = scale(followMeModel, vec3(0.2, 0.2, 0.2));
+      
+
+
 
 
    
     lookAround(); 
+  
     moveWithKeybord();
-   
-      plane
+
+
+
+ castlePass
         -> clear(0.6, 0.6, 0.8, 0)
+        ->  update("uniformModel", modelCastle)
+        ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+
+windMillPass
+        ->  update("uniformModel", modelWindMill)
+        ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+
+
+   
+ plane
+ 
         -> update("uniformView", viewMat)
         -> update("uniformModel",model)
         -> update("uniformProjection", projMat)
         -> texture("diffuse_text", textureHandle)
         -> run();
 
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-for (int i = 5; i < 50; i=i+6){
-  
-      for (int j = -6; j < 7; j+=12){
-        
-         modelPyramide= glm::translate(modelPyramide, glm::vec3(j,5.0,50-i));
-         modelPyramide=   glm::scale(modelPyramide,glm::vec3(10,10,10));
-         
+followMePass
 
-       pyramid
         -> update("uniformView", viewMat)
-        -> update("uniformModel",modelPyramide)
+        -> update("uniformModel",followMeModel)
         -> update("uniformProjection", projMat)
-        -> update("color", glm::vec4(1,0,0,1))
-        -> update("luminance", lum)
+        -> update("color", vec4(1,0,0,1))
         -> run();
 
-         modelPyramide = glm::mat4(1.0);
+ chestPass
+        ->  update("uniformModel", modelChest)
+        ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
 
-      }
-}
 
- for (int i = 5; i < 50; i=i+6){
+
+ for (int i = 5; i < 30; i=i+6){
   
       for (int j = -6; j < 7; j+=12){
         
-       modelTree  = translate(modelTree, vec3(j,1.5,50.0-i));
-
+       modelTree  = translate(modelTree, vec3(j,3, 50.0-i));
+       modelTree=   glm::scale(modelTree,glm::vec3(2,2,2));
        modelTree = rotate(modelTree, 80.0f,  vec3(1.0,0.0,0.0));
+       
        
         trees
         ->  update("uniformModel", modelTree)
@@ -220,7 +329,8 @@ for (int i = 5; i < 50; i=i+6){
 
     }
 
-glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+
     /*   diffWarp
         -> clear(0,0,0,0)
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)

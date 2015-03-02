@@ -60,6 +60,7 @@ void RenderPass::runOneMesh() {
 
 
 void RenderPass::runModel() {
+	
       frameBufferObject->bind();
     //   cout << "DEBUG: drawing meshes  "<< endl;
 
@@ -69,12 +70,41 @@ void RenderPass::runModel() {
 
      if (this->meshes[i]->getTextures().size() > 0) {
 
-		MeshTexture tex = this->meshes[i]->getTextures()[0];
-        shaderProgram->texture("diffuse_text", tex.id);
 
-     } else{
-     	cout << "please use external tuxture " << endl;
-     }
+     	for (MeshTexture tex: this->meshes[i]->getTextures()){
+      	
+
+      switch( tex.type  ) 
+  { 
+
+
+  	case 'a': 
+
+  	shaderProgram->texture("ambient_text", tex.id) ; 
+
+  	case 'd': 
+
+  	shaderProgram->texture("diffuse_text", tex.id) ; 
+
+
+    case 's': 
+
+   // shaderProgram->texture("specular_text", tex.id)
+    ; 
+
+      case 'e': 
+
+  //  shaderProgram->texture("emission_text", tex.id) 
+      ; 
+
+
+}
+
+     	}
+
+		
+
+     } 
         
      	vertexArrayObject->draw();       
         
@@ -83,7 +113,6 @@ void RenderPass::runModel() {
 
 	
 }
-
 
 
 void RenderPass::autoGenerateFrameBufferObject(int width, int height) {
