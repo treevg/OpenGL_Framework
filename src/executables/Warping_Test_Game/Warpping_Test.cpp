@@ -52,15 +52,16 @@ auto passModel= new RenderPass(
 
 CubemapTexture* cubeText = new CubemapTexture();
 
-/*GLuint test = cubeText->create_cube_map("/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_rt.jpg",
-    "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_lf.jpg",
-    "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_up.jpg",
-    "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_dn.jpg",
-    "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_bk.jpg",
-    "/home/ivanna/git_repo/OpenGL_Framework/resources/skybox/jajlands1_ft.jpg"    
+GLuint test = cubeText->create_cube_map(
+    RESOURCES_PATH "/skybox/jajlands1_rt.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_lf.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_up.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_dn.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_bk.jpg",
+    RESOURCES_PATH"/skybox/jajlands1_ft.jpg"   
  );
 
-*/
+
 float gScale = 0.5;
 float lScale =0.0;
 float lum = 0.5;
@@ -121,8 +122,8 @@ int main(int argc, char *argv[]) {
        
 
       //for skybox
-        mat4 model= mat4(1.0);
-        model = scale(model, vec3(10,10,10));
+        mat4 box= mat4(1.0);
+       // model = scale(model, vec3(10,10,10));
        
         mat4 view(1);
       //   view = translate(view, vec3(0.0, -2.0,  -10));
@@ -173,27 +174,15 @@ int main(int argc, char *argv[]) {
          if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) lScale  = lScale + 0.01;
          if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) lScale = lScale - 0.01;
 
-   /*passCube
-      
-        ->  update("uniformModel", model)
+   passCube
+        ->  update("uniformModel", box)
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
-        ->  texture("tex",test)
+        ->  texture("tex", test)
         ->  run();
-    
-       
 
-      passQuoad
-     
-        ->  update("uniformModel", modelQ)
-        ->  update("uniformView", view)
-        ->  update("uniformProjection", projMat)
-        ->  update("color", vec4(0,1,0,1))
-        ->  run(); 
-
-*/
         passModel
-        ->  clear(0, 0, 0.3, 0)
+     
         ->  update("uniformModel", modelPyramide)
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)

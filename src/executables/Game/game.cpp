@@ -19,7 +19,7 @@ float size = 0.5;
 float lum = 0.5;
 float speed = 0.1f;
 bool targetReached = false;
-bool goAhead = false;
+GLuint skybox;
 double lasttime;
 
  
@@ -33,7 +33,7 @@ vec3 currentChestPosition;
 
 /* TODO: pack into vector */
 
- RenderPass*  skyBox ;
+ RenderPass*  skyBoxPass;
  RenderPass*  plane ;
  RenderPass* trees;
  RenderPass* diffWarp;
@@ -65,10 +65,10 @@ vec3 currentChestPosition;
 
 
  std::queue<glm::mat4> latencyQueue;
- int latencyFrameCount = 6;
+ int latencyFrameCount = 16;
 
-
- GLuint textureHandle = TextureTools::loadTexture("/grass_repeating.jpg");
+GLuint textureHandle;
+CubemapTexture* cubeText;
 
 
 /* static methods */
@@ -176,6 +176,7 @@ void Game::init(){
    auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
    auto model = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
    auto suzanneSp = new ShaderProgram({"/Warpping/suzanne.vert", "/Warpping/suzanne.frag"});
+   auto skyboxSp = new ShaderProgram({"/Warpping/skybox.vert", "/Warpping/skybox.frag"});
 
         /* Models */
 
@@ -184,6 +185,11 @@ void Game::init(){
    chest = new Model(RESOURCES_PATH "/chest.obj");
    windMill = new Model(RESOURCES_PATH "/windmill02.obj");
    viking = new Model(RESOURCES_PATH "/viking.obj");
+
+    /* external Textures */
+
+ textureHandle = TextureTools::loadTexture("/grass_repeating.jpg");
+  cubeText = new CubemapTexture();
    
 
      /* Meshes */
@@ -205,6 +211,11 @@ void Game::init(){
    followMePass = new RenderPass(suzanneMeshes,suzanneSp);
    windMillPass = new RenderPass(windMillMeshes, model );
    vikingPass =  new RenderPass(vikingMeshes, suzanneSp );
+   skyBoxPass = new RenderPass(new Skybox(), skyboxSp);
+
+
+   drawSkybox();
+   glDepthMask(1);
 
   
     
@@ -224,7 +235,7 @@ void Game::init(){
 
   Game::~Game(){
    
-   delete skyBox;
+   delete skyBoxPass;
    delete camera;
    delete plane;
    delete trees;
@@ -236,8 +247,16 @@ void Game::init(){
   }
 
   void  Game::drawSkybox(){
+   
+    skybox = cubeText->create_cube_map(
+    RESOURCES_PATH "/skybox/jajlands1_rt.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_lf.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_up.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_dn.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_bk.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_ft.jpg"    
+ );
 
-    //implement
   }
 
 
@@ -270,8 +289,10 @@ void Game::init(){
     glm::mat4 model=glm::mat4(1.0);
     glm::mat4  viewMat= getLookAt();
 
-   simulateLanetcy (latencyFrameCount, viewMat);
+      simulateLanetcy (latencyFrameCount, viewMat);
      
+    
+
      //use this matrix for simulating latency
     glm::mat4 viewMat_old = latencyQueue.front();
 
@@ -313,7 +334,7 @@ void Game::init(){
     vikingModel = translate(vikingModel,vec3(-3, -0.01, 8) );
     vikingModel = scale(vikingModel, vec3(0.3, 0.3, 0.3));
 
-   glm:: mat4 vikingModel2(1);
+    glm:: mat4 vikingModel2(1);
     vikingModel2 = translate(vikingModel2,vec3(3, -0.01, 8) );
     vikingModel2 = scale(vikingModel2, vec3(0.3, 0.3, 0.3));
 
@@ -326,24 +347,32 @@ void Game::init(){
     moveWithKeybord();
 //   cout<< "Current pos of camera " << camera->getPosition().x <<" "<< camera->getPosition().z << endl;
 
-
- castlePass
-        -> clear(0.6, 0.6, 0.8, 0)
-        ->  update("uniformModel", modelCastle)
+/* skyBoxPass
+       -> clear (0.2, 0.2, 0.7, 1)
+        ->  update("uniformModel", mat4(1))
         ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  texture("tex", skybox)
+        ->  run();
+
+*/
+ castlePass
+         -> clear (0.2, 0.2, 0.7, 1)
+        ->  update("uniformModel", modelCastle)
+        ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
 
 
 windMillPass
         ->  update("uniformModel", modelWindMill)
-        ->  update("uniformView", viewMat)
+        ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
  
  plane
  
-        -> update("uniformView", viewMat)
+        -> update("uniformView", viewMat_old)
         -> update("uniformModel",model)
         -> update("uniformProjection", projMat)
         -> texture("diffuse_text", textureHandle)
@@ -353,26 +382,26 @@ windMillPass
 
 followMePass
 
-        -> update("uniformView", viewMat)
+        -> update("uniformView", viewMat_old)
         -> update("uniformModel",followMeModel)
         -> update("uniformProjection", projMat)
         -> runModel();
 
    vikingPass
         ->  update("uniformModel", vikingModel2)
-        ->  update("uniformView", viewMat)
+        ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
 
    vikingPass
         ->  update("uniformModel", vikingModel)
-        ->  update("uniformView", viewMat)
+        ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
 
  chestPass
         ->  update("uniformModel", modelChest)
-        ->  update("uniformView", viewMat)
+        ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
 
@@ -394,7 +423,6 @@ followMePass
 
         }
         
-      
 
        modelTree=   glm::scale(modelTree,glm::vec3(2, 2 ,2));
 
@@ -403,7 +431,7 @@ followMePass
        
         trees
         ->  update("uniformModel", modelTree)
-        ->  update("uniformView", viewMat)
+        ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
      
