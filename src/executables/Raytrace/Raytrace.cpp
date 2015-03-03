@@ -13,19 +13,14 @@ using namespace std;
 using namespace glm;
 
 //		High priority
-//TODO try reflective warping
-
-//TODO interpolate normals for correct shading - correct?
-//TODO position2texture & reflected position - correct?
-//TODO refraction?
-
+//TODO adjust reflective warping shader
+//TODO divide scene into patches for raytracing-> increase performance
+//TODO load plane into scene
 
 //		Low priority
 
 //global variables
 
-//float 	size = 1.0;
-//float 	lum =  0.5;
 float 	rad=0.0;
 double 	xpos, ypos;
 int 	texNum=0;
@@ -42,10 +37,9 @@ float	warpLeftRight = 0.0;
 vector<vec4> sphereVec;
 vector<vec3> colorSphere;
 vector<vec3> colorTriangle;
-vector<mat4> matVec;
 
 // latency stuff
-int latencyFrameNumber = 2;
+int latencyFrameNumber = 12;
 queue<mat4> latencyQueue;
 
 auto quadVAO = new Quad();
@@ -54,25 +48,32 @@ auto grid = new Grid(width,height);
 //Load mesh: parameter is resources path
 auto ssbo2 = new ShaderStorageBuffer("/Objects/icosphere2.obj", false);
 
+// Raytracing
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
-auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
+auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"});
 auto raytracePass = new RenderPass(quadVAO, sp
     ,width, height
     );
 
-//Tonemap shader for depth
+// Tonemapping
 auto spLin = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/toneMap.frag"});
 auto tonemappingPass = new RenderPass(quadVAO,spLin
     // ,width, height
     );
-//Composite shader
+// Compositing
 auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
 auto compositing = new RenderPass(quadVAO, compSP);
 
-//Warping shader
+// Warping
 auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
-auto diffWarp = new RenderPass(grid, warp);
+auto diffWarp = new RenderPass(grid, warp
+		,width, height
+		);
+
+// Gather reflection
+auto ref = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"});
+auto gatherRefPass = new RenderPass(quadVAO, ref);
 
 auto environmentTexture = TextureTools::loadTexture(RESOURCES_PATH "/equirectangular/park.jpg");
 
@@ -81,9 +82,9 @@ int main(int argc, char *argv[]) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-     //  sp -> printUniformInfo();
-      // sp -> printInputInfo();
-      // sp -> printOutputInfo();
+       ref -> printUniformInfo();
+       ref -> printInputInfo();
+       ref -> printOutputInfo();
 
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
@@ -106,7 +107,7 @@ int main(int argc, char *argv[]) {
         currentTime = glfwGetTime();
         float deltaT = currentTime - lastTime;
         lastTime = currentTime;
-        bool mouseForGerrit = true;
+        bool mouseForGerrit = false;
 
         if(!mouseForGerrit){
              glfwGetCursorPos(window, &xpos,&ypos);
@@ -173,7 +174,6 @@ int main(int argc, char *argv[]) {
         }
 
         mat4 projection = perspective(45.0f-rad, float(width)/float(height), 0.1f, 100.0f);
-        mat4 invProjection = inverse(projection);
 
         //original
         mat4 view(1);
@@ -195,6 +195,7 @@ int main(int argc, char *argv[]) {
         mat4 invViewProjection = inverse(projection * view);
         mat4 invViewProjection_old = inverse(projection * view_old);
 
+        mat4 vp_old = projection * view_old;
 
        //  //slightly different VM
        //  mat4 aView (1);
@@ -246,14 +247,30 @@ int main(int argc, char *argv[]) {
         			-> update("altView", view)
         			-> update("invViewProjection", invViewProjection_old)
         			-> update("projection", projection)
+					//-> texture("initDirTexture", raytracePass->get("initialDirNotnorm"))
         			-> texture("colorTexture", raytracePass->get("fragColor"))
                     -> texture("depthTexture", raytracePass->get("fragDepth"))
-        			-> texture("positionTexture", raytracePass->get("fragPosition"))
+        			-> texture("diffPositionTexture", raytracePass->get("fragPosition"))
         			-> texture("indirectColorTexture", raytracePass->get("fragColor2"))
-        			-> texture("pixelNormalTexture", raytracePass->get("pixelNormal"))
+        			-> texture("normalTexture", raytracePass->get("pixelNormal"))
 					-> texture("depth2Texture", raytracePass->get("fragDepth2"))
-					-> texture("reflectedPositionTexture", raytracePass->get("fragPosition2"))
+					//-> texture("reflectedPositionTexture", raytracePass->get("fragPosition2"))
 					-> run();
+
+            		gatherRefPass
+					-> clear(0,0,1,0)
+					-> texture("reflectionColorTexture", raytracePass->get("indirectColor"))
+					-> texture("reflectionPositionTexture", diffWarp->get("refPos"))
+					-> texture("warpedDiffusePositionTexture", diffWarp->get("warpDiffPos"))
+					-> texture("splattedReflectionUVTexture", diffWarp->get("coordCol"))
+					-> texture("warpedNormalTexture", diffWarp->get("warpNormal"))
+					-> texture("diffColorTexture", diffWarp->get("diffCol"))
+					-> update("resolution", vec2(1280.0, 720.0))
+					-> update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
+					-> update("maxGDSteps", 10)
+					-> update("mvpOld", vp_old)
+				//	-> texture("eyeNewDir",diffWarp->get("newEyeDir"))
+            		-> run();
         }
     });
 }

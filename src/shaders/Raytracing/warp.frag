@@ -1,18 +1,24 @@
 #version 430
 
-//uniform sampler2D color;
-
 in vec2 passPosition;
-//in vec4 passColor;
-//in vec4 passIndColor;
+in vec4 diffColor;
+in vec4 warpedNormal;
+in vec4 warpedDiffPos;
+in vec2 coordColor;
+in vec4 reflectionPosition;
 
-in vec4 tempColor;
-out vec4 fragColor;
+out vec4 diffCol;
+
+out vec4 warpDiffPos;
+out vec4 warpNormal; 
+out vec2 coordCol;
+out vec4 refPos;
+
 
 void main() {
-	fragColor = tempColor;
-	//fragColor = texture(color, passPosition);
-	//fragColor = passColor + passIndColor;
-
-
+	diffCol 	= diffColor;
+	warpDiffPos = warpedDiffPos;
+	warpNormal	= warpedNormal;
+	coordCol 	= coordColor;
+	refPos 		= reflectionPosition;
 }
