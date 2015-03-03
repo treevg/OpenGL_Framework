@@ -13,7 +13,7 @@
 using namespace std;
 using namespace glm;
 
-Model* m = new Model(RESOURCES_PATH "/stone_1.obj");
+Model* m = new Model(RESOURCES_PATH "/viking.obj");
 
 
 vector<Mesh*> meshes = m->getMeshes();
@@ -26,6 +26,8 @@ auto myModel = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"
 auto plane = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
 
 auto spSkybox = new ShaderProgram({"/Warpping/skybox.vert", "/Warpping/skybox.frag"});
+
+ auto suzanneSp = new ShaderProgram({"/Warpping/suzanne.vert", "/Warpping/suzanne.frag"});
 
 
 auto passCube = new RenderPass(
@@ -111,9 +113,10 @@ int main(int argc, char *argv[]) {
 
 
         mat4 modelPyramide =mat4(1);
-       
-          modelPyramide = translate (modelPyramide, vec3 (0,0,-10));
-    //         modelPyramide =  scale(modelPyramide, vec3(0.001, 0.001, 0.001));
+      
+          modelPyramide = translate (modelPyramide, vec3 (0,0,-4));
+            modelPyramide =  scale(modelPyramide, vec3(0.1, 0.1, 0.1));
+
       
        
 
@@ -177,7 +180,7 @@ int main(int argc, char *argv[]) {
         ->  update("uniformProjection", projMat)
         ->  texture("tex",test)
         ->  run();
-   *  
+    
        
 
       passQuoad

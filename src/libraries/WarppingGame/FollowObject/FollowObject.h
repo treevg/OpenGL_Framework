@@ -7,8 +7,9 @@
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <iostream>
+#include <cmath> 
 #include "../Camera/Camera.h"
-#include "../../ShaderTools/VertexArrayObjects/Cube.h"
+#include "../Modelloader/Model.h"
 
 using namespace std;
 using namespace glm;
@@ -20,10 +21,11 @@ public:
 
 FollowObject(Camera* c, float);
 ~FollowObject();
-void moveToTarget(vec3 target,float deltaTime);
+bool moveToTarget(float x, float z,float deltaTime);
+bool rotateX(float angle, float deltaTime);
 void waitForCamera();
 
-Cube* getCube() const;
+Model* getSuzanne() const;
 vec3 getCurrentPosition() const;
 
 //getters and setters
@@ -35,7 +37,10 @@ protected:
  vector<vec3> m_boundingBox;
  bool m_waiting;
  float m_speed;
- Cube* m_cube;
+ Model* m_model;
+
+
+
 
 };
 

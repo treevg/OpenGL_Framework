@@ -1,4 +1,8 @@
 #include <queue>
+#include <cstdlib>
+#include <stdio.h>      /* printf, scanf, puts, NULL */
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>
 #include "ShaderTools/VertexArrayObjects/Grid.h"
 #include "game.h"
 
@@ -14,12 +18,15 @@ float x=0.0;
 float size = 0.5;
 float lum = 0.5;
 float speed = 0.1f;
+bool targetReached = false;
+bool goAhead = false;
 double lasttime;
 
  
  /* GAME LOGIC*/
 float castel_y = -0.28;
 vector<vec3> chestPositions;
+vector<vec3> targets;
 vec3 currentChestPosition;
 
 
@@ -34,21 +41,27 @@ vec3 currentChestPosition;
  RenderPass* chestPass;
  RenderPass* followMePass;
  RenderPass* windMillPass;
+ RenderPass* vikingPass;
 
  Camera* camera;
+ FollowObject* followMe;
+
  Model* myModel;
  Model* castle;
  Model* chest;
  Model* windMill;
+ Model* viking;
 
 
  vector<Mesh*> meshes;
  vector<Mesh*> castleMeshes;
  vector<Mesh*> chestMeshes;
  vector<Mesh*> windMillMeshes;
+ vector<Mesh*> suzanneMeshes; 
+ vector<Mesh*> vikingMeshes; 
 
 
- FollowObject* followMe;
+
 
 
  std::queue<glm::mat4> latencyQueue;
@@ -109,6 +122,32 @@ static void  lookAround(){
 }
 
 
+static void setChestPosition(){
+
+  srand (time(NULL));
+
+  int position = rand()%8;
+
+  currentChestPosition = chestPositions[position];
+
+  cout << "******************Chest position ********************" << currentChestPosition.x << "  " << currentChestPosition.z << endl;
+
+  }
+
+  void Game::fillPositions(){
+
+      chestPositions.clear();
+      chestPositions.push_back(glm::vec3(-20, castel_y, -16));
+      chestPositions.push_back(glm::vec3( 20, castel_y, -15));
+      chestPositions.push_back(glm::vec3( 16, castel_y, -44));
+      chestPositions.push_back(glm::vec3( -16, castel_y, -44));
+      chestPositions.push_back(glm::vec3(-20, castel_y, -16));
+      chestPositions.push_back(glm::vec3(-24.75, castel_y, 22.34));
+      chestPositions.push_back(glm::vec3( -16, castel_y, -34));
+      chestPositions.push_back(glm::vec3( 16, castel_y, -34));
+      
+
+}
 
 static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
 
@@ -126,7 +165,7 @@ void Game::init(){
 
    camera =  new Camera();
    
-   followMe = new FollowObject(camera, 1.5);
+   followMe = new FollowObject(camera, 5);
 
   auto grid = new Grid(width,height);
   //Warping shader
@@ -136,6 +175,7 @@ void Game::init(){
    auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
    auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
    auto model = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
+   auto suzanneSp = new ShaderProgram({"/Warpping/suzanne.vert", "/Warpping/suzanne.frag"});
 
         /* Models */
 
@@ -143,6 +183,7 @@ void Game::init(){
    castle = new Model(RESOURCES_PATH "/castle.obj");
    chest = new Model(RESOURCES_PATH "/chest.obj");
    windMill = new Model(RESOURCES_PATH "/windmill02.obj");
+   viking = new Model(RESOURCES_PATH "/viking.obj");
    
 
      /* Meshes */
@@ -151,6 +192,8 @@ void Game::init(){
    castleMeshes = castle->getMeshes();
    chestMeshes  = chest->getMeshes();
    windMillMeshes = windMill->getMeshes();
+   suzanneMeshes = followMe->getSuzanne()->getMeshes();
+   vikingMeshes = viking->getMeshes();
 
 
      /* Render Passes */
@@ -159,11 +202,14 @@ void Game::init(){
    trees = new RenderPass(meshes, sp1);
    castlePass = new RenderPass(castleMeshes, model );
    chestPass = new RenderPass(chestMeshes, model );
-   followMePass = new RenderPass(followMe->getCube(),sp);
+   followMePass = new RenderPass(suzanneMeshes,suzanneSp);
    windMillPass = new RenderPass(windMillMeshes, model );
+   vikingPass =  new RenderPass(vikingMeshes, suzanneSp );
+
   
     
-    fillPositions();
+   fillPositions();
+   setChestPosition();
 
   
    log (sp);
@@ -185,6 +231,7 @@ void Game::init(){
    delete myModel;
    delete castle;
    delete chest;
+   delete viking;
 
   }
 
@@ -193,23 +240,7 @@ void Game::init(){
     //implement
   }
 
- 
 
-  void Game::fillPositions(){
-
-      chestPositions.clear();
-      chestPositions.push_back(glm::vec3(-20, castel_y, -16));
-      
-
-}
-
-
-  static void setChestPosition(){
-
-    //get randomly 
-  currentChestPosition = chestPositions[0];
-
-  }
 
   void  Game::renderSzene(){
 
@@ -220,9 +251,15 @@ void Game::init(){
     renderLoop([]{
 
     double  currentTime = glfwGetTime();
+    
     float deltaTime = (float)currentTime-lasttime;
-    followMe->moveToTarget(vec3(0,followMe->getCurrentPosition().y, 0), deltaTime);
   
+
+    if(!targetReached){
+   
+    targetReached = followMe->moveToTarget(currentChestPosition.x+1 , currentChestPosition.z-2 , deltaTime);
+    }
+
     lasttime = currentTime;
 
 
@@ -248,12 +285,12 @@ void Game::init(){
 
     glm:: mat4 modelCastle(1);
   
-    modelCastle= glm::translate(modelCastle, glm::vec3(1,castel_y, -20));
+    modelCastle= glm::translate(modelCastle, glm::vec3(0,castel_y, -20));
     modelCastle = glm::scale(modelCastle, glm::vec3(0.05,0.05,0.05));
 
 
      /*   MODEL FOR CHEST   */
-     setChestPosition();
+ 
      glm:: mat4 modelChest(1);
      modelChest = translate(modelChest, currentChestPosition);
 
@@ -269,13 +306,25 @@ void Game::init(){
      /*   MODEL FOR CUBE   */
     glm:: mat4 followMeModel(1);
     followMeModel = translate(followMeModel, followMe->getCurrentPosition());
-    followMeModel = scale(followMeModel, vec3(0.2, 0.2, 0.2));
+    followMeModel = scale(followMeModel, vec3(0.4, 0.4, 0.4));
+
+
+     glm:: mat4 vikingModel(1);
+    vikingModel = translate(vikingModel,vec3(-3, -0.01, 8) );
+    vikingModel = scale(vikingModel, vec3(0.3, 0.3, 0.3));
+
+   glm:: mat4 vikingModel2(1);
+    vikingModel2 = translate(vikingModel2,vec3(3, -0.01, 8) );
+    vikingModel2 = scale(vikingModel2, vec3(0.3, 0.3, 0.3));
+
+
+    
       
 
     lookAround(); 
   
     moveWithKeybord();
-
+//   cout<< "Current pos of camera " << camera->getPosition().x <<" "<< camera->getPosition().z << endl;
 
 
  castlePass
@@ -285,14 +334,13 @@ void Game::init(){
         ->  update("uniformProjection", projMat)
         ->  runModel();
 
+
 windMillPass
         ->  update("uniformModel", modelWindMill)
         ->  update("uniformView", viewMat)
         ->  update("uniformProjection", projMat)
         ->  runModel();
-
-
-   
+ 
  plane
  
         -> update("uniformView", viewMat)
@@ -302,19 +350,32 @@ windMillPass
         -> run();
 
 
+
 followMePass
 
         -> update("uniformView", viewMat)
         -> update("uniformModel",followMeModel)
         -> update("uniformProjection", projMat)
-        -> update("color", vec4(1,0,0,1))
-        -> run();
+        -> runModel();
+
+   vikingPass
+        ->  update("uniformModel", vikingModel2)
+        ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+
+   vikingPass
+        ->  update("uniformModel", vikingModel)
+        ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
 
  chestPass
         ->  update("uniformModel", modelChest)
         ->  update("uniformView", viewMat)
         ->  update("uniformProjection", projMat)
         ->  runModel();
+
 
 
 
