@@ -44,7 +44,7 @@ using namespace Assimp;
      }else {
 
       cout << "Number of  meshes " <<  scene->mNumMeshes << endl;
-      cout << "Number of  materials " <<  scene->mNumMaterials << endl;
+     cout << "Number of  materials " <<  scene->mNumMaterials << endl;
       cout << "Number of  textures " <<  scene->mNumTextures << endl;
       
 
@@ -68,7 +68,7 @@ using namespace Assimp;
         vector<GLuint> indices;
         indices.clear();
 
-        cout << "Number of  faces" <<  aSmesh->mNumFaces << endl;
+  //      cout << "Number of  faces" <<  aSmesh->mNumFaces << endl;
 
         for(int i = 0; i < aSmesh->mNumFaces; i++)
         {
@@ -224,18 +224,18 @@ using namespace Assimp;
                 // //I need colors for lighting
                 aiColor3D colorD (0.f,0.f,0.f);
                  material->Get(AI_MATKEY_COLOR_DIFFUSE,colorD);
-                 cout<< "difusse color" << colorD[0] << " "<< colorD[1] << endl;
+               //  cout<< "difusse color" << colorD[0] << " "<< colorD[1] << endl;
 
                  aiColor3D colorA (0.f,0.f,0.f);
                  material->Get(AI_MATKEY_COLOR_AMBIENT,colorA);
-                 cout<<"ambient_color"<<  colorA[0] << "  "<< colorA[1] << endl;
+              //   cout<<"ambient_color"<<  colorA[0] << "  "<< colorA[1] << endl;
 
 
                 vector<MeshTexture> diffuse = this->loadTextures(material, 'd', aiTextureType_DIFFUSE);
              
               if(diffuse.size()>0){
 
-                       textures.insert(textures.end(),diffuse.begin(), diffuse.end());
+              textures.insert(textures.end(),diffuse.begin(), diffuse.end());
 
                 }
 
@@ -271,7 +271,7 @@ using namespace Assimp;
 
    void  Model::processNode(aiNode* node, const aiScene* scene){
 
-    cout << "DEBUG:  Num of meshes: " <<  node->mNumMeshes << endl;
+  //  cout << "DEBUG:  Num of meshes: " <<  node->mNumMeshes << endl;
     
     for (int i=0; i < node->mNumMeshes; i++){
 

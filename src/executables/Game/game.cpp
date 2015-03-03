@@ -20,6 +20,7 @@ float lum = 0.5;
 float speed = 0.1f;
 bool targetReached = false;
 GLuint skybox;
+bool warpping;
 double lasttime;
 
  
@@ -130,7 +131,7 @@ static void setChestPosition(){
 
   currentChestPosition = chestPositions[position];
 
-  cout << "******************Chest position ********************" << currentChestPosition.x << "  " << currentChestPosition.z << endl;
+  cout << "* Chest position *" << currentChestPosition.x << "  " << currentChestPosition.z << endl;
 
   }
 
@@ -189,7 +190,7 @@ void Game::init(){
     /* external Textures */
 
  textureHandle = TextureTools::loadTexture("/grass_repeating.jpg");
-  cubeText = new CubemapTexture();
+ cubeText = new CubemapTexture();
    
 
      /* Meshes */
@@ -203,6 +204,21 @@ void Game::init(){
 
 
      /* Render Passes */
+ if (warpping){
+  
+    cout << "######## RENDER TO TEXTURE ###########" << endl;
+
+   plane = new RenderPass( new Plane(32.0f), sp1, width, height);
+   trees = new RenderPass(meshes, sp1, width, height);
+   castlePass = new RenderPass(castleMeshes, model, width, height );
+   chestPass = new RenderPass(chestMeshes, model, width, height );
+   followMePass = new RenderPass(suzanneMeshes,suzanneSp, width, height);
+   windMillPass = new RenderPass(windMillMeshes, model, width, height );
+   vikingPass =  new RenderPass(vikingMeshes, suzanneSp, width, height );
+   skyBoxPass = new RenderPass(new Skybox(), skyboxSp, width, height);
+
+
+ }else{
 
    plane = new RenderPass( new Plane(32.0f), sp1);
    trees = new RenderPass(meshes, sp1);
@@ -213,21 +229,22 @@ void Game::init(){
    vikingPass =  new RenderPass(vikingMeshes, suzanneSp );
    skyBoxPass = new RenderPass(new Skybox(), skyboxSp);
 
+ }
+
+
 
    drawSkybox();
    glDepthMask(1);
 
-  
-    
    fillPositions();
    setChestPosition();
 
-  
    log (sp);
 
  }
 
-  Game::Game(){
+  Game::Game(bool warp){
+    warpping = warp;
     init();
     renderSzene();
   }
@@ -263,6 +280,7 @@ void Game::init(){
 
   void  Game::renderSzene(){
 
+
     lasttime = glfwGetTime();
 
    //render loop for game
@@ -275,8 +293,9 @@ void Game::init(){
   
 
     if(!targetReached){
-   
+    
     targetReached = followMe->moveToTarget(currentChestPosition.x+1 , currentChestPosition.z-2 , deltaTime);
+   
     }
 
     lasttime = currentTime;
@@ -289,6 +308,7 @@ void Game::init(){
     glm::mat4 model=glm::mat4(1.0);
     glm::mat4  viewMat= getLookAt();
 
+       
       simulateLanetcy (latencyFrameCount, viewMat);
      
     
@@ -336,76 +356,74 @@ void Game::init(){
 
     glm:: mat4 vikingModel2(1);
     vikingModel2 = translate(vikingModel2,vec3(3, -0.01, 8) );
-    vikingModel2 = scale(vikingModel2, vec3(0.3, 0.3, 0.3));
-
-
-    
-      
+    vikingModel2 = scale(vikingModel2, vec3(0.3, 0.3, 0.3));  
 
     lookAround(); 
   
     moveWithKeybord();
-//   cout<< "Current pos of camera " << camera->getPosition().x <<" "<< camera->getPosition().z << endl;
 
-/* skyBoxPass
-       -> clear (0.2, 0.2, 0.7, 1)
-        ->  update("uniformModel", mat4(1))
-        ->  update("uniformView", viewMat)
-        ->  update("uniformProjection", projMat)
-        ->  texture("tex", skybox)
-        ->  run();
+if(warpping){
 
-*/
- castlePass
-         -> clear (0.2, 0.2, 0.7, 1)
-        ->  update("uniformModel", modelCastle)
-        ->  update("uniformView", viewMat_old)
-        ->  update("uniformProjection", projMat)
-        ->  runModel();
+cout << "TEST " << endl;
 
 
-windMillPass
-        ->  update("uniformModel", modelWindMill)
-        ->  update("uniformView", viewMat_old)
-        ->  update("uniformProjection", projMat)
-        ->  runModel();
- 
+
  plane
- 
+        -> clear(0.2,0.3,0.4,1)
         -> update("uniformView", viewMat_old)
-        -> update("uniformModel",model)
+        -> update("uniformModel", model)
         -> update("uniformProjection", projMat)
         -> texture("diffuse_text", textureHandle)
         -> run();
 
+   cout << "PLANE " << endl;
 
-
-followMePass
-
-        -> update("uniformView", viewMat_old)
-        -> update("uniformModel",followMeModel)
-        -> update("uniformProjection", projMat)
-        -> runModel();
-
-   vikingPass
+/*vikingPass
+        -> clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", vikingModel2)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
 
-   vikingPass
+ cout << "VIKING" << endl;
+
+  castlePass
+        -> clear(0.2,0.3,0.4,1)
+        ->  update("uniformModel", modelCastle)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+ cout << "CASTLE" << endl;
+
+ followMePass
+        -> clear(0.2,0.3,0.4,1)
+        -> update("uniformView", viewMat_old)
+        -> update("uniformModel",followMeModel)
+        -> update("uniformProjection", projMat)
+        -> runModel(); 
+
+windMillPass
+        -> clear(0.2,0.3,0.4,1)
+        ->  update("uniformModel", modelWindMill)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+        
+
+  
+  vikingPass
+        -> clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", vikingModel)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
 
  chestPass
+       -> clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", modelChest)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
-
-
 
 
  for (int i = 6; i < 130; i=i+6){
@@ -443,15 +461,148 @@ followMePass
 
 
 
-    /*   diffWarp
+*/
+
+diffWarp
         -> clear(0,0,0,0)
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
         -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
         -> update("projection", projMat)
-        -> texture("colorTexture", plane->get("fragPosition"))
+        -> texture("colorTexture", plane->get("fragColor"))
         -> texture("positionTexture", plane->get("fragPosition"))
-        -> run(); */
+        -> run(); 
+
+
+
+       diffWarp
+        -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
+        -> texture("colorTexture", vikingPass->get("fragColor"))
+        -> texture("positionTexture", vikingPass->get("fragPosition"))
+        -> run();
+
+ /*   
+
+       diffWarp
+ 
+        -> texture("colorTexture", castlePass->get("fragColor"))
+        -> texture("positionTexture", castlePass->get("fragPosition"))
+        -> run();
+
+
+  diffWarp
+
+        -> texture("colorTexture",  followMePass->get("fragColor"))
+        -> texture("positionTexture", followMePass->get("fragPosition"))
+        -> run();
+
+     diffWarp
+ 
+        -> texture("colorTexture",  windMillPass->get("fragColor"))
+        -> texture("positionTexture", windMillPass->get("fragPosition"))
+        -> run();
+*/
+
+
+}else {
+
+
+/* skyBoxPass
+       -> clear (0.2, 0.2, 0.7, 1)
+        ->  update("uniformModel", mat4(1))
+        ->  update("uniformView", viewMat)
+        ->  update("uniformProjection", projMat)
+        ->  texture("tex", skybox)
+        ->  run();
+*/
+
+ castlePass
+         -> clear (0.2, 0.2, 0.7, 1)
+        ->  update("uniformModel", modelCastle)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+
+
+windMillPass
+        ->  update("uniformModel", modelWindMill)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+        
+ 
+ plane
+        -> update("uniformView", viewMat_old)
+        -> update("uniformModel",model)
+        -> update("uniformProjection", projMat)
+        -> texture("diffuse_text", textureHandle)
+        -> run();
+
+
+ followMePass
+
+        -> update("uniformView", viewMat_old)
+        -> update("uniformModel",followMeModel)
+        -> update("uniformProjection", projMat)
+        -> runModel(); 
+
+   vikingPass
+        //-> clear(0.2,0.3,0.4,1)
+        ->  update("uniformModel", vikingModel2)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+
+   vikingPass
+        ->  update("uniformModel", vikingModel)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+
+ chestPass
+        ->  update("uniformModel", modelChest)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+
+
+ for (int i = 6; i < 130; i=i+6){
+  
+      for (int j = -50; j < 51; j+=100){
+
+        if( i == 6   ||  i == 120){
+
+        modelTree  = translate(modelTree, vec3(j/4, 3, 70.0-i));
+
+
+        }else{
+       
+       modelTree  = translate(modelTree, vec3(j, 3, 60.0-i));
+
+        }
+        
+
+       modelTree=   glm::scale(modelTree,glm::vec3(2, 2 ,2));
+       modelTree = rotate(modelTree, 80.0f,  vec3(1.0,0.0,0.0));
+       
+       
+        trees
+        ->  update("uniformModel", modelTree)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  runModel();
+     
+        modelTree = glm::mat4(1);
+      }
+    }
+
+}
+
+
+
    });
 
   }
@@ -460,7 +611,7 @@ followMePass
 
 int main(int argc, char *argv[]) { 
 
-Game * g = new Game();
+Game * g = new Game(false);
 
 delete g;
 }
