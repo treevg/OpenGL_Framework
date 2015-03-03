@@ -9,12 +9,10 @@ uniform sampler2D 	depthTexture;
 uniform sampler2D 	colorTexture;
 uniform sampler2D 	diffPositionTexture;
 uniform sampler2D 	normalTexture;
-//uniform sampler2D 	initDirTexture;
+uniform sampler2D 	viewDirTexture;
 uniform sampler2D 	depth2Texture;
 
 //uniform sampler2D 	reflectedPositionTexture;
-
-uniform int 		texSwitch;
 //uniform vec3 		initialPos;
 
 layout ( rgba16f, binding = 0 ) uniform image2D 	texout;
@@ -28,7 +26,7 @@ out vec4 warpedDiffPos;
 out vec2 coordColor;
 out vec4 reflectionPosition;
 
-//out vec4 newEyeDir;
+out vec3 newViewDir;
 
 //out vec4 outTexture;
 //out vec3 passColor;
@@ -38,13 +36,14 @@ out vec4 reflectionPosition;
 
 void main() {
 	vec4 diffPos_old;
+	vec4 refPos;
 	float diffDepth_old = texture(depthTexture, pos).x;
 	vec3 normal_old = texture(normalTexture, pos).xyz;
-	//vec3 eye_old = texture(initDirTexture, pos).xyz;
+	vec3 eye_old = texture(viewDirTexture, pos).xyz;
 	
 	passPosition = pos;
 	warpedNormal =  projection * altView * vec4(normal_old,0);
-	//newEyeDir =  projection * altView * vec4(eye_old,0);
+	newViewDir =  (projection * altView * vec4(eye_old,0)).xyz;
 
 	//vec4 passColor	= texture(color,pos);
 	//vec4 passIndColor 	= texture(indirectColorTexture, pos);
@@ -60,26 +59,31 @@ void main() {
 			
 		}
 		else {
+			diffPos_old	= texture(diffPositionTexture, pos);
+			vec3 viewDir_old = diffPos_old.xyz - eye_old;
 			
 			//Reconstruct position of first indirection
-			vec4 refRay = normalize( reflect(diffPos_old , texture(normalTexture, pos)));
+			vec4 refRay = normalize( reflect(vec4(viewDir_old,0) , texture(normalTexture, pos)));
 			float refDepth = texture(depth2Texture, pos).x;
-			vec4 refPos =  diffPos_old + refRay + refDepth;  //100% correct?
+			refPos =  diffPos_old + refRay + refDepth;  //100% correct?
 			
 			
-			diffPos_old	= texture(diffPositionTexture, pos);
 			warpedDiffPos = projection  * altView *  diffPos_old;
 			gl_Position = projection  * altView *  diffPos_old ;
 			
+			diffColor = diffColor = texture(colorTexture,pos);
 			
-			// warping reflection//
+			
+			//------------------//
+			//warping reflection//
+			//------------------//
 			
 			mat4 mvpNew = projection * altView;
 			//layout (local_size_x = 16, local_size_y = 16) in; 
 			//ivec2 inCoord = ivec2(gl_GlobalInvocationID.xy);  // used in compute shader
 			
 			vec2 inCoord = pos;
-			vec3 wDifPos = texture(diffPositionTexture, inCoord).xyz;
+			vec3 wDifPos = texture(diffPositionTexture, inCoord).xyz;  // = diffPos_old
 			vec3 wNorm = texture(normalTexture, inCoord).xyz;
 			// vec3 wRefPos = texture(refPos, inCoord).xyz;  // rekonstruiert
 			reflectionPosition = vec4(wDifPos - reflect(wDifPos - refPos.xyz, normalize(wNorm)), 1);
@@ -109,22 +113,12 @@ void main() {
 				imageStore(texout, tmp, vec4(coordColor, iPos.z, 1.0));
 				//outTexture = texture();
 			}
-
-
-			if(texSwitch==1){
-			diffColor = refPos;
-			}
-			else{
-			diffColor = texture(colorTexture,pos);// + texture(indirectColorTexture, pos);	
-			//diffColor = texture(reflectedPositionTexture, pos);
-			}
 		}	
 	}
 	
 	else{
 		gl_Position = vec4(pos * 2 - 1, 0, 1);
-		//diffColor = texture(texout, pos) ;
-		diffColor =texture(normalTexture, pos) ;// + (texture(indirectColorTexture,pos)-0.2);
+		//diffColor = texture(colorTexture, pos) ;
 
 	}
 }

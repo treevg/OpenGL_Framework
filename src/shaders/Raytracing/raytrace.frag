@@ -24,7 +24,7 @@ out 	vec4	fragColor;
 out 	vec4 	fragPosition;
 out 	vec4	fragDepth;
 out 	vec3	pixelNormal;
-//out		vec3	initialDirNotnorm;
+out		vec3	initialDirNotnorm;
 
 
 //indirect
@@ -147,7 +147,7 @@ vec3 initialDir = currentDir;
 void main(void) { 
 
 pixelNormal = vec3(0.0);
-vec3 initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
+initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 
 	for (int i = 0; i <= indirections; i++) {
 		currentDepth = 999999;

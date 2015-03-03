@@ -7,6 +7,9 @@ in vec4 warpedDiffPos;
 in vec2 coordColor;
 in vec4 reflectionPosition;
 
+in vec3 newViewDir;
+
+out vec3 newViewDirection;
 out vec4 diffCol;
 
 out vec4 warpDiffPos;
@@ -16,6 +19,7 @@ out vec4 refPos;
 
 
 void main() {
+	newViewDirection	= newViewDir;
 	diffCol 	= diffColor;
 	warpDiffPos = warpedDiffPos;
 	warpNormal	= warpedNormal;

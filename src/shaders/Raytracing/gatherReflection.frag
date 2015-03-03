@@ -6,37 +6,38 @@ in vec4 passPosition;
 
 layout(location = 0) out vec4 warpedColor;
 
-
 uniform sampler2D reflectionColorTexture;   	// indirectColor aus raytrace2.frag
 uniform sampler2D reflectionPositionTexture;    //wPos aus warp.vert?
-// uniform sampler2D diffusePositionTexture;
-// uniform sampler2D normalTexture;
 uniform sampler2D warpedDiffusePositionTexture;
 uniform sampler2D splattedReflectionUVTexture;
 uniform sampler2D warpedNormalTexture;
-
-uniform sampler2D diffColorTexture;
-
 uniform vec2 resolution;
 uniform mat4 mvpOld;
-//uniform mat4 mvpNew;
-//uniform vec3 eyeOld;
-
 uniform int mode;
 uniform int maxGDSteps;
+
+uniform sampler2D diffColorTexture;
+uniform sampler2D eyeNewDirTexture;  // correct?
+
+
+
+// uniform sampler2D diffusePositionTexture;
+// uniform sampler2D normalTexture;
+// uniform mat4 mvpNew;
+// uniform vec3 eyeOld;
 
 float ratio = resolution.x / resolution.y;
 
 bool undefined = false;
 vec4 invalidColor = vec4(0, 0, 0, 0);
 
-//texCoord replaced by passPosition. maybe uv as in raytrace is necessary
+//texCoord replaced by passPosition. 
 
 		// vec2 splattedReflectionUV = texelFetch(splattedReflectionUVTexture, ivec2(gl_FragCoord.xy), 0).xy + 1/resolution;
 vec2 splattedReflectionUV = texture(splattedReflectionUVTexture, (passPosition.xy -1) * 0.5).xy;
 vec3 warpedDiffusePosition = texture(warpedDiffusePositionTexture, (passPosition.xy -1) * 0.5).xyz;
 vec4 warpedNormal = texture(warpedNormalTexture,(passPosition.xy -1) * 0.5);
-vec3 eyeNew = vec3(0.2, 0, -4.0);// texture(eyeNewDir, (passPosition.xy -1) * 0.5).xyz;
+vec3 eyeNew = texture(eyeNewDirTexture, (passPosition.xy -1) * 0.5).xyz;
 vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyeNew, normalize(warpedNormal.xyz)));
 		// vec4 reflectionPosition = texture(reflectionPositionTexture, (passPosition.xy -1) * 0.5);
 
@@ -210,5 +211,6 @@ void main() {
      
         warpedColor = vec4(bestQuality);
 		warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
+
     }
 }

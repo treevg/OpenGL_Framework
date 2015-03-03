@@ -3,7 +3,6 @@
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "Compression/TextureTools.h"
-#include "Compression/ComputeShaderTools.h"
 #include "ShaderTools/VertexArrayObjects/Grid.h"
 #include "ShaderTools/ShaderStorageBuffer.h"
 #include <array>
@@ -15,7 +14,6 @@ using namespace glm;
 //		High priority
 //TODO adjust reflective warping shader
 //TODO divide scene into patches for raytracing-> increase performance
-//TODO load plane into scene
 
 //		Low priority
 
@@ -46,7 +44,7 @@ auto quadVAO = new Quad();
 auto grid = new Grid(width,height);
 
 //Load mesh: parameter is resources path
-auto ssbo2 = new ShaderStorageBuffer("/Objects/icosphere2.obj", false);
+auto ssbo2 = new ShaderStorageBuffer("/Objects/plane.obj", false);
 
 // Raytracing
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
@@ -243,11 +241,11 @@ int main(int argc, char *argv[]) {
             		diffWarp
         			-> clear(0,0,0,0)
                     -> update("warpOnOff", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
-                    -> update("texSwitch", (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)?1:0)
+                   // -> update("texSwitch", (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)?1:0)
         			-> update("altView", view)
         			-> update("invViewProjection", invViewProjection_old)
         			-> update("projection", projection)
-					//-> texture("initDirTexture", raytracePass->get("initialDirNotnorm"))
+					-> texture("viewDirTexture", raytracePass->get("initialDirNotnorm"))
         			-> texture("colorTexture", raytracePass->get("fragColor"))
                     -> texture("depthTexture", raytracePass->get("fragDepth"))
         			-> texture("diffPositionTexture", raytracePass->get("fragPosition"))
@@ -269,7 +267,7 @@ int main(int argc, char *argv[]) {
 					-> update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
 					-> update("maxGDSteps", 10)
 					-> update("mvpOld", vp_old)
-				//	-> texture("eyeNewDir",diffWarp->get("newEyeDir"))
+					-> texture("eyeNewDirTexture",diffWarp->get("newViewDirection"))
             		-> run();
         }
     });
