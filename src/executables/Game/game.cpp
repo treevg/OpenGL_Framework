@@ -378,7 +378,7 @@ cout << "TEST " << endl;
 
    cout << "PLANE " << endl;
 
-/*vikingPass
+vikingPass
         -> clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", vikingModel2)
         ->  update("uniformView", viewMat_old)
@@ -394,7 +394,7 @@ cout << "TEST " << endl;
         ->  update("uniformProjection", projMat)
         ->  runModel();
  cout << "CASTLE" << endl;
-
+/*
  followMePass
         -> clear(0.2,0.3,0.4,1)
         -> update("uniformView", viewMat_old)
@@ -484,14 +484,15 @@ diffWarp
         -> texture("positionTexture", vikingPass->get("fragPosition"))
         -> run();
 
- /*   
 
        diffWarp
- 
+       // -> clearDepth()
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
         -> texture("colorTexture", castlePass->get("fragColor"))
         -> texture("positionTexture", castlePass->get("fragPosition"))
         -> run();
-
+/*
 
   diffWarp
 
@@ -611,7 +612,7 @@ windMillPass
 
 int main(int argc, char *argv[]) { 
 
-Game * g = new Game(false);
+Game * g = new Game(true);
 
 delete g;
 }
