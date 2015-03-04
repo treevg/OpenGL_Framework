@@ -13,29 +13,27 @@ int main(int argc, char *argv[]) {
 
     float rotX = 0.0f;
     float rotY = 0.0f;
-    int numMipmaps = 10;
+    int numMipmaps = glm::log2(glm::max(getWidth(window), getHeight(window)));
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
-
-    auto texture = new Texture(RESOURCES_PATH "/equirectangular/plaza.png");
     auto quad = new Quad();
 
     auto sparse = (new RenderPass(
         new Grid(100, 100), 
-        new ShaderProgram({"/3DObject/modelViewProjection.vert","/3DObject/equirectangularSky.frag"}),
+        new ShaderProgram({"/3DObject/modelViewProjection.vert","/Filters/toneMapperLinear.frag"}),
         getWidth(window), getHeight(window)))
-            ->texture("tex", texture->getHandle())
-            ->update("resolution", getResolution(window))
-            ->update("model", mat4(1))
-            ->update("projection", projection);
+            ->texture("tex", Texture::load(RESOURCES_PATH "/jpg/bambus.jpg"))
+            ->update("model", translate(vec3(-0.5,-0.5,0)))
+            ->update("projection", projection)
+            ->update("resolution", getResolution(window));
 
     GLuint mipmap;
 
     glGenTextures(1, &mipmap);
     glBindTexture(GL_TEXTURE_2D, mipmap);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, getWidth(window), getHeight(window), 0, GL_RGBA, GL_FLOAT, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glGenerateMipmap(GL_TEXTURE_2D);
@@ -70,33 +68,27 @@ int main(int argc, char *argv[]) {
     auto tonemapping = (new RenderPass(
         quad, 
         new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
-            ->texture("tex", mipmap)
-            // ->texture("tex", mipmap)
-            ->update("minRange", 0.0)
-            ->update("maxRange", 1.0);
+            ->texture("tex", mipmap  )
+            ->update("resolution", getResolution(window));
 
     int level = 0;
-    bool toggleInOut = true;
+    bool toggleInOut = false;
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             switch (key) {
             case GLFW_KEY_PERIOD:
                 level = clamp(level + 1, 0, numMipmaps-1);
-                cout << level << endl;
                 tonemapping->update("level", level);
                 break;
             case GLFW_KEY_COMMA:
                 level = clamp(level - 1, 0, numMipmaps-1);
-                cout << level << endl;
                 tonemapping->update("level", level);
                 break;
             case GLFW_KEY_SPACE:
                 if (toggleInOut) {
                     tonemapping->texture("tex", mipmap);
-                    cout << mipmap << endl;
                 } else {
                     tonemapping->texture("tex", sparse->get("fragColor"));
-                    cout << sparse->get("fragColor") << endl;
                 }
                 toggleInOut = !toggleInOut;
                 break;
@@ -112,11 +104,9 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) (rotX + deltaTime > 6.283)? rotX += deltaTime - 6.283 : rotX += deltaTime;
 
         sparse
-            ->update("view", translate(mat4(1), vec3(-0.5,-0.5,-1)) * eulerAngleXY(-rotX, -rotY))
+            ->update("view", translate(vec3(0,0,-1)) * eulerAngleXY(-rotX, -rotY))
             ->clear()
             ->run();
-
-        glGenerateMipmap(GL_TEXTURE_2D);
 
         reduce->texture("mipmapTexture", sparse->get("fragColor"));
         for (int i = 0; i < numMipmaps; i++) {

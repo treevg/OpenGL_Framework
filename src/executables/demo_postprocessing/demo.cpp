@@ -20,7 +20,8 @@ int main(int argc, char *argv[]) {
     auto tonemapping = (new RenderPass(
         new Quad(), 
         new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
-            ->texture("tex", blurring->get("fragColor"));
+            ->texture("tex", blurring->get("fragColor"))
+            ->update("resolution", getResolution(window));
 
     int blurStrength = 1;
     float toneMin = 0.0;
