@@ -247,8 +247,10 @@ public:
 	struct TextureObject{
 		GLenum textureHandle;
 		GLenum samplerHandle;
+		std::string name;
 		bool equals(TextureObject o) {
-			return textureHandle == o.textureHandle && samplerHandle == o.textureHandle;
+			// return textureHandle == o.textureHandle && samplerHandle == o.textureHandle;
+			return name == o.name;
 		}
 	};
 	std::vector<TextureObject> textureList;

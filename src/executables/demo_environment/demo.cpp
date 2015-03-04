@@ -23,6 +23,7 @@ int main(int argc, char *argv[]) {
         new Quad(), 
         new ShaderProgram({"/Filters/fullscreen.vert","/3DObject/equirectangularSky.frag"})))
             ->texture("tex", texture->getHandle())
+            ->update("resolution", getResolution(window))
             ->update("projection", projection);
 
     RenderPass* object = (new RenderPass(

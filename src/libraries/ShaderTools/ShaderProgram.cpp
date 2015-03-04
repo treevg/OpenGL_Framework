@@ -55,6 +55,7 @@ ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GL
 		for (int i = 0; i < textureList.size(); i++) {
 			if (o.equals(textureList[i])) {
 				glUniform1i(updateInfo->location, i);
+				textureList[i] = o;
 			}
 			return this;
 		}
