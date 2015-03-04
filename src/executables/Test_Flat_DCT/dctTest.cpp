@@ -136,7 +136,7 @@ int main(){
 			f[i][j] = i + j;
 		}
 	}
-	cout<<("\nOriginal sample values");B
+	cout<<("\nOriginal sample values");
 	print_elements ( N, &f[0][0] );
 	cout<<("\n--------------------\n");
 
