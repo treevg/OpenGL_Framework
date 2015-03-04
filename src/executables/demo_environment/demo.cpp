@@ -13,6 +13,7 @@ int main(int argc, char *argv[]) {
     float rotX = 0.0f;
     float rotY = 0.0f;
     float turn = 0;
+    float speed = 1.0f;
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
 
@@ -47,7 +48,7 @@ int main(int argc, char *argv[]) {
             ->run();
         object
             ->clearDepth()
-            ->update("model", rotate(mat4(1), (turn + deltaTime > 6.283)? turn += deltaTime * 0.1 - 6.283 : turn += deltaTime * 0.1, vec3(0,1,0)))
+            ->update("model", rotate(mat4(1), (turn + deltaTime > 6.283)? turn += speed * deltaTime * 0.1 - 6.283 : turn += speed * deltaTime * 0.1, vec3(0,1,0)))
             ->update("view", view)
             ->run();
     });
