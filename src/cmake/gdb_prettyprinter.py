@@ -1,3 +1,9 @@
+# usage for debugging with gdb:
+# gdb -x gdb_prettyprinter.py bin/*your_executable*
+# (gdb) break *linenumber*
+# (gdb) run
+# (gdb) print *name_of_the_variable*
+
 import gdb.printing
 import numpy
 
