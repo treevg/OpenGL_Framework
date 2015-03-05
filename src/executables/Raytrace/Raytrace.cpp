@@ -1,276 +1,276 @@
-#include "ShaderTools/DefaultRenderLoop.h"
-#include "ShaderTools/RenderPass.h"
-#include "ShaderTools/VertexArrayObjects/Quad.h"
-#include "ShaderTools/VertexArrayObjects/Cube.h"
-#include "Compression/TextureTools.h"
-#include "ShaderTools/VertexArrayObjects/Grid.h"
-#include "ShaderTools/ShaderStorageBuffer.h"
-#include <array>
-#include <queue>
+// #include "ShaderTools/DefaultRenderLoop.h"
+// #include "ShaderTools/RenderPass.h"
+// #include "ShaderTools/VertexArrayObjects/Quad.h"
+// #include "ShaderTools/VertexArrayObjects/Cube.h"
+// #include "Compression/TextureTools.h"
+// #include "ShaderTools/VertexArrayObjects/Grid.h"
+// #include "ShaderTools/ShaderStorageBuffer.h"
+// #include <array>
+// #include <queue>
 
-using namespace std;
-using namespace glm;
+// using namespace std;
+// using namespace glm;
 
-//		High priority
-//TODO adjust reflective warping shader
-//TODO divide scene into patches for raytracing-> increase performance
+// //		High priority
+// //TODO adjust reflective warping shader
+// //TODO divide scene into patches for raytracing-> increase performance
 
-//		Low priority
+// //		Low priority
 
-//global variables
+// //global variables
 
-float 	rad=0.0;
-double 	xpos, ypos;
-int 	texNum=0;
-float 	minRange=0.8, maxRange=10;
-float 	lastTime, currentTime;
-float 	horizontalAngle=0.0;
-float 	verticalAngle=0.0;
-float 	offsetHorizontalAngle=0.01;
-float 	offsetVerticalAngle=-0.01;
-int		warpOnOff=0;
-float 	warpUpDown = 0.0;
-float	warpLeftRight = 0.0;
+// float 	rad=0.0;
+// double 	xpos, ypos;
+// int 	texNum=0;
+// float 	minRange=0.8, maxRange=10;
+// float 	lastTime, currentTime;
+// float 	horizontalAngle=0.0;
+// float 	verticalAngle=0.0;
+// float 	offsetHorizontalAngle=0.01;
+// float 	offsetVerticalAngle=-0.01;
+// int		warpOnOff=0;
+// float 	warpUpDown = 0.0;
+// float	warpLeftRight = 0.0;
 
-vector<vec4> sphereVec;
-vector<vec3> colorSphere;
-vector<vec3> colorTriangle;
+// vector<vec4> sphereVec;
+// vector<vec3> colorSphere;
+// vector<vec3> colorTriangle;
 
-// latency stuff
-int latencyFrameNumber = 12;
-queue<mat4> latencyQueue;
+// // latency stuff
+// int latencyFrameNumber = 12;
+// queue<mat4> latencyQueue;
 
-auto quadVAO = new Quad();
-auto grid = new Grid(width,height);
+// auto quadVAO = new Quad();
+// auto grid = new Grid(width,height);
 
-//Load mesh: parameter is resources path
-auto ssbo2 = new ShaderStorageBuffer("/Objects/plane.obj", false);
+// //Load mesh: parameter is resources path
+// auto ssbo2 = new ShaderStorageBuffer("/Objects/plane.obj", false);
 
-// Raytracing
-// basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
-// triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
-auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"});
-auto raytracePass = new RenderPass(quadVAO, sp
-    ,width, height
-    );
+// // Raytracing
+// // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
+// // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
+// auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"});
+// auto raytracePass = new RenderPass(quadVAO, sp
+//     ,width, height
+//     );
 
-// Tonemapping
-auto spLin = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/toneMap.frag"});
-auto tonemappingPass = new RenderPass(quadVAO,spLin
-    // ,width, height
-    );
-// Compositing
-auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
-auto compositing = new RenderPass(quadVAO, compSP);
+// // Tonemapping
+// auto spLin = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/toneMap.frag"});
+// auto tonemappingPass = new RenderPass(quadVAO,spLin
+//     // ,width, height
+//     );
+// // Compositing
+// auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
+// auto compositing = new RenderPass(quadVAO, compSP);
 
-// Warping
-auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
-auto diffWarp = new RenderPass(grid, warp
-		,width, height
-		);
+// // Warping
+// auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
+// auto diffWarp = new RenderPass(grid, warp
+// 		,width, height
+// 		);
 
-// Gather reflection
-auto ref = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"});
-auto gatherRefPass = new RenderPass(quadVAO, ref);
+// // Gather reflection
+// auto ref = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"});
+// auto gatherRefPass = new RenderPass(quadVAO, ref);
 
-auto environmentTexture = TextureTools::loadTexture(RESOURCES_PATH "/equirectangular/park.jpg");
-
-
-int main(int argc, char *argv[]) {
-
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-       ref -> printUniformInfo();
-       ref -> printInputInfo();
-       ref -> printOutputInfo();
-
-    sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
-    sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
-    sphereVec.push_back(glm::vec4(-1.0, 0.5, 2.5, 0.3));
-
-    //needs to be same size as sphereVec
-    colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
-    colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
-    colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
-
-    lastTime = glfwGetTime();
-
-    raytracePass -> update("sphereVec[0]", sphereVec);
-    raytracePass -> update("colorSphere[0]", colorSphere);
-    raytracePass -> update("colorTriangle[0]", colorTriangle);
-	raytracePass-> update("iResolution", glm::vec3(width, height, 1));
+// auto environmentTexture = TextureTools::loadTexture(RESOURCES_PATH "/equirectangular/park.jpg");
 
 
-    renderLoop([]{
-        currentTime = glfwGetTime();
-        float deltaT = currentTime - lastTime;
-        lastTime = currentTime;
-        bool mouseForGerrit = true;
+// int main(int argc, char *argv[]) {
 
-        if(!mouseForGerrit){
-             glfwGetCursorPos(window, &xpos,&ypos);
-             glfwSetCursorPos(window, float(width)/2, float(height)/2);
+//     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-             horizontalAngle += 0.2 * deltaT * float(width/2 - xpos );
-             verticalAngle   += 0.2 * deltaT * float( height/2 - ypos );
+//        ref -> printUniformInfo();
+//        ref -> printInputInfo();
+//        ref -> printOutputInfo();
 
-        }
-        else{
-        if (glfwGetMouseButton(window, 0) == GLFW_PRESS) {
-            glfwGetCursorPos(window, &xpos,&ypos);
-            xpos = xpos / (double)width * 2.0 - 1.0;
-            ypos = ypos / (double)height * 2.0 - 1.0;
-            horizontalAngle = xpos;
-            verticalAngle   = ypos;
-        }
+//     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
+//     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
+//     sphereVec.push_back(glm::vec4(-1.0, 0.5, 2.5, 0.3));
 
-        }
+//     //needs to be same size as sphereVec
+//     colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
+//     colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
+//     colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
 
-       // cout << xpos << " " << ypos << endl;
+//     lastTime = glfwGetTime();
 
-//        warpUpDown = horizontalAngle;
-//        warpLeftRight = verticalAngle;
-
-        // Close window
-        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
-
-        // Zoom
-        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
-            cout << (rad) << endl;
-            rad +=0.3 * deltaT;
-        }
-        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
-            cout << (rad) << endl;
-            rad -= 0.3 * deltaT;
-        }
+//     raytracePass -> update("sphereVec[0]", sphereVec);
+//     raytracePass -> update("colorSphere[0]", colorSphere);
+//     raytracePass -> update("colorTriangle[0]", colorTriangle);
+// 	raytracePass-> update("iResolution", glm::vec3(width, height, 1));
 
 
-        // Change between rendered textures
-        if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)texNum =0;
-        if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)texNum =0;
-        if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)texNum =1;
-        if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)texNum =2;
-        if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)texNum =3;
-        if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)texNum =4;
+//     renderLoop([]{
+//         currentTime = glfwGetTime();
+//         float deltaT = currentTime - lastTime;
+//         lastTime = currentTime;
+//         bool mouseForGerrit = true;
 
-        // Linearize Depth
-        if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)minRange +=0.1;
-        if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)minRange -=0.1;
-        if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)maxRange +=0.5;
-        if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)maxRange -=0.5;
+//         if(!mouseForGerrit){
+//              glfwGetCursorPos(window, &xpos,&ypos);
+//              glfwSetCursorPos(window, float(width)/2, float(height)/2);
 
-        // Warpview
-        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) warpUpDown +=  0.1 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) warpUpDown -=  0.1 * deltaT;
-        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) warpLeftRight -=  0.1* deltaT ;
-        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) warpLeftRight += 0.1* deltaT ;
+//              horizontalAngle += 0.2 * deltaT * float(width/2 - xpos );
+//              verticalAngle   += 0.2 * deltaT * float( height/2 - ypos );
 
+//         }
+//         else{
+//         if (glfwGetMouseButton(window, 0) == GLFW_PRESS) {
+//             glfwGetCursorPos(window, &xpos,&ypos);
+//             xpos = xpos / (double)width * 2.0 - 1.0;
+//             ypos = ypos / (double)height * 2.0 - 1.0;
+//             horizontalAngle = xpos;
+//             verticalAngle   = ypos;
+//         }
 
-        if(minRange>=maxRange){
-        	minRange=1.0;
-        	maxRange=20.0;
-        }
+//         }
 
-        mat4 projection = perspective(45.0f-rad, float(width)/float(height), 0.1f, 100.0f);
+//        // cout << xpos << " " << ypos << endl;
 
-        //original
-        mat4 view(1);
-        view = translate(view, vec3(0,0,-4));
-        view = rotate(view, -verticalAngle, vec3(1,0,0));
-        view = rotate(view, -horizontalAngle, vec3(0,1,0));
+// //        warpUpDown = horizontalAngle;
+// //        warpLeftRight = verticalAngle;
 
-        // Latency simulation
-        latencyQueue.push(view);
-        while (latencyQueue.size() > latencyFrameNumber) {
-            latencyQueue.pop();
-        }
-        mat4 view_old = latencyQueue.front();
-      //  view_old = translate(view_old,vec3(0,0,-4+rad) );
+//         // Close window
+//         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) glfwSetWindowShouldClose(window, GL_TRUE);
 
-        mat4 invView = inverse(view);
-        mat4 invView_old = inverse(view_old);
-
-        mat4 invViewProjection = inverse(projection * view);
-        mat4 invViewProjection_old = inverse(projection * view_old);
-
-        mat4 vp_old = projection * view_old;
-
-       //  //slightly different VM
-       //  mat4 aView (1);
-       //  aView = translate(aView, vec3(0.05, 0, -4.0));
-       //  aView = rotate(aView, warpUpDown-verticalAngle, vec3(1,0,0));
-       //  aView = rotate(aView, warpLeftRight-horizontalAngle, vec3(0,1,0));
-
-            ssbo2->bind(11);
-
-        	raytracePass
-        	-> clear(0, 0, 0, 0)
-        	//-> update("zoom", rad)
-            -> texture("environmentTexture", environmentTexture)
-            -> update("invViewProjection", invViewProjection_old)
-        	-> update("invView",invView_old)
-        	-> run();
+//         // Zoom
+//         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+//             cout << (rad) << endl;
+//             rad +=0.3 * deltaT;
+//         }
+//         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS) {
+//             cout << (rad) << endl;
+//             rad -= 0.3 * deltaT;
+//         }
 
 
-   //          compositing
-            // -> clear(0, 1, 0, 0)
-            // -> update("texNum", texNum)
-            // -> texture("color", raytracePass->get("fragColor"))
-            // -> texture("indirectionColor", raytracePass->get("fragColor2"))
-            // -> texture("depth", raytracePass->get("fragDepth"))
-            // -> texture("indirectionDepth", raytracePass->get("fragDepth2"))
-            // //-> texture("fragPos", raytracePass->get("fragPosition"))
-            // //-> texture("indirectionFragPos", raytracePass->get("fragPosition2"))
-            // -> run();
+//         // Change between rendered textures
+//         if (glfwGetKey(window, GLFW_KEY_Y) == GLFW_PRESS)texNum =0;
+//         if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)texNum =0;
+//         if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)texNum =1;
+//         if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)texNum =2;
+//         if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS)texNum =3;
+//         if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS)texNum =4;
+
+//         // Linearize Depth
+//         if (glfwGetKey(window, GLFW_KEY_O) == GLFW_PRESS)minRange +=0.1;
+//         if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS)minRange -=0.1;
+//         if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS)maxRange +=0.5;
+//         if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS)maxRange -=0.5;
+
+//         // Warpview
+//         if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) warpUpDown +=  0.1 * deltaT;
+//         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) warpUpDown -=  0.1 * deltaT;
+//         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) warpLeftRight -=  0.1* deltaT ;
+//         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) warpLeftRight += 0.1* deltaT ;
+
+
+//         if(minRange>=maxRange){
+//         	minRange=1.0;
+//         	maxRange=20.0;
+//         }
+
+//         mat4 projection = perspective(45.0f-rad, float(width)/float(height), 0.1f, 100.0f);
+
+//         //original
+//         mat4 view(1);
+//         view = translate(view, vec3(0,0,-4));
+//         view = rotate(view, -verticalAngle, vec3(1,0,0));
+//         view = rotate(view, -horizontalAngle, vec3(0,1,0));
+
+//         // Latency simulation
+//         latencyQueue.push(view);
+//         while (latencyQueue.size() > latencyFrameNumber) {
+//             latencyQueue.pop();
+//         }
+//         mat4 view_old = latencyQueue.front();
+//       //  view_old = translate(view_old,vec3(0,0,-4+rad) );
+
+//         mat4 invView = inverse(view);
+//         mat4 invView_old = inverse(view_old);
+
+//         mat4 invViewProjection = inverse(projection * view);
+//         mat4 invViewProjection_old = inverse(projection * view_old);
+
+//         mat4 vp_old = projection * view_old;
+
+//        //  //slightly different VM
+//        //  mat4 aView (1);
+//        //  aView = translate(aView, vec3(0.05, 0, -4.0));
+//        //  aView = rotate(aView, warpUpDown-verticalAngle, vec3(1,0,0));
+//        //  aView = rotate(aView, warpLeftRight-horizontalAngle, vec3(0,1,0));
+
+//             ssbo2->bind(11);
+
+//         	raytracePass
+//         	-> clear(0, 0, 0, 0)
+//         	//-> update("zoom", rad)
+//             -> texture("environmentTexture", environmentTexture)
+//             -> update("invViewProjection", invViewProjection_old)
+//         	-> update("invView",invView_old)
+//         	-> run();
+
+
+//    //          compositing
+//             // -> clear(0, 1, 0, 0)
+//             // -> update("texNum", texNum)
+//             // -> texture("color", raytracePass->get("fragColor"))
+//             // -> texture("indirectionColor", raytracePass->get("fragColor2"))
+//             // -> texture("depth", raytracePass->get("fragDepth"))
+//             // -> texture("indirectionDepth", raytracePass->get("fragDepth2"))
+//             // //-> texture("fragPos", raytracePass->get("fragPosition"))
+//             // //-> texture("indirectionFragPos", raytracePass->get("fragPosition2"))
+//             // -> run();
             
-            if (glfwGetKey(window, GLFW_KEY_Y /*Z*/) == GLFW_PRESS) {
-                tonemappingPass
-                    -> clear(0,0,0,0)
-                    -> update("minRange",minRange)
-                    -> update("maxRange",maxRange)
-                    -> texture("depth", raytracePass->get("fragDepth"))
-                    -> run();
-            } else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
-            	tonemappingPass
-        			-> clear(0,0,0,0)
-        			-> update("minRange",0.0f)
-        			-> update("maxRange",1.0f)
-        			-> texture("depth", raytracePass->get("fragPosition"))
-    			    -> run();
-            } else  {            
-            		diffWarp
-        			-> clear(0,0,0,0)
-                    -> update("warpOnOff", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
-                   // -> update("texSwitch", (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)?1:0)
-        			-> update("altView", view)
-        			-> update("invViewProjection", invViewProjection_old)
-        			-> update("projection", projection)
-					-> texture("viewDirTexture", raytracePass->get("initialDirNotnorm"))
-        			-> texture("colorTexture", raytracePass->get("fragColor"))
-                    -> texture("depthTexture", raytracePass->get("fragDepth"))
-        			-> texture("diffPositionTexture", raytracePass->get("fragPosition"))
-        			-> texture("indirectColorTexture", raytracePass->get("fragColor2"))
-        			-> texture("normalTexture", raytracePass->get("pixelNormal"))
-					-> texture("depth2Texture", raytracePass->get("fragDepth2"))
-					//-> texture("reflectedPositionTexture", raytracePass->get("fragPosition2"))
-					-> run();
+//             if (glfwGetKey(window, GLFW_KEY_Y /*Z*/) == GLFW_PRESS) {
+//                 tonemappingPass
+//                     -> clear(0,0,0,0)
+//                     -> update("minRange",minRange)
+//                     -> update("maxRange",maxRange)
+//                     -> texture("depth", raytracePass->get("fragDepth"))
+//                     -> run();
+//             } else if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS) {
+//             	tonemappingPass
+//         			-> clear(0,0,0,0)
+//         			-> update("minRange",0.0f)
+//         			-> update("maxRange",1.0f)
+//         			-> texture("depth", raytracePass->get("fragPosition"))
+//     			    -> run();
+//             } else  {            
+//             		diffWarp
+//         			-> clear(0,0,0,0)
+//                     -> update("warpOnOff", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+//                    // -> update("texSwitch", (glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS)?1:0)
+//         			-> update("altView", view)
+//         			-> update("invViewProjection", invViewProjection_old)
+//         			-> update("projection", projection)
+// 					-> texture("viewDirTexture", raytracePass->get("initialDirNotnorm"))
+//         			-> texture("colorTexture", raytracePass->get("fragColor"))
+//                     -> texture("depthTexture", raytracePass->get("fragDepth"))
+//         			-> texture("diffPositionTexture", raytracePass->get("fragPosition"))
+//         			-> texture("indirectColorTexture", raytracePass->get("fragColor2"))
+//         			-> texture("normalTexture", raytracePass->get("pixelNormal"))
+// 					-> texture("depth2Texture", raytracePass->get("fragDepth2"))
+// 					//-> texture("reflectedPositionTexture", raytracePass->get("fragPosition2"))
+// 					-> run();
 
-            		gatherRefPass
-					-> clear(0,0,1,0)
-					-> texture("reflectionColorTexture", raytracePass->get("indirectColor"))
-					-> texture("reflectionPositionTexture", diffWarp->get("refPos"))
-					-> texture("warpedDiffusePositionTexture", diffWarp->get("warpDiffPos"))
-					-> texture("splattedReflectionUVTexture", diffWarp->get("coordCol")) //instead of coordCol
-					-> texture("warpedNormalTexture", diffWarp->get("warpNormal"))
-					-> texture("diffColorTexture", diffWarp->get("diffCol"))
-					-> update("resolution", vec2(1280.0, 720.0))
-					-> update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
-					-> update("maxGDSteps", 10)
-					-> update("mvpOld", vp_old)
-					-> texture("eyeNewDirTexture",diffWarp->get("newViewDirection"))
-					//-> texture("coord",diffWarp->get("coord"))
-					//-> texture("coo",diffWarp->get("outCo"))
-            		-> run();
-        }
-    });
-}
+//             		gatherRefPass
+// 					-> clear(0,0,1,0)
+// 					-> texture("reflectionColorTexture", raytracePass->get("indirectColor"))
+// 					-> texture("reflectionPositionTexture", diffWarp->get("refPos"))
+// 					-> texture("warpedDiffusePositionTexture", diffWarp->get("warpDiffPos"))
+// 					-> texture("splattedReflectionUVTexture", diffWarp->get("coordCol")) //instead of coordCol
+// 					-> texture("warpedNormalTexture", diffWarp->get("warpNormal"))
+// 					-> texture("diffColorTexture", diffWarp->get("diffCol"))
+// 					-> update("resolution", vec2(1280.0, 720.0))
+// 					-> update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
+// 					-> update("maxGDSteps", 10)
+// 					-> update("mvpOld", vp_old)
+// 					-> texture("eyeNewDirTexture",diffWarp->get("newViewDirection"))
+// 					//-> texture("coord",diffWarp->get("coord"))
+// 					//-> texture("coo",diffWarp->get("outCo"))
+//             		-> run();
+//         }
+//     });
+// }
