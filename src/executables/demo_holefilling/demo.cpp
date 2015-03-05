@@ -40,12 +40,10 @@ int main(int argc, char *argv[]) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             switch (key) {
             case GLFW_KEY_PERIOD:
-                level = clamp(level + 1, 0, holefilling->getMipmapNumber()-1);
-                tonemapping->update("level", level);
+                tonemapping->update("level", (level < holefilling->getMipmapNumber()-1)? ++level : level);
                 break;
             case GLFW_KEY_COMMA:
-                level = clamp(level - 1, 0, holefilling->getMipmapNumber()-1);
-                tonemapping->update("level", level);
+                tonemapping->update("level", (level > 0)? --level : level);
                 break;
             case GLFW_KEY_SPACE:
                 (toggleInOut ^= 1)? tonemapping->texture("tex", holefilling->getOutput()) : tonemapping->texture("tex", sparse->get("fragColor"));
