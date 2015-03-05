@@ -15,7 +15,7 @@ uniform sampler2D 	depth2Texture;
 //uniform sampler2D 	reflectedPositionTexture;
 //uniform vec3 		initialPos;
 
-layout ( rgba16f, binding = 0 ) uniform image2D 	texout;
+layout ( rgba16f, binding = 0 ) uniform image2D texout;
 
 in vec2 pos;
 
@@ -26,12 +26,11 @@ out vec4 warpedDiffPos;
 out vec2 coordColor;
 out vec4 reflectionPosition;
 
+
 out vec3 newViewDir;
-
-//out vec4 outTexture;
-//out vec3 passColor;
-//out vec4 passIndColor;
-
+out vec4 iPos;
+//out vec4 coordbla
+//out vec2 outCoord;
 
 
 void main() {
@@ -44,9 +43,6 @@ void main() {
 	passPosition = pos;
 	warpedNormal =  projection * altView * vec4(normal_old,0);
 	newViewDir =  (projection * altView * vec4(eye_old,0)).xyz;
-
-	//vec4 passColor	= texture(color,pos);
-	//vec4 passIndColor 	= texture(indirectColorTexture, pos);
 
 	if(warpOnOff==0){
 		if(diffDepth_old>=999){
@@ -87,7 +83,9 @@ void main() {
 			vec3 wNorm = texture(normalTexture, inCoord).xyz;
 			// vec3 wRefPos = texture(refPos, inCoord).xyz;  // rekonstruiert
 			reflectionPosition = vec4(wDifPos - reflect(wDifPos - refPos.xyz, normalize(wNorm)), 1);
-			vec4 iPos = mvpNew * vec4(reflectionPosition.xyz,1);   //
+		
+			//took iPos instead of reflectionPosition - correct?
+			iPos = mvpNew * vec4(reflectionPosition.xyz,1);   //
 			iPos /= iPos.w;
 			coordColor = vec2(
 			
@@ -110,15 +108,16 @@ void main() {
 			//   lastIteration = texture(outTexture, tmp);
 			lastIteration = texture(indirectColorTexture, tmp);
 			if (lastIteration.z > iPos.z) {
-				imageStore(texout, tmp, vec4(coordColor, iPos.z, 1.0));
+			//	imageStore(texout, tmp, vec4(coordColor, iPos.z, 1.0));
 				//outTexture = texture();
+			//outCoo = vec4(outCoord, iPos.z, 1.0);
 			}
 		}	
 	}
 	
 	else{
 		gl_Position = vec4(pos * 2 - 1, 0, 1);
-		//diffColor = texture(colorTexture, pos) ;
+		//diffColor = warpedNormal ;
 
 	}
 }

@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
         currentTime = glfwGetTime();
         float deltaT = currentTime - lastTime;
         lastTime = currentTime;
-        bool mouseForGerrit = false;
+        bool mouseForGerrit = true;
 
         if(!mouseForGerrit){
              glfwGetCursorPos(window, &xpos,&ypos);
@@ -260,7 +260,7 @@ int main(int argc, char *argv[]) {
 					-> texture("reflectionColorTexture", raytracePass->get("indirectColor"))
 					-> texture("reflectionPositionTexture", diffWarp->get("refPos"))
 					-> texture("warpedDiffusePositionTexture", diffWarp->get("warpDiffPos"))
-					-> texture("splattedReflectionUVTexture", diffWarp->get("coordCol"))
+					-> texture("splattedReflectionUVTexture", diffWarp->get("coordCol")) //instead of coordCol
 					-> texture("warpedNormalTexture", diffWarp->get("warpNormal"))
 					-> texture("diffColorTexture", diffWarp->get("diffCol"))
 					-> update("resolution", vec2(1280.0, 720.0))
@@ -268,6 +268,8 @@ int main(int argc, char *argv[]) {
 					-> update("maxGDSteps", 10)
 					-> update("mvpOld", vp_old)
 					-> texture("eyeNewDirTexture",diffWarp->get("newViewDirection"))
+					//-> texture("coord",diffWarp->get("coord"))
+					//-> texture("coo",diffWarp->get("outCo"))
             		-> run();
         }
     });

@@ -8,9 +8,16 @@ in vec2 coordColor;
 in vec4 reflectionPosition;
 
 in vec3 newViewDir;
+in vec4 iPos;
+//in vec4 outCoo;
+
+in vec2 outCoord;
 
 out vec3 newViewDirection;
 out vec4 diffCol;
+//out vec4 coord;
+
+out vec2 outCo;
 
 out vec4 warpDiffPos;
 out vec4 warpNormal; 
@@ -24,5 +31,8 @@ void main() {
 	warpDiffPos = warpedDiffPos;
 	warpNormal	= warpedNormal;
 	coordCol 	= coordColor;
-	refPos 		= reflectionPosition;
+	refPos 		= iPos;  //reflectionPosition;
+	
+	//coord = outCoo;
+	outCo= outCoord;
 }

@@ -6,8 +6,8 @@ in vec4 passPosition;
 
 layout(location = 0) out vec4 warpedColor;
 
-uniform sampler2D reflectionColorTexture;   	// indirectColor aus raytrace2.frag
-uniform sampler2D reflectionPositionTexture;    //wPos aus warp.vert?
+uniform sampler2D reflectionColorTexture;   	// indirectColor aus raytrace2.frag ?
+uniform sampler2D reflectionPositionTexture;    //iPos aus warp.vert?
 uniform sampler2D warpedDiffusePositionTexture;
 uniform sampler2D splattedReflectionUVTexture;
 uniform sampler2D warpedNormalTexture;
@@ -19,6 +19,8 @@ uniform int maxGDSteps;
 uniform sampler2D diffColorTexture;
 uniform sampler2D eyeNewDirTexture;  // correct?
 
+
+//uniform sampler2D coord;
 
 
 // uniform sampler2D diffusePositionTexture;
@@ -41,7 +43,7 @@ vec3 eyeNew = texture(eyeNewDirTexture, (passPosition.xy -1) * 0.5).xyz;
 vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyeNew, normalize(warpedNormal.xyz)));
 		// vec4 reflectionPosition = texture(reflectionPositionTexture, (passPosition.xy -1) * 0.5);
 
-
+//vec4 temp = texture( splattedReflectionUVTexture, (texture(coord, passPosition.xy)).xy);
 
 vec2 initialCoord() {
     vec3 closestCoord = vec3(0,0,9999);
