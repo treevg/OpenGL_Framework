@@ -80,27 +80,9 @@ int main(int argc, char *argv[]) {
 
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
-<<<<<<< HEAD
-    sp -> printUniformInfo();
-    sp -> printInputInfo();
-    sp -> printOutputInfo();
-//       warp -> printUniformInfo();
-//       warp -> printInputInfo();
-//       warp -> printOutputInfo();
-
-//    compSP -> printUniformInfo();
-//    compSP -> printInputInfo();
-//    compSP -> printOutputInfo();
-
-    // Load mesh
-    objl->loadOBJ(RESOURCES_PATH "/obj/originalMesh.obj", objl->vertices, objl->uvs, objl->normals);
-
-
-=======
        ref -> printUniformInfo();
        ref -> printInputInfo();
        ref -> printOutputInfo();
->>>>>>> sandbox_moe11elf
 
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
