@@ -31,12 +31,10 @@ int main(int argc, char *argv[]) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             switch (key) {
             case GLFW_KEY_UP:
-                blurStrength = clamp(blurStrength + 1, 1, 10);
-                blurring->update("strength", blurStrength);
+                tonemapping->update("strength", (blurStrength < 10)? ++blurStrength : blurStrength);
                 break;
             case GLFW_KEY_DOWN:
-                blurStrength = clamp(blurStrength - 1, 1, 10);
-                blurring->update("strength", blurStrength);
+                tonemapping->update("strength", (blurStrength > 0)? --blurStrength : blurStrength);
                 break;
             } 
         }
