@@ -29,13 +29,6 @@ class RenderPass
 		RenderPass* run();
 
 		/**
-		 * @brief Executes the whole render pass by redirecting the output to an
-		 *        framebuffer object
-		 * @return The RenderPass instance
-		 */
-		RenderPass* runInFBO();
-
-		/**
 		 * @brief [brief description]
 		 * @details [long description]
 		 * 
@@ -45,6 +38,12 @@ class RenderPass
 		void autoGenerateFrameBufferObject(int width, int height);
 
 		GLuint get(std::string name);
+		ShaderProgram* getShaderProgram();
+		VertexArrayObject* getVertexArrayObject();
+		FrameBufferObject* getFrameBufferObject();
+		RenderPass* setShaderProgram(ShaderProgram* shaderProgram);
+		RenderPass* setVertexArrayObject(VertexArrayObject* vertexArrayObject);
+		RenderPass* setFrameBufferObject(FrameBufferObject* frameBufferObject);
 
 		/**
 		 * @brief Clears the framebuffer and the depth buffer of the render pass
@@ -68,6 +67,7 @@ class RenderPass
 			return this;
 		}
 
+	// private:
 		// Shader program to use within a render pass
 		ShaderProgram* shaderProgram;
 		// Vertex array object to render within a render pass 

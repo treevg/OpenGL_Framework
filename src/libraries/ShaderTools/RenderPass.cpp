@@ -25,15 +25,6 @@ RenderPass* RenderPass::run() {
 	return this;
 }
 
-//TODO check if necessary
-RenderPass* RenderPass::runInFBO() {
-	frameBufferObject->bind();
-	shaderProgram->use();
-	vertexArrayObject->draw();
-	//glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObject->getHandle());
-	return this;
-}
-
 void RenderPass::autoGenerateFrameBufferObject(int width, int height) {
 	if (frameBufferObject) delete frameBufferObject;
 	frameBufferObject = new FrameBufferObject(&(shaderProgram->outputMap), width, height);
@@ -54,12 +45,10 @@ RenderPass* RenderPass::clear(float r, float g, float b, float a) {
 	return this;
 }
 
-
 RenderPass* RenderPass::clear() {
 	frameBufferObject->clear();
 	return this;
 }
-
 
 RenderPass* RenderPass::clearDepth() {
 	frameBufferObject->clearDepth();
@@ -68,4 +57,31 @@ RenderPass* RenderPass::clearDepth() {
 
 GLuint RenderPass::get(std::string name) {
 	return frameBufferObject->get(name);
+}
+
+ShaderProgram* RenderPass::getShaderProgram() {
+	return shaderProgram;
+}
+
+VertexArrayObject* RenderPass::getVertexArrayObject() {
+	return vertexArrayObject;
+}
+
+FrameBufferObject* RenderPass::getFrameBufferObject() {
+	return frameBufferObject;
+}
+
+RenderPass* RenderPass::setShaderProgram(ShaderProgram* shaderProgram) {
+	this->shaderProgram = shaderProgram;
+	return this;
+}
+
+RenderPass* RenderPass::setVertexArrayObject(VertexArrayObject* vertexArrayObject) {
+	this->vertexArrayObject = vertexArrayObject;
+	return this;
+}
+
+RenderPass* RenderPass::setFrameBufferObject(FrameBufferObject* frameBufferObject) {
+	this->frameBufferObject = frameBufferObject;
+	return this;
 }
