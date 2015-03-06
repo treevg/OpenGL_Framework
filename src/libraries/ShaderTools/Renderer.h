@@ -12,6 +12,8 @@
 #ifndef DEFAULT_RENDER_LOOP_H
 #define DEFAULT_RENDER_LOOP_H
 
+
+
 #include <functional>
 #include "iostream"
 #include <stdio.h>

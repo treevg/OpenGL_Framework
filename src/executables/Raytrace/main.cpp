@@ -101,7 +101,7 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_5:
                 tonemapping->texture("tex", raytracePass->get("pixelNormal"));
                 break;
-            case GLFW_KEY_6:
+            case GLFW_KEY_G:
                 tonemapping->texture("tex", diffWarp->get("diffCol"));
                 break;
             case GLFW_KEY_7:
