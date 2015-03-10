@@ -28,7 +28,8 @@ auto YCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/YCbCrToRGB.
 auto compressCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressCbCr.comp");
 auto compressedYCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressedYCbCrToRGB.comp");
 auto rleEncoder = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rle.comp");
-//auto dct = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct.comp");
+auto dct = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct.comp");
+auto monochrome = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/monochrome.comp");
 
 float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
@@ -49,6 +50,8 @@ GLuint tex1Handle;
 GLuint tex2Handle;
 GLuint tex3Handle;
 GLuint tex4Handle;
+GLuint tex5Handle;
+GLuint tex6Handle;
 GLuint frameBufferObjectHandle;
 
 double mouseX, mouseY;																	//stubs for mouse coordinates
@@ -301,6 +304,24 @@ int main(int argc, char *argv[]) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, tex4Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT3);
 
+    glGenTextures(1, &tex5Handle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex5Handle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_R, GL_FLOAT, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, tex4Handle, 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT4);
+
+    glGenTextures(1, &tex6Handle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex6Handle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_R, GL_FLOAT, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, tex4Handle, 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT5);
+
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
     GLfloat clearColor[4] = {0, 1, 0, 0};
     glClearBufferfv(GL_COLOR, 0, clearColor);
@@ -363,12 +384,11 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        dct->use();
-//        glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
-//        glBindImageTexture(1, tex3Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture2  Brightness-Channel (Y) and Depth-Channel/transperancy (A)
-//        glDispatchCompute(int(width/8), int(height/8), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        dct->use();
+        glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+        glBindImageTexture(1, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+        glDispatchCompute(int(width/8), int(height/8), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         YCbCrToRGB->use();
         glBindImageTexture(0, tex1Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
