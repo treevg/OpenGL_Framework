@@ -20,17 +20,17 @@ uniform vec3 	colorTriangle[3];
 in 		vec4	passPosition;
 
 //direct 
-out 	vec4	fragColor;
-out 	vec4 	fragPosition;
-out 	vec4	fragDepth;
-out 	vec3	pixelNormal;
+out 	vec4	diffuseColor;
+out 	vec4 	diffusePosition;
+out 	vec4	diffuseDepth;
+out 	vec3	normal;
 out		vec3	initialDirNotnorm;
 
 
 //indirect
-out 	vec4	indirectColor;
-out 	vec4 	fragPosition2;
-out 	vec4	fragDepth2;
+out 	vec4	reflectiveColor;
+out 	vec4 	reflectivePosition;
+out 	vec4	reflectiveDepth;
 
 
 layout(std430, binding=11) buffer meshData{
@@ -47,7 +47,6 @@ vec3 	currentColor = vec3(1,1,1);
 vec3 	currentColor2 = vec3(1,1,1);
 float 	currentDepth;
 vec3 	currentNormal;
-vec3 	tempNormal;
 vec3 	currentDirNotnorm;
 
 float sphere(vec3 ray, vec3 dir, vec3 center, float radius)
@@ -71,13 +70,6 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
     u = vertex1 - vertex0;
     v = vertex2 - vertex0;
     n = normalize( cross(u,v) );
-	// tempNormal = n;
-
-
-	//vec3 q = cross(dir,v);
-	//float a = dot(u,q);
-
-
 
     w0	= orig - vertex0;
     a	= -dot(n, w0);
@@ -116,7 +108,9 @@ float triangle(vec3 orig, vec3 dir, vec3 vertex0, vec3 vertex1, vec3 vertex2)
 
 vec3 background(vec3 rd)
 {
+	//cubemapping
 	return vec3(texture(environmentTexture, vec2(atan(rd.x, rd.z) / 6.2832 + 0.5, acos(rd.y) / 3.1416)));
+	
 	// float sun = max(0.0, dot(rd, light));
 	// float sky = max(0.0, dot(rd, vec3(0.0, 1.0, 1.0)));
 	// float ground = max(0.0, -dot(rd, vec3(0.0, 1.0, 0.0)));
@@ -134,19 +128,17 @@ vec3 initialPos=currentPos;
 
 //vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.05+zoom, 0.0)).xyz);
 
-
 vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.05, 0.0)).xyz);
+vec3 initialDir = currentDir;
 
 //float lengthCurrentDirOffset = length(currentDirOffset);
 //float lengthUv = length(uv);
 //float lengthExtraDepth = sqrt(lengthCurrentDirOffset*lengthCurrentDirOffset + lengthUv*lengthUv);
 //float extraDepth = abs(lengthCurrentDirOffset-lengthExtraDepth);
 
-vec3 initialDir = currentDir;
-
 void main(void) { 
 
-pixelNormal = vec3(0.0);
+normal = vec3(0.0);
 initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 
 	for (int i = 0; i <= indirections; i++) {
@@ -211,22 +203,24 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 			currentPos = currentPos + currentDir * currentDepth;
 			mat3 a = mat3(vec3(myMesh.pos[hitTriangle].xyz), vec3(myMesh.pos[hitTriangle+1].xyz), vec3(myMesh.pos[hitTriangle+2].xyz));
 			vec3 x = inverse(a) * (currentPos);
-			vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
-			currentNormal = nor;
+			currentNormal = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
 			currentDirNotnorm = reflect(normalize(currentDir), currentNormal);
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
 		
 		if(i == 0){
+			// no hit
 			if (hitTriangle == -1 && hitSphere == -1) {
-				fragColor = vec4(background(currentDir),1);
-				fragPosition = vec4(currentDir,0);
-				fragDepth = vec4(9999);
-				indirectColor = vec4(0,0,0,0);
-				fragPosition2 = vec4(0,0,0,0);
-				fragDepth2 = vec4(9999);
+				diffuseColor = vec4(background(currentDir),1);
+				diffusePosition = vec4(currentDir,0);
+				diffuseDepth = vec4(9999);
+				reflectiveColor = vec4(0,0,0,0);
+				reflectivePosition = vec4(0,0,0,0);
+				reflectiveDepth = vec4(9999);
 				break;
 			} else {
+				//hit
+				
 				//vec3 phongNormal = vec3(myNormals.posNorm[hitTriangle].xyz + myNormals.posNorm[hitTriangle+1].xyz + myNormals.posNorm[hitTriangle+2].xyz) / 3.0 + 0.4;
 				float phongDiffuse;
 				
@@ -234,7 +228,6 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 				if(hitTriangle >= 0){
 					// interpolation taken from: https://www.c-plusplus.net/forum/88578-full
 					// edited by moe11elf
-				
 				//	vec3 ab = myMesh.pos[hitTriangle+1].xyz - myMesh.pos[hitTriangle].xyz;
 				//	vec3 ac = myMesh.pos[hitTriangle+2].xyz  - myMesh.pos[hitTriangle].xyz;
 				//	vec3 bc = myMesh.pos[hitTriangle+2].xyz  - myMesh.pos[hitTriangle+1].xyz;
@@ -262,29 +255,29 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 					vec3 x = inverse(a) * currentPos;
 					vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
 					phongDiffuse = max(dot(nor, light),0) * 0.3;
-					pixelNormal = nor;
+					normal = nor;
 				
 				}
 				else{
 					phongDiffuse = max(dot(currentNormal, light),0) * 0.3;
-					pixelNormal = currentNormal;
+					normal = currentNormal;
 				}
 				vec3  phongAmbient = vec3(0.0, 0.02, 0.01)*0.3;
-				fragColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
-				fragPosition = vec4(vec3(currentPos),1);
+				diffuseColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
+				diffusePosition = vec4(vec3(currentPos),1);
 				
-				float temps = dot(currentDirNotnorm, initialDirNotnorm);
-				//fragDepth = vec4(temps,temps,temps,1);
-				fragDepth = vec4(distance(initialPos, fragPosition.xyz));
+				//float temps = dot(currentDirNotnorm, initialDirNotnorm);
+				//diffuseDepth = vec4(temps,temps,temps,1);
+				diffuseDepth = vec4(distance(initialPos, diffusePosition.xyz));
 			}
 		} 
 		if (i == 1) {		
-			fragPosition2= vec4(vec3(currentPos),1);
-			fragDepth2 = vec4(vec3(currentDepth),1);
+			reflectivePosition= vec4(vec3(currentPos),1);
+			reflectiveDepth = vec4(vec3(currentDepth),1);
 		}
 		if (i > 0) {			
 			currentColor *= background(currentDir);
-			indirectColor = vec4(currentColor,1);
+			reflectiveColor = vec4(currentColor,1);
 		}
 	}
 }
