@@ -275,7 +275,6 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, tex1Handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA32F, width, height, 0, GL_RGBA, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex1Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -331,7 +330,7 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_R, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, tex7Handle, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT6, GL_TEXTURE_2D, tex7Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT6);
 
     glGenTextures(1, &tex8Handle);
@@ -340,30 +339,30 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_R, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, tex8Handle, 0);
-    glDrawBuffer(GL_COLOR_ATTACHMENT6);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT7, GL_TEXTURE_2D, tex8Handle, 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT7);
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
     GLfloat clearColor[4] = {0, 1, 0, 0};
     glClearBufferfv(GL_COLOR, 0, clearColor);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glBindTexture(GL_TEXTURE_2D, tex1Handle);																	//prepare swapping Texture between Memories
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
-    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
-    std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
-
-    data = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
-    data2 = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
-    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);														//this is where the swapping magic happens
-    int y=0;
-        for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
-                {
-                        y++;
-                }
-    cout<<"array has: " << y << " entries, which makes a total of ..." << endl;
-    cout<<"... size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
-    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
+//    glBindTexture(GL_TEXTURE_2D, tex1Handle);																	//prepare swapping Texture between Memories
+//    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
+//    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
+//    std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
+//
+//    data = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
+//    data2 = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
+//    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);														//this is where the swapping magic happens
+//    int y=0;
+//        for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
+//                {
+//                        y++;
+//                }
+//    cout<<"array has: " << y << " entries, which makes a total of ..." << endl;
+//    cout<<"... size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
+//    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
 
     renderLoop([]{
 		    calculateFPS(1.0, "OpenGL Window");
@@ -414,11 +413,11 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/8), int(height/8), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        mergeChannels->use();
-        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-        glDispatchCompute(int(width/8), int(height/8), 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//        mergeChannels->use();
+//        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+//        glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+//        glDispatchCompute(int(width/8), int(height/8), 1);
+//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 //        dct->use();
 //        glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
