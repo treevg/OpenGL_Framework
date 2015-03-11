@@ -40,7 +40,8 @@ int main(int argc, char *argv[]) {
     queue<mat4> latencyQueue;
 
     auto quadVAO = new Quad();
-    auto grid = new Grid(getWidth(window),getHeight(window));
+    auto grid 	 = new Grid(getWidth(window),getHeight(window));
+
 
     //Load mesh: parameter is resources path
     auto ssbo2 = new ShaderStorageBuffer("/Objects/plane.obj", false);
@@ -60,6 +61,8 @@ int main(int argc, char *argv[]) {
     auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
     auto compositing = new RenderPass(quadVAO, compSP);
 
+
+
     // Warping
     auto diffWarp = (new RenderPass(grid,
         new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}),
@@ -73,8 +76,16 @@ int main(int argc, char *argv[]) {
         ->texture("normalTexture", raytracePass->get("normal"))
         ->texture("depth2Texture", raytracePass->get("reflectiveDepth"));
 
-    //
-    //TODO warp reflective Color
+    // Reflective Warping
+    auto refWarp = (new RenderPass(grid,
+        new ShaderProgram({"/Raytracing/refWarp.vert", "/Raytracing/refWarp.frag"}),
+		getWidth(window), getHeight(window)))
+        ->clear(0,0,0,0)
+        ->texture("colorTexture", raytracePass->get("diffuseColor"))
+        ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"))
+        ->texture("normalTexture", raytracePass->get("normal"))
+		->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"))
+		->update("resolution", vec2(getWidth(window),getHeight(window)));
 
     // Gather reflection
     auto gatherRefPass = (new RenderPass(quadVAO,
@@ -83,7 +94,7 @@ int main(int argc, char *argv[]) {
         ->texture("reflectionColorTexture", raytracePass->get("reflectiveColor"))
         ->texture("reflectionPositionTexture", diffWarp->get("refPos"))
         ->texture("warpedDiffusePositionTexture", diffWarp->get("warpDiffPos"))
-        ->texture("splattedReflectionUVTexture", diffWarp->get("coordCol")) //instead of coordCol
+        ->texture("splattedReflectionUVTexture", diffWarp->get("coColor"))
         ->texture("warpedNormalTexture", diffWarp->get("warpNormal"))
         ->texture("diffColorTexture", diffWarp->get("diffCol"))
         ->texture("eyeNewDirTexture",diffWarp->get("newViewDirection"));
@@ -119,9 +130,15 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_7:
                 tonemapping->texture("tex", diffWarp->get("warpDiffPos"));
                 break;
+//            case GLFW_KEY_8:
+//                tonemapping->texture("tex", diffWarp->get("warpNormal"));
+//                break;
             case GLFW_KEY_8:
-                tonemapping->texture("tex", diffWarp->get("warpNormal"));
+                tonemapping->texture("tex", raytracePass->get("reflectivePosition"));
                 break;
+            case GLFW_KEY_9:
+                 tonemapping->texture("tex", refWarp->get("warpedReflectivePosition"));
+                 break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
@@ -172,6 +189,13 @@ int main(int argc, char *argv[]) {
         ->update("invViewProjection", invViewProjection_old)
         ->update("projection", projection)
         ->run();
+
+        refWarp
+		->clear(0,1,0,0)
+        ->update("altView", view)
+        ->update("projection", projection)
+		->run();
+
 
         gatherRefPass
         ->clear(0,0,1,0)

@@ -1,10 +1,10 @@
 #version 430
 
-in vec4 pos;
+in vec2 pos;
 
-out vec4 passPosition;
+out vec2 passPosition;
 
 void main() {
 	passPosition = pos;
-	gl_Position = vec4(pos.xy, 0, 1);
+	gl_Position = vec4(pos, 0, 1);
 }

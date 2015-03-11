@@ -67,7 +67,7 @@ void main() {
 			warpedDiffPos = projection  * altView *  diffPos_old;
 			gl_Position = projection  * altView *  diffPos_old ;
 			
-			diffColor = diffColor = texture(colorTexture,pos);
+			diffColor = texture(colorTexture,pos);
 			
 			
 			//------------------//

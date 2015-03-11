@@ -32,6 +32,7 @@ void main() {
 	warpNormal	= warpedNormal;
 	coordCol 	= coordColor;
 	refPos 		= iPos;  //reflectionPosition;
+
 	
 	//coord = outCoo;
 	outCo= outCoord;
