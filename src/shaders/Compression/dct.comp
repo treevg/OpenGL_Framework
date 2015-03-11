@@ -2,9 +2,14 @@
 layout ( binding = 0, r32f ) readonly uniform image2D inImg;
 layout ( binding = 1, r32f ) writeonly uniform image2D outImgDCT;
 
-layout (local_size_x = 8) in;
+layout (local_size_x = 1) in;
 
 shared float temp[8];
+shared float temp2[8];
+shared float tempEven[4];
+shared float tempOdd[9];
+shared float outp[8];
+
 void main() {
 
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
@@ -15,6 +20,123 @@ void main() {
 	
 	barrier();
 	
+	switch (index.x % 8){
+	case 0:
+		temp2[0] = temp[0] + temp[7];
+		break;
+	case 1:
+		temp2[1] = temp[1] + temp[6];
+		break;
+	case 2:
+		temp2[2] = temp[2] + temp[5];
+		break;
+	case 3:
+		temp2[3] = temp[3] + temp[4];
+		break;
+	case 4:
+		temp2[4] = temp[3] - temp[4];
+		break;
+	case 5:
+		temp2[5] = temp[2] - temp[5];
+		break;
+	case 6:
+		temp2[5] = temp[1] - temp[6];
+		break;
+	case 7:
+		temp2[7] = temp[0] - temp[7];
+		break;
+	}
+	
+	barrier();
+	
+	switch (index.x % 8){
+	case 0:
+		tempEven[0] = temp2[0] + temp2[3];
+		break;
+	case 1:
+		tempEven[1] = temp2[1] + temp2[2];
+		break;
+	case 2:
+		tempEven[2] = temp[1] - temp[2];
+		break;
+	case 3:
+		tempEven[3] = temp[0] - temp[3];
+		break;
+	case 4:
+		tempOdd[0] = temp2[4] + temp2[5];
+		break;
+	case 5:
+		tempOdd[1] = temp2[5] + temp2[6];
+		break;
+	case 6:
+		tempOdd[2] = temp2[6] + temp2[7];
+		break;
+	case 7:
+		break;
+	}
+	
+	barrier();
+	
+	switch (index.x % 8){
+	case 0:
+		outp[0] = tempEven[0] + tempEven[1];
+		break;
+	case 1:
+		outp[1] = tempEven[0] - tempEven[1];
+		break;
+	case 2:
+		tempOdd[3] = (tempEven[2] + tempEven[3]) * 0.707106781;
+		break;
+	case 3:
+		tempOdd[4] = (tempOdd[0] - tempOdd[2]) * 0.382683433;
+		break;
+	case 4:
+		tempOdd[0] = temp2[4] + temp2[5];
+		break;
+	case 5:
+		tempOdd[1] = temp2[5] + temp2[6];
+		break;
+	case 6:
+		tempOdd[2] = temp2[6] + temp2[7];
+		break;
+	case 7:
+		break;
+	}
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+//	switch (index.x % 8){
+//	
+//	case 0: 
+//		outp[0] = temp[0] + temp[7] + temp[3] + temp[4] + temp[1] + temp[6] + temp[2] + temp[5];
+//		break;
+//		
+//	case 1: 
+//		outp[1] = temp[0] + temp[7] + temp[3] + temp[4] - temp[1] + temp[6] + temp[2] + temp[5];
+//		break;
+//		
+//	case 2:
+//		float z1 = (temp[1] - temp[2] + temp[0] - temp[3]) * 0.707106781;
+//		outp[2] = temp[0] - temp[3] + z1;
+//		break;
+//		
+//	case 3:
+//		float z1 = (temp[1] - temp[2] + temp[0] - temp[3]) * 0.707106781;
+//		outp[3] = temp[0] - temp[3] - z1;
+//		
+//	case 4:
+//		
+//	}
+//	
+//	barrier();
+//	
 }
