@@ -35,15 +35,15 @@ void main() {
 	    tmp11 = tmp1 + tmp2;
 	    tmp12 = tmp1 - tmp2;
 	    
-	    imageStore(outImg, ivec2(index.x + 0, index.y), vec4(tmp10 + tmp11, 0, 0, 0));
-	    imageStore(outImg, ivec2(index.x + 4, index.y), vec4(tmp10 - tmp11, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 0, index.y), vec4(fract(tmp10 + tmp11), 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 4, index.y), vec4(fract(tmp10 - tmp11), 0, 0, 0));
 //	    output0[0] = tmp10 + tmp11; /* phase 3 */
 //	    output0[1] = tmp10 - tmp11;
 	    
 	    z1 = (tmp12 + tmp13) * 0.707106781; /* c4 */
 	    
-	    imageStore(outImg, ivec2(index.x + 2, index.y), vec4(tmp13 + z1, 0, 0, 0));
-	    imageStore(outImg, ivec2(index.x + 6, index.y), vec4(tmp13 - z1, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 2, index.y), vec4(fract(tmp13 + z1), 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 6, index.y), vec4(fract(tmp13 - z1), 0, 0, 0));
 //	    output0[2] = tmp13 + z1;	/* phase 5 */
 //	    output0[3] = tmp13 - z1;
 	    
@@ -62,10 +62,10 @@ void main() {
 	    z11 = tmp7 + z3;		/* phase 5 */
 	    z13 = tmp7 - z3;
 
-	    imageStore(outImg, ivec2(index.x + 5, index.y), vec4(z13 + z2, 0, 0, 0));
-	    imageStore(outImg, ivec2(index.x + 3, index.y), vec4(z13 - z2, 0, 0, 0));
-	    imageStore(outImg, ivec2(index.x + 1, index.y), vec4(z11 + z2, 0, 0, 0));
-	    imageStore(outImg, ivec2(index.x + 7, index.y), vec4(z11 - z4, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 5, index.y), vec4(fract(z13 + z2), 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 3, index.y), vec4(fract(z13 - z2), 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 1, index.y), vec4(fract(z11 + z2), 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 7, index.y), vec4(fract(z11 - z4), 0, 0, 0));
 //	    output1[0] = z13 + z2;	/* phase 6 */
 //	    output1[1] = z13 - z2;
 //	    output1[2] = z11 + z4;

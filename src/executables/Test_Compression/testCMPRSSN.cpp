@@ -56,6 +56,7 @@ GLuint tex5Handle;
 GLuint tex6Handle;
 GLuint tex7Handle;
 GLuint tex8Handle;
+GLuint tex9Handle;
 GLuint frameBufferObjectHandle;
 
 double mouseX, mouseY;																	//stubs for mouse coordinates
@@ -342,6 +343,15 @@ int main(int argc, char *argv[]) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT7, GL_TEXTURE_2D, tex8Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT7);
+
+    glGenTextures(1, &tex9Handle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex9Handle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, height, width, 0, GL_RED, GL_FLOAT, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT7, GL_TEXTURE_2D, tex9Handle, 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT8);
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
     GLfloat clearColor[4] = {0, 1, 0, 0};
