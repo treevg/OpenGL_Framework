@@ -72,7 +72,4 @@ void main() {
 //	    output1[3] = z11 - z4;
 	
 	
-	float texel_color = imageLoad(inImg, index);
-	
-	
 }
