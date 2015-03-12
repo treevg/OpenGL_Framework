@@ -81,11 +81,10 @@ int main(int argc, char *argv[]) {
         new ShaderProgram({"/Raytracing/refWarp.vert", "/Raytracing/refWarp.frag"}),
 		getWidth(window), getHeight(window)))
         ->clear(0,0,0,0)
-        ->texture("colorTexture", raytracePass->get("diffuseColor"))
         ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"))
         ->texture("normalTexture", raytracePass->get("normal"))
 		->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"))
-		->update("resolution", vec2(getWidth(window),getHeight(window)));
+        ->texture("reflectionColorTexture", raytracePass->get("reflectiveColor"));
 
     // Gather reflection
     auto gatherRefPass = (new RenderPass(quadVAO,
@@ -134,7 +133,7 @@ int main(int argc, char *argv[]) {
 //                tonemapping->texture("tex", diffWarp->get("warpNormal"));
 //                break;
             case GLFW_KEY_8:
-                tonemapping->texture("tex", raytracePass->get("reflectivePosition"));
+                tonemapping->texture("tex", refWarp->get("splattedRefUV"));
                 break;
             case GLFW_KEY_9:
                  tonemapping->texture("tex", refWarp->get("warpedReflectivePosition"));

@@ -2,17 +2,13 @@
 
 in vec2 passPosition;
 in vec4 warpRefPos;
+in vec2 outCoord;
 
-uniform sampler2D colorTexture;
-uniform vec2 resolution;
-
-out vec4 color;
 out vec4 warpedReflectivePosition;
+out vec2 splattedRefUV;
 
 
 void main() {
-
-color = texture(colorTexture , passPosition);
-warpedReflectivePosition = warpRefPos;
-
+	warpedReflectivePosition = warpRefPos;
+	splattedRefUV = outCoord;
 }
