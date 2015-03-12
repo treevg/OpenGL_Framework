@@ -15,10 +15,10 @@ using namespace glm;
  *------------------------------------------------------variable declaration--------------------------------------------------------------------------
  -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-// auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-// auto pass = new RenderPass(new Cube(), sp, width, height);
-auto sp = new ShaderProgram({"/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"});
-auto pass = new RenderPass(new Quad(), sp, width, height);
+auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+auto pass = new RenderPass(new Cube(), sp, width, height);
+// auto sp = new ShaderProgram({"/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"});
+// auto pass = new RenderPass(new Quad(), sp, width, height);
 //auto pass = new RenderPass(new Cube(), sp);
 
 auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compositing.frag"});
@@ -50,7 +50,7 @@ glm::mat4 projMat = glm::perspective(45.0f, float(width)/float(height), 0.1f, 10
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
-GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
+GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
 
 GLuint tex1Handle;
 GLuint tex2Handle;
@@ -399,11 +399,11 @@ int main(int argc, char *argv[]) {
         cubeModel = translate(rotate(mat4(1.0f), degrees(cubeAngle), vec3(1.0f, 1.0f, 0.0f)), vec3(0.0f, 2.0f, -2.0f));
 
         pass
-        -> clear(1, 1, 1, 0)
-        // -> update("uniformView", viewMat)
-        // -> update("uniformProjection", projMat)
-        // -> update("uniformModel", cubeModel)
-        -> texture("tex", bambus)
+        -> clear(0, 0, 0, 0)
+        -> update("uniformView", viewMat)
+        -> update("uniformProjection", projMat)
+        -> update("uniformModel", cubeModel)
+        -> texture("tex2", bambus)
         -> run();
 
 //        RGBtoYCbCr->use();

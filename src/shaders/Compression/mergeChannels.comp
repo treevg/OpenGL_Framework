@@ -7,7 +7,7 @@ void main() {
 
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 	
-	vec4 texel_color = imageLoad(inImg, index / 4);
+	vec4 texel_color = imageLoad(inImg, index);
 	
 	imageStore(outImg, index, vec4(texel_color.r, texel_color.r, texel_color.r, 0));
 	

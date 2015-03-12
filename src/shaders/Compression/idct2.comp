@@ -16,7 +16,7 @@ void main() {
 	ivec2 index = ivec2 (gl_GlobalInvocationID.x*8, gl_GlobalInvocationID.y);
 	
 	for(int i = 0; i<8; i++){
-		temp[i] = imageLoad(inImg, ivec2(index.x + i, index.y)).x;
+		temp[i] = imageLoad(inImg, ivec2(index.x + i, index.y)).x / 8.0;
 	}
 	
     /* Even part */
@@ -58,23 +58,23 @@ void main() {
     tmp5 = tmp11 - tmp6;
     tmp4 = tmp10 + tmp5;
     
-    // imageStore(outImg, ivec2(index.x + 0, index.y), vec4(tmp0 + tmp7, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 7, index.y), vec4(tmp0 - tmp7, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 1, index.y), vec4(tmp1 + tmp6, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 6, index.y), vec4(tmp1 - tmp6, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 2, index.y), vec4(tmp2 + tmp5, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 5, index.y), vec4(tmp2 - tmp5, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 4, index.y), vec4(tmp3 + tmp4, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 3, index.y), vec4(tmp3 - tmp4, 0, 0, 0));
+    imageStore(outImg, ivec2(index.x + 0, index.y), vec4(tmp0 + tmp7, 0, 0, 0));
+    imageStore(outImg, ivec2(index.x + 7, index.y), vec4(tmp0 - tmp7, 0, 0, 0));
+    imageStore(outImg, ivec2(index.x + 1, index.y), vec4(tmp1 + tmp6, 0, 0, 0));
+    imageStore(outImg, ivec2(index.x + 6, index.y), vec4(tmp1 - tmp6, 0, 0, 0));
+    imageStore(outImg, ivec2(index.x + 2, index.y), vec4(tmp2 + tmp5, 0, 0, 0));
+    imageStore(outImg, ivec2(index.x + 5, index.y), vec4(tmp2 - tmp5, 0, 0, 0));
+    imageStore(outImg, ivec2(index.x + 4, index.y), vec4(tmp3 + tmp4, 0, 0, 0));
+    imageStore(outImg, ivec2(index.x + 3, index.y), vec4(tmp3 - tmp4, 0, 0, 0));
 
-    imageStore(outImg, ivec2(index.x + 0, index.y), vec4(tmp0, 0, 0, 0));
-    imageStore(outImg, ivec2(index.x + 7, index.y), vec4(tmp1, 0, 0, 0));
-    imageStore(outImg, ivec2(index.x + 1, index.y), vec4(tmp2, 0, 0, 0));
-    imageStore(outImg, ivec2(index.x + 6, index.y), vec4(tmp3, 0, 0, 0));
-    imageStore(outImg, ivec2(index.x + 2, index.y), vec4(tmp4, 0, 0, 0));
-    imageStore(outImg, ivec2(index.x + 5, index.y), vec4(tmp5, 0, 0, 0));
-    imageStore(outImg, ivec2(index.x + 4, index.y), vec4(tmp6, 0, 0, 0));
-    imageStore(outImg, ivec2(index.x + 3, index.y), vec4(tmp7, 0, 0, 0));
+    // imageStore(outImg, ivec2(index.x + 0, index.y), vec4(tmp0, 0, 0, 0));
+    // imageStore(outImg, ivec2(index.x + 7, index.y), vec4(tmp1, 0, 0, 0));
+    // imageStore(outImg, ivec2(index.x + 1, index.y), vec4(tmp2, 0, 0, 0));
+    // imageStore(outImg, ivec2(index.x + 6, index.y), vec4(tmp3, 0, 0, 0));
+    // imageStore(outImg, ivec2(index.x + 2, index.y), vec4(tmp4, 0, 0, 0));
+    // imageStore(outImg, ivec2(index.x + 5, index.y), vec4(tmp5, 0, 0, 0));
+    // imageStore(outImg, ivec2(index.x + 4, index.y), vec4(tmp6, 0, 0, 0));
+    // imageStore(outImg, ivec2(index.x + 3, index.y), vec4(tmp7, 0, 0, 0));
 
 //    output0[0] = tmp0 + tmp7;		// wsptr[DCTSIZE*0]
 //    output1[3] = tmp0 - tmp7;		// wsptr[DCTSIZE*7]

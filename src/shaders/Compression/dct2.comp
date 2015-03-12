@@ -64,7 +64,7 @@ void main() {
 
 	    imageStore(outImg, ivec2(index.x + 5, index.y), vec4(z13 + z2, 0, 0, 0));
 	    imageStore(outImg, ivec2(index.x + 3, index.y), vec4(z13 - z2, 0, 0, 0));
-	    imageStore(outImg, ivec2(index.x + 1, index.y), vec4(z11 + z2, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x + 1, index.y), vec4(z11 + z4, 0, 0, 0));
 	    imageStore(outImg, ivec2(index.x + 7, index.y), vec4(z11 - z4, 0, 0, 0));
 //	    output1[0] = z13 + z2;	/* phase 6 */
 //	    output1[1] = z13 - z2;
