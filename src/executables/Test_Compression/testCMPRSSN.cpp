@@ -438,10 +438,14 @@ int main(int argc, char *argv[]) {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         mergeChannels->use();
+<<<<<<< HEAD
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 			glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
         else 
         	glBindImageTexture(0, tex7Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+=======
+        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+>>>>>>> cd980a7725e5faa24c96f302abb0a601387c666f
         glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
         glDispatchCompute(int(width/8), int(height/8), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
