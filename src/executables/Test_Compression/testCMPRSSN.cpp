@@ -256,7 +256,7 @@ double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
 			glfwSetWindowTitle(window, pszConstString);
 		}
 		else {
-			std::cout << "Frames per second: " + glm::to_string(fps) << endl;
+			// std::cout << "Frames per second: " + glm::to_string(fps) << endl;
 		}
 		frames = 0.0;
 		tZero = glfwGetTime();
@@ -437,9 +437,11 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/8), height, 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-
         mergeChannels->use();
-        glBindImageTexture(0, tex7Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+			glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+        else 
+        	glBindImageTexture(0, tex7Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
         glBindImageTexture(1, tex1Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
         glDispatchCompute(int(width/8), int(height/8), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
