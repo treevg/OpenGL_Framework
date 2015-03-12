@@ -6,8 +6,8 @@ out vec4 fragColor;
 
 uniform sampler2D tex;
 
-uniform float minRange;
-uniform float maxRange;
+uniform float minRange = 0;
+uniform float maxRange = 1;
 
 void main() {
 	vec2 uv = passPosition.xy;

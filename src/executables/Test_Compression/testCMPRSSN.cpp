@@ -15,8 +15,10 @@ using namespace glm;
  *------------------------------------------------------variable declaration--------------------------------------------------------------------------
  -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-auto pass = new RenderPass(new Cube(), sp, width, height);
+// auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+// auto pass = new RenderPass(new Cube(), sp, width, height);
+auto sp = new ShaderProgram({"/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"});
+auto pass = new RenderPass(new Quad(), sp, width, height);
 //auto pass = new RenderPass(new Cube(), sp);
 
 auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compositing.frag"});
@@ -48,6 +50,7 @@ glm::mat4 projMat = glm::perspective(45.0f, float(width)/float(height), 0.1f, 10
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
+GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
 
 GLuint tex1Handle;
 GLuint tex2Handle;
@@ -397,10 +400,10 @@ int main(int argc, char *argv[]) {
 
         pass
         -> clear(1, 1, 1, 0)
-        -> update("uniformView", viewMat)
-        -> update("uniformProjection", projMat)
-        -> update("uniformModel", cubeModel)
-        -> texture("tex2", textureHandle)
+        // -> update("uniformView", viewMat)
+        // -> update("uniformProjection", projMat)
+        // -> update("uniformModel", cubeModel)
+        -> texture("tex", bambus)
         -> run();
 
 //        RGBtoYCbCr->use();
@@ -418,6 +421,7 @@ int main(int argc, char *argv[]) {
 
         splitChannels->use();
         glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
+        // glBindImageTexture(0, bambus, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
         glBindImageTexture(1, tex5Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
         glBindImageTexture(2, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
         glBindImageTexture(3, tex7Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
@@ -425,17 +429,19 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/8), int(height/8), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        dct2->use();
-        glBindImageTexture(0, tex7Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-        glBindImageTexture(1, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-        glDispatchCompute(int(width/8), height, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        if (glfwGetKey(window, GLFW_KEY_ENTER) == !GLFW_PRESS) {
+	        dct2->use();
+	        glBindImageTexture(0, tex7Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+	        glBindImageTexture(1, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width/8), height, 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        idct2->use();
-        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-        glBindImageTexture(1, tex7Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-        glDispatchCompute(int(width/8), height, 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	        idct2->use();
+	        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+	        glBindImageTexture(1, tex7Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width/8), height, 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    	}
 
         mergeChannels->use();
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
