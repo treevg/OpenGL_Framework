@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     vector<vec4> sphereVec;
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
     sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
-    sphereVec.push_back(glm::vec4(-1.0, 0.5, 2.5, 0.3));
+    sphereVec.push_back(glm::vec4(-1.0, 0.5, 1.5, 0.3));
 
     //needs to be same size as sphereVec
     vector<vec3> colorSphere;
@@ -63,18 +63,18 @@ int main(int argc, char *argv[]) {
 
 
 
-    // Warping
+    // Diffuse Warping
     auto diffWarp = (new RenderPass(grid,
         new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}),
         getWidth(window), getHeight(window)))
         ->clear(0,0,0,0)
-        ->texture("viewDirTexture", raytracePass->get("initialDirNotnorm"))
-        ->texture("colorTexture", raytracePass->get("diffuseColor"))
-        ->texture("depthTexture", raytracePass->get("diffuseDepth"))
+      //  ->texture("viewDirTexture", raytracePass->get("initialDirNotnorm"))
+       // ->texture("colorTexture", raytracePass->get("diffuseColor"))
+        ->texture("diffuseDepthTexture", raytracePass->get("diffuseDepth"))
         ->texture("diffPositionTexture", raytracePass->get("diffusePosition"))
-        ->texture("indirectColorTexture", raytracePass->get("fragColor2"))
-        ->texture("normalTexture", raytracePass->get("normal"))
-        ->texture("depth2Texture", raytracePass->get("reflectiveDepth"));
+      //  ->texture("indirectColorTexture", raytracePass->get("reflectiveColor"))
+		//->texture("diffusePositionTexture", raytracePass->get("diffusePosition"))
+        ->texture("normalTexture", raytracePass->get("normal"));
 
     // Reflective Warping
     auto refWarp = (new RenderPass(grid,
@@ -83,20 +83,20 @@ int main(int argc, char *argv[]) {
         ->clear(0,0,0,0)
         ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"))
         ->texture("normalTexture", raytracePass->get("normal"))
-		->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"))
-        ->texture("reflectionColorTexture", raytracePass->get("reflectiveColor"));
+		->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"));
 
     // Gather reflection
     auto gatherRefPass = (new RenderPass(quadVAO,
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"}),
         getWidth(window), getHeight(window)))
         ->texture("reflectionColorTexture", raytracePass->get("reflectiveColor"))
-        ->texture("reflectionPositionTexture", diffWarp->get("refPos"))
+        //->texture("reflectionPositionTexture", diffWarp->get("refPos"))
         ->texture("warpedDiffusePositionTexture", diffWarp->get("warpDiffPos"))
-        ->texture("splattedReflectionUVTexture", diffWarp->get("coColor"))
+       // ->texture("splattedReflectionUVTexture", diffWarp->get("coColor"))
         ->texture("warpedNormalTexture", diffWarp->get("warpNormal"))
-        ->texture("diffColorTexture", diffWarp->get("diffCol"))
-        ->texture("eyeNewDirTexture",diffWarp->get("newViewDirection"));
+        //->texture("diffColorTexture", diffWarp->get("diffCol"))
+        //->texture("eyeNewDirTexture",diffWarp->get("newViewDirection"));
+		;
 
     auto tonemapping = (new RenderPass(
     new Quad(),
@@ -124,19 +124,19 @@ int main(int argc, char *argv[]) {
                 tonemapping->texture("tex", raytracePass->get("normal"));
                 break;
             case GLFW_KEY_6:
-                tonemapping->texture("tex", diffWarp->get("diffCol"));
+                tonemapping->texture("tex", diffWarp->get("warpNormal"));
                 break;
             case GLFW_KEY_7:
                 tonemapping->texture("tex", diffWarp->get("warpDiffPos"));
                 break;
-//            case GLFW_KEY_8:
-//                tonemapping->texture("tex", diffWarp->get("warpNormal"));
-//                break;
             case GLFW_KEY_8:
                 tonemapping->texture("tex", refWarp->get("splattedRefUV"));
                 break;
             case GLFW_KEY_9:
                  tonemapping->texture("tex", refWarp->get("warpedReflectivePosition"));
+                 break;
+            case GLFW_KEY_0:
+                 tonemapping->texture("tex", raytracePass->get("diffusePosition"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -182,8 +182,7 @@ int main(int argc, char *argv[]) {
         ->run();
 
         diffWarp
-        ->clear(0,0,0,0)
-        ->update("warpOnOff", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+        ->clear(0,0,1,0)
         ->update("altView", view)
         ->update("invViewProjection", invViewProjection_old)
         ->update("projection", projection)

@@ -7,7 +7,6 @@ in vec2 pos;
 uniform sampler2D reflectionPositionTexture; 
 uniform sampler2D diffusePositionTexture;  
 uniform sampler2D normalTexture;
-uniform sampler2D reflectionColorTexture;
 uniform mat4 altView;
 uniform mat4 projection;
 
