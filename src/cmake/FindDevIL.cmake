@@ -27,36 +27,50 @@
 
 INCLUDE(FindPackageHandleStandardArgs)
 
+SET( DevIL_ROOT_ENV
+    $ENV{DEVIL_ROOT}
+)
+
+MESSAGE("DevIL_ROOT_ENV is ${DevIL_ROOT_ENV}")
+
 FIND_PATH(IL_INCLUDE_DIR il.h 
+  PATHS 
+	${DevIL_ROOT_ENV}
   PATH_SUFFIXES include IL
   DOC "The path the the directory that contains il.h"
 )
 
-#MESSAGE("IL_INCLUDE_DIR is ${IL_INCLUDE_DIR}")
+MESSAGE("IL_INCLUDE_DIR is ${IL_INCLUDE_DIR}")
 
 FIND_LIBRARY(IL_LIBRARIES
   NAMES IL DEVIL
+  PATHS 
+	${DevIL_ROOT_ENV}
   PATH_SUFFIXES lib64 lib lib32
   DOC "The file that corresponds to the base il library."
 )
 
-#MESSAGE("IL_LIBRARIES is ${IL_LIBRARIES}")
+MESSAGE("IL_LIBRARIES is ${IL_LIBRARIES}")
 
 FIND_LIBRARY(ILUT_LIBRARIES
+  PATHS 
+	${DevIL_ROOT_ENV}
   NAMES ILUT
   PATH_SUFFIXES lib64 lib lib32
   DOC "The file that corresponds to the il (system?) utility library."
 )
 
-#MESSAGE("ILUT_LIBRARIES is ${ILUT_LIBRARIES}")
+MESSAGE("ILUT_LIBRARIES is ${ILUT_LIBRARIES}")
 
 FIND_LIBRARY(ILU_LIBRARIES
   NAMES ILU
+  PATHS 
+	${DevIL_ROOT_ENV}
   PATH_SUFFIXES lib64 lib lib32
   DOC "The file that corresponds to the il utility library."
 )
 
-#MESSAGE("ILU_LIBRARIES is ${ILU_LIBRARIES}")
+MESSAGE("ILU_LIBRARIES is ${ILU_LIBRARIES}")
 
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(IL DEFAULT_MSG 
                                   IL_LIBRARIES ILU_LIBRARIES 
