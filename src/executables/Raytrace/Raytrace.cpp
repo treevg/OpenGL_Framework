@@ -62,19 +62,26 @@ int main(int argc, char *argv[]) {
     auto compositing = new RenderPass(quadVAO, compSP);
 
 
-
     // Diffuse Warping
     auto diffWarp = (new RenderPass(grid,
         new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}),
-        getWidth(window), getHeight(window)))
+		getWidth(window), getHeight(window)))
         ->clear(0,0,0,0)
       //  ->texture("viewDirTexture", raytracePass->get("initialDirNotnorm"))
        // ->texture("colorTexture", raytracePass->get("diffuseColor"))
         ->texture("diffuseDepthTexture", raytracePass->get("diffuseDepth"))
         ->texture("diffPositionTexture", raytracePass->get("diffusePosition"))
       //  ->texture("indirectColorTexture", raytracePass->get("reflectiveColor"))
-		//->texture("diffusePositionTexture", raytracePass->get("diffusePosition"))
         ->texture("normalTexture", raytracePass->get("normal"));
+
+    // Holefilling
+    auto holeFill = (new RenderPass(quadVAO,
+    	new ShaderProgram({"/Raytracing/raytrace.vert", "/RenderTechniques/hhfFill.frag"}),
+		getWidth(window), getHeight(window)))
+		->clear(1,0,0,0)
+		->texture("mipmapTexture", diffWarp->get("warpDiffPos"))
+		->update("resolution", vec2(getWidth(window), getHeight(window)))
+		->update("level", 0);
 
     // Reflective Warping
     auto refWarp = (new RenderPass(grid,
@@ -136,7 +143,7 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", refWarp->get("warpedReflectivePosition"));
                  break;
             case GLFW_KEY_0:
-                 tonemapping->texture("tex", raytracePass->get("diffusePosition"));
+                 tonemapping->texture("tex", holeFill->get("fragColor"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -182,11 +189,15 @@ int main(int argc, char *argv[]) {
         ->run();
 
         diffWarp
-        ->clear(0,0,1,0)
+        ->clear()
         ->update("altView", view)
         ->update("invViewProjection", invViewProjection_old)
         ->update("projection", projection)
         ->run();
+
+        holeFill
+		->clear(1,0,0,0)
+		->run();
 
         refWarp
 		->clear(0,1,0,0)
@@ -206,5 +217,6 @@ int main(int argc, char *argv[]) {
         tonemapping
         ->clear()
         ->run();
+
     });
 }

@@ -7,7 +7,7 @@ in vec4 passPosition;
 layout(location = 0) out vec4 warpedColor;
 
 uniform sampler2D reflectionColorTexture;   	// indirectColor aus raytrace2.frag ?
-uniform sampler2D reflectionPositionTexture;    //iPos aus warp.vert?
+uniform sampler2D reflectionPositionTexture;    //iPos aus refWarp.vert
 uniform sampler2D warpedDiffusePositionTexture;
 uniform sampler2D splattedReflectionUVTexture;
 uniform sampler2D warpedNormalTexture;
@@ -17,7 +17,7 @@ uniform int mode;
 uniform int maxGDSteps;
 
 uniform sampler2D diffColorTexture;
-uniform sampler2D eyeNewDirTexture;  // correct?
+uniform sampler2D eyeNewDirTexture;  // compute with invViewProjection
 
 
 //uniform sampler2D coord;
