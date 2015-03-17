@@ -47,25 +47,25 @@ auto objl = new Objectloader();
 
 // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
 // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
-auto sp = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag"});
+auto sp = new ShaderProgram("/Raytracing/raytrace.vert", "/Raytracing/raytrace2.frag");
 auto pass1 = new RenderPass(quadVAO, sp,width, height);
 
 //Tonemap shader for depth
-auto spLin = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/toneMap.frag"});
+auto spLin = new ShaderProgram("/Raytracing/raytrace.vert", "/Raytracing/toneMap.frag");
 auto passLin = new RenderPass(quadVAO,spLin,width, height);
 
 //For Compression
-auto sp2 = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+auto sp2 = new ShaderProgram("/Compression/test1.vert", "/Compression/test1.frag");
 auto pass2 = new RenderPass(new Cube(), sp2);
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/bambus.jpg");
 GLuint texHandle = ComputeShaderTools::generateTexture();
 
 //Composite shader
-auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
+auto compSP = new ShaderProgram("/Raytracing/raytrace.vert", "/Raytracing/compositing.frag");
 auto compositing = new RenderPass(quadVAO, compSP);
 
 //Warping shader
-auto warp = new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"});
+auto warp = new ShaderProgram("/Raytracing/warp.vert", "/Raytracing/warp.frag");
 auto diffWarp = new RenderPass(grid, warp);
 
 

@@ -39,12 +39,12 @@ HierarchicalHoleFilling::HierarchicalHoleFilling(
 
     reduce = (new RenderPass(
         this->vertexArrayObject, 
-        new ShaderProgram({vertexShaderPath, reduceFragmentShaderPath})))
+        new ShaderProgram(vertexShaderPath, reduceFragmentShaderPath)))
     		->update("resolution", resolution);
 
     fill = (new RenderPass(
         this->vertexArrayObject, 
-        new ShaderProgram({vertexShaderPath, fillFragmentPath})))
+        new ShaderProgram(vertexShaderPath, fillFragmentPath)))
             ->texture("mipmapTexture", mipmap)
             ->update("resolution", resolution);
 

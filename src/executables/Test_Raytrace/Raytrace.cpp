@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     cout << getWidth(window) << " " << getHeight(window) << endl;
     RenderPass* raytrace = (new RenderPass(
         new Quad(), 
-        new ShaderProgram({"/Filters/fullscreen.vert","/Raytracing/raytrace2.frag"})
+        new ShaderProgram("/Filters/fullscreen.vert","/Raytracing/raytrace2.frag")
     ))
         ->update("sphereVec[0]", vector<vec4>{
             vec4(0.0, 0.0, 0.0, 0.5),

@@ -16,9 +16,9 @@
  */
 
 // SHADER PROGRAMS
-auto gbufferSp      = new ShaderProgram({"/Voxelization/simpleVertex.vert", "/Voxelization/gbuffer.frag"});
-auto slicemappingSp = new ShaderProgram({"/Voxelization/simpleVertex.vert", "/Voxelization/sliceMap.frag"});
-auto compositingSp	= new ShaderProgram({"/Voxelization/screenfill.vert",   "/Voxelization/shadowmappingSliceMap.frag"});
+auto gbufferSp      = new ShaderProgram("/Voxelization/simpleVertex.vert", "/Voxelization/gbuffer.frag");
+auto slicemappingSp = new ShaderProgram("/Voxelization/simpleVertex.vert", "/Voxelization/sliceMap.frag");
+auto compositingSp	= new ShaderProgram("/Voxelization/screenfill.vert",   "/Voxelization/shadowmappingSliceMap.frag");
 
 // VAO OBJECTS
 auto cube = new Cube();
