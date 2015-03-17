@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 
     float rotX = 0.785f;
     float rotY = 0.0f;
-    int numMipmaps = glm::log2(glm::max(getWidth(window), getHeight(window)));
+    int numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
     auto quad = new Quad();
 
     auto sparse = (new RenderPass(
