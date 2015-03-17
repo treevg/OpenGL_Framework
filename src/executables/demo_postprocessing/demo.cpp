@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 
     auto blurring = (new RenderPass(
         new Quad(), 
-        new ShaderProgram({"/Filters/fullscreen.vert","/Filters/boxBlur.frag"}), 
+        new ShaderProgram("/Filters/fullscreen.vert","/Filters/boxBlur.frag"), 
         getWidth(window), 
         getHeight(window)))
             ->texture("tex", Texture::load(RESOURCES_PATH "/jpg/bambus.jpg"))
@@ -19,7 +19,7 @@ int main(int argc, char *argv[]) {
 
     auto tonemapping = (new RenderPass(
         new Quad(), 
-        new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
+        new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag")))
             ->texture("tex", blurring->get("fragColor"))
             ->update("resolution", getResolution(window));
 

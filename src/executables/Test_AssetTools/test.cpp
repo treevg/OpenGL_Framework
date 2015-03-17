@@ -22,13 +22,13 @@ int main(int argc, char *argv[]) {
 
     RenderPass* sky = (new RenderPass(
         new Quad(), 
-        new ShaderProgram({"/Filters/fullscreen.vert","/3DObject/equirectangularSky.frag"})))
+        new ShaderProgram("/Filters/fullscreen.vert","/3DObject/equirectangularSky.frag")))
             ->texture("tex", texture->getHandle())
             ->update("projection", projection);
 
     RenderPass* object = (new RenderPass(
         new Mesh(RESOURCES_PATH "/obj/cv-logo.obj", aiProcess_GenSmoothNormals | aiProcess_Triangulate), 
-        new ShaderProgram({"/3DObject/modelViewProjection.vert","/3DObject/environmentMapping.frag"})))
+        new ShaderProgram("/3DObject/modelViewProjection.vert","/3DObject/environmentMapping.frag")))
             ->texture("tex", texture->getHandle())
             ->update("resolution", vec2(getWidth(window), getHeight(window)))
             ->update("projection", projection)

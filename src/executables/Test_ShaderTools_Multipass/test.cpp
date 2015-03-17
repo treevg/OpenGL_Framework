@@ -3,7 +3,7 @@
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 
 auto quadVAO = new Quad();
-auto singleColorSP = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
+auto singleColorSP = new ShaderProgram("/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag");
 
 auto pass1 = new RenderPass(
     quadVAO, 
@@ -20,7 +20,7 @@ auto pass3 = new RenderPass(
     singleColorSP,
     width, height);
 
-auto compSP = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/compositing.frag"});
+auto compSP = new ShaderProgram("/Test_ShaderTools/test.vert", "/Test_ShaderTools/compositing.frag");
 auto compositing = new RenderPass(
     quadVAO, 
     compSP);

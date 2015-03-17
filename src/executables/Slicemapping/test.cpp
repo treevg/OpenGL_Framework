@@ -15,9 +15,9 @@
  */
 
 // SHADER PROGRAMS
-auto sp = new ShaderProgram({"/Voxelization/simpleVertex.vert", "/Voxelization/simpleColoring.frag"});
-auto slicemappingShader = new ShaderProgram({"/Voxelization/simpleVertex.vert", "/Voxelization/sliceMap.frag"});
-auto projectSlicemap	= new ShaderProgram({"/Voxelization/screenfill.vert", "/Voxelization/sliceMapOverlay.frag"});
+auto sp = new ShaderProgram("/Voxelization/simpleVertex.vert", "/Voxelization/simpleColoring.frag");
+auto slicemappingShader = new ShaderProgram("/Voxelization/simpleVertex.vert", "/Voxelization/sliceMap.frag");
+auto projectSlicemap	= new ShaderProgram("/Voxelization/screenfill.vert", "/Voxelization/sliceMapOverlay.frag");
 
 // OBJECTS
 auto cube = new Cube();
