@@ -1,0 +1,75 @@
+#version 430
+layout ( binding = 0, r32f ) readonly uniform image2D inImg;
+layout ( binding = 1, r32f ) writeonly uniform image2D outImg;
+
+layout (local_size_x = 1, local_size_y=1, local_size_z=1) in;
+
+
+void main() {
+	
+	float[8] temp;
+	
+	float tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
+	float tmp10, tmp11, tmp12, tmp13;
+	float z1, z2, z3, z4, z5, z11, z13;
+
+	ivec2 index = ivec2 (gl_GlobalInvocationID.x, gl_GlobalInvocationID.y*8);
+
+	for(int i = 0; i < 8; i++){
+		temp[i] = imageLoad(inImg, ivec2(index.x, index.y + i)).x;
+	}
+	
+	    tmp0 = temp[0] + temp[7];
+	    tmp7 = temp[0] - temp[7];
+	    tmp1 = temp[1] + temp[6];
+	    tmp6 = temp[1] - temp[6];
+	    tmp2 = temp[2] + temp[5];
+	    tmp5 = temp[2] - temp[5];
+	    tmp3 = temp[3] + temp[4];
+	    tmp4 = temp[3] - temp[4];
+	    
+	    /* Even part */
+	    
+	    tmp10 = tmp0 + tmp3;	/* phase 2 */
+	    tmp13 = tmp0 - tmp3;
+	    tmp11 = tmp1 + tmp2;
+	    tmp12 = tmp1 - tmp2;
+	    
+	    imageStore(outImg, ivec2(index.x, index.y + 0), vec4(tmp10 + tmp11, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x, index.y + 4), vec4(tmp10 - tmp11, 0, 0, 0));
+//	    output0[0] = tmp10 + tmp11; /* phase 3 */
+//	    output0[1] = tmp10 - tmp11;
+	    
+	    z1 = (tmp12 + tmp13) * 0.707106781; /* c4 */
+	    
+	    imageStore(outImg, ivec2(index.x, index.y + 2), vec4(tmp13 + z1, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x, index.y + 6), vec4(tmp13 - z1, 0, 0, 0));
+//	    output0[2] = tmp13 + z1;	/* phase 5 */
+//	    output0[3] = tmp13 - z1;
+	    
+	    /* Odd part */
+
+	    tmp10 = tmp4 + tmp5;	/* phase 2 */
+	    tmp11 = tmp5 + tmp6;
+	    tmp12 = tmp6 + tmp7;
+
+	    /* The rotator is modified from fig 4-8 to avoid extra negations. */
+	    z5 = (tmp10 - tmp12) * 0.382683433; /* c6 */
+	    z2 = 0.541196100 * tmp10 + z5; /* c2-c6 */
+	    z4 = 1.306562965 * tmp12 + z5; /* c2+c6 */
+	    z3 = tmp11 * 0.707106781; /* c4 */
+
+	    z11 = tmp7 + z3;		/* phase 5 */
+	    z13 = tmp7 - z3;
+
+	    imageStore(outImg, ivec2(index.x, index.y + 5), vec4(z13 + z2, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x, index.y + 3), vec4(z13 - z2, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x, index.y + 1), vec4(z11 + z4, 0, 0, 0));
+	    imageStore(outImg, ivec2(index.x, index.y + 7), vec4(z11 - z4, 0, 0, 0));
+//	    output1[0] = z13 + z2;	/* phase 6 */
+//	    output1[1] = z13 - z2;
+//	    output1[2] = z11 + z4;
+//	    output1[3] = z11 - z4;
+	
+	
+}
