@@ -1,0 +1,16 @@
+#version 430
+layout ( binding = 0, r32f ) readonly uniform image2D inImg1;
+layout ( binding = 1, r32f ) readonly uniform image2D inImg2;
+layout ( binding = 2, rg32f ) writeonly uniform image2D outImg;
+
+layout (local_size_x = 8, local_size_y = 8) in;
+void main() {
+
+	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
+	
+	vec4 texel_color1 = imageLoad(inImg1, index);
+	vec4 texel_color2 = imageLoad(inImg2, index);
+	
+	imageStore(outImg, index, vec4(texel_color1.r, texel_color2.r, 0, 0));
+	
+}
