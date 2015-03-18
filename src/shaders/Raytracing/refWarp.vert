@@ -9,6 +9,7 @@ uniform sampler2D diffusePositionTexture;
 uniform sampler2D normalTexture;
 uniform mat4 altView;
 uniform mat4 projection;
+uniform vec2 resolution;
 
 out vec2 passPosition;
 out vec4 warpRefPos;
@@ -28,14 +29,15 @@ void main() {
 	
 	// coord color
 	vec2 coordColor = vec2(
-    float(float(pos.x) /1280.0),
-    float(float(pos.y) / 720.0));
+    float(float(pos.x) /resolution.x),
+    float(float(pos.y) / resolution.y));
 	
 	
 	// hard-coded resolution
 	outCoord = vec2(
-    float(warpRefPos.x + 1.0) * 0.5 * 720.0 + (1280.0 - 720.0)/2.0,
-    float(warpRefPos.y + 1.0) * 0.5 * 720.0);
+    float(warpRefPos.x + 1.0) * 0.5 * resolution.y + (resolution.x - resolution.y)/2.0,
+    float(warpRefPos.y + 1.0) * 0.5 * resolution.y);
+
 	
 	//leftout - needed at all?
 	//vec4 lastIteration;

@@ -20,6 +20,7 @@ using namespace glm;
 //TODO divide scene into patches for raytracing-> increase performance
 
 int main(int argc, char *argv[]) {
+
     GLFWwindow* window = generateWindow();
 
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -74,6 +75,17 @@ int main(int argc, char *argv[]) {
       //  ->texture("indirectColorTexture", raytracePass->get("reflectiveColor"))
         ->texture("normalTexture", raytracePass->get("normal"));
 
+
+    //extra normalwarpPass
+    auto normalWarp = (new RenderPass(grid,
+        new ShaderProgram({"/Raytracing/normalWarp.vert", "/Raytracing/normalWarp.frag"}),
+		getWidth(window), getHeight(window)))
+        ->clear(0,0,0,0)
+        ->texture("normalTexture", raytracePass->get("normal"))
+        ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"));
+
+
+
     // Holefilling
     auto holeFill = (new RenderPass(quadVAO,
     	new ShaderProgram({"/Raytracing/raytrace.vert", "/RenderTechniques/hhfFill.frag"}),
@@ -90,19 +102,21 @@ int main(int argc, char *argv[]) {
         ->clear(0,0,0,0)
         ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"))
         ->texture("normalTexture", raytracePass->get("normal"))
-		->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"));
+		->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"))
+		->update("resolution", getResolution(window));
 
     // Gather reflection
     auto gatherRefPass = (new RenderPass(quadVAO,
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"}),
         getWidth(window), getHeight(window)))
         ->texture("reflectionColorTexture", raytracePass->get("reflectiveColor"))
-        //->texture("reflectionPositionTexture", diffWarp->get("refPos"))
-        ->texture("warpedDiffusePositionTexture", diffWarp->get("warpDiffPos"))
-       // ->texture("splattedReflectionUVTexture", diffWarp->get("coColor"))
-        ->texture("warpedNormalTexture", diffWarp->get("warpNormal"))
-        //->texture("diffColorTexture", diffWarp->get("diffCol"))
-        //->texture("eyeNewDirTexture",diffWarp->get("newViewDirection"));
+        ->texture("reflectionPositionTexture", refWarp->get("warpedReflectivePosition"))
+        ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
+        ->texture("splattedReflectionUVTexture", refWarp->get("splattedRefUV"))
+		//wrong texture. testing purpose
+        ->texture("warpedNormalTexture",  normalWarp->get("warpNormal"))
+        ->texture("diffColorTexture", raytracePass->get("diffuseColor"))
+        ->update("resolution", getResolution(window))
 		;
 
     auto tonemapping = (new RenderPass(
@@ -116,7 +130,7 @@ int main(int argc, char *argv[]) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             switch (key) {
             case GLFW_KEY_1:
-                tonemapping->texture("tex", raytracePass->get("diffuseColor"));
+                tonemapping->texture("tex", raytracePass->get("diffuseDepth"));
                 break;
             case GLFW_KEY_2:
                 tonemapping->texture("tex", raytracePass->get("diffusePosition"));
@@ -131,7 +145,7 @@ int main(int argc, char *argv[]) {
                 tonemapping->texture("tex", raytracePass->get("normal"));
                 break;
             case GLFW_KEY_6:
-                tonemapping->texture("tex", diffWarp->get("warpNormal"));
+                tonemapping->texture("tex", normalWarp->get("warpNormal"));
                 break;
             case GLFW_KEY_7:
                 tonemapping->texture("tex", diffWarp->get("warpDiffPos"));
@@ -144,6 +158,9 @@ int main(int argc, char *argv[]) {
                  break;
             case GLFW_KEY_0:
                  tonemapping->texture("tex", holeFill->get("fragColor"));
+                 break;
+            case GLFW_KEY_SPACE:
+                 tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -195,6 +212,13 @@ int main(int argc, char *argv[]) {
         ->update("projection", projection)
         ->run();
 
+        normalWarp
+		->clear()
+        ->update("altView", view)
+        ->update("invViewProjection", invViewProjection_old)
+        ->update("projection", projection)
+		->run();
+
         holeFill
 		->clear(1,0,0,0)
 		->run();
@@ -208,10 +232,11 @@ int main(int argc, char *argv[]) {
 
         gatherRefPass
         ->clear(0,0,1,0)
-        ->update("resolution", getResolution(window))
         ->update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
-        ->update("maxGDSteps", 10)
+        ->update("maxGDSteps", 5)
         ->update("mvpOld", vp_old)
+        ->update("altView", view)
+        ->update("projection", projection)
         ->run();
 
         tonemapping

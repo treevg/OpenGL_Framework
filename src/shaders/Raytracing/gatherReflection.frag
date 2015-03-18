@@ -6,7 +6,7 @@ in vec4 passPosition;
 
 layout(location = 0) out vec4 warpedColor;
 
-uniform sampler2D reflectionColorTexture;   	// indirectColor aus raytrace2.frag ?
+uniform sampler2D reflectionColorTexture;   	// indirectColor aus raytrace2.frag 
 uniform sampler2D reflectionPositionTexture;    //iPos aus refWarp.vert
 uniform sampler2D warpedDiffusePositionTexture;
 uniform sampler2D splattedReflectionUVTexture;
@@ -15,18 +15,17 @@ uniform vec2 resolution;
 uniform mat4 mvpOld;
 uniform int mode;
 uniform int maxGDSteps;
+uniform mat4 altView;
+uniform mat4 projection;
 
 uniform sampler2D diffColorTexture;
-uniform sampler2D eyeNewDirTexture;  // compute with invViewProjection
-
-
-//uniform sampler2D coord;
-
 
 // uniform sampler2D diffusePositionTexture;
 // uniform sampler2D normalTexture;
 // uniform mat4 mvpNew;
 // uniform vec3 eyeOld;
+
+mat4 vp_inv = mat4(inverse(projection * altView));
 
 float ratio = resolution.x / resolution.y;
 
@@ -35,14 +34,17 @@ vec4 invalidColor = vec4(0, 0, 0, 0);
 
 //texCoord replaced by passPosition. 
 
-		// vec2 splattedReflectionUV = texelFetch(splattedReflectionUVTexture, ivec2(gl_FragCoord.xy), 0).xy + 1/resolution;
+// vec2 splattedReflectionUV = texelFetch(splattedReflectionUVTexture, ivec2(gl_FragCoord.xy), 0).xy + 1/resolution;
 vec2 splattedReflectionUV = texture(splattedReflectionUVTexture, (passPosition.xy -1) * 0.5).xy;
 vec3 warpedDiffusePosition = texture(warpedDiffusePositionTexture, (passPosition.xy -1) * 0.5).xyz;
 vec4 warpedNormal = texture(warpedNormalTexture,(passPosition.xy -1) * 0.5);
-vec3 eyeNew = texture(eyeNewDirTexture, (passPosition.xy -1) * 0.5).xyz;
-vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyeNew, normalize(warpedNormal.xyz)));
-		// vec4 reflectionPosition = texture(reflectionPositionTexture, (passPosition.xy -1) * 0.5);
 
+//troublemaker
+vec3 eyeNew = vec4(vp_inv * vec4(0.0, 0.0, -4.0, 1.0)).xyz;
+
+vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyeNew, normalize(warpedNormal.xyz)));
+
+// vec4 reflectionPosition = texture(reflectionPositionTexture, (passPosition.xy -1) * 0.5);
 //vec4 temp = texture( splattedReflectionUVTexture, (texture(coord, passPosition.xy)).xy);
 
 vec2 initialCoord() {
@@ -190,9 +192,9 @@ void main() {
 
         // vec4(1,0,0,1);
         if (undefined || isnan(coord.x)) {
-            //warpedColor = invalidColor;
+            warpedColor = invalidColor;
 			
-			warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
+			//warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
 
         } else {
             // vec4 w1 = vec4(texture(reflectionColorTexture, coord + vec2(0.5) / resolution).xyz,1); 
@@ -212,7 +214,7 @@ void main() {
         // warpedColor = vec4(1,0,0,1);
      
         warpedColor = vec4(bestQuality);
-		warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
+		//warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
 
     }
 }

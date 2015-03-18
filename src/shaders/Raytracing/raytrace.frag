@@ -22,7 +22,7 @@ in 		vec4	passPosition;
 //direct 
 out 	vec4	diffuseColor;
 out 	vec4 	diffusePosition;
-out 	vec4	diffuseDepth;
+out 	vec3	diffuseDepth;
 out 	vec3	normal;
 out		vec3	initialDirNotnorm;
 
@@ -209,48 +209,18 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 		 }
 		
 		if(i == 0){
-			// no hit
 			if (hitTriangle == -1 && hitSphere == -1) {
 				diffuseColor = vec4(background(currentDir),1);
 				diffusePosition = vec4(currentDir,0);
-				diffuseDepth = vec4(9999);
+				diffuseDepth = vec3(999);
 				reflectiveColor = vec4(0,0,0,0);
 				reflectivePosition = vec4(0,0,0,0);
 				reflectiveDepth = vec4(9999);
 				break;
 			} else {
-				//hit
-				
-				//vec3 phongNormal = vec3(myNormals.posNorm[hitTriangle].xyz + myNormals.posNorm[hitTriangle+1].xyz + myNormals.posNorm[hitTriangle+2].xyz) / 3.0 + 0.4;
 				float phongDiffuse;
-				
 				// compute interpolated normal for triangle
 				if(hitTriangle >= 0){
-					// interpolation taken from: https://www.c-plusplus.net/forum/88578-full
-					// edited by moe11elf
-				//	vec3 ab = myMesh.pos[hitTriangle+1].xyz - myMesh.pos[hitTriangle].xyz;
-				//	vec3 ac = myMesh.pos[hitTriangle+2].xyz  - myMesh.pos[hitTriangle].xyz;
-				//	vec3 bc = myMesh.pos[hitTriangle+2].xyz  - myMesh.pos[hitTriangle+1].xyz;
-				//	vec3 ap = currentPos - myMesh.pos[hitTriangle].xyz; 	
-				//	vec3 bp = currentPos - myMesh.pos[hitTriangle+1].xyz;
-				//	vec3 cp = currentPos - myMesh.pos[hitTriangle+2].xyz;	
-				//	float area = (cross(ab, ac).length() ) /2;
-				//	float gamma = (cross(ab, ap).length() )/2  / area;
-				//	float beta = (cross(ap, ac).length())/2 / area;
-				//	float alpha = 1.0 - beta - gamma;
-				//	vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * alpha) + (myNormals.posNorm[hitTriangle+1].xyz * beta) + (myNormals.posNorm[hitTriangle+2].xyz * gamma));
-
-				//	vec3 areaVec = cross(ab, ac);
-				//	vec3 alphaVec = cross(ab, ap);
-				//	vec3 betaVec = cross(ap,ac);
-				//	vec3 gammaVec = cross(bc,bp);			
-				//	float area = areaVec.length() /2.0  ;
-				//	float alpha = alphaVec.length() /2.0 /area;
-				//	float beta = betaVec.length() /2.0 /area;
-				//	float gamma = gammaVec.length() /2.0 /area;
-					//vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * alpha) + (myNormals.posNorm[hitTriangle+1].xyz * beta) + (myNormals.posNorm[hitTriangle+2].xyz * gamma));
-					
-					// different solution for interpolation//
 					mat3 a = mat3(vec3(myMesh.pos[hitTriangle].xyz), vec3(myMesh.pos[hitTriangle+1].xyz), vec3(myMesh.pos[hitTriangle+2].xyz));
 					vec3 x = inverse(a) * currentPos;
 					vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
@@ -268,7 +238,8 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 				
 				//float temps = dot(currentDirNotnorm, initialDirNotnorm);
 				//diffuseDepth = vec4(temps,temps,temps,1);
-				diffuseDepth = vec4(distance(initialPos, diffusePosition.xyz));
+				vec3 depthVec = diffusePosition.xyz - initialPos;
+				diffuseDepth = depthVec; //vec4(distance(initialPos, diffusePosition.xyz));
 			}
 		} 
 		if (i == 1) {		
