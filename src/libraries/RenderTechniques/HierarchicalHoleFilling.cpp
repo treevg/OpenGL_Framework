@@ -10,7 +10,7 @@ HierarchicalHoleFilling::HierarchicalHoleFilling(
 	: vertexArrayObject(vertexArrayObject)
 {
 	if (vertexArrayObject == NULL) this->vertexArrayObject = new Quad();
-	mipmapNumber = glm::clamp(mipmapNumber, 1, (int)glm::log2(glm::max(resolution.x, resolution.y)));
+	mipmapNumber = glm::clamp(mipmapNumber, 1, (int)glm::log2(glm::max<float>(resolution.x, resolution.y)));
 	this->mipmapNumber = mipmapNumber;
 
     glGenTextures(1, &mipmap);
