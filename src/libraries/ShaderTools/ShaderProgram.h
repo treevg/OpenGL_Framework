@@ -300,8 +300,8 @@ protected:
 	 *        to the console
 	 */
 	void printShaderProgramInfoLog();
-	void mapShaderProperties(GLenum interface, std::map<std::string, Info>* map);
-	void printInfo(std::map<std::string, Info>* map);
+	void mapShaderProperties(GLenum iFace, std::map < std::string, Info >* map);
+	void printInfo(std::map < std::string, Info >* map);
 	std::string getTypeString(GLenum type);
 };
 
