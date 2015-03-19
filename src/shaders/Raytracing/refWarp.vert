@@ -11,13 +11,13 @@ uniform mat4 altView;
 uniform mat4 projection;
 uniform vec2 resolution;
 
-out vec4 passPosition;
+out vec2 passPosition;
 out vec4 warpRefPos;
 out vec2 coordColor;
 
 void main() {
 	mat4 mvpNew = projection * altView;
-//	passPosition = pos;
+	passPosition = pos;
 	
 	// compute warped reflective position
 	vec3 wDifPos = texture(diffusePositionTexture, pos).xyz;
@@ -27,8 +27,8 @@ void main() {
 	// warpRefPos = mvpNew * vec4(wPos.xyz,1);
 	//  warpRefPos /= warpRefPos.w;
 	warpRefPos = projection * altView * wPos;
-	passPosition =  warpRefPos;
-	gl_Position = warpRefPos; //vec4(pos * 2 - 1, 0, 1);
+	//passPosition =  warpRefPos;
+	gl_Position = projection * altView * wPos; //vec4(pos * 2 - 1, 0, 1);
 	
 
 	

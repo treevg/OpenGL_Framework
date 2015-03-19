@@ -125,6 +125,12 @@ int main(int argc, char *argv[]) {
         ->texture("tex", raytracePass->get("diffuseColor"))
         ->update("resolution", getResolution(window));
 
+    auto tonemappingFlow = (new RenderPass(
+    new Quad(),
+    new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
+        ->texture("tex", diffWarp->get("flow"))
+        ->update("resolution", getResolution(window));
+
 
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -163,7 +169,7 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", refWarp->get("position"));
                  break;
             case GLFW_KEY_Q:
-                 tonemapping->texture("tex", refWarp->get("splattedRefUV"));
+                 tonemapping->texture("tex", refWarp->get("uv"));
                  break;
             case GLFW_KEY_W:
                  tonemapping->texture("tex", refWarp->get("refColor"));
@@ -223,6 +229,10 @@ int main(int argc, char *argv[]) {
         ->run();
 
         holeFill
+		->clear(1,0,0,0)
+		->run();
+
+        tonemappingFlow
 		->clear(1,0,0,0)
 		->run();
 
