@@ -25,7 +25,6 @@
 #include <map>
 
 
-
 /**
  * @brief 	Verwaltet ein Shader Programm
  */
@@ -35,7 +34,6 @@ public:
 	/**
 	 * @brief Creates an empty shader program
 	 */
-
 	ShaderProgram();
 
 	/**
@@ -43,7 +41,12 @@ public:
 	 * 
 	 * @param attachShaders List of GLSL source code files
 	 */
-	ShaderProgram(std::vector<std::string> attachShaders);
+	// ShaderProgram(std::vector<std::string> attachShaders);
+	//MSVC Workaround
+	ShaderProgram(std::string a, std::string b);
+	ShaderProgram(std::string a, std::string b, std::string c);
+	ShaderProgram(std::string a, std::string b, std::string c, std::string d);
+	ShaderProgram(std::string a, std::string b, std::string c, std::string d, std::string e);
 
 	/**
 	 * @brief Creates a shader program from a given shader code file
@@ -207,12 +210,10 @@ public:
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, std::vector<glm::vec4> vector);
-
 	
 	/**
 	 * @brief Logs all active bound uniforms to the console
 	 */
-
 	void printUniformInfo();
 	/**
 	 * @brief Logs all active bound input buffers to the console

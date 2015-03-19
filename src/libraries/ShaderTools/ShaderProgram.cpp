@@ -8,12 +8,70 @@ using namespace glm;
 ShaderProgram::ShaderProgram(){
 }
 
-ShaderProgram::ShaderProgram(vector<string> attachShaders) {
+// ShaderProgram::ShaderProgram(vector<string> attachShaders) {
+//     shaderProgramHandle = glCreateProgram();
+
+//     for (string s : attachShaders) {
+//     	attachShader(SHADERS_PATH + s);
+//     }
+
+//     link();
+
+//     mapShaderProperties(GL_UNIFORM, &uniformMap);
+//     mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
+//     mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
+// }
+
+ShaderProgram::ShaderProgram(string a, string b) {
     shaderProgramHandle = glCreateProgram();
 
-    for (string s : attachShaders) {
-    	attachShader(SHADERS_PATH + s);
-    }
+   	attachShader(SHADERS_PATH + a);
+   	attachShader(SHADERS_PATH + b);
+
+    link();
+
+    mapShaderProperties(GL_UNIFORM, &uniformMap);
+    mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
+    mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
+}
+
+ShaderProgram::ShaderProgram(string a, string b, string c) {
+    shaderProgramHandle = glCreateProgram();
+
+   	attachShader(SHADERS_PATH + a);
+   	attachShader(SHADERS_PATH + b);
+   	attachShader(SHADERS_PATH + c);
+
+    link();
+
+    mapShaderProperties(GL_UNIFORM, &uniformMap);
+    mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
+    mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
+}
+
+ShaderProgram::ShaderProgram(string a, string b, string c, string d) {
+    shaderProgramHandle = glCreateProgram();
+
+   	attachShader(SHADERS_PATH + a);
+   	attachShader(SHADERS_PATH + b);
+   	attachShader(SHADERS_PATH + c);
+   	attachShader(SHADERS_PATH + d);
+
+    link();
+
+    mapShaderProperties(GL_UNIFORM, &uniformMap);
+    mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
+    mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
+}
+
+ShaderProgram::ShaderProgram(string a, string b, string c, string d, string e) {
+    shaderProgramHandle = glCreateProgram();
+
+   	attachShader(SHADERS_PATH + a);
+   	attachShader(SHADERS_PATH + b);
+   	attachShader(SHADERS_PATH + c);
+   	attachShader(SHADERS_PATH + d);
+   	attachShader(SHADERS_PATH + e);
 
     link();
 
@@ -48,16 +106,17 @@ ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle) {
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
 	Info* updateInfo = checkUpdate(name, "sampler2D");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		TextureObject o;
 		o.textureHandle = textureHandle;
 		o.samplerHandle = samplerHandle;
+		o.name = name;
 		for (int i = 0; i < textureList.size(); i++) {
 			if (o.equals(textureList[i])) {
 				glUniform1i(updateInfo->location, i);
 				textureList[i] = o;
+				return this;
 			}
-			return this;
 		}
 		glUseProgram(shaderProgramHandle);
 		glUniform1i(updateInfo->location, textureList.size());
@@ -192,7 +251,6 @@ ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec2> vector)
 	return this;
 }
 
-
 ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec3> vector) {
 	Info* updateInfo = checkUpdate(name, "vec3");
 	if (updateInfo != NULL) {
@@ -210,7 +268,6 @@ ShaderProgram* ShaderProgram::update(string name, std::vector<glm::vec4> vector)
 	}
 	return this;
 }
-
 
 ShaderProgram::Info* ShaderProgram::checkUpdate(std::string name, std::string type) {
 	auto it = uniformMap.find(name);
