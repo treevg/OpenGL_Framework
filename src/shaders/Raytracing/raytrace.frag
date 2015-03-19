@@ -247,11 +247,17 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 				diffuseDepth = depthVec; //vec4(distance(initialPos, diffusePosition.xyz));
 			}
 		} 
-		if (i == 1) {		
-			reflectivePosition= vec4(vec3(currentPos),1);
-			reflectiveDepth = vec4(vec3(currentDepth),1);
+		if (i == 1) {
+			if (hitTriangle == -1 && hitSphere == -1) {		
+				//'infinite' depth
+				reflectivePosition= vec4(currentPos + currentDir * 1000,1);
+				reflectiveDepth = vec4(1000);
+			} else {
+				reflectivePosition= vec4(vec3(currentPos),1);
+				reflectiveDepth = vec4(vec3(currentDepth),1);
+			}
 		}
-		if (i > 0) {			
+		if (i > 0) {
 			currentColor *= background(currentDir);
 			reflectiveColor = vec4(currentColor,1);
 		}

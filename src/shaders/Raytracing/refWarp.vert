@@ -28,7 +28,10 @@ void main() {
 	//  warpRefPos /= warpRefPos.w;
 	warpRefPos = projection * altView * wPos;
 	//passPosition =  warpRefPos;
-	gl_Position = (projection * altView * wPos) * vec4(1,1,-1,1); //vec4(pos * 2 - 1, 0, 1);
+
+	//'infinite' depth
+	gl_Position = (projection * altView * wPos) * vec4(1,1,0.001,1); //vec4(pos * 2 - 1, 0, 1);
+	// gl_Position = (projection * altView * wPos) * vec4(1,1,-1,1); //vec4(pos * 2 - 1, 0, 1);
 	
 
 	
