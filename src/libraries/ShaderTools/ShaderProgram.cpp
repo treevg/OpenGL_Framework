@@ -1,4 +1,5 @@
 #include "ShaderProgram.h"
+#include <math.h>
 #include <algorithm>
 
 using namespace std;
@@ -7,22 +8,19 @@ using namespace glm;
 ShaderProgram::ShaderProgram(){
 }
 
-/*ShaderProgram::ShaderProgram(vector<string> attachShaders) {
-    shaderProgramHandle = glCreateProgram();
+// ShaderProgram::ShaderProgram(vector<string> attachShaders) {
+//     shaderProgramHandle = glCreateProgram();
 
-    for (string s : attachShaders) {
-    	attachShader(SHADERS_PATH + s);
-    }
+//     for (string s : attachShaders) {
+//     	attachShader(SHADERS_PATH + s);
+//     }
 
-    link();
+//     link();
 
-    mapShaderProperties(GL_UNIFORM, &uniformMap);
-    mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
-    mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
-}
-
-
-*/
+//     mapShaderProperties(GL_UNIFORM, &uniformMap);
+//     mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
+//     mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
+// }
 
 ShaderProgram::ShaderProgram(string a, string b) {
     shaderProgramHandle = glCreateProgram();
@@ -94,31 +92,35 @@ ShaderProgram::ShaderProgram(GLenum type, string path){
 }
 
 void ShaderProgram::use() {
-	currentTextureUnit = 0;
+	for (int i = 0; i < textureList.size(); i++) {
+		glActiveTexture(GL_TEXTURE0 + i);
+	    glBindTexture(GL_TEXTURE_2D, textureList[i].textureHandle);
+	    glBindSampler(i, textureList[i].samplerHandle);
+	}
 	glUseProgram(shaderProgramHandle);
 }
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle) {
-	Info* updateInfo = checkUpdate(name, "sampler2D");
-	if (updateInfo != NULL) {	
-		glUseProgram(shaderProgramHandle);
-		glUniform1i(updateInfo->location, currentTextureUnit);
-		glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
-	    glBindTexture(GL_TEXTURE_2D, textureHandle);
-		currentTextureUnit++;
-	}
-	return this;
+	return texture(name, textureHandle, 0);
 }
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
 	Info* updateInfo = checkUpdate(name, "sampler2D");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
+		TextureObject o;
+		o.textureHandle = textureHandle;
+		o.samplerHandle = samplerHandle;
+		o.name = name;
+		for (int i = 0; i < textureList.size(); i++) {
+			if (o.equals(textureList[i])) {
+				glUniform1i(updateInfo->location, i);
+				textureList[i] = o;
+				return this;
+			}
+		}
 		glUseProgram(shaderProgramHandle);
-		glUniform1i(updateInfo->location, currentTextureUnit);
-		glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
-	    glBindTexture(GL_TEXTURE_2D, textureHandle);
-	    glBindSampler(currentTextureUnit, samplerHandle);
-		currentTextureUnit++;
+		glUniform1i(updateInfo->location, textureList.size());
+		textureList.push_back(o);
 	}
 	return this;
 }

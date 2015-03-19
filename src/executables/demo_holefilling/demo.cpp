@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
         new Grid(200, 200), 
         new ShaderProgram("/3DObject/modelViewProjection.vert","/Filters/toneMapperLinear.frag"),
         getWidth(window), getHeight(window)))
-            ->texture("tex", Texture::load(RESOURCES_PATH "/jpg/bambus.jpg"))
+            ->texture("tex", Texture::load(RESOURCES_PATH "/bambus.jpg"))
             ->update("model", translate(vec3(-0.5,-0.5,0)))
             ->update("projection", perspective(45.0f, getRatio(window), 0.1f, 100.0f))
             ->update("resolution", getResolution(window));

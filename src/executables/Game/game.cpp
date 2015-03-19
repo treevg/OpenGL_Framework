@@ -110,7 +110,7 @@ static void log(ShaderProgram* s){
 
 static void printMatrix(mat4 matrix){
 
-   std::cout<<"matrix:  "<<glm::to_string(matrix)<<std::endl;
+   // std::cout<<"matrix:  "<<glm::to_string(matrix)<<std::endl;
 
 }
 
@@ -192,16 +192,16 @@ void Game::init(){
 
 
   //Warping shader
-  auto warp = new ShaderProgram({"/Warpping/warp.vert", "/Raytracing/warp.frag"});
+  auto warp = new ShaderProgram("/Warpping/warp.vert", "/Raytracing/warp.frag");
  
-  diffWarpMuelle = new RenderPass(grid, warp);
+  diffWarpMuelle = new RenderPass(grid, warp, getWidth(window), getHeight(window));
 
 
-   auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
-   auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
-   auto model = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
-   auto suzanneSp = new ShaderProgram({"/Warpping/suzanne.vert", "/Warpping/suzanne.frag"});
-   auto skyboxSp = new ShaderProgram({"/Warpping/skybox.vert", "/Warpping/skybox.frag"});
+   auto sp = new ShaderProgram("/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag");
+   auto sp1 = new ShaderProgram("/Warpping/myTest.vert", "/Warpping/myTest.frag");
+   auto model = new ShaderProgram("/Warpping/model.vert", "/Warpping/model.frag");
+   auto suzanneSp = new ShaderProgram("/Warpping/suzanne.vert", "/Warpping/suzanne.frag");
+   auto skyboxSp = new ShaderProgram("/Warpping/skybox.vert", "/Warpping/skybox.frag");
 
         /* Models */
 
@@ -413,15 +413,15 @@ if(warpping){
 
 cout << "TEST " << endl;
 
-skyBoxPass
-        ->  clear (0.2, 0.2, 0.7, 1)
-        ->  update("uniformModel", modelSkybox)
-        ->  update("uniformView", viewMat_old)
-        ->  update("uniformProjection", projMat)
-        ->  texture("tex", skybox)
-        ->  run();
+// skyBoxPass
+//         ->  clear (0, 0, 0,0)
+//         ->  update("uniformModel", modelSkybox)
+//         ->  update("uniformView", viewMat_old)
+//         ->  update("uniformProjection", projMat)
+//         ->  texture("tex", skybox)
+//         ->  run();
 diffWarp
-        -> clear()
+        ->  clear (0, 0, 0,0)
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
         -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
@@ -430,7 +430,7 @@ diffWarp
         -> texture("positionTexture", skyBoxPass->get("fragPosition"))
         -> run();
   plane
-        -> clear(0.2,0.3,0.4,1)
+        -> clear(0,0,0,0)
         -> update("uniformView", viewMat_old)
         -> update("uniformModel", model)
         -> update("uniformProjection", projMat)
@@ -439,20 +439,24 @@ diffWarp
 
 
     diffWarpMuelle
-        
+        -> clear(0,0,0,0)
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
-        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        // -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
         -> update("projection", projMat)
         -> texture("colorTexture", plane->get("fragColor"))
         -> texture("positionTexture", plane->get("fragPosition"))
         -> run();
   
-  holefilling ->texture(diffWarpMuelle->get("fragColor"))
-               ->run();
+  holefilling
+        ->texture(diffWarpMuelle->get("fragColor"))
+        ->run();
 
   tonemapping
-            ->texture("tex", holefilling->getOutput())
+            ->texture("tex", 
+            holefilling->getOutput())
+            // diffWarpMuelle->get("fragColor"))
+            // plane->get("fragColor"))
             ->update("resolution", getResolution(window))
             ->run();
  

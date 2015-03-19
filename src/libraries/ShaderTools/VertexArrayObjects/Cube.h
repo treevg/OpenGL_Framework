@@ -7,7 +7,6 @@ class Cube : public VertexArrayObject {
 public:
 	Cube();
 	void draw();
-
-	};
+};
 
 #endif // CUBE_H

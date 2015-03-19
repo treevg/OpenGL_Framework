@@ -18,11 +18,11 @@ void main() {
     
      fragColor = texture(diffuse_text, passTextureCoordinate);
   
-   if (fragColor == 0){
+   // if (fragColor == 0){
 
-     fragColor = vec4 (1,0,0,0);
+   //   fragColor = vec4 (1,0,0,0);
      
-     }
+   //   }
 
      fragPosition = passPosition;
    
