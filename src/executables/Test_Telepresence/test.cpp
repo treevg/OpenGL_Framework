@@ -5,6 +5,7 @@
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Sphere.h"
+#include "PointCloud.h"
 #include "LeapMotionHandler.h"
 #include "KinectHandler.h"
 #include <typeinfo>
@@ -31,9 +32,13 @@ int main(int argc, char *argv[]) {
 
 
 
-	GLfloat *tex;
+	GLfloat *colorData;
 	//tex = (float*)malloc(depthWidth * depthHeight * 3 * sizeof(float));
-	tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
+	colorData = new float[depthWidth * depthHeight * 3];
+
+	GLfloat *positionData;
+	positionData = new float[depthWidth * depthHeight * 3];
+
 
 
 	if (argc > 1 && strcmp(argv[1], "--bg") == 0)
@@ -42,7 +47,7 @@ int main(int argc, char *argv[]) {
 
 
 	Cube* cube = new Cube(vec3(2.0, 2.0, -7), 2.0f);
-	std::vector<std::string> attachShaders = { "/Test_Telepresence/v.vert", "/Test_Telepresence/f.frag" };
+	std::vector<std::string> attachShaders = { "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" };
 	RenderPass* cubePass = new RenderPass(
 		cube,
 		new ShaderProgram(attachShaders));
@@ -52,39 +57,48 @@ int main(int argc, char *argv[]) {
 		sphere,
 		new ShaderProgram(attachShaders));
 	
-	std::vector<std::string> depthShaders = { "/Test_Telepresence/fullscreen.vert", "/Test_Telepresence/simpleTexture.frag" };
-	Quad* quad = new Quad();
-	RenderPass* kinectPass = new RenderPass(
-		quad,
-		new ShaderProgram(depthShaders));
+	//std::vector<std::string> textureShaders = { "/Test_Telepresence/fullscreen.vert", "/Test_Telepresence/simpleTexture.frag" };
+	//Quad* quad = new Quad();
+	//RenderPass* texturePass = new RenderPass(
+	//	quad,
+	//	new ShaderProgram(textureShaders));
 
-	kinectPass
-		->update("resolution", getResolution(window));
+	//texturePass
+	//	->update("resolution", getResolution(window));
+
+	PointCloud* pointCloud = new PointCloud();
+	std::vector<std::string> attachMinimalShaders = { "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" };
+	RenderPass* pointCloudPass = new RenderPass(
+		pointCloud,
+		new ShaderProgram(attachMinimalShaders));
+
+
+
 		
 
 
-	//create new texture
-	GLuint depthTex;
-	glGenTextures(1, &depthTex);
+	////create new texture
+	//GLuint texture;
+	//glGenTextures(1, &texture);
 
-	//bind the texture
-	glBindTexture(GL_TEXTURE_2D, depthTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, tex);
+	////bind the texture
+	//glBindTexture(GL_TEXTURE_2D, texture);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, colorData);
 
-	//texture settings
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	////texture settings
+	//glGenerateMipmap(GL_TEXTURE_2D);
+	//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
 
 
 	// camera parameters
 	float glnear = 0.1f;
-	float glfar = 100.0f;
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	float glfar = 1000.0f;
+	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 100.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 projection = perspective(60.0f * PI / 180.0f, (float)width / height, glnear, glfar);
 	mat4 modelMatrixJoints = mat4(1.0f);
 	mat4 modelMatrixGoal = mat4(1.0f);
@@ -92,40 +106,51 @@ int main(int argc, char *argv[]) {
 	
 
 
-	//cubePass->update("lightPosition", lightPos)
+	//cubePass
+	//	->update("lightPosition", lightPos)
 	//	->update("viewMatrix", view)
 	//	->update("diffuseColor", vec3(1.0, 0.0, 0.0))
 	//	->update("projectionMatrix", projection);
 
-	//spherePass->update("lightPosition", lightPos)
+	//spherePass
+	//	->update("lightPosition", lightPos)
 	//	->update("viewMatrix", view)
 	//	->update("projectionMatrix", projection);
+
+	pointCloudPass
+		->update("view", view)
+		->update("projection", projection);
 
 	
 
 	int count = 0;
-
 	render(window, [&](float deltaTime) {
 		//cout << count++ << " " << deltaTime << endl;
 		glfwGetWindowSize(window, &width, &height);
-		projection = perspective(60.0f * PI / 180.0f, (float)width / height, glnear, glfar);
+		//projection = perspective(60.0f * PI / 180.0f, (float)width / height, glnear, glfar);
 
 
 		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
-		kinectHandler.update(tex);
+		//kinectHandler.update(colorData);
+		kinectHandler.update(positionData, colorData);
+		pointCloud->updatePointCloud(positionData, colorData);
+
+		//delete[] colorData;
+		//delete[] positionData;
 
 
-		//bind the texture
-		glBindTexture(GL_TEXTURE_2D, depthTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, tex);
 
-		//texture settings
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		////bind the texture
+		//glBindTexture(GL_TEXTURE_2D, texture);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, colorData);
 
-		glBindTexture(GL_TEXTURE_2D, 0);
+		////texture settings
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		//glBindTexture(GL_TEXTURE_2D, 0);
 
 
 
@@ -261,13 +286,20 @@ int main(int argc, char *argv[]) {
 		//	}
 		//}
 
-		kinectPass
-			->clear(0.0, 0.0, 0.0, 1.0)
-			->texture("tex", depthTex)
-			//->texture("tex", TextureTools::loadTexture("D:/FP14/FP14_OpenGL_Framework/resources/bambus.jpg"))
-			->run();
+		//texturePass
+		//	->clear(0.0, 0.0, 0.0, 1.0)
+		//	->texture("tex", texture)
+		//	//->texture("tex", TextureTools::loadTexture("D:/FP14/FP14_OpenGL_Framework/resources/bambus.jpg"))
+		//	->run();
 
 		//delete(tex);
+
+
+		pointCloudPass
+		->clear(1.0, 1.0, 1.0, 1.0)
+		->run();
+
+
 
 	}); 
 	

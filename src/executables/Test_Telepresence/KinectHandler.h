@@ -10,8 +10,6 @@
 using namespace std;
 
 class KinectHandler{
-	static const int DepthWidth = 512;
-	static const int DepthHeight = 424;
 
 public:
 	KinectHandler();
@@ -22,6 +20,7 @@ public:
 
 	/// Main processing function
 	void update(GLfloat *data);
+	void update(GLfloat *depthData, GLfloat *colorData);
 
 private:
 	IKinectSensor* kinectSensor;
