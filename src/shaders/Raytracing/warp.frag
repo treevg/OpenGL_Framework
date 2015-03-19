@@ -1,14 +1,24 @@
 #version 430
 
-in vec2 passPosition;
-in vec4 warpedNormal;
-in vec4 warpedDiffPos;
+in vec4 passPosition;
 
-out vec4 warpDiffPos;
-out vec4 warpNormal; 
+uniform sampler2D diffuseTexture;
+uniform sampler2D normalTexture;
+
+out vec4 position;
+out vec4 diffuse;
+out vec4 normal; 
+out vec4 uv; 
 
 void main() {
-	warpDiffPos = warpedDiffPos;
-	warpNormal	= warpedNormal;
+	// position = passPosition;
+	// uv = passPosition; //todo
+	// diffuse	= texture(diffuseTexture, uv.xy);
+	// normal	= texture(normalTexture, uv.xy);
 
+	vec4 bla = vec4(passPosition.xy,0,0);
+	position = bla;
+	uv = bla;
+	diffuse	= bla;
+	normal	= bla;
 }

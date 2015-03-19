@@ -9,6 +9,7 @@ uniform int		indirection;
 uniform sampler2D environmentTexture;
 
 uniform mat4 	invView;
+uniform mat4 	view;
 uniform mat4	invViewProjection;
 uniform mat3	normalMat;
 
@@ -122,13 +123,17 @@ vec3 background(vec3 rd)
 
 int indirections = 2;
 
-vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / iResolution.xy;
+vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / (iResolution.xy);
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
 vec3 initialPos=currentPos;
 
 //vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.05+zoom, 0.0)).xyz);
 
-vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.05, 0.0)).xyz);
+// vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.5, 0.0)).xyz);
+vec2 fragCoord = vec2(gl_FragCoord.xy / iResolution.xy) * 2 - 1;
+vec3 currentDir = normalize(inverse(mat3(projection) * mat3(view)) * vec3(fragCoord, 1));
+
+
 vec3 initialDir = currentDir;
 
 //float lengthCurrentDirOffset = length(currentDirOffset);
