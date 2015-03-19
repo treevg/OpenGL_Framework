@@ -13,6 +13,6 @@ out vec4 uv;
 void main() {
 	position = vec4(passPosition.xyz / passPosition.a, 1);
 	uv = vec4((position.xy + 1) * 0.5,0,0); 
-	// diffuse	= texture(diffuseTexture, uv.xy);
-	// normal	= texture(normalTexture, uv.xy);
+	diffuse	= texture(diffuseTexture, uv.xy);
+	normal	= texture(normalTexture, uv.xy);
 }
