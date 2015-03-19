@@ -106,16 +106,17 @@ ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle) {
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
 	Info* updateInfo = checkUpdate(name, "sampler2D");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		TextureObject o;
 		o.textureHandle = textureHandle;
 		o.samplerHandle = samplerHandle;
+		o.name = name;
 		for (int i = 0; i < textureList.size(); i++) {
 			if (o.equals(textureList[i])) {
 				glUniform1i(updateInfo->location, i);
 				textureList[i] = o;
+				return this;
 			}
-			return this;
 		}
 		glUseProgram(shaderProgramHandle);
 		glUniform1i(updateInfo->location, textureList.size());
