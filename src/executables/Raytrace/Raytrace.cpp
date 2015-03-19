@@ -193,7 +193,7 @@ int main(int argc, char *argv[]) {
         mat4 invView = inverse(view);
         mat4 invView_old = inverse(view_old);
 
-        mat4 projection = perspective(45.0f, float(getWidth(window))/float(getHeight(window)), 0.1f, 100.0f);
+        mat4 projection = perspective(45.0f, float(getWidth(window))/float(getHeight(window)), 1.0f, 100.0f);
         mat4 invViewProjection = inverse(projection * view);
         mat4 invViewProjection_old = inverse(projection * view_old);
         mat4 vp_old = projection * view_old;

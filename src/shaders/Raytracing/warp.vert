@@ -13,8 +13,7 @@ out vec4 warpedNormal;
 out vec4 warpedDiffPos;  
 
 void main() {
-	vec4 diffPos_old = texture(diffPositionTexture, pos);
-	passPosition = projection * view * diffPos_old;
+	passPosition = projection * view * texture(diffPositionTexture, pos);
 	gl_Position = passPosition;
 
 
