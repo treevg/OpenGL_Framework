@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
     auto diffWarp = (new RenderPass(grid,
         new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}),
 		getWidth(window), getHeight(window)))
-        ->clear(0,0,0,0)
+        ->update("resolution", getResolution(window))
       //  ->texture("viewDirTexture", raytracePass->get("initialDirNotnorm"))
        // ->texture("colorTexture", raytracePass->get("diffuseColor"))
         // ->texture("diffuseDepthTexture", raytracePass->get("diffuseDepth"))
@@ -157,7 +157,7 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", diffWarp->get("uv"));
                  break;
             case GLFW_KEY_0:
-                 tonemapping->texture("tex", holeFill->get("fragColor"));
+                 tonemapping->texture("tex", diffWarp->get("flow"));
                  break;
             case GLFW_KEY_SPACE:
                  tonemapping->texture("tex", refWarp->get("position"));
