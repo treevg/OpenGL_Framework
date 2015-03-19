@@ -4,7 +4,10 @@
 #include <stdlib.h>     /* srand, rand */
 #include <time.h>
 #include "ShaderTools/VertexArrayObjects/Grid.h"
+#include "AssetTools/Texture.h"
 #include "game.h"
+#include "RenderTechniques/HierarchicalHoleFilling.h"
+#include "ShaderTools/VertexArrayObjects/Quad.h"
 
 using namespace glm;
 
@@ -17,7 +20,7 @@ float z=50.0;
 float x=0.0;
 float size = 0.5;
 float lum = 0.5;
-float speed = 0.1f;
+float speed = 0.3f;
 bool targetReached = false;
 GLuint skybox;
 bool warpping;
@@ -38,14 +41,22 @@ vec3 currentChestPosition;
  RenderPass*  plane ;
  RenderPass* trees;
  RenderPass* diffWarp;
+ RenderPass* diffWarpMuelle;
  RenderPass* castlePass;
  RenderPass* chestPass;
  RenderPass* followMePass;
  RenderPass* windMillPass;
  RenderPass* vikingPass;
 
+
+ RenderPass* quadPass;
+
+
+
+
  Camera* camera;
  FollowObject* followMe;
+ Quad* quad;
 
  Model* myModel;
  Model* castle;
@@ -61,7 +72,7 @@ vec3 currentChestPosition;
  vector<Mesh*> suzanneMeshes; 
  vector<Mesh*> vikingMeshes; 
 
-
+ GLFWwindow* window;
 
 
 
@@ -70,6 +81,11 @@ vec3 currentChestPosition;
 
 GLuint textureHandle;
 CubemapTexture* cubeText;
+
+
+//holefilling
+
+  int numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
 
 
 /* static methods */
@@ -86,7 +102,7 @@ CubemapTexture* cubeText;
 
 static void log(ShaderProgram* s){
 
-  s-> printUniformInfo();
+  s -> printUniformInfo();
   s -> printInputInfo();
   s -> printOutputInfo();
 
@@ -119,7 +135,7 @@ quit();
 /*input from mouse */
 static void  lookAround(){
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-  camera->rotateWithMouse(window, width, height);
+  camera->rotateWithMouse(window, getWidth(window), getHeight(window));
 }
 
 
@@ -163,15 +179,23 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
 
 void Game::init(){
    /* Camera  */
+   window = generateWindow();
 
    camera =  new Camera();
    
    followMe = new FollowObject(camera, 5);
+   auto  quad = new Quad();
 
-  auto grid = new Grid(width,height);
+   auto grid = new Grid(getWidth(window), getHeight(window));
+  
+   numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
+
+
   //Warping shader
   auto warp = new ShaderProgram({"/Warpping/warp.vert", "/Raytracing/warp.frag"});
-  diffWarp = new RenderPass(grid, warp);
+ 
+  diffWarpMuelle = new RenderPass(grid, warp);
+
 
    auto sp = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
    auto sp1 = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
@@ -207,15 +231,20 @@ void Game::init(){
  if (warpping){
   
     cout << "######## RENDER TO TEXTURE ###########" << endl;
+    quadPass = new RenderPass(quad, sp1, getWidth(window), getHeight(window));
+    quadPass -> texture("diffuse_text", textureHandle);
+   // holefilling = new RenderPass(); 
 
-   plane = new RenderPass( new Plane(32.0f), sp1, width, height);
-   trees = new RenderPass(meshes, sp1, width, height);
-   castlePass = new RenderPass(castleMeshes, model, width, height );
-   chestPass = new RenderPass(chestMeshes, model, width, height );
-   followMePass = new RenderPass(suzanneMeshes,suzanneSp, width, height);
-   windMillPass = new RenderPass(windMillMeshes, model, width, height );
-   vikingPass =  new RenderPass(vikingMeshes, suzanneSp, width, height );
-   skyBoxPass = new RenderPass(new Skybox(), skyboxSp, width, height);
+
+   plane = new RenderPass( new Plane(32.0f), sp1, getWidth(window), getHeight(window));
+   trees = new RenderPass(meshes, sp1, getWidth(window), getHeight(window));
+   castlePass = new RenderPass(castleMeshes, model, getWidth(window), getHeight(window) );
+   chestPass = new RenderPass(chestMeshes, model, getWidth(window), getHeight(window) );
+   followMePass = new RenderPass(suzanneMeshes,suzanneSp, getWidth(window), getHeight(window));
+   windMillPass = new RenderPass(windMillMeshes, model, getWidth(window), getHeight(window));
+   vikingPass =  new RenderPass(vikingMeshes, suzanneSp, getWidth(window), getHeight(window) );
+   skyBoxPass = new RenderPass(new Skybox(), skyboxSp, getWidth(window), getHeight(window));
+   diffWarp = new RenderPass(grid, warp);
 
 
  }else{
@@ -244,6 +273,7 @@ void Game::init(){
  }
 
   Game::Game(bool warp){
+   
     warpping = warp;
     init();
     renderSzene();
@@ -285,13 +315,18 @@ void Game::init(){
 
    //render loop for game
 
-    renderLoop([]{
+   auto holefilling = new HierarchicalHoleFilling( getResolution(window), quad);
+                       
+   auto tonemapping = new RenderPass( new Quad(), new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"));
+            
+
+
+
+
+    render(window,  [&] (float deltaTime){
 
     double  currentTime = glfwGetTime();
     
-    float deltaTime = (float)currentTime-lasttime;
-  
-
     if(!targetReached){
     
     targetReached = followMe->moveToTarget(currentChestPosition.x+1 , currentChestPosition.z-2 , deltaTime);
@@ -318,6 +353,13 @@ void Game::init(){
 
       
 
+      //TEST
+
+    mat4 modelQuad = glm::translate(mat4(1), glm::vec3(0, 5, -2));
+
+    // glm::rotate(mat4(1), 120.0f, vec3(1,0,0));
+
+
       /*   MODEL FOR TREES   */
     glm:: mat4 modelTree(1) ;
 
@@ -336,7 +378,6 @@ void Game::init(){
      modelChest = translate(modelChest, currentChestPosition);
 
 
-
        /*   MODEL FOR WINDMILL   */
     glm:: mat4 modelWindMill(1);
     modelWindMill = translate(modelWindMill, vec3(-20, 0, 25) );
@@ -344,15 +385,21 @@ void Game::init(){
       
 
 
-     /*   MODEL FOR CUBE   */
+     /*   MODEL FOR followObject   */
     glm:: mat4 followMeModel(1);
     followMeModel = translate(followMeModel, followMe->getCurrentPosition());
     followMeModel = scale(followMeModel, vec3(0.4, 0.4, 0.4));
 
 
+    /*   MODEL FOR SKYBOX   */
+
+glm:: mat4 modelSkybox = translate(mat4(1), camera->getPosition());
+
+
      glm:: mat4 vikingModel(1);
     vikingModel = translate(vikingModel,vec3(-3, -0.01, 8) );
     vikingModel = scale(vikingModel, vec3(0.3, 0.3, 0.3));
+
 
     glm:: mat4 vikingModel2(1);
     vikingModel2 = translate(vikingModel2,vec3(3, -0.01, 8) );
@@ -366,9 +413,23 @@ if(warpping){
 
 cout << "TEST " << endl;
 
-
-
- plane
+skyBoxPass
+        ->  clear (0.2, 0.2, 0.7, 1)
+        ->  update("uniformModel", modelSkybox)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  texture("tex", skybox)
+        ->  run();
+diffWarp
+        -> clear()
+        -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
+        -> texture("colorTexture", skyBoxPass->get("fragColor"))
+        -> texture("positionTexture", skyBoxPass->get("fragPosition"))
+        -> run();
+  plane
         -> clear(0.2,0.3,0.4,1)
         -> update("uniformView", viewMat_old)
         -> update("uniformModel", model)
@@ -376,10 +437,28 @@ cout << "TEST " << endl;
         -> texture("diffuse_text", textureHandle)
         -> run();
 
-   cout << "PLANE " << endl;
 
-vikingPass
-        -> clear(0.2,0.3,0.4,1)
+    diffWarpMuelle
+        
+        -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
+        -> texture("colorTexture", plane->get("fragColor"))
+        -> texture("positionTexture", plane->get("fragPosition"))
+        -> run();
+  
+  holefilling ->texture(diffWarpMuelle->get("fragColor"))
+               ->run();
+
+  tonemapping
+            ->texture("tex", holefilling->getOutput())
+            ->update("resolution", getResolution(window))
+            ->run();
+ 
+
+/*vikingPass
+        ->  clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", vikingModel2)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
@@ -388,19 +467,21 @@ vikingPass
  cout << "VIKING" << endl;
 
   castlePass
-        -> clear(0.2,0.3,0.4,1)
+        ->  clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", modelCastle)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
  cout << "CASTLE" << endl;
-/*
- followMePass
+
+followMePass
         -> clear(0.2,0.3,0.4,1)
         -> update("uniformView", viewMat_old)
         -> update("uniformModel",followMeModel)
         -> update("uniformProjection", projMat)
         -> runModel(); 
+
+  
 
 windMillPass
         -> clear(0.2,0.3,0.4,1)
@@ -408,18 +489,48 @@ windMillPass
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
+
+
+diffWarpMuelle
+        -> clear()
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
+        -> texture("colorTexture",  windMillPass->get("fragColor"))
+        -> texture("positionTexture", windMillPass->get("fragPosition"))
+        -> run();
         
 
+quadPass
+        ->  clear(0.2,0.3,0.4,1)
+        ->  update("uniformModel", modelQuad)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+         -> texture("diffuse_text", textureHandle)
+        ->  run();
+
+
+diffWarpMuelle
+       
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
+        -> texture("colorTexture",  quadPass->get("fragColor"))
+        -> texture("positionTexture", quadPass->get("fragPosition"))
+        -> run();
   
-  vikingPass
-        -> clear(0.2,0.3,0.4,1)
+   
+   
+
+ vikingPass
+        ->  clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", vikingModel)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  runModel();
 
  chestPass
-       -> clear(0.2,0.3,0.4,1)
+        -> clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", modelChest)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
@@ -460,11 +571,11 @@ windMillPass
     }
 
 
-
 */
 
+/*
 diffWarp
-        -> clear(0,0,0,0)
+        -> clear()
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
         -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
@@ -486,42 +597,51 @@ diffWarp
 
 
        diffWarp
-       // -> clearDepth()
+        //-> clearDepth()
         -> update("viewMat", viewMat)
         -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
         -> texture("colorTexture", castlePass->get("fragColor"))
         -> texture("positionTexture", castlePass->get("fragPosition"))
         -> run();
-/*
 
-  diffWarp
 
+     diffWarp
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
         -> texture("colorTexture",  followMePass->get("fragColor"))
         -> texture("positionTexture", followMePass->get("fragPosition"))
         -> run();
 
-     diffWarp
- 
-        -> texture("colorTexture",  windMillPass->get("fragColor"))
-        -> texture("positionTexture", windMillPass->get("fragPosition"))
-        -> run();
 */
+       
 
+        
+
+  /*    diffWarp
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
+        -> texture("colorTexture",  chestPass->get("fragColor"))
+        -> texture("positionTexture", chestPass->get("fragPosition"))
+        -> run();
+
+ */
 
 }else {
 
 
-/* skyBoxPass
-       -> clear (0.2, 0.2, 0.7, 1)
-        ->  update("uniformModel", mat4(1))
-        ->  update("uniformView", viewMat)
+skyBoxPass
+        -> clear (0.2, 0.2, 0.7, 1)
+        ->  update("uniformModel", modelSkybox)
+        ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
         ->  texture("tex", skybox)
         ->  run();
-*/
+
 
  castlePass
-         -> clear (0.2, 0.2, 0.7, 1)
+        -> clearDepth()
         ->  update("uniformModel", modelCastle)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
@@ -601,7 +721,6 @@ windMillPass
     }
 
 }
-
 
 
    });

@@ -1,15 +1,16 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "ShaderTools/DefaultRenderLoop.h"
+#include "ShaderTools/Renderer.h"
 #include "ShaderTools/RenderPass.h"
 #include "ShaderTools/VertexArrayObjects/Pyramid.h"
 #include "ShaderTools/VertexArrayObjects/Skybox.h"
 #include "ShaderTools/VertexArrayObjects/Plane.h"
 #include "WarppingGame/CubemapTexture/CubemapTexture.h"
-#include  "WarppingGame/Camera/Camera.h"
-#include  "WarppingGame/Modelloader/Model.h"
-#include  "WarppingGame/FollowObject/FollowObject.h"
+#include "WarppingGame/Camera/Camera.h"
+#include "WarppingGame/Modelloader/Model.h"
+#include "WarppingGame/FollowObject/FollowObject.h"
+#include "AssetTools/Texture.h"
 
 
 using namespace std;

@@ -21,8 +21,8 @@ out vec2 passUV;
 
 
 void main() {
-	    passPosition =  uniformModel *vertex_modelSpace ;
-            gl_Position =  uniformProjection *  uniformView * uniformModel *vertex_modelSpace ;
-            passUV = vertexUV;
+	    passPosition =  uniformModel * vertex_modelSpace ;
+        gl_Position =  uniformProjection *  uniformView * uniformModel * vertex_modelSpace ;
+        passUV = vertexUV;
      
 }

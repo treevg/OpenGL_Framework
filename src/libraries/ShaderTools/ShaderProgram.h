@@ -16,7 +16,11 @@
 class ShaderProgram {
 public:
 	ShaderProgram();
-	ShaderProgram(std::vector<std::string> attachShaders);
+	//ShaderProgram(std::vector<std::string> attachShaders);
+	ShaderProgram(std::string a, std::string b);
+	ShaderProgram(std::string a, std::string b, std::string c);
+	ShaderProgram(std::string a, std::string b, std::string c, std::string d);
+	ShaderProgram(std::string a, std::string b, std::string c, std::string d, std::string e);
 	ShaderProgram(GLenum type, std::string path);
 	void use();
 	virtual ShaderProgram* texture(std::string name, GLuint textureHandle);
@@ -49,6 +53,18 @@ public:
 	std::map<std::string, Info> uniformMap;
 	std::map<std::string, Info> inputMap;
 	std::map<std::string, Info> outputMap;
+
+       struct TextureObject{
+		GLenum textureHandle;
+		GLenum samplerHandle;
+		std::string name;
+		bool equals(TextureObject o) {
+			// return textureHandle == o.textureHandle && samplerHandle == o.textureHandle;
+			return name == o.name;
+		}
+	};
+
+	std::vector<TextureObject> textureList;
 
 protected:
 	GLuint shaderProgramHandle;

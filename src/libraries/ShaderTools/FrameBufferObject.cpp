@@ -55,7 +55,15 @@ FrameBufferObject* FrameBufferObject::clear() {
 	return this;
 }
 
+FrameBufferObject* FrameBufferObject::clearDepth() {
+	glClear(GL_DEPTH_BUFFER_BIT);
+	return this;
+}
 GLuint FrameBufferObject::get(std::string name) {
 	return textureMap[name];
 }
 
+void FrameBufferObject::setFrameBufferObjectHandle(
+		GLuint frameBufferObjectHandle) {
+	this->frameBufferObjectHandle = frameBufferObjectHandle;
+}

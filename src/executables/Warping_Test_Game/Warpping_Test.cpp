@@ -1,94 +1,86 @@
-#include "ShaderTools/DefaultRenderLoop.h"
+#include "ShaderTools/Renderer.h"
 #include <assimp/Importer.hpp> 
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
-#include "ShaderTools/VertexArrayObjects/Plane.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Skybox.h"
 #include "ShaderTools/VertexArrayObjects/Pyramid.h"
 #include "WarppingGame/CubemapTexture/CubemapTexture.h"
 #include "WarppingGame/Modelloader/Model.h"
+#include "WarppingGame/Camera/Camera.h"
 
 using namespace std;
 using namespace glm;
 
-Model* m = new Model(RESOURCES_PATH "/viking.obj");
+
+
+Camera* camera = new Camera();
+GLFWwindow* window = generateWindow();
+
+
+
+auto sp = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
+auto myModel = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
+
+auto suzanneSp = new ShaderProgram({"/Warpping/suzanne.vert", "/Warpping/suzanne.frag"});
+auto lighting = new ShaderProgram({"/Warpping/lighting.vert", "/Warpping/lighting.frag"});
+
+
+Model* m = new Model(RESOURCES_PATH "/monkey2.obj");
 
 
 vector<Mesh*> meshes = m->getMeshes();
-Mesh* mesh = meshes[0];
-
-auto sp = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
-
-auto myModel = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
-
-auto plane = new ShaderProgram({"/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag"});
-
-auto spSkybox = new ShaderProgram({"/Warpping/skybox.vert", "/Warpping/skybox.frag"});
-
- auto suzanneSp = new ShaderProgram({"/Warpping/suzanne.vert", "/Warpping/suzanne.frag"});
-
-
-auto passCube = new RenderPass(
-    new Skybox(), 
-    spSkybox
-);
-
-auto passQuoad= new RenderPass(
-    new Plane(16.0f), 
-    plane
-);
 
 
 
-auto passModel= new RenderPass(
-   meshes, 
-   myModel
-);
+auto passModel= new RenderPass( meshes, suzanneSp);
 
+auto passModelWithLight= new RenderPass( meshes, lighting);
 
-
-
-CubemapTexture* cubeText = new CubemapTexture();
-
-GLuint test = cubeText->create_cube_map(
-    RESOURCES_PATH "/skybox/jajlands1_rt.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_lf.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_up.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_dn.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_bk.jpg",
-    RESOURCES_PATH"/skybox/jajlands1_ft.jpg"   
- );
-
-
-float gScale = 0.5;
-float lScale =0.0;
-float lum = 0.5;
-float horizAngle = 0.0;
-float moveSpeed = 0.0;
-float z= 0.0; 
-float verticAngle = 0.0; 
 double lasttime;
 
-double y_position = 0.0;
+vec3 lightPosition = vec3(1.2f, 1.0f, 2.0f);
 
 
 
-glm::mat4 projMat = glm::perspective(45.0f, (float)width/(float)height, 0.1f, 1000.0f);
+glm::mat4 projMat = glm::perspective(45.0f, (float)(getWidth(window), getHeight(window)), 0.1f, 1000.0f);
 
 
-void update(float time) {
+ static glm::mat4 getLookAt(){
 
- //  const GLfloat degPerSec = 2.0f;
-  const GLfloat speed = 0.005f;
-    y_position+=time+speed;
-  //   while (horizAngle > 360.0f) horizAngle -= 360;
-    while (y_position > 10.0f) y_position -= 10;
+  mat4 view = camera->looksAt();
+
+  return view;
+
+  }
+
+
+/*input from keybord */
+
+static void  moveWithKeybord(){
+
+camera->moveWithKey(window, 0.5f);
 
 }
 
+/*input from mouse */
+static void  lookAround(){
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+  camera->rotateWithMouse(window, getWidth(window), getHeight(window));
+}
+
+
+
+static vec3  getPosition(){
+  
+   return  camera->getPosition();
+}
+
+
+
 int main(int argc, char *argv[]) {
+
 
 
     sp -> printUniformInfo();
@@ -99,96 +91,43 @@ int main(int argc, char *argv[]) {
 
     lasttime = glfwGetTime();
 
-    renderLoop([]{
 
-    double  currentTime = glfwGetTime();
-
-    update ((float)(currentTime -lasttime));
-  
-    lasttime = currentTime;
-
-        mat4 viewC = lookAt(vec3(0,15,15), vec3(0.0f),vec3(0.0, 1.0, 0.0)); 
-       
-        mat4   modelC = rotate(mat4(1.0), horizAngle, vec3(0.0,1.0,0.0));
-               modelC = translate (modelC, vec3(0.0, 0.1, 0.0));
+     render(window,  [&] (float deltaTime){
 
 
-        mat4 modelPyramide =mat4(1);
+      mat4 view = getLookAt();
+
+
+        mat4 modelMatrix1 =mat4(1);
+    
+         modelMatrix1 =  scale(modelMatrix1, vec3(0.3, 0.3, 0.3));
+         modelMatrix1 = translate (modelMatrix1, vec3(0.0, 0.0,-3.0));
       
-          modelPyramide = translate (modelPyramide, vec3 (0,0,-4));
-            modelPyramide =  scale(modelPyramide, vec3(0.1, 0.1, 0.1));
-
-      
-       
-
-      //for skybox
-        mat4 box= mat4(1.0);
-       // model = scale(model, vec3(10,10,10));
-       
-        mat4 view(1);
-      //   view = translate(view, vec3(0.0, -2.0,  -10));
-        view = rotate(view, verticAngle, vec3(0.0,1.0,0.0));
-        
-
-    //for plane
-        mat4 modelQ=mat4(1.0);
-        modelQ = translate(modelQ, vec3(0.0, -1, 0.0));
-      
-
-
-      //  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) gScale  = glm::max(gScale - 0.001, 0.);
-      //  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) gScale = glm::min(gScale + 0.001, 1.);
-        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) lum  = glm::max(lum - 0.001, 0.);
-        if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) lum = glm::min(lum + 0.001, 1.);
-
        if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-         glfwSetWindowShouldClose(window, GL_TRUE);
+           glfwSetWindowShouldClose(window, GL_TRUE);
          delete m;
        } 
 
-       if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) z += 0.01;
-       if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) z -=  0.01;
+       lookAround(); 
+  
+    moveWithKeybord();
 
-    
-           if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) moveSpeed += 0.05;
-       if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) moveSpeed -=  0.05;
-
-       
-
-       if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS) verticAngle -= 0.01;
-       if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS) verticAngle +=  0.01;
-
-       if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
-
-
-        viewC = glm::lookAt( glm::vec3(0,10,100), // Camera is at (0,10,10), in World Space
-                                         glm::vec3(0,0,0), // and looks at the origin
-                                         glm::vec3(0,1,0));
-
-         }
-
-
-         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) gScale  = gScale - 0.01;
-         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) gScale = gScale + 0.01;
-
-         if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) lScale  = lScale + 0.01;
-         if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) lScale = lScale - 0.01;
-
-   passCube
-        ->  update("uniformModel", box)
-        ->  update("uniformView", view)
+        passModelWithLight
+        ->  clear (0.5,0.3,0.2,1)
+        ->  update("uniformModel", modelMatrix1)
+        ->  update("uniformView", mat4(1))
         ->  update("uniformProjection", projMat)
-        ->  texture("tex", test)
-        ->  run();
-
-        passModel
-     
-        ->  update("uniformModel", modelPyramide)
-        ->  update("uniformView", view)
-        ->  update("uniformProjection", projMat)
+        ->  update("lightPos", lightPosition)
+        ->  update("cameraPos", (0,0,0))
+        ->  update("color", vec4(0,1,0,1))
         ->  runModel();
 
-
+   /*    passModel
+  
+        ->  update("uniformModel", translate (mat4(1), vec3(2.0, 0.0,-3.0)))
+        ->  update("uniformView", view)
+        ->  update("uniformProjection", projMat)
+        ->  runModel(); */
 
     });
 

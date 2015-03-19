@@ -140,3 +140,17 @@ GLuint RenderPass::get(std::string name) {
 	return frameBufferObject->get(name);
 }
 
+RenderPass* RenderPass::clear() {
+	frameBufferObject->clear();
+	return this;
+}
+
+RenderPass* RenderPass::clearDepth() {
+	frameBufferObject->clearDepth();
+	return this;
+}
+
+RenderPass* RenderPass::setFrameBufferObject(FrameBufferObject* frameBufferObject) {
+	this->frameBufferObject = frameBufferObject;
+	return this;
+}
