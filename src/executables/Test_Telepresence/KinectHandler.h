@@ -5,6 +5,7 @@
 #include <windows.h>
 #include "stdafx.h"
 #include "GL\glew.h"
+#include <vector>
 
 using namespace std;
 
@@ -17,30 +18,26 @@ public:
 	
 	// Initializes the default Kinect sensor
 	// <returns>S_OK on success, otherwise failure code</returns>
-	HRESULT	InitializeDefaultSensor();	
+	HRESULT	initializeDefaultSensor();	
 
 	/// Main processing function
-	void Update(GLfloat *data);
+	void update(GLfloat *data);
 
 private:
-	// Current Kinect
-	IKinectSensor* KinectSensor;
-	
-	// Depth reader
-	IDepthFrameReader* DepthFrameReader;
-	
-	// MulitSourceFrameReader
-	IMultiSourceFrameReader* MultiSourceFrameReader; 
-
-	// Coordinate mapper to map one type of point to another
-	ICoordinateMapper* coordinateMapper;
+	IKinectSensor* kinectSensor;
+	IMultiSourceFrameReader* multiSourceFrameReader;
+	IDepthFrame* depthFrame;
+	IColorFrame* colorFrame;
+	IDepthFrameReference* depthReference;
+	IColorFrameReference* colorReference;
+	IFrameDescription* depthFrameDescription;
+	IFrameDescription* colorFrameDescription;
+	ICoordinateMapper* coordinateMapper; // Coordinate mapper to map one type of point to another
 
 	// Intermediate storage for the depth to color mapping
-	//ColorSpacePoint* colorPoints;
-	//vector<ColorSpacePoint> colorPoints; 
-
-
-	// Handle new depth data
-	void ProcessDepth(INT64 nTime, const UINT16* pBuffer, int nHeight, int nWidth, USHORT nMinDepth, USHORT nMaxDepth, GLfloat *data);
-
+	ColorSpacePoint* colorPoints;
+	// To Reserve Depth Frame Buffer
+	UINT16* depthBuffer;
+	// To Reserve Color Frame Buffer
+	RGBQUAD* colorBuffer;
 };

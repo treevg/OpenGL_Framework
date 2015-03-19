@@ -1,4 +1,5 @@
-#include "ShaderTools/OculusRenderer.h"
+//#include "ShaderTools/OculusRenderer.h"
+#include "ShaderTools/Renderer.h"
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
@@ -13,8 +14,8 @@ using namespace glm;
 
 int main(int argc, char *argv[]) {
 
-	static const int DepthWidth = 512;
-	static const int DepthHeight = 424;
+	static const int depthWidth = 512;
+	static const int depthHeight = 424;
 	
 	int width = 1280;
 	int height = 720;
@@ -26,13 +27,13 @@ int main(int argc, char *argv[]) {
 
 	//Initialize Kinect
 	KinectHandler kinectHandler;
-	kinectHandler.InitializeDefaultSensor();
+	kinectHandler.initializeDefaultSensor();
 
 
 
 	GLfloat *tex;
-	//tex = (float*)malloc(DepthWidth * DepthHeight * 3 * sizeof(float));
-	tex = new float[DepthWidth * DepthHeight * 3 * sizeof(float)];
+	//tex = (float*)malloc(depthWidth * depthHeight * 3 * sizeof(float));
+	tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
 
 
 	if (argc > 1 && strcmp(argv[1], "--bg") == 0)
@@ -57,8 +58,8 @@ int main(int argc, char *argv[]) {
 		quad,
 		new ShaderProgram(depthShaders));
 
-	//kinectPass
-	//	->update("resolution", getResolution(window));
+	kinectPass
+		->update("resolution", getResolution(window));
 		
 
 
@@ -68,7 +69,7 @@ int main(int argc, char *argv[]) {
 
 	//bind the texture
 	glBindTexture(GL_TEXTURE_2D, depthTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DepthWidth, DepthHeight, 0, GL_RGB, GL_FLOAT, tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, tex);
 
 	//texture settings
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -109,13 +110,14 @@ int main(int argc, char *argv[]) {
 		glfwGetWindowSize(window, &width, &height);
 		projection = perspective(60.0f * PI / 180.0f, (float)width / height, glnear, glfar);
 
-		tex = new float[DepthWidth * DepthHeight * 3 * sizeof(float)];
-		kinectHandler.Update(tex);
+
+		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
+		kinectHandler.update(tex);
 
 
 		//bind the texture
 		glBindTexture(GL_TEXTURE_2D, depthTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DepthWidth, DepthHeight, 0, GL_RGB, GL_FLOAT, tex);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, tex);
 
 		//texture settings
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -265,7 +267,7 @@ int main(int argc, char *argv[]) {
 			//->texture("tex", TextureTools::loadTexture("D:/FP14/FP14_OpenGL_Framework/resources/bambus.jpg"))
 			->run();
 
-		delete(tex);
+		//delete(tex);
 
 	}); 
 	
