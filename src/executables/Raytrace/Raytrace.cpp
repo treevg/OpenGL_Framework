@@ -78,22 +78,20 @@ int main(int argc, char *argv[]) {
         ->texture("diffuseTexture", raytracePass->get("diffuseColor"));
 
 
-    //extra normalwarpPass
-    auto normalWarp = (new RenderPass(grid,
-        new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/normalWarp.frag"}),
-		getWidth(window), getHeight(window)))
-        ->clear(0,0,0,0)
-        ->texture("normalTexture", raytracePass->get("normal"))
-        ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"));
-
-
+//    //extra normalwarpPass
+//    auto normalWarp = (new RenderPass(grid,
+//        new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/normalWarp.frag"}),
+//		getWidth(window), getHeight(window)))
+//        ->clear(0,0,0,0)
+//        ->texture("normalTexture", raytracePass->get("normal"))
+//        ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"));
 
     // Holefilling
     auto holeFill = (new RenderPass(quadVAO,
     	new ShaderProgram({"/Raytracing/raytrace.vert", "/RenderTechniques/hhfFill.frag"}),
 		getWidth(window), getHeight(window)))
 		->clear(1,0,0,0)
-		->texture("mipmapTexture", diffWarp->get("warpDiffPos"))
+		->texture("mipmapTexture", diffWarp->get("position"))
 		->update("resolution", vec2(getWidth(window), getHeight(window)))
 		->update("level", 0);
 
@@ -105,6 +103,7 @@ int main(int argc, char *argv[]) {
         ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"))
         ->texture("normalTexture", raytracePass->get("normal"))
 		->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"))
+		->texture("reflectiveColorTexture", raytracePass->get("reflectiveColor"))
 		->update("resolution", getResolution(window));
 
     // Gather reflection
@@ -112,11 +111,10 @@ int main(int argc, char *argv[]) {
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"}),
         getWidth(window), getHeight(window)))
         ->texture("reflectionColorTexture", raytracePass->get("reflectiveColor"))
-        ->texture("reflectionPositionTexture", refWarp->get("warpedReflectivePosition"))
+        ->texture("reflectionPositionTexture", refWarp->get("position"))
         ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
         ->texture("splattedReflectionUVTexture", refWarp->get("splattedRefUV"))
-		//wrong texture. testing purpose
-        ->texture("warpedNormalTexture",  diffWarp->get("warpNormal"))
+        ->texture("warpedNormalTexture",  diffWarp->get("normal"))
         ->texture("diffColorTexture", raytracePass->get("diffuseColor"))
         ->update("resolution", getResolution(window))
 		;
@@ -162,6 +160,15 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", holeFill->get("fragColor"));
                  break;
             case GLFW_KEY_SPACE:
+                 tonemapping->texture("tex", refWarp->get("position"));
+                 break;
+            case GLFW_KEY_Q:
+                 tonemapping->texture("tex", refWarp->get("splattedRefUV"));
+                 break;
+            case GLFW_KEY_W:
+                 tonemapping->texture("tex", refWarp->get("refColor"));
+                 break;
+            case GLFW_KEY_E:
                  tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
                  break;
             case GLFW_KEY_ESCAPE:
@@ -212,16 +219,8 @@ int main(int argc, char *argv[]) {
         diffWarp
         ->clear()
         ->update("view", view)
-        // ->update("invViewProjection", invViewProjection_old)
         ->update("projection", projection)
         ->run();
-
-        normalWarp
-		->clear()
-        ->update("altView", view)
-        ->update("invViewProjection", invViewProjection_old)
-        ->update("projection", projection)
-		->run();
 
         holeFill
 		->clear(1,0,0,0)

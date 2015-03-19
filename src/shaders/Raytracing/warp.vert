@@ -3,14 +3,14 @@
 in vec2 pos;
 
 uniform mat4 		view;
-// uniform mat4		invViewProjection;
 uniform mat4		projection;
 uniform sampler2D 	diffPositionTexture;
 // uniform sampler2D 	diffuseDepthTexture;
+// uniform mat4		invViewProjection;
 
 out vec4 passPosition;
-out vec4 warpedNormal;
-out vec4 warpedDiffPos;  
+//out vec4 warpedNormal;
+//out vec4 warpedDiffPos;  
 
 void main() {
 	passPosition = projection * view * texture(diffPositionTexture, pos);

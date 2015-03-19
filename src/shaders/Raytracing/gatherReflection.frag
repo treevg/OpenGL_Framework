@@ -193,7 +193,6 @@ void main() {
         // vec4(1,0,0,1);
         if (undefined || isnan(coord.x)) {
             warpedColor = invalidColor;
-			
 			//warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
 
         } else {

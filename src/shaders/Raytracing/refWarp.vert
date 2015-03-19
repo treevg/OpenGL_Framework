@@ -11,30 +11,33 @@ uniform mat4 altView;
 uniform mat4 projection;
 uniform vec2 resolution;
 
-out vec2 passPosition;
+out vec4 passPosition;
 out vec4 warpRefPos;
-out vec2 outCoord;
+out vec2 coordColor;
 
 void main() {
 	mat4 mvpNew = projection * altView;
-	passPosition = pos;
+//	passPosition = pos;
 	
 	// compute warped reflective position
 	vec3 wDifPos = texture(diffusePositionTexture, pos).xyz;
     vec3 wNorm = texture(normalTexture, pos).xyz;
     vec3 wRefPos = texture(reflectionPositionTexture, pos).xyz;  
     vec4 wPos = vec4(wDifPos - reflect(wDifPos - wRefPos,normalize(wNorm)), 1);
-    warpRefPos = mvpNew * vec4(wPos.xyz,1);
-    warpRefPos /= warpRefPos.w;
+	// warpRefPos = mvpNew * vec4(wPos.xyz,1);
+	//  warpRefPos /= warpRefPos.w;
+	warpRefPos = projection * altView * wPos;
+	passPosition =  warpRefPos;
+	gl_Position = warpRefPos; //vec4(pos * 2 - 1, 0, 1);
+	
+
 	
 	// coord color
-	vec2 coordColor = vec2(
+	 coordColor = vec2(
     float(float(pos.x) /resolution.x),
     float(float(pos.y) / resolution.y));
 	
-	
-	// hard-coded resolution
-	outCoord = vec2(
+	vec2 outCoord = vec2(
     float(warpRefPos.x + 1.0) * 0.5 * resolution.y + (resolution.x - resolution.y)/2.0,
     float(warpRefPos.y + 1.0) * 0.5 * resolution.y);
 
@@ -47,7 +50,7 @@ void main() {
     //}
 	
 	
-	gl_Position = vec4(pos * 2 - 1, 0, 1);
+
 
 	
 	
