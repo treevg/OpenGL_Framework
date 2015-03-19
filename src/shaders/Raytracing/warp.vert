@@ -2,19 +2,21 @@
 
 in vec2 pos;
 
+uniform mat4 		old_view;
+uniform mat4		old_projection;
 uniform mat4 		view;
 uniform mat4		projection;
 uniform sampler2D 	diffPositionTexture;
 // uniform sampler2D 	diffuseDepthTexture;
 // uniform mat4		invViewProjection;
 
-out vec4 passPosition;
+out vec2 passPosition;
 //out vec4 warpedNormal;
 //out vec4 warpedDiffPos;  
 
 void main() {
-	passPosition = projection * view * texture(diffPositionTexture, pos);
-	gl_Position = passPosition;
+	passPosition = pos;
+	gl_Position = projection * view * texture(diffPositionTexture, pos);
 
 
 

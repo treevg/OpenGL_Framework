@@ -1,9 +1,10 @@
 #version 430
 
-in vec4 passPosition;
+in vec2 passPosition;
 
 uniform sampler2D diffuseTexture;
 uniform sampler2D normalTexture;
+uniform sampler2D 	diffPositionTexture;
 
 out vec4 position;
 out vec4 diffuse;
@@ -11,8 +12,8 @@ out vec4 normal;
 out vec4 uv; 
 
 void main() {
-	position = vec4(passPosition.xyz / passPosition.a, 1);
-	uv = vec4((position.xy + 1) * 0.5,0,0); 
-	diffuse	= texture(diffuseTexture, uv.xy);
-	normal	= texture(normalTexture, uv.xy);
+	position = vec4(passPosition, 0, 1);
+	uv = texture(diffPositionTexture, passPosition); 
+	diffuse	= texture(diffuseTexture, passPosition);
+	normal	= texture(normalTexture, passPosition);
 }
