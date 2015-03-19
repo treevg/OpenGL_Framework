@@ -1,0 +1,27 @@
+#version 410
+
+ in vec4 vertex_position;
+ in vec3 vertex_normal;
+
+
+uniform mat4 uniformModel;
+uniform mat4 uniformView;
+uniform mat4 uniformProjection;
+
+
+out vec4 passPosition;
+out vec3 passNormal;
+
+
+
+void main() {
+
+        gl_Position = uniformProjection * uniformView *  uniformModel * vertex_position; 
+        passPosition =  uniformModel * vertex_position;
+        passNormal = mat3(transpose(inverse(uniformModel))) * vertex_normal; 
+           
+    //    vec3 passLightDirection = (uniformView * vec4(uniformLightPosition,1)).xyz;
+     //   vec3 inverse_normal = normalize(transpose(inverse(mat3(model))) * vertex_normal)
+           
+  
+}
