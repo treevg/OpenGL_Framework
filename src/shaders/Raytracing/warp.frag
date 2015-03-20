@@ -5,7 +5,7 @@ in vec2 passPosition;
 uniform vec2 resolution;
 uniform sampler2D diffuseTexture;
 uniform sampler2D normalTexture;
-uniform sampler2D 	diffPositionTexture;
+uniform sampler2D diffPositionTexture;
 
 out vec4 position;
 out vec4 diffuse;

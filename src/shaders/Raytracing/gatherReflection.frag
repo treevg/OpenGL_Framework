@@ -40,7 +40,7 @@ vec3 warpedDiffusePosition = texture(warpedDiffusePositionTexture, (passPosition
 vec4 warpedNormal = texture(warpedNormalTexture,(passPosition.xy -1) * 0.5);
 
 //troublemaker
-vec3 eyeNew = vec4(vp_inv * vec4(0.0, 0.0, -4.0, 1.0)).xyz;
+vec3 eyeNew = vec4(vp_inv * vec4(passPosition)).xyz;
 
 vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyeNew, normalize(warpedNormal.xyz)));
 

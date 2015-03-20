@@ -69,22 +69,9 @@ int main(int argc, char *argv[]) {
         new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}),
 		getWidth(window), getHeight(window)))
         ->update("resolution", getResolution(window))
-      //  ->texture("viewDirTexture", raytracePass->get("initialDirNotnorm"))
-       // ->texture("colorTexture", raytracePass->get("diffuseColor"))
-        // ->texture("diffuseDepthTexture", raytracePass->get("diffuseDepth"))
         ->texture("diffPositionTexture", raytracePass->get("diffusePosition"))
-      //  ->texture("indirectColorTexture", raytracePass->get("reflectiveColor"))
         ->texture("normalTexture", raytracePass->get("normal"))
         ->texture("diffuseTexture", raytracePass->get("diffuseColor"));
-
-
-//    //extra normalwarpPass
-//    auto normalWarp = (new RenderPass(grid,
-//        new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/normalWarp.frag"}),
-//		getWidth(window), getHeight(window)))
-//        ->clear(0,0,0,0)
-//        ->texture("normalTexture", raytracePass->get("normal"))
-//        ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"));
 
     // Holefilling
     auto holeFill = (new RenderPass(quadVAO,
@@ -103,6 +90,7 @@ int main(int argc, char *argv[]) {
         ->texture("diffusePositionTexture", raytracePass->get("diffusePosition"))
         ->texture("normalTexture", raytracePass->get("normal"))
 		->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"))
+		->texture("refPositionTexture", raytracePass->get("reflectivePosition"))
 		->texture("reflectiveColorTexture", raytracePass->get("reflectiveColor"))
 		->update("resolution", getResolution(window));
 
@@ -110,10 +98,10 @@ int main(int argc, char *argv[]) {
     auto gatherRefPass = (new RenderPass(quadVAO,
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"}),
         getWidth(window), getHeight(window)))
-        ->texture("reflectionColorTexture", raytracePass->get("reflectiveColor"))
+        ->texture("reflectionColorTexture", refWarp->get("refColor"))
         ->texture("reflectionPositionTexture", refWarp->get("position"))
         ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
-        ->texture("splattedReflectionUVTexture", refWarp->get("splattedRefUV"))
+        ->texture("splattedReflectionUVTexture", refWarp->get("uv"))
         ->texture("warpedNormalTexture",  diffWarp->get("normal"))
         ->texture("diffColorTexture", raytracePass->get("diffuseColor"))
         ->update("resolution", getResolution(window))
@@ -127,7 +115,8 @@ int main(int argc, char *argv[]) {
 
     auto tonemappingFlow = (new RenderPass(
     new Quad(),
-    new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
+    new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"}),
+	getWidth(window), getHeight(window)))
         ->texture("tex", diffWarp->get("flow"))
         ->update("resolution", getResolution(window));
 
@@ -166,7 +155,7 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", diffWarp->get("flow"));
                  break;
             case GLFW_KEY_SPACE:
-                 tonemapping->texture("tex", refWarp->get("position"));
+                 tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
                  break;
             case GLFW_KEY_Q:
                  tonemapping->texture("tex", refWarp->get("uv"));
@@ -175,7 +164,10 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", refWarp->get("refColor"));
                  break;
             case GLFW_KEY_E:
-                 tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
+                 tonemapping->texture("tex", refWarp->get("position"));
+                 break;
+            case GLFW_KEY_R:
+                 tonemapping->texture("tex", tonemappingFlow->get("fragColor"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
