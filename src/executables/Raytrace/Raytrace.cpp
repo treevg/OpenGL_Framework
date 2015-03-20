@@ -16,7 +16,7 @@
 using namespace std;
 using namespace glm;
 
-//TODO adjust reflective warping shader
+//TODO adjust gather reflection shader
 //TODO divide scene into patches for raytracing-> increase performance
 
 int main(int argc, char *argv[]) {
@@ -59,11 +59,6 @@ int main(int argc, char *argv[]) {
         ->update("colorSphere[0]", colorSphere)
         ->update("iResolution", glm::vec3(getWidth(window), getHeight(window), 1));
 
-    // Compositing
-    auto compSP = new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"});
-    auto compositing = new RenderPass(quadVAO, compSP);
-
-
     // Diffuse Warping
     auto diffWarp = (new RenderPass(grid,
         new ShaderProgram({"/Raytracing/warp.vert", "/Raytracing/warp.frag"}),
@@ -105,6 +100,7 @@ int main(int argc, char *argv[]) {
         ->texture("warpedNormalTexture",  diffWarp->get("normal"))
         ->texture("diffColorTexture", raytracePass->get("diffuseColor"))
         ->update("resolution", getResolution(window))
+        ->update("maxGDSteps", 15)
 		;
 
     auto tonemapping = (new RenderPass(
@@ -120,6 +116,11 @@ int main(int argc, char *argv[]) {
         ->texture("tex", diffWarp->get("flow"))
         ->update("resolution", getResolution(window));
 
+    // Compositing
+    auto compositing = (new RenderPass(
+    		quadVAO,
+    		new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"}),
+			getWidth(window), getHeight(window)));
 
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -238,11 +239,14 @@ int main(int argc, char *argv[]) {
         gatherRefPass
         ->clear(0,0,1,0)
         ->update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
-        ->update("maxGDSteps", 5)
         ->update("mvpOld", vp_old)
         ->update("altView", view)
-        ->update("projection", projection)
+        //->update("projection", projection)
         ->run();
+
+//        compositing
+//		->clear()
+//		->run();
 
         tonemapping
         ->clear()

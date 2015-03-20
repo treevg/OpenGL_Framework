@@ -6,8 +6,8 @@ in vec4 passPosition;
 
 layout(location = 0) out vec4 warpedColor;
 
-uniform sampler2D reflectionColorTexture;   	// indirectColor aus raytrace2.frag 
-uniform sampler2D reflectionPositionTexture;    //iPos aus refWarp.vert
+uniform sampler2D reflectionColorTexture;   	
+uniform sampler2D reflectionPositionTexture;    
 uniform sampler2D warpedDiffusePositionTexture;
 uniform sampler2D splattedReflectionUVTexture;
 uniform sampler2D warpedNormalTexture;
@@ -16,19 +16,9 @@ uniform mat4 mvpOld;
 uniform int mode;
 uniform int maxGDSteps;
 uniform mat4 altView;
-uniform mat4 projection;
-
 uniform sampler2D diffColorTexture;
 
-// uniform sampler2D diffusePositionTexture;
-// uniform sampler2D normalTexture;
-// uniform mat4 mvpNew;
-// uniform vec3 eyeOld;
-
-mat4 vp_inv = mat4(inverse(projection * altView));
-
 float ratio = resolution.x / resolution.y;
-
 bool undefined = false;
 vec4 invalidColor = vec4(0, 0, 0, 0);
 
@@ -39,13 +29,9 @@ vec2 splattedReflectionUV = texture(splattedReflectionUVTexture, (passPosition.x
 vec3 warpedDiffusePosition = texture(warpedDiffusePositionTexture, (passPosition.xy -1) * 0.5).xyz;
 vec4 warpedNormal = texture(warpedNormalTexture,(passPosition.xy -1) * 0.5);
 
-//troublemaker
-vec3 eyeNew = vec4(vp_inv * vec4(passPosition)).xyz;
-
+//troublemaker - correct now?
+vec3 eyeNew = vec4(inverse(altView) * vec4(0,0,0,1)).xyz;
 vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyeNew, normalize(warpedNormal.xyz)));
-
-// vec4 reflectionPosition = texture(reflectionPositionTexture, (passPosition.xy -1) * 0.5);
-//vec4 temp = texture( splattedReflectionUVTexture, (texture(coord, passPosition.xy)).xy);
 
 vec2 initialCoord() {
     vec3 closestCoord = vec3(0,0,9999);
@@ -190,7 +176,6 @@ void main() {
 
         coord = gradientDescent(guess);
 
-        // vec4(1,0,0,1);
         if (undefined || isnan(coord.x)) {
             warpedColor = invalidColor;
 			//warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
