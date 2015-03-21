@@ -37,7 +37,7 @@ int main(int argc, char *argv[]) {
     colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
 
     // latency stuff
-    int latencyFrameNumber = 5;
+    int latencyFrameNumber = 1;
     queue<mat4> latencyQueue;
 
     auto quadVAO = new Quad();
@@ -98,9 +98,9 @@ int main(int argc, char *argv[]) {
         ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
         ->texture("splattedReflectionUVTexture", refWarp->get("uv"))
         ->texture("warpedNormalTexture",  diffWarp->get("normal"))
-        ->texture("diffColorTexture", raytracePass->get("diffuseColor"))
+        //->texture("diffColorTexture", raytracePass->get("diffuseColor"))
         ->update("resolution", getResolution(window))
-        ->update("maxGDSteps", 15)
+        ->update("maxGDSteps", 5)
 		;
 
     auto tonemapping = (new RenderPass(
@@ -120,7 +120,10 @@ int main(int argc, char *argv[]) {
     auto compositing = (new RenderPass(
     		quadVAO,
     		new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"}),
-			getWidth(window), getHeight(window)));
+			getWidth(window), getHeight(window)))
+			->texture("gatherRefColTexture", gatherRefPass->get("warpedColor"))
+			->texture("warpDiffColTexture",  raytracePass->get("diffuseColor"))
+			;
 
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -168,7 +171,7 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", refWarp->get("position"));
                  break;
             case GLFW_KEY_R:
-                 tonemapping->texture("tex", tonemappingFlow->get("fragColor"));
+                 tonemapping->texture("tex", compositing->get("fragColor"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -225,28 +228,27 @@ int main(int argc, char *argv[]) {
 		->clear(1,0,0,0)
 		->run();
 
-        tonemappingFlow
-		->clear(1,0,0,0)
-		->run();
+//        tonemappingFlow
+//		->clear(1,0,0,0)
+//		->run();
 
         refWarp
-		->clear(0,1,0,0)
+		->clear()
         ->update("altView", view)
         ->update("projection", projection)
 		->run();
 
 
         gatherRefPass
-        ->clear(0,0,1,0)
+        ->clear()
         ->update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
         ->update("mvpOld", vp_old)
         ->update("altView", view)
-        //->update("projection", projection)
         ->run();
 
-//        compositing
-//		->clear()
-//		->run();
+        compositing
+		->clear()
+		->run();
 
         tonemapping
         ->clear()
