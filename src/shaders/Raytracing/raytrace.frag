@@ -1,5 +1,9 @@
 #version 430 
 
+// basics taken from: https://www.shadertoy.com/view/ldS3DW
+// triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
+// edited by moe11elf
+
 in vec4 gl_FragCoord;
 
 uniform vec3	iResolution; 	

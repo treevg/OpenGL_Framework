@@ -17,7 +17,6 @@ using namespace std;
 using namespace glm;
 
 //TODO blur compositing?
-//TODO load stanfordbunny
 //TODO smooth normals
 //TODO divide scene into patches for raytracing-> increase performance
 
@@ -47,12 +46,10 @@ int main(int argc, char *argv[]) {
 
 
     //Load mesh: parameter is resources path
-    auto ssbo2 = new ShaderStorageBuffer("/Objects/bunnyScene.obj", false);
+    auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
    // auto ssbo2 = new ShaderStorageBuffer("/Objects/plane.obj", false);
 
     // Raytracing
-    // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
-    // triangle intersection taken from: http://undernones.blogspot.de/2010/12/gpu-ray-tracing-with-glsl.html
     auto raytracePass = (new RenderPass(quadVAO,
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"}),
         getWidth(window), getHeight(window)))
@@ -92,6 +89,16 @@ int main(int argc, char *argv[]) {
 		->texture("reflectiveColorTexture", raytracePass->get("reflectiveColor"))
 		->update("resolution", getResolution(window));
 
+    // Smooth warpedNormals
+    auto smoothNorm = (new RenderPass(quadVAO,
+        new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/smoothNorm.frag"}),
+		getWidth(window), getHeight(window)))
+        ->clear(0,0,0,0)
+        ->texture("tex", diffWarp->get("normal"))
+		->update("resolution",  getResolution(window))
+		;
+
+
     // Gather reflection
     auto gatherRefPass = (new RenderPass(quadVAO,
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"}),
@@ -100,33 +107,32 @@ int main(int argc, char *argv[]) {
         ->texture("reflectionPositionTexture", refWarp->get("position"))
         ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
         ->texture("splattedReflectionUVTexture", refWarp->get("uv"))
-        ->texture("warpedNormalTexture",  diffWarp->get("normal"))
-        //->texture("diffColorTexture", raytracePass->get("diffuseColor"))
+        ->texture("warpedNormalTexture",  smoothNorm->get("fragColor"))
         ->update("resolution", getResolution(window))
         ->update("maxGDSteps", 5)
 		;
 
     auto tonemapping = (new RenderPass(
-    new Quad(),
-    new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
+    	new Quad(),
+		new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
         ->texture("tex", raytracePass->get("diffuseColor"))
         ->update("resolution", getResolution(window));
 
     auto tonemappingFlow = (new RenderPass(
-    new Quad(),
-    new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"}),
-	getWidth(window), getHeight(window)))
+    	new Quad(),
+		new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"}),
+		getWidth(window), getHeight(window)))
         ->texture("tex", diffWarp->get("flow"))
         ->update("resolution", getResolution(window));
 
     // Compositing
     auto compositing = (new RenderPass(
-    		quadVAO,
-    		new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"}),
-			getWidth(window), getHeight(window)))
-			->texture("gatherRefColTexture", gatherRefPass->get("warpedColor"))
-			->texture("warpDiffColTexture",  raytracePass->get("diffuseColor"))
-			;
+    	quadVAO,
+    	new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"}),
+		getWidth(window), getHeight(window)))
+		->texture("gatherRefColTexture", gatherRefPass->get("warpedColor"))
+		->texture("warpDiffColTexture",  raytracePass->get("diffuseColor"))
+		;
 
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -176,6 +182,9 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_R:
                  tonemapping->texture("tex", compositing->get("fragColor"));
                  break;
+            case GLFW_KEY_ENTER:
+                 tonemapping->texture("tex", smoothNorm->get("fragColor"));
+                 break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
@@ -201,6 +210,7 @@ int main(int argc, char *argv[]) {
             latencyQueue.pop();
         }
 
+
         mat4 view_old = latencyQueue.front();
         mat4 invView = inverse(view);
         mat4 invView_old = inverse(view_old);
@@ -210,7 +220,7 @@ int main(int argc, char *argv[]) {
         mat4 invViewProjection_old = inverse(projection * view_old);
         mat4 vp_old = projection * view_old;
 
-
+        //bind object
         ssbo2->bind(11);
 
         raytracePass
@@ -234,6 +244,9 @@ int main(int argc, char *argv[]) {
 //        tonemappingFlow
 //		->clear(1,0,0,0)
 //		->run();
+        smoothNorm
+		->clear()
+		->run();
 
         refWarp
 		->clear()
@@ -256,6 +269,5 @@ int main(int argc, char *argv[]) {
         tonemapping
         ->clear()
         ->run();
-
     });
 }
