@@ -16,7 +16,9 @@
 using namespace std;
 using namespace glm;
 
-//TODO adjust gather reflection shader
+//TODO blur compositing?
+//TODO load stanfordbunny
+//TODO smooth normals
 //TODO divide scene into patches for raytracing-> increase performance
 
 int main(int argc, char *argv[]) {
@@ -27,14 +29,14 @@ int main(int argc, char *argv[]) {
 
     vector<vec4> sphereVec;
     sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
-    sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
-    sphereVec.push_back(glm::vec4(-1.0, 0.5, 1.5, 0.3));
+  //  sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
+    sphereVec.push_back(glm::vec4(-0.5, 0.5, 1.0, 0.3));
 
     //needs to be same size as sphereVec
     vector<vec3> colorSphere;
     colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
     colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
-    colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
+   // colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
 
     // latency stuff
     int latencyFrameNumber = 1;
@@ -45,7 +47,8 @@ int main(int argc, char *argv[]) {
 
 
     //Load mesh: parameter is resources path
-    auto ssbo2 = new ShaderStorageBuffer("/Objects/plane.obj", false);
+    auto ssbo2 = new ShaderStorageBuffer("/Objects/bunnyScene.obj", false);
+   // auto ssbo2 = new ShaderStorageBuffer("/Objects/plane.obj", false);
 
     // Raytracing
     // basics of fragment shader taken from: https://www.shadertoy.com/view/ldS3DW
