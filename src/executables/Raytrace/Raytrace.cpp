@@ -37,6 +37,10 @@ int main(int argc, char *argv[]) {
     colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
    // colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
 
+    //normal adjustment
+    float factor = 0.5;
+    float zoom = 0.0;
+
     // latency stuff
     int latencyFrameNumber = 1;
     queue<mat4> latencyQueue;
@@ -91,11 +95,12 @@ int main(int argc, char *argv[]) {
 
     // Smooth warpedNormals
     auto smoothNorm = (new RenderPass(quadVAO,
-        new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/smoothNorm.frag"}),
+        new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/normal.frag"}),
 		getWidth(window), getHeight(window)))
         ->clear(0,0,0,0)
         ->texture("tex", diffWarp->get("normal"))
 		->update("resolution",  getResolution(window))
+		->update("factor", factor)
 		;
 
 
@@ -107,7 +112,8 @@ int main(int argc, char *argv[]) {
         ->texture("reflectionPositionTexture", refWarp->get("position"))
         ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
         ->texture("splattedReflectionUVTexture", refWarp->get("uv"))
-        ->texture("warpedNormalTexture",  smoothNorm->get("fragColor"))
+        //->texture("warpedNormalTexture",  diffWarp->get("normal"))
+		->texture("warpedNormalTexture",  smoothNorm->get("fragColor"))
         ->update("resolution", getResolution(window))
         ->update("maxGDSteps", 5)
 		;
@@ -171,10 +177,10 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
                  break;
             case GLFW_KEY_Q:
-                 tonemapping->texture("tex", refWarp->get("uv"));
+            	gatherRefPass->texture("warpedNormalTexture", smoothNorm->get("fragColor"));
                  break;
             case GLFW_KEY_W:
-                 tonemapping->texture("tex", refWarp->get("refColor"));
+            	gatherRefPass->texture("warpedNormalTexture",  diffWarp->get("normal"));
                  break;
             case GLFW_KEY_E:
                  tonemapping->texture("tex", refWarp->get("position"));
@@ -188,6 +194,18 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
+            case GLFW_KEY_N:
+            	smoothNorm->update("factor",factor+=0.1);
+                 break;
+            case GLFW_KEY_M:
+            	smoothNorm->update("factor",factor-=0.1);
+                 break;
+            case GLFW_KEY_A:
+            	zoom+=0.3;
+                 break;
+            case GLFW_KEY_D:
+            	zoom-=0.3;
+                 break;
             }
         }
     });
@@ -215,7 +233,7 @@ int main(int argc, char *argv[]) {
         mat4 invView = inverse(view);
         mat4 invView_old = inverse(view_old);
 
-        mat4 projection = perspective(45.0f, float(getWidth(window))/float(getHeight(window)), 0.001f, 100.0f);
+        mat4 projection = perspective(45.0f + zoom, float(getWidth(window))/float(getHeight(window)), 0.001f, 100.0f);
         mat4 invViewProjection = inverse(projection * view);
         mat4 invViewProjection_old = inverse(projection * view_old);
         mat4 vp_old = projection * view_old;
@@ -244,8 +262,10 @@ int main(int argc, char *argv[]) {
 //        tonemappingFlow
 //		->clear(1,0,0,0)
 //		->run();
+
         smoothNorm
 		->clear()
+        ->update("view", view)
 		->run();
 
         refWarp

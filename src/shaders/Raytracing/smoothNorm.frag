@@ -14,17 +14,34 @@ float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
 
 void main() 
 { 
-  vec3 tc = vec3(1.0, 0.0, 0.0);
   vec2 uv = (passPosition.xy-1)*0.5;
-  tc = texture(tex, uv).rgb * weight[0];
+  vec3 vertRight;
+  vec3 vertLeft;
+  vec3 horizRight;
+  vec3 horizLeft;
+  vec3 tc = texture(tex, uv).rgb * weight[0] * weight[0];
+  vec3 bl = tc;
   for (int i=1; i<3; i++) {
-	tc += texture(tex, uv + vec2(0.0, offset[i])/resolution.y).rgb * weight[i];
-	tc += texture(tex, uv - vec2(0.0, offset[i])/resolution.y).rgb * weight[i];
+	vertRight = texture(tex, uv + vec2(0.0, offset[i])/resolution.y).rgb;
+	if(vertRight != vec3(0)){
+		tc += vertRight * weight[i];
+	}
+	vertLeft = texture(tex, uv - vec2(0.0, offset[i])/resolution.y).rgb;
+	if(vertLeft != vec3(0)){
+		tc += vertLeft * weight[i];
+	}
+	
   }
   for (int i=1; i<3; i++) {
-    tc += texture(tex, uv + vec2(offset[i])/resolution.x, 0.0).rgb * weight[i];
-    tc += texture(tex, uv - vec2(offset[i])/resolution.x, 0.0).rgb * weight[i];
+	horizRight = texture(tex, uv + vec2(offset[i])/resolution.x, 0.0).rgb;
+	if(horizRight != vec3(0)){
+		tc += horizRight * weight[i];
+	}
+	horizLeft = texture(tex, uv - vec2(offset[i])/resolution.x, 0.0).rgb;
+    if(horizLeft != vec3(0)){
+		tc += horizLeft * weight[i];
+	}
     }
-	
-  fragColor = vec4(max(tc-0.75,0.0), 1.0);
+  fragColor = vec4(bl, 1.0);
+  //fragColor = vec4(max(tc,0.0), 1.0);
 }
