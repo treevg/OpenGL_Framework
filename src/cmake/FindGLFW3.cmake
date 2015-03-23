@@ -25,19 +25,14 @@ ELSEIF (MSVC)
         ${GLFW3_ROOT_ENV}/include
     )
 
-    IF (MSVC10)
-        FIND_LIBRARY( GLFW3_LIBRARY
+	FIND_LIBRARY( GLFW3_LIBRARY
             NAMES glfw3
             PATHS
-            ${GLFW3_ROOT_ENV}/lib-msvc100
-        )
-    ELSE()
-        FIND_LIBRARY( GLFW3_LIBRARY
-            NAMES glfw3
-            PATHS
-            ${GLFW3_ROOT_ENV}/lib-msvc110
-        )
-    ENDIF ()
+            ${GLFW3_ROOT_ENV}/lib
+			 ${GLFW3_ROOT_ENV}/lib-msvc100
+			 ${GLFW3_ROOT_ENV}/lib-msvc110
+			)
+
 ELSEIF(APPLE)
 
     FIND_PATH(GLFW3_INCLUDE_PATH GLFW/glfw3.h DOC "Path to GLFW include directory."

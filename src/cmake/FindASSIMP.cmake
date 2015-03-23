@@ -22,6 +22,7 @@
 #############################################
 
 SET( ASSIMP_SEARCH_PATHS
+	$ENV{ASSIMP_ROOT}
     ${ASSIMP_ROOT_DIR}                  # ASSIMP!
     ./lib/Assimp
     $ENV{PROGRAMFILES}/ASSIMP           # WINDOWS

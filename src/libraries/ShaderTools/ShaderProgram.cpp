@@ -8,19 +8,19 @@ using namespace glm;
 ShaderProgram::ShaderProgram(){
 }
 
-// ShaderProgram::ShaderProgram(vector<string> attachShaders) {
-//     shaderProgramHandle = glCreateProgram();
+ ShaderProgram::ShaderProgram(vector<string> attachShaders) {
+     shaderProgramHandle = glCreateProgram();
 
-//     for (string s : attachShaders) {
-//     	attachShader(SHADERS_PATH + s);
-//     }
+     for (string s : attachShaders) {
+     	attachShader(SHADERS_PATH + s);
+     }
 
-//     link();
+     link();
 
-//     mapShaderProperties(GL_UNIFORM, &uniformMap);
-//     mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
-//     mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
-// }
+     mapShaderProperties(GL_UNIFORM, &uniformMap);
+     mapShaderProperties(GL_PROGRAM_INPUT, &inputMap);
+     mapShaderProperties(GL_PROGRAM_OUTPUT, &outputMap);
+ }
 
 ShaderProgram::ShaderProgram(string a, string b) {
     shaderProgramHandle = glCreateProgram();
