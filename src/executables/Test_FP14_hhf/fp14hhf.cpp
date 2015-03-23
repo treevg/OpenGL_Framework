@@ -2,11 +2,12 @@
 This testclass tests the implementation of the hierarchical hole filling for use with kinect data (rgb and depth-textures)
 Used in research project FP14-Tele
 
-created: bwolf 19.03.2015
+created: bstnwlf 19.03.2015
 */
 #include "ShaderTools/Renderer.h"
 #include "AssetTools/Texture.h"
 #include "ShaderTools/VertexArrayObjects/Grid.h"
+#include "GL/glew.h"
 #include "hhf.h"
 
 using namespace std;
@@ -29,6 +30,13 @@ int texH, texW;
 
 // maximum mipmap depth
 int maxLevelSize;
+
+// TODO:
+/*
+- generate clean background texture
+- implement algorithm for foreground location
+
+*/
 
 int main(int argc, char *argv[])
 {
