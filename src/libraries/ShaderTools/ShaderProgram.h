@@ -41,7 +41,7 @@ public:
 	 * 
 	 * @param attachShaders List of GLSL source code files
 	 */
-	// ShaderProgram(std::vector<std::string> attachShaders);
+	ShaderProgram(std::vector<std::string> attachShaders);
 	//MSVC Workaround
 	ShaderProgram(std::string a, std::string b);
 	ShaderProgram(std::string a, std::string b, std::string c);
