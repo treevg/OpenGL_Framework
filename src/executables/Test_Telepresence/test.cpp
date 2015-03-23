@@ -13,6 +13,35 @@
 using namespace std;
 using namespace glm;
 
+float leftRight = 0.0f;
+float upDown = 0.0f;
+float nearFar = 100.0f;
+
+
+static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, GL_TRUE);
+
+	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
+		leftRight+=5.0f;
+
+	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
+		leftRight-=5.0f;
+
+	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
+		upDown+=5.0f;
+
+	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
+		upDown-=5.0f;
+
+	if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
+		nearFar += 5.0f;
+
+	if (key == GLFW_KEY_F2 && action == GLFW_PRESS)
+		nearFar -= 5.0f;
+}
+
 int main(int argc, char *argv[]) {
 
 	static const int depthWidth = 512;
@@ -21,6 +50,8 @@ int main(int argc, char *argv[]) {
 	int width = 1280;
 	int height = 720;
 	GLFWwindow* window = generateWindow();
+
+	glfwSetKeyCallback(window, key_callback);
 
 	// Create a sample listener and controller
 	LeapMotionHandler leapHandler;
@@ -34,10 +65,9 @@ int main(int argc, char *argv[]) {
 
 	GLfloat *colorData;
 	//tex = (float*)malloc(depthWidth * depthHeight * 3 * sizeof(float));
-	colorData = new float[depthWidth * depthHeight * 3];
-
+	
 	GLfloat *positionData;
-	positionData = new float[depthWidth * depthHeight * 3];
+
 
 
 
@@ -98,7 +128,7 @@ int main(int argc, char *argv[]) {
 	// camera parameters
 	float glnear = 0.1f;
 	float glfar = 1000.0f;
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 100.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	glm::mat4 view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	glm::mat4 projection = perspective(60.0f * PI / 180.0f, (float)width / height, glnear, glfar);
 	mat4 modelMatrixJoints = mat4(1.0f);
 	mat4 modelMatrixGoal = mat4(1.0f);
@@ -108,17 +138,16 @@ int main(int argc, char *argv[]) {
 
 	//cubePass
 	//	->update("lightPosition", lightPos)
-	//	->update("viewMatrix", view)
+	//	->update("viewMatrix", view) //TODO muss noch runter
 	//	->update("diffuseColor", vec3(1.0, 0.0, 0.0))
 	//	->update("projectionMatrix", projection);
 
 	//spherePass
 	//	->update("lightPosition", lightPos)
-	//	->update("viewMatrix", view)
+	//	->update("viewMatrix", view) //TODO muss noch runter
 	//	->update("projectionMatrix", projection);
 
 	pointCloudPass
-		->update("view", view)
 		->update("projection", projection);
 
 	
@@ -126,17 +155,23 @@ int main(int argc, char *argv[]) {
 	int count = 0;
 	render(window, [&](float deltaTime) {
 		//cout << count++ << " " << deltaTime << endl;
+
+		view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
 		glfwGetWindowSize(window, &width, &height);
 		//projection = perspective(60.0f * PI / 180.0f, (float)width / height, glnear, glfar);
 
+
+		colorData = new float[depthWidth * depthHeight * 3];
+		positionData = new float[depthWidth * depthHeight * 3];
 
 		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
 		//kinectHandler.update(colorData);
 		kinectHandler.update(positionData, colorData);
 		pointCloud->updatePointCloud(positionData, colorData);
 
-		//delete[] colorData;
-		//delete[] positionData;
+		delete[] colorData;
+		delete[] positionData;
 
 
 
@@ -297,7 +332,10 @@ int main(int argc, char *argv[]) {
 
 		pointCloudPass
 		->clear(1.0, 1.0, 1.0, 1.0)
+		->update("view", view)
 		->run();
+		 
+		pointCloud->deleteBuffers();
 
 
 

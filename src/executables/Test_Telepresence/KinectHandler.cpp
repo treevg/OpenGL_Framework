@@ -16,6 +16,7 @@ depthFrameDescription(NULL),
 colorFrameDescription(NULL),
 coordinateMapper(NULL),
 colorPoints(NULL),
+cameraPoints(NULL),
 depthBuffer(NULL),
 colorBuffer(NULL)
 {
@@ -26,6 +27,7 @@ colorBuffer(NULL)
 
 HRESULT KinectHandler::initializeDefaultSensor()
 {
+	// returns S_OK on success, otherwise failure code
 	HRESULT hr;
 
 	hr = GetDefaultKinectSensor(&kinectSensor);
@@ -57,6 +59,7 @@ HRESULT KinectHandler::initializeDefaultSensor()
 
 	return hr;
 }
+
 
 
 // Main processing function
@@ -210,6 +213,8 @@ void KinectHandler::update(GLfloat *data)
 	}  // multiframe
 }
 
+
+
 // Main processing function
 void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 {
@@ -232,9 +237,7 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 
 		if (SUCCEEDED(hr))
 		{
-
 			hr = depthReference->AcquireFrame(&depthFrame);
-
 
 			if (SUCCEEDED(hr))
 			{
@@ -254,9 +257,7 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 				{
 					depthBuffer = new UINT16[depthWidth * depthHeight];
 					hr = depthFrame->CopyFrameDataToArray(depthWidth * depthHeight, &depthBuffer[0]);
-					//depthBuffer = vector<UINT16>(depthWidth * depthHeight);
-					//hr = pDepthFrame->CopyFrameDataToArray(depthBuffer.size(), &depthBuffer[0]);
-
+			
 					if (SUCCEEDED(hr))
 					{
 						hr = depthFrame->get_DepthMinReliableDistance(&minReliableDistance);
@@ -269,7 +270,6 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 
 					if (SUCCEEDED(hr))
 					{
-
 						SafeRelease(depthFrame);
 
 						hr = pMultiFrame->get_ColorFrameReference(&colorReference);
@@ -292,15 +292,12 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 								if (SUCCEEDED(hr))
 								{
 									hr = colorFrameDescription->get_Height(&colorHeight);
-
 								}
-
 
 								if (SUCCEEDED(hr))
 								{
 									colorBuffer = new RGBQUAD[colorWidth * colorHeight];
-									//colorBuffer = vector<RGBQUAD>(colorWidth * colorHeight);
-
+								
 									if (SUCCEEDED(hr))
 									{
 										ColorImageFormat format;
@@ -317,50 +314,62 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 
 										if (SUCCEEDED(hr))
 										{
-											//colorPoints = vector<ColorSpacePoint>(depthWidth * depthHeight);
 											colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
+											cameraPoints = new CameraSpacePoint[depthWidth * depthHeight];
+											
 											hr = coordinateMapper->MapDepthFrameToColorSpace(depthWidth * depthHeight, &depthBuffer[0], depthWidth * depthHeight, &colorPoints[0]);
-
 											if (SUCCEEDED(hr))
 											{
-												int count = 0;
+												hr = coordinateMapper->MapDepthFrameToCameraSpace(depthWidth * depthHeight, &depthBuffer[0], depthWidth * depthHeight, &cameraPoints[0]);
+											
+												if (SUCCEEDED(hr))
+												{
+													int count = 0;
 
-												// loop over each row and column of the depth
-												for (int y = depthHeight - 1; y >= 0; y--){
-													for (int x = 0; x < depthWidth; x++){
+													// loop over each row and column of the depth
+													for (int y = depthHeight - 1; y >= 0; y--){
+														for (int x = 0; x < depthWidth; x++){
 
-														// calculate index into depth array
-														int depthIndex = (y * depthWidth) + x;
+															// calculate index into depth array
+															int depthIndex = (y * depthWidth) + x;
 
-														// retrieve the depth to color mapping for the current depth pixel
-														ColorSpacePoint colorPoint = colorPoints[depthIndex];
+															CameraSpacePoint cameraPoint = cameraPoints[depthIndex];
+															// retrieve the depth to color mapping for the current depth pixel
+															ColorSpacePoint colorPoint = colorPoints[depthIndex];
 
+															// make sure the depth pixel maps to a valid point in color space
+															int colorX = (int)floor(colorPoint.X + 0.5);
+															int colorY = (int)floor(colorPoint.Y + 0.5);
 
-														// make sure the depth pixel maps to a valid point in color space
-														int colorX = (int)floor(colorPoint.X + 0.5);
-														int colorY = (int)floor(colorPoint.Y + 0.5);
+															if ((colorX >= 0) && (colorX < colorWidth) && (colorY >= 0) && (colorY < colorHeight))
+															{
+																RGBQUAD color = colorBuffer[colorY * colorWidth + colorX];
 
-														if ((colorX >= 0) && (colorX < colorWidth) && (colorY >= 0) && (colorY < colorHeight))
-														{
-															RGBQUAD color = colorBuffer[colorY * colorWidth + colorX];
+																colorData[count] = color.rgbRed / 255.0f;
+																colorData[count + 1] = color.rgbGreen / 255.0f;
+																colorData[count + 2] = color.rgbBlue / 255.0f;
+													
+																if (cameraPoint.X != -INFINITY && cameraPoint.Y != -INFINITY && cameraPoint.Z != -INFINITY)
+																{
+																	//depthData[count] = (float)x / (float)depthWidth;
+																	//depthData[count + 1] = (float)(-y) / (float)depthHeight;
+																	//depthData[count + 2] = -(float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance);
 
+																	depthData[count] = cameraPoint.X;
+																	depthData[count + 1] = cameraPoint.Y;
+																	depthData[count + 2] = -cameraPoint.Z;
+																}
+															}
 
-
-															colorData[count] = color.rgbRed / 255.0f;
-															colorData[count + 1] = color.rgbGreen / 255.0f;
-															colorData[count + 2] = color.rgbBlue / 255.0f;
-
-															depthData[count] = (float)x / (float)depthWidth;
-															depthData[count + 1] = (float)(-y) / (float)depthHeight;
-															depthData[count + 2] = (float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance);	
-														
-															//cout << "X:" << (float)x / (float)depthWidth << "Y:" << (float)y / (float)DepthHeight << "Z:" << (float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance) << endl;
+															count += 3;
 														}
-														count += 3;
 													}
-												}
-											}//colorspacepoints
-											delete[] colorPoints;
+												}//colorspacepoints
+
+												delete[] colorPoints;
+											}//cameraspacepoints
+
+											delete[] cameraPoints;
 										}//converted color
 									}//colorbuffer
 
@@ -371,12 +380,12 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 					}//depthbuffer
 
 					delete[] depthBuffer;
-				} // framedescription depth width u height
-			} //dephtframe
-		} //dephtframereference
+				}//framedescription depth width u height
+			}//dephtframe
+		}//dephtframereference
 
 		SafeRelease(colorFrameDescription);
 		SafeRelease(depthFrameDescription);
 
-	}  // multiframe
+	}//multiframe
 }

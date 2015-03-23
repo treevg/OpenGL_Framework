@@ -15,7 +15,6 @@ public:
 	KinectHandler();
 	
 	// Initializes the default Kinect sensor
-	// <returns>S_OK on success, otherwise failure code</returns>
 	HRESULT	initializeDefaultSensor();	
 
 	/// Main processing function
@@ -35,6 +34,8 @@ private:
 
 	// Intermediate storage for the depth to color mapping
 	ColorSpacePoint* colorPoints;
+	CameraSpacePoint* cameraPoints;
+
 	// To Reserve Depth Frame Buffer
 	UINT16* depthBuffer;
 	// To Reserve Color Frame Buffer
