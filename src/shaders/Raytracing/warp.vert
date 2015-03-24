@@ -10,7 +10,7 @@ out vec2 passPosition;
  
 void main() {
 	passPosition = pos;
-	gl_Position = projection * view * texture(diffPositionTexture, pos);	
+	gl_Position = projection * view * texture(diffPositionTexture, pos) * vec4(1,1,0.999,1);	
 }
 
 

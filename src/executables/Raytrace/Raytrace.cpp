@@ -32,9 +32,9 @@ int main(int argc, char *argv[]) {
     sphereVec.push_back(glm::vec4(-0.5, 0.5, 1.0, 0.3));
 
     //needs to be same size as sphereVec
-    vector<vec3> colorSphere;
-    colorSphere.push_back(glm::vec3(0.8,0.4,0.4));
-    colorSphere.push_back(glm::vec3(0.4,0.8,0.4));
+    vector<vec4> colorSphere;
+    colorSphere.push_back(glm::vec4(1.0,0.4,0.4,0.9));
+    colorSphere.push_back(glm::vec4(0.4,1.0,0.4,0.2));
    // colorSphere.push_back(glm::vec3(0.4,0.4,0.8));
 
     //normal adjustment
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     float zoom = 0.0;
 
     // latency stuff
-    int latencyFrameNumber = 1;
+    int latencyFrameNumber = 5;
     queue<mat4> latencyQueue;
 
     auto quadVAO = new Quad();
@@ -59,7 +59,6 @@ int main(int argc, char *argv[]) {
         getWidth(window), getHeight(window)))
         ->texture("environmentTexture", TextureTools::loadTexture(RESOURCES_PATH "/equirectangular/park.jpg"))
         ->update("sphereVec[0]", sphereVec)
-        ->update("colorSphere[0]", colorSphere)
         ->update("colorSphere[0]", colorSphere)
         ->update("iResolution", glm::vec3(getWidth(window), getHeight(window), 1));
 
@@ -104,18 +103,28 @@ int main(int argc, char *argv[]) {
 		;
 
 
+    // // Gather reflection
+    // auto gatherRefPass = (new RenderPass(quadVAO,
+    //     new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"}),
+    //     getWidth(window), getHeight(window)))
+    //     ->texture("reflectionColorTexture", refWarp->get("refColor"))
+    //     ->texture("reflectionPositionTexture", refWarp->get("position"))
+    //     ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
+    //     ->texture("splattedReflectionUVTexture", refWarp->get("uv"))
+    //     //->texture("warpedNormalTexture",  diffWarp->get("normal"))
+    //     ->texture("warpedNormalTexture",  smoothNorm->get("fragColor"))
+    //     ->update("resolution", getResolution(window))
+    //     ->update("maxGDSteps", 5)
+    //     ;
+
     // Gather reflection
     auto gatherRefPass = (new RenderPass(quadVAO,
-        new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"}),
+        new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gather.frag"}),
         getWidth(window), getHeight(window)))
-        ->texture("reflectionColorTexture", refWarp->get("refColor"))
-        ->texture("reflectionPositionTexture", refWarp->get("position"))
-        ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
-        ->texture("splattedReflectionUVTexture", refWarp->get("uv"))
-        //->texture("warpedNormalTexture",  diffWarp->get("normal"))
-		->texture("warpedNormalTexture",  smoothNorm->get("fragColor"))
+        ->texture("uvDiffuse", diffWarp->get("uv"))
+        ->texture("uvReflect", refWarp->get("uv"))
+        ->texture("colorReflect", raytracePass->get("reflectiveColor"))
         ->update("resolution", getResolution(window))
-        ->update("maxGDSteps", 5)
 		;
 
     auto tonemapping = (new RenderPass(
@@ -133,10 +142,19 @@ int main(int argc, char *argv[]) {
 
     // Compositing
     auto compositing = (new RenderPass(
+        quadVAO,
+        new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"}),
+        getWidth(window), getHeight(window)))
+        ->texture("gatherRefColTexture", gatherRefPass->get("warpedColor"))
+        ->texture("warpDiffColTexture",  diffWarp->get("diffuse"))
+        ;
+
+    // Compositing
+    auto groundTruthCompositing = (new RenderPass(
     	quadVAO,
     	new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/compositing.frag"}),
 		getWidth(window), getHeight(window)))
-		->texture("gatherRefColTexture", gatherRefPass->get("warpedColor"))
+		->texture("gatherRefColTexture", raytracePass->get("reflectiveColor"))
 		->texture("warpDiffColTexture",  raytracePass->get("diffuseColor"))
 		;
 
@@ -144,7 +162,7 @@ int main(int argc, char *argv[]) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             switch (key) {
             case GLFW_KEY_1:
-                tonemapping->texture("tex", raytracePass->get("diffuseDepth"));
+                tonemapping->texture("tex", raytracePass->get("diffuseColor"));
                 break;
             case GLFW_KEY_2:
                 tonemapping->texture("tex", raytracePass->get("diffusePosition"));
@@ -177,16 +195,18 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
                  break;
             case GLFW_KEY_Q:
-            	gatherRefPass->texture("warpedNormalTexture", smoothNorm->get("fragColor"));
+            	// gatherRefPass->texture("warpedNormalTexture", smoothNorm->get("fragColor"));
+                tonemapping->texture("tex", refWarp->get("splattedRefUV"));
                  break;
             case GLFW_KEY_W:
-            	gatherRefPass->texture("warpedNormalTexture",  diffWarp->get("normal"));
+            	// gatherRefPass->texture("warpedNormalTexture",  diffWarp->get("normal"));
+                tonemapping->texture("tex", refWarp->get("position"));
                  break;
             case GLFW_KEY_E:
-                 tonemapping->texture("tex", refWarp->get("position"));
+                 tonemapping->texture("tex", refWarp->get("refColor"));
                  break;
             case GLFW_KEY_R:
-                 tonemapping->texture("tex", compositing->get("fragColor"));
+                 tonemapping->texture("tex", refWarp->get("uv"));
                  break;
             case GLFW_KEY_ENTER:
                  tonemapping->texture("tex", smoothNorm->get("fragColor"));
@@ -195,17 +215,23 @@ int main(int argc, char *argv[]) {
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
             case GLFW_KEY_N:
-            	smoothNorm->update("factor",factor+=0.1);
+                smoothNorm->update("factor",factor+=0.1);
                  break;
             case GLFW_KEY_M:
-            	smoothNorm->update("factor",factor-=0.1);
+                smoothNorm->update("factor",factor-=0.1);
                  break;
             case GLFW_KEY_A:
-            	zoom+=0.3;
+                zoom+=0.3;
                  break;
             case GLFW_KEY_D:
-            	zoom-=0.3;
+                zoom-=0.3;
                  break;
+            case GLFW_KEY_X:
+                tonemapping->texture("tex", groundTruthCompositing->get("fragColor"));
+                break;
+            case GLFW_KEY_Z:
+                tonemapping->texture("tex", compositing->get("fragColor"));
+                break;
             }
         }
     });
@@ -213,12 +239,13 @@ int main(int argc, char *argv[]) {
 
     float rotX = 0.0f;
     float rotY = 0.0f;
+    float rotSpeed = 0.3f;
 
     render(window, [&] (float deltaTime) {
-        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) (rotY - deltaTime < 0)? rotY -= deltaTime + 6.283 : rotY -= deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) (rotY + deltaTime > 6.283)? rotY += deltaTime - 6.283 : rotY += deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) (rotX - deltaTime < 0)? rotX -= deltaTime + 6.283 : rotX -= deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) (rotX + deltaTime > 6.283)? rotX += deltaTime - 6.283 : rotX += deltaTime;
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) (rotY - deltaTime * rotSpeed < 0)? rotY -= deltaTime * rotSpeed + 6.283 : rotY -= deltaTime * rotSpeed;
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) (rotY + deltaTime * rotSpeed > 6.283)? rotY += deltaTime * rotSpeed - 6.283 : rotY += deltaTime * rotSpeed;
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) (rotX - deltaTime * rotSpeed < 0)? rotX -= deltaTime * rotSpeed + 6.283 : rotX -= deltaTime * rotSpeed;
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) (rotX + deltaTime * rotSpeed > 6.283)? rotX += deltaTime * rotSpeed - 6.283 : rotX += deltaTime * rotSpeed;
 
         mat4 view = translate(mat4(1), vec3(0,0,-4)) * eulerAngleXY(-rotX, -rotY);
 
@@ -243,7 +270,7 @@ int main(int argc, char *argv[]) {
 
         raytracePass
         ->clear(0, 0, 0, 0)
-        ->update("view", view)
+        ->update("view", view_old)
         ->update("projection", projection)
         ->update("invViewProjection", invViewProjection_old)
         ->update("invView",invView_old)
@@ -285,6 +312,10 @@ int main(int argc, char *argv[]) {
         compositing
 		->clear()
 		->run();
+
+        groundTruthCompositing
+        ->clear()
+        ->run();
 
         tonemapping
         ->clear()

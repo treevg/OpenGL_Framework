@@ -19,7 +19,7 @@ uniform mat3	normalMat;
 
 uniform vec4 	sphereVec[3];
 uniform vec3 	mesh[6];
-uniform vec3 	colorSphere[3];
+uniform vec4 	colorSphere[3];
 uniform vec3 	colorTriangle[3];
 
 in 		vec4	passPosition;
@@ -27,7 +27,6 @@ in 		vec4	passPosition;
 //direct 
 out 	vec4	diffuseColor;
 out 	vec4 	diffusePosition;
-out 	vec3	diffuseDepth;
 out 	vec3	normal;
 out		vec3	initialDirNotnorm;
 
@@ -35,7 +34,6 @@ out		vec3	initialDirNotnorm;
 //indirect
 out 	vec4	reflectiveColor;
 out 	vec4 	reflectivePosition;
-out 	vec4	reflectiveDepth;
 
 
 layout(std430, binding=11) buffer meshData{
@@ -48,8 +46,7 @@ layout(std430, binding=12) buffer meshNormal{
 
 
 vec3 	light = normalize(vec3(sin(0), 0.6, cos(0)));
-vec3 	currentColor = vec3(1,1,1);
-vec3 	currentColor2 = vec3(1,1,1);
+vec3 	currentColor = vec3(0,0,0);
 float 	currentDepth;
 vec3 	currentNormal;
 vec3 	currentDirNotnorm;
@@ -125,7 +122,7 @@ vec3 background(vec3 rd)
 }
 
 
-int indirections = 2;
+int indirections = 1;
 
 vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / (iResolution.xy);
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
@@ -147,8 +144,10 @@ vec3 initialDir = currentDir;
 
 void main(void) { 
 
-normal = vec3(0.0);
-initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
+	normal = vec3(0.0);
+	initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
+	
+	float rayStrength = 1.0;
 
 	for (int i = 0; i <= indirections; i++) {
 		currentDepth = 999999;
@@ -191,7 +190,8 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 
 		if (hitSphere >= 0) {
 			// multiply Colors
-			currentColor *= colorSphere[hitSphere];
+			// currentColor *= colorSphere[hitSphere];
+			// opacity *= colorSphere[hitSphere].a;
 
 			// make new Ray
 			currentPos = currentPos + currentDir * currentDepth ;
@@ -205,7 +205,7 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 			// multiply Colors
 			// currentColor *= currentPos;
 			//currentColor *= abs(currentNormal);
-			 currentColor *= vec3(0.8,0.4,0.2);
+			// currentColor *= vec3(0.8,0.4,0.2);
 			// currentColor *=colorTriangle[hitTriangle/3];
 			
 			
@@ -216,54 +216,82 @@ initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 			currentDirNotnorm = reflect(normalize(currentDir), currentNormal);
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
+
+
+		//  if (hitTriangle == -1 && hitSphere == -1) {
+		// 	diffuseColor = vec4(background(currentDir),1);
+		// 	diffusePosition = vec4(currentDir,0);
+		// 	reflectiveColor = vec4(0,0,0,0);
+		// 	reflectivePosition = vec4(0,0,0,0);
+		// 	break;
+		// } else {
+		// 	float phongDiffuse;
+		// 	// compute interpolated normal for triangle
+		// 	if(hitTriangle >= 0){
+		// 		mat3 a = mat3(vec3(myMesh.pos[hitTriangle].xyz), vec3(myMesh.pos[hitTriangle+1].xyz), vec3(myMesh.pos[hitTriangle+2].xyz));
+		// 		vec3 x = inverse(a) * currentPos;
+		// 		vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
+		// 		phongDiffuse = max(dot(nor, light),0) * 0.3;
+		// 		normal = nor;
+		// 	}
+		// 	else{
+		// 		normal = currentNormal;
+		// 	}
+		// 	vec3  phongAmbient = vec3(0.0, 0.02, 0.01)*0.3;
+		// 	float phongDiffuse = max(dot(normal, light),0) * 0.3;
+		// 	diffuseColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
+		// 	diffusePosition = vec4(vec3(currentPos),1);
+			
+		// 	//float temps = dot(currentDirNotnorm, initialDirNotnorm);
+		// 	vec3 depthVec = diffusePosition.xyz - initialPos;
+		// }
 		
-		if(i == 0){
-			if (hitTriangle == -1 && hitSphere == -1) {
+
+		if (hitTriangle >= 0 || hitSphere >= 0) {
+			vec4 newColor;
+
+			if(hitSphere >= 0){
+				newColor = colorSphere[hitSphere];
+			}
+			else{
+				newColor = vec4(0.4,0.4,1.0,0.5);
+			}
+
+			vec3  phongAmbient = vec3(0.1, 0.2, 0.2) * 0.4;
+			float phongDiffuse = max(dot(currentNormal, light),0) * 0.3;
+			currentColor += (newColor.rgb * phongDiffuse + phongAmbient) * rayStrength;
+			rayStrength *= newColor.a;
+
+			if(i == 0) {
+				diffuseColor = vec4(currentColor, 1);
+				diffusePosition = vec4(vec3(currentPos),1);
+				currentColor = vec3(0,0,0);
+				normal = currentNormal;
+			}
+			if(i == 1) {
+				reflectivePosition= vec4(vec3(currentPos),1);
+			}
+			if(i > 0) {
+				reflectiveColor = vec4(currentColor,1);
+			}
+
+		// nothing was hit this time
+		} else {
+			if(i == 0) {
 				diffuseColor = vec4(background(currentDir),1);
-				diffusePosition = vec4(currentDir,0);
-				diffuseDepth = vec3(999);
+				diffusePosition = vec4(currentPos + currentDir * 1000,1);
 				reflectiveColor = vec4(0,0,0,0);
 				reflectivePosition = vec4(0,0,0,0);
-				reflectiveDepth = vec4(9999);
 				break;
-			} else {
-				float phongDiffuse;
-				// compute interpolated normal for triangle
-				if(hitTriangle >= 0){
-					mat3 a = mat3(vec3(myMesh.pos[hitTriangle].xyz), vec3(myMesh.pos[hitTriangle+1].xyz), vec3(myMesh.pos[hitTriangle+2].xyz));
-					vec3 x = inverse(a) * currentPos;
-					vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
-					phongDiffuse = max(dot(nor, light),0) * 0.3;
-					normal = nor;
-				
-				}
-				else{
-					phongDiffuse = max(dot(currentNormal, light),0) * 0.3;
-					normal = currentNormal;
-				}
-				vec3  phongAmbient = vec3(0.0, 0.02, 0.01)*0.3;
-				diffuseColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
-				diffusePosition = vec4(vec3(currentPos),1);
-				
-				//float temps = dot(currentDirNotnorm, initialDirNotnorm);
-				//diffuseDepth = vec4(temps,temps,temps,1);
-				vec3 depthVec = diffusePosition.xyz - initialPos;
-				diffuseDepth = depthVec; //vec4(distance(initialPos, diffusePosition.xyz));
 			}
-		} 
-		if (i == 1) {
-			if (hitTriangle == -1 && hitSphere == -1) {		
-				//'infinite' depth
+			if(i == 1) {
+				currentColor += background(currentDir) * rayStrength;
 				reflectivePosition= vec4(currentPos + currentDir * 1000,1);
-				reflectiveDepth = vec4(1000);
-			} else {
-				reflectivePosition= vec4(vec3(currentPos),1);
-				reflectiveDepth = vec4(vec3(currentDepth),1);
+				reflectiveColor = vec4(currentColor,1);
 			}
-		}
-		if (i > 0) {
-			currentColor *= background(currentDir);
-			reflectiveColor = vec4(currentColor,1);
+			if(i > 1) {
+				reflectiveColor = vec4(currentColor,1);
+			}
 		}
 	}
 }

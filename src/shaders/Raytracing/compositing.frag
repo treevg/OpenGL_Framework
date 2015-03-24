@@ -10,10 +10,14 @@ uniform sampler2D warpDiffColTexture;
 out vec4 fragColor;
 
 void main() {
- fragColor = vec4(0);
-fragColor = texture(gatherRefColTexture, (passPosition.xy-1)*0.5);
-if(fragColor == vec4(0)){
-fragColor = texture(warpDiffColTexture, (passPosition.xy-1)*0.5);
-}
-fragColor += vec4(0.2,0.2,0.2, 0.0);
+	// fragColor = vec4(0);
+	// fragColor = texture(gatherRefColTexture, (passPosition.xy-1)*0.5);
+
+	// if(fragColor == vec4(0)){
+	// 	fragColor += texture(warpDiffColTexture, (passPosition.xy-1)*0.5);
+	// }
+
+	// fragColor += vec4(0.2,0.2,0.2, 0.0);
+
+	fragColor = texture(warpDiffColTexture, (passPosition.xy-1)*0.5) + texture(gatherRefColTexture, (passPosition.xy-1)*0.5);
 }

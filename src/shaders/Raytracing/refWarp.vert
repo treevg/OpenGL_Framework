@@ -23,38 +23,14 @@ void main() {
 	vec3 wDifPos = texture(diffusePositionTexture, pos).xyz;
     vec3 wNorm = texture(normalTexture, pos).xyz;
     vec3 wRefPos = texture(reflectionPositionTexture, pos).xyz;  
-    vec4 wPos = vec4(wDifPos - reflect(wDifPos - wRefPos,normalize(wNorm)), 1);
-	//vec4 warpRefPos =  projection * altView * vec4(wPos.xyz,1);
-	//warpRefPos /= warpRefPos.w;
-	//warpRefPos = projection * altView * wPos;
-	//gl_Position = warpRefPos;
+    vec4 wPos = vec4(wDifPos - normalize(reflect(wDifPos - wRefPos,normalize(wNorm))) * distance(wDifPos, wRefPos), 1);
 
-	//'infinite' depth
-	gl_Position = (projection * altView * wPos) * vec4(1,1,0.001,1); //vec4(pos * 2 - 1, 0, 1);
-	// gl_Position = (projection * altView * wPos) * vec4(1,1,-1,1); //vec4(pos * 2 - 1, 0, 1);
-	
-
+	gl_Position = (projection * altView * wPos) * vec4(1,1,0.999,1); //vec4(pos * 2 - 1, 0, 1);
+	// gl_Position = vec4(pos,0,1); //vec4(pos * 2 - 1, 0, 1);
 	
 	// coord color
 	coordColor = vec2(
     float(float(pos.x) /resolution.x),
     float(float(pos.y) / resolution.y));
-	
-//	vec2 outCoord = vec2(
-//    float(warpRefPos.x + 1.0) * 0.5 * resolution.y + (resolution.x - resolution.y)/2.0,
-//    float(warpRefPos.y + 1.0) * 0.5 * resolution.y);
 
-	
-	//leftout - needed at all?
-	//vec4 lastIteration;
-    //lastIteration = texture(outTexture, outCoord);
-    //if (lastIteration.z > iPos.z) {
-    //    imageStore(outTexture, outCoord, vec4(coordColor, iPos.z, 1.0));
-    //}
-	
-	
-
-
-	
-	
 }

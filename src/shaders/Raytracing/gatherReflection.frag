@@ -127,23 +127,28 @@ void main() {
            discard;
         } 
 
-        coord = gradientDescent(guess);
+        // warpedColor = vec4(texture(reflectionColorTexture, splattedReflectionUV).xyz,1);
+        warpedColor = vec4(gl_FragCoord.xy / resolution - splattedReflectionUV, 0, 1);
 
-        if (undefined || isnan(coord.x)) {
-            warpedColor = invalidColor;
-			//warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
 
-        } else {
-            warpedColor = vec4(texture(reflectionColorTexture, coord + vec2(0.5,0) / resolution).xyz,1);
-	   }
+ //        coord = gradientDescent(guess);
 
-        if (warpedColor.x == 1) {
-            warpedColor = vec4(0,0,0,0);
-        }
-    // }
 
-    if (mode == 1) {
-    warpedColor = vec4(bestQuality);
-	//warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
-    }
+ //        if (undefined || isnan(coord.x)) {
+ //            warpedColor = invalidColor;
+	// 		//warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
+
+ //        } else {
+ //            warpedColor = vec4(texture(reflectionColorTexture, coord + vec2(0.5,0) / resolution).xyz,1);
+	//    }
+
+ //        if (warpedColor.x == 1) {
+ //            warpedColor = vec4(0,0,0,0);
+ //        }
+ //    // }
+
+ //    if (mode == 1) {
+ //    warpedColor = vec4(bestQuality);
+	// //warpedColor = texture(diffColorTexture, (passPosition.xy - 1) * 0.5);
+ //    }
 }
