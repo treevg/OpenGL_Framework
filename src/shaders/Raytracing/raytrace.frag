@@ -39,11 +39,11 @@ out 	vec4	reflectiveDepth;
 
 
 layout(std430, binding=11) buffer meshData{
-	vec4 pos[4200];
+	vec4 pos[300];		//4200
 } myMesh;
 
 layout(std430, binding=12) buffer meshNormal{
-	vec4 posNorm[4200];
+	vec4 posNorm[300];  //4200
 } myNormals;
 
 

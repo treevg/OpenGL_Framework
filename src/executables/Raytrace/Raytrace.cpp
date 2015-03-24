@@ -50,8 +50,8 @@ int main(int argc, char *argv[]) {
 
 
     //Load mesh: parameter is resources path
-    auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
-   // auto ssbo2 = new ShaderStorageBuffer("/Objects/plane.obj", false);
+   // auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
+    auto ssbo2 = new ShaderStorageBuffer("/Objects/twoplanes.obj", false);
 
     // Raytracing
     auto raytracePass = (new RenderPass(quadVAO,

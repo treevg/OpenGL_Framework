@@ -33,7 +33,7 @@
 // @return 			Pointer auf das Fenster
 // 
 
-GLFWwindow* generateWindow(int width = 640, int height = 480, int posX = 100, int posY = 100) {
+GLFWwindow* generateWindow(int width = 1280, int height = 720, int posX = 100, int posY = 100) {
 	glfwInit();
 
 	GLFWwindow* window = glfwCreateWindow(width, height, "OpenGL Window", NULL, NULL);

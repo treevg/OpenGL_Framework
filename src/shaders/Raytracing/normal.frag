@@ -11,7 +11,7 @@ out vec4 fragColor;
 float offset[3] = float[]( 0.0, 1.3846153846, 3.2307692308 );
 float weight[3] = float[]( 0.2270270270, 0.3162162162, 0.0702702703 );
 vec3 eyeNew = vec4(inverse(view) * vec4(0,0,0,1)).xyz;
-	vec3 negativeViewdirection = vec3(passPosition, 0.0) - eyeNew;
+vec3 negativeViewdirection = normalize( vec3(passPosition, 0.0) - eyeNew);
 
 
 float eps = 0.2;
