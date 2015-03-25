@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     float zoom = 0.0;
 
     // latency stuff
-    int latencyFrameNumber = 5;
+    int latencyFrameNumber = 10;
     queue<mat4> latencyQueue;
 
     auto quadVAO = new Quad();
@@ -124,6 +124,10 @@ int main(int argc, char *argv[]) {
         ->texture("uvDiffuse", diffWarp->get("uv"))
         ->texture("uvReflect", refWarp->get("uv"))
         ->texture("colorReflect", raytracePass->get("reflectiveColor"))
+		->texture("warpedDiffusePositionTexture", diffWarp->get("position"))
+		->texture("warpedNormalTexture", diffWarp->get("normal"))
+		->texture("reflectionPositionTexture", refWarp->get("position"))
+		->texture("temp", refWarp->get("uv"))
         ->update("resolution", getResolution(window))
 		;
 
@@ -208,8 +212,11 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_R:
                  tonemapping->texture("tex", refWarp->get("uv"));
                  break;
-            case GLFW_KEY_ENTER:
-                 tonemapping->texture("tex", smoothNorm->get("fragColor"));
+            case GLFW_KEY_O:
+            	gatherRefPass->texture("temp", refWarp->get("uv"));
+                 break;
+            case GLFW_KEY_P:
+            	gatherRefPass->texture("temp", diffWarp->get("uv"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -304,9 +311,9 @@ int main(int argc, char *argv[]) {
 
         gatherRefPass
         ->clear()
-        ->update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
-        ->update("mvpOld", vp_old)
-        ->update("altView", view)
+       // ->update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
+       // ->update("mvpOld", vp_old)
+        ->update("view", view)
         ->run();
 
         compositing
