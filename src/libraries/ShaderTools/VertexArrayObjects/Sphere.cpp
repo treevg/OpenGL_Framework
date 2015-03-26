@@ -102,12 +102,12 @@ void Sphere::create(glm::vec3 center, float radius, int resolution)
 
 
 
-
 	glGenVertexArrays(1, &vertexArrayObjectHandle);
 	glBindVertexArray(vertexArrayObjectHandle);
 
 	GLuint vertexBufferHandles[2];
 	glGenBuffers(2, vertexBufferHandles);
+
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);
 	glBufferData(GL_ARRAY_BUFFER, m_points * sizeof(glm::vec3), &m_vertices[0], GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);

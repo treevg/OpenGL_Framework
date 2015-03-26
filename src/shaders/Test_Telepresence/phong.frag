@@ -21,7 +21,7 @@ void main(){
 
     //varables used in the phong lighting model:
     float phi = max(dot(passNormal, lightVector), 0);
-    float psi = pow(max(dot(reflection, eye), 0), 15);
+    float psi = pow(max(dot(reflection, eye), 0), 25);
 
     vec3 ambientColor = vec3(0.3, 0.2, 0.2);
     //vec3 diffuseColor = vec3(1.0, 0.0, 0.0);

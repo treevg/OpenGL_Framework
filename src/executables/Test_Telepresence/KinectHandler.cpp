@@ -349,16 +349,17 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 																colorData[count + 1] = color.rgbGreen / 255.0f;
 																colorData[count + 2] = color.rgbBlue / 255.0f;
 													
-																if (cameraPoint.X != -INFINITY && cameraPoint.Y != -INFINITY && cameraPoint.Z != -INFINITY)
-																{
+																//if (cameraPoint.X != -INFINITY && cameraPoint.Y != -INFINITY && cameraPoint.Z != -INFINITY)
+																//{
 																	//depthData[count] = (float)x / (float)depthWidth;
 																	//depthData[count + 1] = (float)(-y) / (float)depthHeight;
 																	//depthData[count + 2] = -(float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance);
 
-																	depthData[count] = cameraPoint.X;
-																	depthData[count + 1] = cameraPoint.Y;
-																	depthData[count + 2] = -cameraPoint.Z;
-																}
+																depthData[count] = cameraPoint.X;
+																depthData[count + 1] = cameraPoint.Y;
+																depthData[count + 2] = -cameraPoint.Z;
+																//}
+																
 															}
 
 															count += 3;
