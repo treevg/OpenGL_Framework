@@ -7,4 +7,4 @@ created: bstnwlf 19.03.2015
 
 #include "hhf.h"
 
-HHF::HHF();
+//HHF::HHF();

@@ -39,9 +39,9 @@ private:
 	glm::vec2 fgRes;		// Foreground texture resolution
 	glm::vec2 bgRes;		// Background texture resolution
 
-	GLuint* fgTex;			// Foreground texture
-	GLuint* bgTex;			// Background texture
-	
+//	GLuint* fgTex;			// Foreground texture
+	//GLuint* bgTex;			// Background texture
+		
 	glm::vec3 threshold;	// Mask Threshold RGB
 
 	int mipmapCount;		// number of mipmaps
