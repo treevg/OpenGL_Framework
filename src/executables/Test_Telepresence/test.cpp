@@ -15,7 +15,7 @@ using namespace glm;
 
 float leftRight = 0.0f;
 float upDown = 0.0f;
-float nearFar = 150.0f;
+float nearFar = 5.0f;
 
 
 
@@ -25,22 +25,22 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GL_TRUE);
 
 	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-		leftRight+=5.0f;
+		leftRight+=0.1f;
 
 	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-		leftRight-=5.0f;
+		leftRight-=0.1f;
 
 	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-		upDown+=5.0f;
+		upDown+=0.1f;
 
 	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-		upDown-=5.0f;
+		upDown-=0.1f;
 
 	if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
-		nearFar += 5.0f;
+		nearFar += 0.1f;
 
 	if (key == GLFW_KEY_F2 && action == GLFW_PRESS)
-		nearFar -= 5.0f;
+		nearFar -= 0.1f;
 }
 
 int main(int argc, char *argv[]) {
@@ -48,10 +48,10 @@ int main(int argc, char *argv[]) {
 	static const int depthWidth = 512;
 	static const int depthHeight = 424;
 	
-	int width = 1280;
+	int width = 720;
 	int height = 720;
 
-	GLFWwindow* window = generateWindow();
+	GLFWwindow* window = generateWindow(width, height, 100, 100);
 	glfwSetKeyCallback(window, key_callback);
 
 	// Create a sample listener and controller
@@ -119,10 +119,10 @@ int main(int argc, char *argv[]) {
 	float glnear = 0.1f;
 	float glfar = 1000.0f;
 	glm::mat4 view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection = perspective(60.0f * PI / 180.0f, (float)width / height, glnear, glfar);
+	glm::mat4 projection = perspective(60.0f, (float)width / height, glnear, glfar); // 60.0f * PI / 180.0f ?!
 	mat4 modelMatrixJoints = mat4(1.0f);
 	mat4 modelMatrixGoal = mat4(1.0f);
-	vec3 lightPos = vec3(100.0f, 100.0f, 5.0f);
+	vec3 lightPos = vec3(10.0f, 10.0f, 5.0f);
 	
 
 
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
 		//cout << count++ << " " << deltaTime << endl;
 
 		// clear screen
-		glClearColor(1.0, 1.0, 1.0, 1.0);
+		glClearColor(0.95, 0.95, 0.95, 1.0);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
