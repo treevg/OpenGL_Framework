@@ -42,6 +42,9 @@ OVR::Matrix4f g_ProjectionMatrici[2];
 OVR::Sizei g_RenderTargetSize;
 ovrVector3f g_CameraPosition;
 
+// Disables Oculus Screen and renders scene in external window with oculus tracking
+static const bool DEVELOPMODE = TRUE;
+
 GLfloat l_VAPoints[] =
 {
 	0.5f, 0.5f, 0.5f,
@@ -288,7 +291,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	}
 
 	// Create a window...
-	GLFWwindow* l_Window;
+	GLFWwindow* window;
 
 	glfwSetErrorCallback(ErrorCallback);
 
@@ -297,17 +300,18 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	if (l_MultiSampling) glfwWindowHint(GLFW_SAMPLES, 4); else glfwWindowHint(GLFW_SAMPLES, 0);
 
 	// Check to see if we are running in "Direct" or "Extended Desktop" mode...
-	bool l_DirectMode = ((g_Hmd->HmdCaps & ovrHmdCap_ExtendDesktop) == 0);
+	bool directMode = ((g_Hmd->HmdCaps & ovrHmdCap_ExtendDesktop) == 0);
 
 	GLFWmonitor* l_Monitor;
 	ovrSizei l_ClientSize;
-	if (l_DirectMode)
+	if (directMode)
 	{
 		printf("Running in \"Direct\" mode...\n");
 		l_Monitor = NULL;
 
 		l_ClientSize.w = g_Hmd->Resolution.w / 2; // Something reasonable, smaller, but maintain aspect ratio...
 		l_ClientSize.h = g_Hmd->Resolution.h / 2; // Something reasonable, smaller, but maintain aspect ratio...
+
 	}
 	else // Extended Desktop mode...
 	{
@@ -338,10 +342,10 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	}
 
 	// Create the window based on the parameters set above...
-	l_Window = glfwCreateWindow(l_ClientSize.w, l_ClientSize.h, "GLFW Oculus Rift Test", l_Monitor, NULL);
+	window = glfwCreateWindow(l_ClientSize.w, l_ClientSize.h, "GLFW Oculus Rift Test", l_Monitor, NULL);
 
 	// Check if window creation was succesfull...
-	if (!l_Window)
+	if (!window)
 	{
 		glfwTerminate();
 		exit(EXIT_FAILURE);
@@ -349,9 +353,9 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 
 	// Attach the window in "Direct Mode"...
 #if defined(_WIN32)
-	if (l_DirectMode)
+	if (directMode && !DEVELOPMODE)
 	{
-		ovrBool l_AttachResult = ovrHmd_AttachToWindow(g_Hmd, glfwGetWin32Window(l_Window), NULL, NULL);
+		ovrBool l_AttachResult = ovrHmd_AttachToWindow(g_Hmd, glfwGetWin32Window(window), NULL, NULL);
 		if (!l_AttachResult)
 		{
 			printf("Could not attach to window...");
@@ -361,7 +365,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 #endif
 
 	// Make the context current for this window...
-	glfwMakeContextCurrent(l_Window);
+	glfwMakeContextCurrent(window);
 
 	// Don't forget to initialize Glew, turn glewExperimental on to avoid problem fetching function pointers...
 	glewExperimental = GL_TRUE;
@@ -373,9 +377,9 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	}
 
 	// Print some info about the OpenGL context...
-	int l_Major = glfwGetWindowAttrib(l_Window, GLFW_CONTEXT_VERSION_MAJOR);
-	int l_Minor = glfwGetWindowAttrib(l_Window, GLFW_CONTEXT_VERSION_MINOR);
-	int l_Profile = glfwGetWindowAttrib(l_Window, GLFW_OPENGL_PROFILE);
+	int l_Major = glfwGetWindowAttrib(window, GLFW_CONTEXT_VERSION_MAJOR);
+	int l_Minor = glfwGetWindowAttrib(window, GLFW_CONTEXT_VERSION_MINOR);
+	int l_Profile = glfwGetWindowAttrib(window, GLFW_OPENGL_PROFILE);
 	printf("OpenGL: %d.%d ", l_Major, l_Minor);
 	if (l_Major >= 3) // Profiles introduced in OpenGL 3.0...
 	{
@@ -461,7 +465,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	g_Cfg.OGL.Header.BackBufferSize.h = l_ClientSize.h;
 	g_Cfg.OGL.Header.Multisample = (l_MultiSampling ? 1 : 0);
 #if defined(_WIN32)
-	g_Cfg.OGL.Window = glfwGetWin32Window(l_Window);
+	g_Cfg.OGL.Window = glfwGetWin32Window(window);
 	g_Cfg.OGL.DC = GetDC(g_Cfg.OGL.Window);
 #elif defined(__linux__)
 	l_Cfg.OGL.Win = glfwGetX11Window(l_Window);
@@ -501,8 +505,8 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	g_CameraPosition.y = 0.0f;
 	g_CameraPosition.z = -2.0f;
 
-	glfwSetKeyCallback(l_Window, KeyCallback);
-	glfwSetWindowSizeCallback(l_Window, WindowSizeCallback);
+	glfwSetKeyCallback(window, KeyCallback);
+	glfwSetWindowSizeCallback(window, WindowSizeCallback);
 
 	GLfloat l_SpinX;
 	GLfloat l_SpinY;
@@ -512,7 +516,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
-	while (!glfwWindowShouldClose(l_Window))
+	while (!glfwWindowShouldClose(window))
 	{
 		if (l_Spin)
 		{
@@ -602,7 +606,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	ovr_Shutdown();
 
 	// Clean up window...
-	glfwDestroyWindow(l_Window);
+	glfwDestroyWindow(window);
 	glfwTerminate();
 
 	exit(EXIT_SUCCESS);
