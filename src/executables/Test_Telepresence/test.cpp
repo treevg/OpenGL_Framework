@@ -15,11 +15,13 @@ int main(int argc, char *argv[]) {
 
 	static const int DepthWidth = 512;
 	static const int DepthHeight = 424;
-	
+
 	int width = 1280;
 	int height = 720;
 	GLFWwindow* window = generateWindow();
+}
 
+/*
 	// Create a sample listener and controller
 	LeapMotionHandler leapHandler;
 	Controller controller;
@@ -271,3 +273,4 @@ int main(int argc, char *argv[]) {
 	
 	return 0;
 }
+*/
