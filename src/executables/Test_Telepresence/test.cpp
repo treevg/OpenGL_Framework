@@ -15,7 +15,7 @@ using namespace glm;
 
 float leftRight = 0.0f;
 float upDown = 0.0f;
-float nearFar = 500.0f;
+float nearFar = 150.0f;
 
 
 
@@ -142,7 +142,8 @@ int main(int argc, char *argv[]) {
 	pointCloudPass
 		->update("projectionMatrix", projection);
 
-	
+	colorData = new float[depthWidth * depthHeight * 3];
+	positionData = new float[depthWidth * depthHeight * 3];
 
 	int count = 0;
 	render(window, [&](float deltaTime) {
@@ -163,15 +164,14 @@ int main(int argc, char *argv[]) {
 
 		glfwGetWindowSize(window, &width, &height);
 		
-		colorData = new float[depthWidth * depthHeight * 3];
-		positionData = new float[depthWidth * depthHeight * 3];
+
 		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
 
 		kinectHandler.update(positionData, colorData);
 		pointCloud->updatePointCloud(positionData, colorData);
 		
-		delete[] colorData;
-		delete[] positionData;
+		//delete[] colorData;
+		//delete[] positionData;
 
 
 

@@ -10,15 +10,18 @@ kinectSensor(NULL),
 multiSourceFrameReader(NULL),
 depthFrame(NULL),
 colorFrame(NULL),
+bodyIndexFrame(NULL),
 depthReference(NULL),
 colorReference(NULL),
+bodyIndexReference(NULL),
 depthFrameDescription(NULL),
 colorFrameDescription(NULL),
 coordinateMapper(NULL),
 colorPoints(NULL),
 cameraPoints(NULL),
 depthBuffer(NULL),
-colorBuffer(NULL)
+colorBuffer(NULL),
+bodyIndexBuffer(NULL)
 {
 
 }
@@ -46,7 +49,7 @@ HRESULT KinectHandler::initializeDefaultSensor()
 		if (SUCCEEDED(hr))
 		{
 			// open multiframereader for depth and color
-			hr = kinectSensor->OpenMultiSourceFrameReader(FrameSourceTypes_Depth | FrameSourceTypes_Color, &multiSourceFrameReader);
+			hr = kinectSensor->OpenMultiSourceFrameReader(FrameSourceTypes_Depth | FrameSourceTypes_Color | FrameSourceTypes_BodyIndex, &multiSourceFrameReader);
 		}
 	}
 
@@ -216,7 +219,7 @@ void KinectHandler::update(GLfloat *data)
 
 
 // Main processing function
-void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
+void KinectHandler::update(GLfloat *positionData, GLfloat *colorData)
 {
 	IMultiSourceFrame* pMultiFrame = NULL;
 	HRESULT hr = multiSourceFrameReader->AcquireLatestFrame(&pMultiFrame);
@@ -232,6 +235,7 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 		USHORT minReliableDistance = 0;
 		USHORT maxReliableDistance = 0;
 
+		// ------------------------------ Get Depth Data ------------------------------ //
 		hr = pMultiFrame->get_DepthFrameReference(&depthReference);
 		depthFrame = nullptr;
 
@@ -253,9 +257,13 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 					hr = depthFrameDescription->get_Height(&depthHeight);
 				}
 
+				SafeRelease(depthFrameDescription);
+
 				if (SUCCEEDED(hr))
 				{
 					depthBuffer = new UINT16[depthWidth * depthHeight];
+
+					// Update the depth data
 					hr = depthFrame->CopyFrameDataToArray(depthWidth * depthHeight, &depthBuffer[0]);
 			
 					if (SUCCEEDED(hr))
@@ -272,11 +280,13 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 					{
 						SafeRelease(depthFrame);
 
+
+
+						// ------------------------------ Get Color Data ------------------------------ //
 						hr = pMultiFrame->get_ColorFrameReference(&colorReference);
 
 						if (SUCCEEDED(hr))
 						{
-							SafeRelease(pMultiFrame);
 							colorFrame = nullptr;
 							hr = colorReference->AcquireFrame(&colorFrame);
 
@@ -294,6 +304,8 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 									hr = colorFrameDescription->get_Height(&colorHeight);
 								}
 
+								SafeRelease(colorFrameDescription);
+								
 								if (SUCCEEDED(hr))
 								{
 									colorBuffer = new RGBQUAD[colorWidth * colorHeight];
@@ -305,6 +317,7 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 
 										if (SUCCEEDED(hr))
 										{
+											// Update the color data
 											if (format == ColorImageFormat_Bgra)
 												hr = colorFrame->CopyRawFrameDataToArray(colorWidth * colorHeight * sizeof(RGBQUAD), reinterpret_cast<BYTE*>(&colorBuffer[0]));
 											else
@@ -312,81 +325,111 @@ void KinectHandler::update(GLfloat *depthData, GLfloat *colorData)
 										}
 										SafeRelease(colorFrame);
 
+
+
+										// ------------------------------ Get Body Index Data ------------------------------ //
+										hr = pMultiFrame->get_BodyIndexFrameReference(&bodyIndexReference);
+
+										SafeRelease(pMultiFrame);
+
+										bodyIndexFrame = nullptr;
+
 										if (SUCCEEDED(hr))
 										{
-											colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
-											cameraPoints = new CameraSpacePoint[depthWidth * depthHeight];
+											hr = bodyIndexReference->AcquireFrame(&bodyIndexFrame);
 											
-											hr = coordinateMapper->MapDepthFrameToColorSpace(depthWidth * depthHeight, &depthBuffer[0], depthWidth * depthHeight, &colorPoints[0]);
+											bodyIndexBuffer = new byte[depthWidth * depthHeight];
 											if (SUCCEEDED(hr))
 											{
-												hr = coordinateMapper->MapDepthFrameToCameraSpace(depthWidth * depthHeight, &depthBuffer[0], depthWidth * depthHeight, &cameraPoints[0]);
+												// Update the body index data
+												hr = bodyIndexFrame->CopyFrameDataToArray(depthWidth * depthHeight, &bodyIndexBuffer[0]);
+											}
+
+											SafeRelease(bodyIndexFrame);
 											
+											if (SUCCEEDED(hr))
+											{
+												colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
+												cameraPoints = new CameraSpacePoint[depthWidth * depthHeight];
+											
+												// Do the coordinate mapping here
+												hr = coordinateMapper->MapDepthFrameToColorSpace(depthWidth * depthHeight, &depthBuffer[0], depthWidth * depthHeight, &colorPoints[0]);
 												if (SUCCEEDED(hr))
+												
 												{
-													int count = 0;
+													hr = coordinateMapper->MapDepthFrameToCameraSpace(depthWidth * depthHeight, &depthBuffer[0], depthWidth * depthHeight, &cameraPoints[0]);
+											
+													if (SUCCEEDED(hr))
+													{
+														int count = 0;
+														clearBuffer(positionData, depthWidth * depthHeight * 3);
+														clearBuffer(colorData, depthWidth * depthHeight * 3);
 
-													// loop over each row and column of the depth
-													for (int y = depthHeight - 1; y >= 0; y--){
-														for (int x = 0; x < depthWidth; x++){
+														// loop over each row and column of the depth
+														for (int y = depthHeight - 1; y >= 0; y--){
+															for (int x = 0; x < depthWidth; x++){
 
-															// calculate index into depth array
-															int depthIndex = (y * depthWidth) + x;
+																// calculate index into depth array
+																int depthIndex = (y * depthWidth) + x;
 
-															CameraSpacePoint cameraPoint = cameraPoints[depthIndex];
-															// retrieve the depth to color mapping for the current depth pixel
-															ColorSpacePoint colorPoint = colorPoints[depthIndex];
+																byte body = bodyIndexBuffer[depthIndex];
 
-															// make sure the depth pixel maps to a valid point in color space
-															int colorX = (int)floor(colorPoint.X + 0.5);
-															int colorY = (int)floor(colorPoint.Y + 0.5);
+																// Check whether this pixel belong to a human
+																if (body != 0xff){
 
-															if ((colorX >= 0) && (colorX < colorWidth) && (colorY >= 0) && (colorY < colorHeight))
-															{
-																RGBQUAD color = colorBuffer[colorY * colorWidth + colorX];
+																	CameraSpacePoint cameraPoint = cameraPoints[depthIndex];
+																	// retrieve the depth to color mapping for the current depth pixel
+																	ColorSpacePoint colorPoint = colorPoints[depthIndex];
 
-																colorData[count] = color.rgbRed / 255.0f;
-																colorData[count + 1] = color.rgbGreen / 255.0f;
-																colorData[count + 2] = color.rgbBlue / 255.0f;
+																	// make sure the depth pixel maps to a valid point in color space
+																	int colorX = (int)floor(colorPoint.X + 0.5);
+																	int colorY = (int)floor(colorPoint.Y + 0.5);
+
+																	if ((colorX >= 0) && (colorX < colorWidth) && (colorY >= 0) && (colorY < colorHeight))
+																	{
+																		RGBQUAD color = colorBuffer[colorY * colorWidth + colorX];
+
+																		colorData[count] = color.rgbRed / 255.0f;
+																		colorData[count + 1] = color.rgbGreen / 255.0f;
+																		colorData[count + 2] = color.rgbBlue / 255.0f;
 													
-																//if (cameraPoint.X != -INFINITY && cameraPoint.Y != -INFINITY && cameraPoint.Z != -INFINITY)
-																//{
-																	//depthData[count] = (float)x / (float)depthWidth;
-																	//depthData[count + 1] = (float)(-y) / (float)depthHeight;
-																	//depthData[count + 2] = -(float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance);
+																		//if (cameraPoint.X != -INFINITY && cameraPoint.Y != -INFINITY && cameraPoint.Z != -INFINITY)
+																		//{
+																			//depthData[count] = (float)x / (float)depthWidth;
+																			//depthData[count + 1] = (float)(-y) / (float)depthHeight;
+																			//depthData[count + 2] = -(float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance);
 
-																depthData[count] = cameraPoint.X;
-																depthData[count + 1] = cameraPoint.Y;
-																depthData[count + 2] = -cameraPoint.Z;
-																//}
-																
+																		positionData[count] = cameraPoint.X;
+																		positionData[count + 1] = cameraPoint.Y;
+																		positionData[count + 2] = -cameraPoint.Z;
+
+																		//}
+																	}
+																}
+																count += 3;
 															}
-
-															count += 3;
 														}
-													}
-												}//colorspacepoints
-
+													}//colorspacepoints
+												}//cameraspacepoints
 												delete[] colorPoints;
-											}//cameraspacepoints
-
-											delete[] cameraPoints;
-										}//converted color
+												delete[] cameraPoints;
+											}//converted color
+											delete[] bodyIndexBuffer;
+										}//bodyindexbuffer
 									}//colorbuffer
-
 									delete[] colorBuffer;
 								}//framedescription color width u height
 							}//colorframe
 						}//colorreference
 					}//depthbuffer
-
 					delete[] depthBuffer;
 				}//framedescription depth width u height
 			}//dephtframe
 		}//dephtframereference
-
-		SafeRelease(colorFrameDescription);
-		SafeRelease(depthFrameDescription);
-
 	}//multiframe
+}
+
+void KinectHandler::clearBuffer(GLfloat *buffer, int size){
+	for (int i = 0; i < size; i++)
+		buffer[i] = 1.0f; 
 }

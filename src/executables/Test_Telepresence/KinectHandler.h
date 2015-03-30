@@ -19,15 +19,19 @@ public:
 
 	/// Main processing function
 	void update(GLfloat *data);
-	void update(GLfloat *depthData, GLfloat *colorData);
+	void update(GLfloat *positionData, GLfloat *colorData);
+
+	void clearBuffer(GLfloat *buffer, int size); 
 
 private:
 	IKinectSensor* kinectSensor;
 	IMultiSourceFrameReader* multiSourceFrameReader;
 	IDepthFrame* depthFrame;
 	IColorFrame* colorFrame;
+	IBodyIndexFrame* bodyIndexFrame;
 	IDepthFrameReference* depthReference;
 	IColorFrameReference* colorReference;
+	IBodyIndexFrameReference* bodyIndexReference;
 	IFrameDescription* depthFrameDescription;
 	IFrameDescription* colorFrameDescription;
 	ICoordinateMapper* coordinateMapper; // Coordinate mapper to map one type of point to another
@@ -40,4 +44,6 @@ private:
 	UINT16* depthBuffer;
 	// To Reserve Color Frame Buffer
 	RGBQUAD* colorBuffer;
+	// To Reserve Body Index Frame Buffer
+	byte* bodyIndexBuffer;
 };
