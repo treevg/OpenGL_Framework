@@ -286,6 +286,16 @@ glm::vec2 getResolution(GLFWwindow* window) {
 	return glm::vec2(float(w), float(h));
 }
 
+glm::mat4 toGLM(OVR::Matrix4f mat)
+{
+	return glm::mat4(
+		glm::vec4(mat.GetXBasis().x, mat.GetXBasis().y, mat.GetXBasis().z, 0.0f),
+		glm::vec4(mat.GetYBasis().x, mat.GetYBasis().y, mat.GetYBasis().z, 0.0f),
+		glm::vec4(mat.GetZBasis().x, mat.GetZBasis().y, mat.GetZBasis().z, 0.0f),
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+		);
+}
+
 GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	printf("[R] to recenter, [Esc] to quit, dismiss the HSW with any key (after the hidden timer runs out)...\n");
 
@@ -532,11 +542,13 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	//	new ShaderProgram(depthShaders));
 
 
-	Cube* cube = new Cube(glm::vec3(0.0, 0.0, 0.0), 0.5f);
+	Cube* cube = new Cube(glm::vec3(0.0, 0.0, -1.0), 0.5f);
 	std::vector<std::string> attachShaders = { "/Test_Telepresence/v.vert", "/Test_Telepresence/f.frag" };
 	RenderPass* cubePass = new RenderPass(
 		cube,
 		new ShaderProgram(attachShaders));
+
+	cubePass->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
@@ -611,6 +623,27 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 			// RenderCubeFixedFunction();
 			//RenderCubeVertexArrays();
 			
+			glm::mat4 view = glm::mat4(1.0f);
+			//glm::mat4 projection = glm::mat4(1.0f);
+			glm::mat4 projection = glm::perspective(60.0f, (float)width / height, 0.1f, 1000.0f);
+
+			//projection = toGLM(g_ProjectionMatrici[l_Eye].Transposed());
+			glm::vec3 lightPos = glm::vec3(2, 2, 2);
+
+			view = toGLM(l_ModelViewMatrix.Transposed());
+			glm::vec3 trans = glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
+			view = glm::translate(view, trans );
+			trans = glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z);
+			view = glm::translate(view, trans);
+
+
+
+			cubePass->update("lightPosition", lightPos)
+				->update("modelMatrix", glm::mat4(1.0))
+				->update("viewMatrix", view)
+				->update("diffuseColor", glm::vec3(1.0, 1.0, 0.0))
+				->update("projectionMatrix", projection)
+				->run();
 
 		}
 
@@ -618,16 +651,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-		glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		glm::mat4 projection = glm::perspective(60.0f, (float)width / height, 0.1f, 100.0f);
-		glm::vec3 lightPos = glm::vec3(2, 2, 2);
 
-		cubePass->update("lightPosition", lightPos)
-			->update("modelMatrix", glm::mat4(1.0))
-			->update("viewMatrix", view)
-			->update("diffuseColor", glm::vec3(1.0, 1.0, 0.0))
-			->update("projectionMatrix", projection)
-			->run();
 
 
 		// Do everything, distortion, front/back buffer swap...
@@ -672,4 +696,5 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 
 	exit(EXIT_SUCCESS);
 }
+
 
