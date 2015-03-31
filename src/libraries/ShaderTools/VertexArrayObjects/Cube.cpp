@@ -119,22 +119,22 @@ Cube::Cube(glm::vec3 position, float size) {
 	float positions[] = {
 		// Front face
 		position.x - size, position.y - size, position.z + size, position.x + size, position.y - size, position.z + size, position.x + size, position.y + size, position.z + size,
-		//position.x + size, position.y + size, position.z + size, position.x - size, position.y + size, position.z + size, position.x - size, position.y - size, position.z + size,
-		//// Right face
-		//position.x + size, position.y - size, position.z + size, position.x + size, position.y - size, position.z - size, position.x + size, position.y + size, position.z - size,
-		//position.x + size, position.y + size, position.z - size, position.x + size, position.y + size, position.z + size, position.x + size, position.y - size, position.z + size,
-		//// Back face
-		//position.x - size, position.y - size, position.z - size, position.x + size, position.y - size, position.z - size, position.x + size, position.y + size, position.z - size,
-		//position.x + size, position.y + size, position.z - size, position.x - size, position.y + size, position.z - size, position.x - size, position.y - size, position.z - size,
-		//// Left face
-		//position.x - size, position.y - size, position.z + size, position.x - size, position.y - size, position.z - size, position.x - size, position.y + size, position.z - size,
-		//position.x - size, position.y + size, position.z - size, position.x - size, position.y + size, position.z + size, position.x - size, position.y - size, position.z + size,
-		//// Bottom face
-		//position.x - size, position.y - size, position.z + size, position.x + size, position.y - size, position.z + size, position.x + size, position.y - size, position.z - size,
-		//position.x + size, position.y - size, position.z - size, position.x - size, position.y - size, position.z - size, position.x - size, position.y - size, position.z + size,
-		//// Top Face
-		//position.x - size, position.y + size, position.z + size, position.x + size, position.y + size, position.z + size, position.x + size, position.y + size, position.z - size,
-		//position.x + size, position.y + size, position.z - size, position.x - size, position.y + size, position.z - size, position.x - size, position.y + size, position.z + size,
+		position.x + size, position.y + size, position.z + size, position.x - size, position.y + size, position.z + size, position.x - size, position.y - size, position.z + size,
+		// Right face
+		position.x + size, position.y - size, position.z + size, position.x + size, position.y - size, position.z - size, position.x + size, position.y + size, position.z - size,
+		position.x + size, position.y + size, position.z - size, position.x + size, position.y + size, position.z + size, position.x + size, position.y - size, position.z + size,
+		// Back face
+		position.x - size, position.y - size, position.z - size, position.x + size, position.y - size, position.z - size, position.x + size, position.y + size, position.z - size,
+		position.x + size, position.y + size, position.z - size, position.x - size, position.y + size, position.z - size, position.x - size, position.y - size, position.z - size,
+		// Left face
+		position.x - size, position.y - size, position.z + size, position.x - size, position.y - size, position.z - size, position.x - size, position.y + size, position.z - size,
+		position.x - size, position.y + size, position.z - size, position.x - size, position.y + size, position.z + size, position.x - size, position.y - size, position.z + size,
+		// Bottom face
+		position.x - size, position.y - size, position.z + size, position.x + size, position.y - size, position.z + size, position.x + size, position.y - size, position.z - size,
+		position.x + size, position.y - size, position.z - size, position.x - size, position.y - size, position.z - size, position.x - size, position.y - size, position.z + size,
+		// Top Face
+		position.x - size, position.y + size, position.z + size, position.x + size, position.y + size, position.z + size, position.x + size, position.y + size, position.z - size,
+		position.x + size, position.y + size, position.z - size, position.x - size, position.y + size, position.z - size, position.x - size, position.y + size, position.z + size,
 	};
 
 	for (int v = 0; v < sizeof(positions); v += 3)

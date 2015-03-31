@@ -21,6 +21,11 @@
 #include "../Src/Kernel/OVR_Math.h" 
 #include <../Src/OVR_CAPI.h>
 #include <../Src/OVR_CAPI_GL.h>
+#include "glm\glm.hpp"
+#include "ShaderTools/RenderPass.h"
+#include "Compression/TextureTools.h"
+#include "ShaderTools/VertexArrayObjects/Quad.h"
+#include "ShaderTools/VertexArrayObjects/Cube.h"
 
 const bool l_MultiSampling = false;
 const bool l_Spin = false;
@@ -275,8 +280,13 @@ static void SetStaticLightPositions(void)
 
 // =============================================================================
 
-GLFWwindow* generateWindow(int width = 1280, int height = 720) {
+glm::vec2 getResolution(GLFWwindow* window) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	return glm::vec2(float(w), float(h));
+}
 
+GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	printf("[R] to recenter, [Esc] to quit, dismiss the HSW with any key (after the hidden timer runs out)...\n");
 
 	// Initialize LibOVR...
@@ -514,6 +524,23 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	// Do a single recenter to calibrate orientation to current state of the Rift...
 	ovrHmd_RecenterPose(g_Hmd);
 
+
+	//std::vector<std::string> depthShaders = { "/Test_Telepresence/fullscreen.vert", "/Test_Telepresence/simpleTexture.frag" };
+	//Quad* quad = new Quad();
+	//RenderPass* texturePass = new RenderPass(
+	//	quad,
+	//	new ShaderProgram(depthShaders));
+
+
+	Cube* cube = new Cube(glm::vec3(0.0, 0.0, 0.0), 0.5f);
+	std::vector<std::string> attachShaders = { "/Test_Telepresence/v.vert", "/Test_Telepresence/f.frag" };
+	RenderPass* cubePass = new RenderPass(
+		cube,
+		new ShaderProgram(attachShaders));
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
+
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
 	while (!glfwWindowShouldClose(window))
@@ -582,14 +609,48 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 
 			// Render...
 			// RenderCubeFixedFunction();
-			RenderCubeVertexArrays();
+			//RenderCubeVertexArrays();
+			
+
 		}
 
 		// Back to the default framebuffer...
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+
+		glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, -5.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		glm::mat4 projection = glm::perspective(60.0f, (float)width / height, 0.1f, 100.0f);
+		glm::vec3 lightPos = glm::vec3(2, 2, 2);
+
+		cubePass->update("lightPosition", lightPos)
+			->update("modelMatrix", glm::mat4(1.0))
+			->update("viewMatrix", view)
+			->update("diffuseColor", glm::vec3(1.0, 1.0, 0.0))
+			->update("projectionMatrix", projection)
+			->run();
+
+
 		// Do everything, distortion, front/back buffer swap...
 		ovrHmd_EndFrame(g_Hmd, g_EyePoses, g_EyeTextures);
+
+		//texturePass
+		//	->update("resolution", getResolution(window));
+
+		////texture settings
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+
+		//texturePass
+		//	->clear(0.0, 0.0, 0.0, 1.0)
+		//	->texture("tex", l_TextureId)
+		//	//->texture("tex", TextureTools::loadTexture("C:/dev/Framework/resources/jpg/bambus.jpg"))
+		//	->run();
+
+		//glfwSwapBuffers(window);
+
 
 		++l_FrameIndex;
 
@@ -611,3 +672,4 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 
 	exit(EXIT_SUCCESS);
 }
+
