@@ -16,7 +16,6 @@ out vec2 passPosition;
 out vec2 coordColor;
 
 void main() {
-	mat4 mvpNew = projection * altView;
 	passPosition = pos;
 	
 	// compute warped reflective position
@@ -26,7 +25,6 @@ void main() {
     vec4 wPos = vec4(wDifPos - normalize(reflect(wDifPos - wRefPos,normalize(wNorm))) * distance(wDifPos, wRefPos), 1);
 
 	gl_Position = (projection * altView * wPos) * vec4(1,1,0.999,1); //vec4(pos * 2 - 1, 0, 1);
-	// gl_Position = vec4(pos,0,1); //vec4(pos * 2 - 1, 0, 1);
 	
 	// coord color
 	coordColor = vec2(

@@ -246,7 +246,7 @@ int main(int argc, char *argv[]) {
 
     float rotX = 0.0f;
     float rotY = 0.0f;
-    float rotSpeed = 0.3f;
+    float rotSpeed = 0.15f;
 
     render(window, [&] (float deltaTime) {
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) (rotY - deltaTime * rotSpeed < 0)? rotY -= deltaTime * rotSpeed + 6.283 : rotY -= deltaTime * rotSpeed;
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
 
         gatherRefPass
         ->clear()
-       // ->update("mode" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
+        ->update("test" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
        // ->update("mvpOld", vp_old)
         ->update("view", view)
         ->run();
