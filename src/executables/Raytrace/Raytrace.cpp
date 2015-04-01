@@ -312,7 +312,6 @@ int main(int argc, char *argv[]) {
         gatherRefPass
         ->clear()
         ->update("test" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
-       // ->update("mvpOld", vp_old)
         ->update("view", view)
         ->run();
 
