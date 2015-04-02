@@ -73,13 +73,12 @@ int main(int argc, char *argv[]) {
 
 
 
-
-
 	mat4 modelMatrixJoints = mat4(1.0f);
 	mat4 modelMatrixGoal = mat4(1.0f);
 	vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 	
 	cubePass
+		->update("diffuseColor", vec3(1.0, 0.0, 0.0))
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
 	spherePass
@@ -104,7 +103,6 @@ int main(int argc, char *argv[]) {
 		//view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		cubePass
 			->update("lightPosition", lightPos)
-			->update("diffuseColor", vec3(1.0, 0.0, 0.0))
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
 		spherePass
@@ -119,9 +117,7 @@ int main(int argc, char *argv[]) {
 		//texturePass
 		//	->update("resolution", getResolution(window));
 		
-
-
-
+		
 		
 
 		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
@@ -129,10 +125,6 @@ int main(int argc, char *argv[]) {
 		kinectHandler.update(positionData, colorData);
 		pointCloud->updatePointCloud(positionData, colorData);
 		
-		//delete[] colorData;
-		//delete[] positionData;
-
-
 
 		////bind the texture
 		//glBindTexture(GL_TEXTURE_2D, texture);
@@ -159,11 +151,7 @@ int main(int argc, char *argv[]) {
 			->run();
 
 		//draw Bones
-		if (bones.size() == 0)
-			spherePass
-				->update("modelMatrix", modelMatrixJoints)
-				->run();
-		else{
+		if (bones.size() != 0){
 			for (int i = 0; i < bones.size(); i++)
 			{
 				modelMatrixJoints = mat4(1.0f);
@@ -193,31 +181,31 @@ int main(int argc, char *argv[]) {
 			mat4 boneTest = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[7].nextJoint(), false)) * 2.0f - 1.0f);
 			mat4 dirMatTest = boneTest; //* boneTestRot;
 
-			//show pointing direction 
-			spherePass
-				->update("modelMatrix", translate(dirMatTest, directionTest1 * 1.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(dirMatTest, directionTest1 * 2.6f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(dirMatTest, directionTest1 * 4.2f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(dirMatTest, directionTest1 * 5.8f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(dirMatTest, directionTest1 * 7.4f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(dirMatTest, directionTest1 * 9.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(dirMatTest, directionTest1 * 10.6f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(dirMatTest, directionTest1 * 12.2f))
-				->run();
+			////show pointing direction 
+			//spherePass
+			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 1.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 2.6f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 4.2f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 5.8f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 7.4f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 9.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 10.6f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 12.2f))
+			//	->run();
 
 
 
