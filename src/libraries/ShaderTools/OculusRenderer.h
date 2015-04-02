@@ -22,6 +22,7 @@
 #include "Compression/TextureTools.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
+#include <functional>
 
 const bool l_MultiSampling = false;
 const bool l_Spin = false;
@@ -45,6 +46,13 @@ ovrVector3f g_CameraPosition;
 
 // Disables Oculus Screen and renders scene in external window with oculus tracking
 static const bool DEVELOPMODE = FALSE;
+
+// Create the FBO being a single one for both eyes (this is open for debate)...
+GLuint l_FBOId;
+// Create Depth Buffer...
+GLuint l_DepthBufferId;
+// The texture we're going to render to...
+GLuint l_TextureId;
 
 
 
@@ -151,6 +159,84 @@ glm::mat4 toGlm(const ovrPosef & op) {
 	glm::mat4 translation = glm::translate(glm::mat4(), toGlm(op.Position));
 	return translation * orientation;
 }
+
+void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection, glm::mat4 view)> loop){
+	float lastTime = 0.0;
+	unsigned int l_FrameIndex = 0;
+
+	while (!glfwWindowShouldClose(window)){
+		float currentTime = glfwGetTime();
+
+		// Begin the frame...
+		ovrHmd_BeginFrame(g_Hmd, l_FrameIndex);
+
+		// Get eye poses for both the left and the right eye. g_EyePoses contains all Rift information: orientation, positional tracking and
+		// the IPD in the form of the input variable g_EyeOffsets.
+		ovrHmd_GetEyePoses(g_Hmd, l_FrameIndex, g_EyeOffsets, g_EyePoses, NULL);
+
+		// Bind the FBO...
+		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
+
+		// Clear...
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++)
+		{
+			ovrEyeType l_Eye = g_Hmd->EyeRenderOrder[l_EyeIndex];
+
+			glViewport(
+				g_EyeTextures[l_Eye].Header.RenderViewport.Pos.x,
+				g_EyeTextures[l_Eye].Header.RenderViewport.Pos.y,
+				g_EyeTextures[l_Eye].Header.RenderViewport.Size.w,
+				g_EyeTextures[l_Eye].Header.RenderViewport.Size.h
+				);
+
+			OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
+			OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
+
+			glm::mat4 view = toGlm(l_ModelViewMatrix);
+			glm::mat4 projection = toGlm(g_ProjectionMatrici[l_Eye]);
+
+			// Translation due to positional tracking (DK2) and IPD...
+			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x * 5.0f, -g_EyePoses[l_Eye].Position.y * 5.0f, -g_EyePoses[l_Eye].Position.z * 5.0f));
+			// Move the world forward a bit to show the scene in front of us...
+			view = glm::translate(view, glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z));
+
+
+			loop(currentTime - lastTime, projection, view);
+
+		}
+
+		// Back to the default framebuffer...
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// Do everything, distortion, front/back buffer swap...
+		ovrHmd_EndFrame(g_Hmd, g_EyePoses, g_EyeTextures);
+
+		++l_FrameIndex;
+
+		lastTime = currentTime;
+
+		glfwPollEvents();
+	}
+
+	// Clean up FBO...
+	glDeleteRenderbuffers(1, &l_DepthBufferId);
+	glDeleteTextures(1, &l_TextureId);
+	glDeleteFramebuffers(1, &l_FBOId);
+
+	// Clean up Oculus...
+	ovrHmd_Destroy(g_Hmd);
+	ovr_Shutdown();
+
+	// Clean up window...
+	glfwDestroyWindow(window);
+	glfwTerminate();
+
+	exit(EXIT_SUCCESS);
+}
+
+
 
 GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	printf("[R] to recenter, [Esc] to quit, dismiss the HSW with any key (after the hidden timer runs out)...\n");
@@ -277,13 +363,11 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	g_RenderTargetSize.w = l_EyeTextureSizes[ovrEye_Left].w + l_EyeTextureSizes[ovrEye_Right].w;
 	g_RenderTargetSize.h = (l_EyeTextureSizes[ovrEye_Left].h>l_EyeTextureSizes[ovrEye_Right].h ? l_EyeTextureSizes[ovrEye_Left].h : l_EyeTextureSizes[ovrEye_Right].h);
 
-	// Create the FBO being a single one for both eyes (this is open for debate)...
-	GLuint l_FBOId;
+
 	glGenFramebuffers(1, &l_FBOId);
 	glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 
-	// The texture we're going to render to...
-	GLuint l_TextureId;
+
 	glGenTextures(1, &l_TextureId);
 	// "Bind" the newly created texture : all future texture functions will modify this texture...
 	glBindTexture(GL_TEXTURE_2D, l_TextureId);
@@ -293,8 +377,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
-	// Create Depth Buffer...
-	GLuint l_DepthBufferId;
+
 	glGenRenderbuffers(1, &l_DepthBufferId);
 	glBindRenderbuffer(GL_RENDERBUFFER, l_DepthBufferId);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, g_RenderTargetSize.w, g_RenderTargetSize.h);
@@ -387,120 +470,8 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	// Do a single recenter to calibrate orientation to current state of the Rift...
 	ovrHmd_RecenterPose(g_Hmd);
 	
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_DEPTH_TEST);
 
-
-	Cube* cube = new Cube(glm::vec3(0.0, 0.0, 0.0), 0.5f);
-	std::vector<std::string> attachShaders = { "/Test_Telepresence/v.vert", "/Test_Telepresence/f.frag" };
-	RenderPass* cubePass = new RenderPass(
-		cube,
-		new ShaderProgram(attachShaders));
-
-	cubePass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
-	
-	glm::vec3 lightPos = glm::vec3(2.0f, 2.0f, 2.0f);
-
-	// Main loop...
-	unsigned int l_FrameIndex = 0;
-	while (!glfwWindowShouldClose(window))
-	{
-		// Begin the frame...
-		ovrHmd_BeginFrame(g_Hmd, l_FrameIndex);
-
-		// Get eye poses for both the left and the right eye. g_EyePoses contains all Rift information: orientation, positional tracking and
-		// the IPD in the form of the input variable g_EyeOffsets.
-		ovrHmd_GetEyePoses(g_Hmd, l_FrameIndex, g_EyeOffsets, g_EyePoses, NULL);
-
-		// Bind the FBO...
-		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
-
-		// Clear...
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++)
-		{
-			ovrEyeType l_Eye = g_Hmd->EyeRenderOrder[l_EyeIndex];
-
-			glViewport(
-				g_EyeTextures[l_Eye].Header.RenderViewport.Pos.x,
-				g_EyeTextures[l_Eye].Header.RenderViewport.Pos.y,
-				g_EyeTextures[l_Eye].Header.RenderViewport.Size.w,
-				g_EyeTextures[l_Eye].Header.RenderViewport.Size.h
-				);
-
-
-
-			OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
-			OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
-
-			glm::mat4 view = toGlm(l_ModelViewMatrix);
-			glm::mat4 projection = toGlm(g_ProjectionMatrici[l_Eye]);
-						
-			// Translation due to positional tracking (DK2) and IPD...
-			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z));
-			// Move the world forward a bit to show the scene in front of us...
-			view = glm::translate(view, glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z));
-
-
-
-			cubePass
-				->update("lightPosition", lightPos)
-				->update("modelMatrix", glm::mat4(1.0))
-				->update("viewMatrix", view)
-				->update("projectionMatrix", projection)
-				->update("diffuseColor", glm::vec3(1.0, 1.0, 0.0))
-				->run();
-
-		}
-
-		// Back to the default framebuffer...
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-
-
-
-		// Do everything, distortion, front/back buffer swap...
-		ovrHmd_EndFrame(g_Hmd, g_EyePoses, g_EyeTextures);
-
-		//texturePass
-		//	->update("resolution", getResolution(window));
-
-		////texture settings
-		//glGenerateMipmap(GL_TEXTURE_2D);
-		//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-
-		//texturePass
-		//	->clear(0.0, 0.0, 0.0, 1.0)
-		//	->texture("tex", l_TextureId)
-		//	//->texture("tex", TextureTools::loadTexture("C:/dev/Framework/resources/jpg/bambus.jpg"))
-		//	->run();
-
-		//glfwSwapBuffers(window);
-
-
-		++l_FrameIndex;
-
-		glfwPollEvents();
-	}
-
-	// Clean up FBO...
-	glDeleteRenderbuffers(1, &l_DepthBufferId);
-	glDeleteTextures(1, &l_TextureId);
-	glDeleteFramebuffers(1, &l_FBOId);
-
-	// Clean up Oculus...
-	ovrHmd_Destroy(g_Hmd);
-	ovr_Shutdown();
-
-	// Clean up window...
-	glfwDestroyWindow(window);
-	glfwTerminate();
-
-	exit(EXIT_SUCCESS);
+	return window;
 }
-
-

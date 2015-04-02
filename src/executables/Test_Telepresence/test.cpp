@@ -13,12 +13,53 @@ using namespace glm;
 
 int main(int argc, char *argv[]) {
 
-	static const int DepthWidth = 512;
-	static const int DepthHeight = 424;
-
 	int width = 1280;
 	int height = 720;
 	GLFWwindow* window = generateWindow();
+
+	Cube* cube = new Cube(glm::vec3(0.0, -1.3, 0.0), 0.5f);
+	std::vector<std::string> attachShaders = { "/Test_Telepresence/v.vert", "/Test_Telepresence/f.frag" };
+	RenderPass* cubePass = new RenderPass(
+		cube,
+		new ShaderProgram(attachShaders));
+
+	Sphere* sphere = new Sphere(0.3f);
+	RenderPass* spherePass = new RenderPass(
+		sphere,
+		new ShaderProgram(attachShaders));
+
+	cubePass
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+
+	spherePass
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+
+	glm::vec3 lightPos = glm::vec3(2.0f, 2.0f, 2.0f);
+
+	int count = 0;
+
+	render(window, [&](float deltaTime, glm::mat4 projection, glm::mat4 view) {
+		//cout << count++ << " " << deltaTime << endl;
+		glfwGetWindowSize(window, &width, &height);
+
+		cubePass
+			->update("lightPosition", lightPos)
+			->update("modelMatrix", glm::mat4(1.0))
+			->update("viewMatrix", view)
+			->update("projectionMatrix", projection)
+			->update("diffuseColor", glm::vec3(1.0, 1.0, 0.0))
+			->run();
+
+		spherePass
+			->update("lightPosition", lightPos)
+			->update("modelMatrix", glm::mat4(1.0))
+			->update("viewMatrix", view)
+			->update("projectionMatrix", projection)
+			->update("diffuseColor", glm::vec3(0.0, 0.0, 1.0))
+			->run();
+	});
+
+	return 0;
 }
 
 /*
@@ -26,15 +67,6 @@ int main(int argc, char *argv[]) {
 	LeapMotionHandler leapHandler;
 	Controller controller;
 
-	//Initialize Kinect
-	KinectHandler kinectHandler;
-	kinectHandler.InitializeDefaultSensor();
-
-
-
-	GLfloat *tex;
-	//tex = (float*)malloc(DepthWidth * DepthHeight * 3 * sizeof(float));
-	tex = new float[DepthWidth * DepthHeight * 3 * sizeof(float)];
 
 
 	if (argc > 1 && strcmp(argv[1], "--bg") == 0)
@@ -48,38 +80,6 @@ int main(int argc, char *argv[]) {
 		cube,
 		new ShaderProgram(attachShaders));
 	
-	Sphere* sphere = new Sphere(0.1);
-	RenderPass* spherePass = new RenderPass(
-		sphere,
-		new ShaderProgram(attachShaders));
-	
-	std::vector<std::string> depthShaders = { "/Test_Telepresence/fullscreen.vert", "/Test_Telepresence/simpleTexture.frag" };
-	Quad* quad = new Quad();
-	RenderPass* kinectPass = new RenderPass(
-		quad,
-		new ShaderProgram(depthShaders));
-
-	//kinectPass
-	//	->update("resolution", getResolution(window));
-		
-
-
-	//create new texture
-	GLuint depthTex;
-	glGenTextures(1, &depthTex);
-
-	//bind the texture
-	glBindTexture(GL_TEXTURE_2D, depthTex);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DepthWidth, DepthHeight, 0, GL_RGB, GL_FLOAT, tex);
-
-	//texture settings
-	glGenerateMipmap(GL_TEXTURE_2D);
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-
 
 
 	// camera parameters
@@ -93,14 +93,10 @@ int main(int argc, char *argv[]) {
 	
 
 
-	//cubePass->update("lightPosition", lightPos)
-	//	->update("viewMatrix", view)
-	//	->update("diffuseColor", vec3(1.0, 0.0, 0.0))
-	//	->update("projectionMatrix", projection);
-
-	//spherePass->update("lightPosition", lightPos)
-	//	->update("viewMatrix", view)
-	//	->update("projectionMatrix", projection);
+	cubePass->update("lightPosition", lightPos)
+		->update("viewMatrix", view)
+		->update("diffuseColor", vec3(1.0, 0.0, 0.0))
+		->update("projectionMatrix", projection);
 
 	
 
@@ -111,164 +107,14 @@ int main(int argc, char *argv[]) {
 		glfwGetWindowSize(window, &width, &height);
 		projection = perspective(60.0f * PI / 180.0f, (float)width / height, glnear, glfar);
 
-		tex = new float[DepthWidth * DepthHeight * 3 * sizeof(float)];
-		kinectHandler.Update(tex);
-
-
-		//bind the texture
-		glBindTexture(GL_TEXTURE_2D, depthTex);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, DepthWidth, DepthHeight, 0, GL_RGB, GL_FLOAT, tex);
-
-		//texture settings
-		glGenerateMipmap(GL_TEXTURE_2D);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-
-
-
 		vector<Bone> bones = leapHandler.getBoneList(controller);
 		InteractionBox box = controller.frame().interactionBox();
 
-		////draw Goal
-		//cubePass
-		//	->clear(0.9, 0.9, 0.9, 0)
-		//	->update("modelMatrix", modelMatrixGoal)
-		//	->run();
-
-		////draw Bones
-		//if (bones.size() == 0)
-		//	spherePass
-		//		->update("modelMatrix", modelMatrixJoints)
-		//		->run();
-		//else{
-		//	for (int i = 0; i < bones.size(); i++)
-		//	{
-		//		modelMatrixJoints = mat4(1.0f);
-
-		//		//compute rotation and translation 
-		//		mat4 rotationMat = leapHandler.convertLeapMatToGlm(bones[i].basis());
-		//		mat4 translateMat = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[i].nextJoint())) * 2.0f - 1.0f);
-		//		mat4 finalMat = translateMat * rotationMat;
-
-		//		//draw Bone 
-		//		spherePass
-		//			->update("modelMatrix", finalMat)
-		//			->run();
-		//	}
-
-		//	//compute direction and translation for pointing bone
-		//	modelMatrixJoints = mat4(1.0f);
-		//	vec3 eins = leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[7].nextJoint())) * 2.0f - 1.0f;
-		//	vec3 zwei = leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[5].prevJoint())) * 2.0f - 1.0f;
-		//	vec3 dTest = eins - zwei; 
-
-		//	
-
-		//	vec3 directionTest1 = dTest;
-		//	mat4 boneTestRot = leapHandler.convertLeapMatToGlm(bones[7].basis());
-		//	mat4 boneTest = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[7].nextJoint())) * 2.0f - 1.0f);
-		//	mat4 dirMatTest = boneTest; //* boneTestRot;
-
-		//	//show pointing direction 
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 1.0f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 1.8f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 2.6f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 3.4f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 4.2f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 5.0f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 5.8f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 6.6f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 7.4f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 8.2f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 9.0f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 9.8f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 10.6f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 11.4f))
-		//		->run();
-		//	spherePass
-		//		->update("modelMatrix", translate(dirMatTest, directionTest1 * 12.2f))
-		//		->run();
-
-
-
-		//	//check for intersection
-		//	if (bones.size() != 0){
-		//		bool a = leapHandler.checkForIntersection(cube->getVertices(), leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[7].nextJoint())) * 2.0f - 1.0f, directionTest1);
-		//		if (a == true){
-		//			//cout << "Getroffen" << endl;
-		//			cubePass
-		//				->update("diffuseColor", vec3(0.0, 1.0, 0.0))
-		//				->run();
-		//		}
-		//		else{
-		//			//cout << "Nicht getroffen" << endl;
-		//			cubePass
-		//				->update("diffuseColor", vec3(1.0, 0.0, 0.0))
-		//				->run();
-		//		}
-		//	}
-
-
-		//	//Hack fuer zusaetzliche Bobbels in linker und rechter Hand 
-		//	modelMatrixJoints = mat4(1.0f);
-
-		//	mat4 rotationMatFirstHand = leapHandler.convertLeapMatToGlm(bones[16].basis());
-		//	mat4 translateMatFirstHand = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[16].prevJoint())) * 2.0f - 1.0f);
-		//	mat4 finalMatFirstHand = translateMatFirstHand * rotationMatFirstHand;
-
-		//	spherePass
-		//		->update("modelMatrix", finalMatFirstHand)
-		//		->run();
-
-		//	if (bones.size() > 20){
-		//		mat4 rotationMatSecondHand = leapHandler.convertLeapMatToGlm(bones[36].basis());
-		//		mat4 translateMatSecondHand = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[36].prevJoint())) * 2.0f - 1.0f);
-		//		mat4 finalMatSecondHand = translateMatSecondHand * rotationMatSecondHand;
-		//	spherePass
-		//		->update("modelMatrix", finalMatSecondHand)
-		//		->run();
-
-		//	}
-		//}
-
-		kinectPass
-			->clear(0.0, 0.0, 0.0, 1.0)
-			->texture("tex", depthTex)
-			//->texture("tex", TextureTools::loadTexture("D:/FP14/FP14_OpenGL_Framework/resources/bambus.jpg"))
+		//draw Goal
+		cubePass
+			->clear(0.9, 0.9, 0.9, 0)
+			->update("modelMatrix", modelMatrixGoal)
 			->run();
-
-		delete(tex);
-
 	}); 
 	
 	return 0;
