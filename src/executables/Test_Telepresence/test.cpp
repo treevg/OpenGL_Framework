@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
 	int height = 720;
 	GLFWwindow* window = generateWindow();
 
-	Cube* cube = new Cube(glm::vec3(0.0, -1.3, 0.0), 0.5f);
+	Cube* cube = new Cube(glm::vec3(0.0, -0.6, 0.0), 0.5f);
 	std::vector<std::string> attachShaders = { "/Test_Telepresence/v.vert", "/Test_Telepresence/f.frag" };
 	RenderPass* cubePass = new RenderPass(
 		cube,
