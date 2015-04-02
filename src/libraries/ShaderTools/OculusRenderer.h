@@ -1,7 +1,3 @@
-// GLFWOculusRiftTest
-// (c) cThrough 2014 (Daniel Dekkers)
-// Version 2014120800 Based on DK2, OculusSDK 4.0.4
-
 #include <GL/glew.h>
 #if defined(_WIN32)
 #include <Windows.h>
@@ -48,82 +44,14 @@ OVR::Sizei g_RenderTargetSize;
 ovrVector3f g_CameraPosition;
 
 // Disables Oculus Screen and renders scene in external window with oculus tracking
-static const bool DEVELOPMODE = TRUE;
+static const bool DEVELOPMODE = FALSE;
 
-GLfloat l_VAPoints[] =
-{
-	0.5f, 0.5f, 0.5f,
-	-0.5f, 0.5f, 0.5f,
-	-0.5f, -0.5f, 0.5f,
-	0.5f, -0.5f, 0.5f,
-	-0.5f, -0.5f, -0.5f,
-	-0.5f, 0.5f, -0.5f,
-	0.5f, 0.5f, -0.5f,
-	0.5f, -0.5f, -0.5f,
-	0.5f, 0.5f, 0.5f,
-	0.5f, 0.5f, -0.5f,
-	-0.5f, 0.5f, -0.5f,
-	-0.5f, 0.5f, 0.5f,
-	-0.5f, -0.5f, -0.5f,
-	0.5f, -0.5f, -0.5f,
-	0.5f, -0.5f, 0.5f,
-	-0.5f, -0.5f, 0.5f,
-	0.5f, 0.5f, 0.5f,
-	0.5f, -0.5f, 0.5f,
-	0.5f, -0.5f, -0.5f,
-	0.5f, 0.5f, -0.5f,
-	-0.5f, -0.5f, -0.5f,
-	-0.5f, -0.5f, 0.5f,
-	-0.5f, 0.5f, 0.5f,
-	-0.5f, 0.5f, -0.5f
-};
 
-GLfloat l_VANormals[] =
-{
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, -1.0f,
-	0.0f, 0.0f, -1.0f,
-	0.0f, 0.0f, -1.0f,
-	0.0f, 0.0f, -1.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, 1.0f, 0.0f,
-	0.0f, -1.0f, 0.0f,
-	0.0f, -1.0f, 0.0f,
-	0.0f, -1.0f, 0.0f,
-	0.0f, -1.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	1.0f, 0.0f, 0.0f,
-	-1.0f, 0.0f, 0.0f,
-	-1.0f, 0.0f, 0.0f,
-	-1.0f, 0.0f, 0.0f,
-	-1.0f, 0.0f, 0.0f
-};
-
-GLuint l_VAIndici[] =
-{
-	0, 1, 2, 3,
-	4, 5, 6, 7,
-	8, 9, 10, 11,
-	12, 13, 14, 15,
-	16, 17, 18, 19,
-	20, 21, 22, 23
-};
-
-// =============================================================================
 
 static void ErrorCallback(int p_Error, const char* p_Description)
 {
 	fputs(p_Description, stderr);
 }
-
-// =============================================================================
 
 static void KeyCallback(GLFWwindow* p_Window, int p_Key, int p_Scancode, int p_Action, int p_Mods)
 {
@@ -158,8 +86,6 @@ static void KeyCallback(GLFWwindow* p_Window, int p_Key, int p_Scancode, int p_A
 	}
 }
 
-// =============================================================================
-
 static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height)
 {
 	if (p_Width>0 && p_Height>0)
@@ -176,68 +102,6 @@ static void WindowSizeCallback(GLFWwindow* p_Window, int p_Width, int p_Height)
 	}
 }
 
-// ============================================================================
-
-void RenderCubeVertexArrays(void)
-{
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(3, GL_FLOAT, 0, l_VAPoints);
-
-	glEnableClientState(GL_NORMAL_ARRAY);
-	glNormalPointer(GL_FLOAT, 0, l_VANormals);
-
-	glDrawElements(GL_QUADS, 6 * 4, GL_UNSIGNED_INT, l_VAIndici);
-
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-// ============================================================================
-
-void RenderCubeFixedFunction(void)
-{
-	// Obsolete, remains as a fall back for the vertex arrays version...
-	glBegin(GL_QUADS);
-	glNormal3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(0.5f, 0.5f, 0.5f);
-	glVertex3f(-0.5f, 0.5f, 0.5f);
-	glVertex3f(-0.5f, -0.5f, 0.5f);
-	glVertex3f(0.5f, -0.5f, 0.5f);
-
-	glNormal3f(0.0f, 0.0f, -1.0f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(-0.5f, 0.5f, -0.5f);
-	glVertex3f(0.5f, 0.5f, -0.5f);
-	glVertex3f(0.5f, -0.5f, -0.5f);
-
-	glNormal3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(0.5f, 0.5f, 0.5f);
-	glVertex3f(0.5f, 0.5f, -0.5f);
-	glVertex3f(-0.5f, 0.5f, -0.5f);
-	glVertex3f(-0.5f, 0.5f, 0.5f);
-
-	glNormal3f(0.0f, -1.0f, 0.0f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(0.5f, -0.5f, -0.5f);
-	glVertex3f(0.5f, -0.5f, 0.5f);
-	glVertex3f(-0.5f, -0.5f, 0.5f);
-
-	glNormal3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(0.5f, 0.5f, 0.5f);
-	glVertex3f(0.5f, -0.5f, 0.5f);
-	glVertex3f(0.5f, -0.5f, -0.5f);
-	glVertex3f(0.5f, 0.5f, -0.5f);
-
-	glNormal3f(-1.0f, 0.0f, 0.0f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(-0.5f, -0.5f, 0.5f);
-	glVertex3f(-0.5f, 0.5f, 0.5f);
-	glVertex3f(-0.5f, 0.5f, -0.5f);
-	glEnd();
-}
-
-// ============================================================================
-
 static void SetOpenGLState(void)
 {
 	// Some state...
@@ -250,35 +114,7 @@ static void SetOpenGLState(void)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (l_MultiSampling) glEnable(GL_MULTISAMPLE); else glDisable(GL_MULTISAMPLE);
 	glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
-
-	// Material...
-	GLfloat l_MaterialSpecular[] = { 0.3f, 0.3f, 0.3f, 1.0f };
-	GLfloat l_MaterialShininess[] = { 10.0f };
-	glMaterialfv(GL_FRONT, GL_SPECULAR, l_MaterialSpecular);
-	glMaterialfv(GL_FRONT, GL_SHININESS, l_MaterialShininess);
-
-	// Some (stationary) lights, position will be set every frame separately...
-	GLfloat l_Light0Diffuse[] = { 1.0f, 0.8f, 0.6f, 1.0f };
-	glLightfv(GL_LIGHT0, GL_DIFFUSE, l_Light0Diffuse);
-	glEnable(GL_LIGHT0);
-
-	GLfloat l_Light1Diffuse[] = { 0.6f, 0.8f, 1.0f, 1.0f };
-	glLightfv(GL_LIGHT1, GL_DIFFUSE, l_Light1Diffuse);
-	glEnable(GL_LIGHT1);
 }
-
-// ============================================================================
-
-static void SetStaticLightPositions(void)
-{
-	GLfloat l_Light0Position[] = { 3.0f, 4.0f, 2.0f, 0.0f };
-	glLightfv(GL_LIGHT0, GL_POSITION, l_Light0Position);
-
-	GLfloat l_Light1Position[] = { -3.0f, -4.0f, 2.0f, 0.0f };
-	glLightfv(GL_LIGHT1, GL_POSITION, l_Light1Position);
-}
-
-// =============================================================================
 
 glm::vec2 getResolution(GLFWwindow* window) {
 	int w, h;
@@ -286,14 +122,34 @@ glm::vec2 getResolution(GLFWwindow* window) {
 	return glm::vec2(float(w), float(h));
 }
 
-glm::mat4 toGLM(OVR::Matrix4f mat)
-{
-	return glm::mat4(
-		glm::vec4(mat.GetXBasis().x, mat.GetXBasis().y, mat.GetXBasis().z, 0.0f),
-		glm::vec4(mat.GetYBasis().x, mat.GetYBasis().y, mat.GetYBasis().z, 0.0f),
-		glm::vec4(mat.GetZBasis().x, mat.GetZBasis().y, mat.GetZBasis().z, 0.0f),
-		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
-		);
+glm::mat4 toGlm(const ovrMatrix4f & om) {
+	return glm::transpose(glm::make_mat4(&om.M[0][0]));
+}
+
+glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 0.01f, float farPlane = 10000.0f) {
+	return toGlm(ovrMatrix4f_Projection(fovport, nearPlane, farPlane, true));
+}
+
+glm::vec3 toGlm(const ovrVector3f & ov) {
+	return glm::make_vec3(&ov.x);
+}
+
+glm::vec2 toGlm(const ovrVector2f & ov) {
+	return glm::make_vec2(&ov.x);
+}
+
+glm::uvec2 toGlm(const ovrSizei & ov) {
+	return glm::uvec2(ov.w, ov.h);
+}
+
+glm::quat toGlm(const ovrQuatf & oq) {
+	return glm::make_quat(&oq.x);
+}
+
+glm::mat4 toGlm(const ovrPosef & op) {
+	glm::mat4 orientation = glm::mat4_cast(toGlm(op.Orientation));
+	glm::mat4 translation = glm::translate(glm::mat4(), toGlm(op.Position));
+	return translation * orientation;
 }
 
 GLFWwindow* generateWindow(int width = 1280, int height = 720) {
@@ -513,8 +369,8 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	}
 
 	// Projection matrici for each eye will not change at runtime, we can set them here...
-	g_ProjectionMatrici[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.3f, 100.0f, true);
-	g_ProjectionMatrici[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.3f, 100.0f, true);
+	g_ProjectionMatrici[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.3f, 10000.0f, true);
+	g_ProjectionMatrici[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.3f, 10000.0f, true);
 
 	// IPD offset values will not change at runtime, we can set them here...
 	g_EyeOffsets[ovrEye_Left] = g_EyeRenderDesc[ovrEye_Left].HmdToEyeViewOffset;
@@ -528,46 +384,26 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetWindowSizeCallback(window, WindowSizeCallback);
 
-	GLfloat l_SpinX;
-	GLfloat l_SpinY;
-
 	// Do a single recenter to calibrate orientation to current state of the Rift...
 	ovrHmd_RecenterPose(g_Hmd);
+	
 
 
-	//std::vector<std::string> depthShaders = { "/Test_Telepresence/fullscreen.vert", "/Test_Telepresence/simpleTexture.frag" };
-	//Quad* quad = new Quad();
-	//RenderPass* texturePass = new RenderPass(
-	//	quad,
-	//	new ShaderProgram(depthShaders));
-
-
-	Cube* cube = new Cube(glm::vec3(0.0, 0.0, -1.0), 0.5f);
+	Cube* cube = new Cube(glm::vec3(0.0, 0.0, 0.0), 0.5f);
 	std::vector<std::string> attachShaders = { "/Test_Telepresence/v.vert", "/Test_Telepresence/f.frag" };
 	RenderPass* cubePass = new RenderPass(
 		cube,
 		new ShaderProgram(attachShaders));
 
-	cubePass->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
-
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);
+	cubePass
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+	
+	glm::vec3 lightPos = glm::vec3(2.0f, 2.0f, 2.0f);
 
 	// Main loop...
 	unsigned int l_FrameIndex = 0;
 	while (!glfwWindowShouldClose(window))
 	{
-		if (l_Spin)
-		{
-			l_SpinX = (GLfloat)fmod(glfwGetTime()*17.0, 360.0);
-			l_SpinY = (GLfloat)fmod(glfwGetTime()*23.0, 360.0);
-		}
-		else
-		{
-			l_SpinX = 30.0f;
-			l_SpinY = 40.0f;
-		}
-
 		// Begin the frame...
 		ovrHmd_BeginFrame(g_Hmd, l_FrameIndex);
 
@@ -592,57 +428,27 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 				g_EyeTextures[l_Eye].Header.RenderViewport.Size.h
 				);
 
-			// Pass projection matrix on to OpenGL...
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			glMultMatrixf(&(g_ProjectionMatrici[l_Eye].Transposed().M[0][0]));
 
-			// Create the model-view matrix and pass on to OpenGL...
-			glMatrixMode(GL_MODELVIEW);
-			glLoadIdentity();
 
-			// Multiply with orientation retrieved from sensor...
 			OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
 			OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
-			glMultMatrixf(&(l_ModelViewMatrix.Transposed().M[0][0]));
 
+			glm::mat4 view = toGlm(l_ModelViewMatrix);
+			glm::mat4 projection = toGlm(g_ProjectionMatrici[l_Eye]);
+						
 			// Translation due to positional tracking (DK2) and IPD...
-			glTranslatef(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
-
+			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z));
 			// Move the world forward a bit to show the scene in front of us...
-			glTranslatef(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z);
-
-			// (Re)set the light positions so they don't move along with the cube...
-			SetStaticLightPositions();
-
-			// Make the cube spin...
-			glRotatef(l_SpinX, 1.0f, 0.0f, 0.0f);
-			glRotatef(l_SpinY, 0.0f, 1.0f, 0.0f);
-
-			// Render...
-			// RenderCubeFixedFunction();
-			//RenderCubeVertexArrays();
-			
-			glm::mat4 view = glm::mat4(1.0f);
-			//glm::mat4 projection = glm::mat4(1.0f);
-			glm::mat4 projection = glm::perspective(60.0f, (float)width / height, 0.1f, 1000.0f);
-
-			//projection = toGLM(g_ProjectionMatrici[l_Eye].Transposed());
-			glm::vec3 lightPos = glm::vec3(2, 2, 2);
-
-			view = toGLM(l_ModelViewMatrix.Transposed());
-			glm::vec3 trans = glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z);
-			view = glm::translate(view, trans );
-			trans = glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z);
-			view = glm::translate(view, trans);
+			view = glm::translate(view, glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z));
 
 
 
-			cubePass->update("lightPosition", lightPos)
+			cubePass
+				->update("lightPosition", lightPos)
 				->update("modelMatrix", glm::mat4(1.0))
 				->update("viewMatrix", view)
-				->update("diffuseColor", glm::vec3(1.0, 1.0, 0.0))
 				->update("projectionMatrix", projection)
+				->update("diffuseColor", glm::vec3(1.0, 1.0, 0.0))
 				->run();
 
 		}
