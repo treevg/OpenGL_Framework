@@ -475,3 +475,136 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 
 	return window;
 }
+
+/**
+* @brief Registers a keyboard button callback function
+* @details Pass a function pointer to your keyboard button callback function
+*          and it will be registered with the given window. The keyboard
+*          function gets called, when a button of the keyboard gets pressed.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setKeyCallback(GLFWwindow* window, std::function<void(int, int, int, int)> func) {
+	static std::function<void(int, int, int, int)> func_bounce = func;
+	glfwSetKeyCallback(window, [](GLFWwindow* w, int k, int s, int a, int m) {
+		func_bounce(k, s, a, m);
+	});
+}
+
+/**
+* @brief Registers a mouse button callback function
+* @details Pass a function pointer to your mouse button callback function
+*          and it will be registered with the given window. The mouse button
+*          function gets called, when a button of the mouse gets pressed.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setMouseButtonCallback(GLFWwindow* window, std::function<void(int, int, int)> func) {
+	static std::function<void(int, int, int)> func_bounce = func;
+	glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int b, int a, int m) {
+		func_bounce(b, a, m);
+	});
+}
+
+/**
+* @brief Registers a character callback function
+* @details Pass a function pointer to your character callback function and it
+*          will be registered with the given window. The character function
+*          gets called, when a single unicode character is input.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setCharCallback(GLFWwindow* window, std::function<void(unsigned int)> func) {
+	static std::function<void(unsigned int)> func_bounce = func;
+	glfwSetCharCallback(window, [](GLFWwindow* w, unsigned int c) {
+		func_bounce(c);
+	});
+}
+
+/**
+* @brief Registers a cursor position callback function
+* @details Pass a function pointer to your cursor position callback function
+*          and it will be registered with the given window. The cursor position
+*          function gets called, when the cursor gets moved on an active
+*          window.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setCursorPosCallback(GLFWwindow* window, std::function<void(double, double)> func) {
+	static std::function<void(double, double)> func_bounce = func;
+	glfwSetCursorPosCallback(window, [](GLFWwindow* w, double x, double y) {
+		func_bounce(x, y);
+	});
+}
+
+/**
+* @brief Registers a scroll callback function
+* @details Pass a function pointer to your scroll callback function and it will
+*          be registered with the given window. The scroll function gets called
+*          when the mouse scroll wheel is used on an active window.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setScrollCallback(GLFWwindow* window, std::function<void(double, double)> func) {
+	static std::function<void(double, double)> func_bounce = func;
+	glfwSetScrollCallback(window, [](GLFWwindow* w, double x, double y) {
+		func_bounce(x, y);
+	});
+}
+
+/**
+* @brief Registers a cursor enter callback function
+* @details Pass a function pointer to your cursor enter callback function and
+*          it will be registered with the given window. The cursor enter
+*          function gets called when entering the window area with the mouse.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setCursorEnterCallback(GLFWwindow* window, std::function<void(int)> func) {
+	static std::function<void(int)> func_bounce = func;
+	glfwSetCursorEnterCallback(window, [](GLFWwindow* w, int e) {
+		func_bounce(e);
+	});
+}
+
+/**
+* @brief Returns the windows width
+*
+* @param window Window to get the width of
+* @return The width of the given window
+*/
+int getWidth(GLFWwindow* window) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	return w;
+}
+
+/**
+* @brief Returns the windows height
+*
+* @param window Window to get the height of
+* @return The height of the given window
+*/
+int getHeight(GLFWwindow* window) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	return h;
+}
+
+/**
+* @brief Returns the windows aspect ratio
+*
+* @param window Window to get the ratio of
+* @return The ratio of the given window
+*/
+float getRatio(GLFWwindow* window) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	return float(w) / float(h);
+}

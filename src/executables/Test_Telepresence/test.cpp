@@ -1,5 +1,5 @@
-//#include "ShaderTools/OculusRenderer.h"
-#include "ShaderTools/Renderer.h"
+#include "ShaderTools/OculusRenderer.h"
+//#include "ShaderTools/Renderer.h"
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
@@ -19,30 +19,6 @@ float nearFar = 5.0f;
 
 
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GL_TRUE);
-
-	if (key == GLFW_KEY_RIGHT && action == GLFW_PRESS)
-		leftRight+=0.1f;
-
-	if (key == GLFW_KEY_LEFT && action == GLFW_PRESS)
-		leftRight-=0.1f;
-
-	if (key == GLFW_KEY_UP && action == GLFW_PRESS)
-		upDown+=0.1f;
-
-	if (key == GLFW_KEY_DOWN && action == GLFW_PRESS)
-		upDown-=0.1f;
-
-	if (key == GLFW_KEY_F1 && action == GLFW_PRESS)
-		nearFar += 0.1f;
-
-	if (key == GLFW_KEY_F2 && action == GLFW_PRESS)
-		nearFar -= 0.1f;
-}
-
 int main(int argc, char *argv[]) {
 
 	static const int depthWidth = 512;
@@ -51,8 +27,7 @@ int main(int argc, char *argv[]) {
 	int width = 720;
 	int height = 720;
 
-	GLFWwindow* window = generateWindow(width, height, 100, 100);
-	glfwSetKeyCallback(window, key_callback);
+	GLFWwindow* window = generateWindow();
 
 	// Create a sample listener and controller
 	LeapMotionHandler leapHandler;
@@ -97,72 +72,56 @@ int main(int argc, char *argv[]) {
 
 
 
-	////create new texture
-	//GLuint texture;
-	//glGenTextures(1, &texture);
-
-	////bind the texture
-	//glBindTexture(GL_TEXTURE_2D, texture);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, colorData);
-
-	////texture settings
-	//glGenerateMipmap(GL_TEXTURE_2D);
-	//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-	//glBindTexture(GL_TEXTURE_2D, 0);
 
 
 
-	// camera parameters
-	float glnear = 0.1f;
-	float glfar = 1000.0f;
-	glm::mat4 view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	glm::mat4 projection = perspective(60.0f, (float)width / height, glnear, glfar); // 60.0f * PI / 180.0f ?!
 	mat4 modelMatrixJoints = mat4(1.0f);
 	mat4 modelMatrixGoal = mat4(1.0f);
-	vec3 lightPos = vec3(10.0f, 10.0f, 5.0f);
+	vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 	
-
-
 	cubePass
-		->update("lightPosition", lightPos)
-		->update("diffuseColor", vec3(1.0, 0.0, 0.0))
-		->update("projectionMatrix", projection);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
 	spherePass
-		->update("lightPosition", lightPos)
-		->update("diffuseColor", vec3(1.0, 0.0, 0.0))
-		->update("projectionMatrix", projection);
-
-	//texturePass
-	//	->update("resolution", getResolution(window));
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
 	pointCloudPass
-		->update("projectionMatrix", projection);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
 	colorData = new float[depthWidth * depthHeight * 3];
 	positionData = new float[depthWidth * depthHeight * 3];
 
 	int count = 0;
-	render(window, [&](float deltaTime) {
+	render(window, [&](float deltaTime, glm::mat4 projection, glm::mat4 view) {
 		//cout << count++ << " " << deltaTime << endl;
 
-		// clear screen
-		glClearColor(0.95, 0.95, 0.95, 1.0);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glfwGetWindowSize(window, &width, &height);
 
-		view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		// clear screen
+		//glClearColor(0.95, 0.95, 0.95, 1.0);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		//view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		cubePass
+			->update("lightPosition", lightPos)
+			->update("diffuseColor", vec3(1.0, 0.0, 0.0))
+			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
 		spherePass
+			->update("lightPosition", lightPos)
+			->update("diffuseColor", vec3(1.0, 0.0, 0.0))
+			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
 		pointCloudPass
+			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
 
+		//texturePass
+		//	->update("resolution", getResolution(window));
+		
 
-		glfwGetWindowSize(window, &width, &height);
+
+
 		
 
 		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
