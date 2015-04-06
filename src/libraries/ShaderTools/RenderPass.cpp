@@ -2,41 +2,22 @@
 
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram)
-	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0)
+	: RenderPassBase(vertexArrayObject, shaderProgram)
 {
-	frameBufferObject = new FrameBufferObject();
-}
-
-RenderPass::RenderPass(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram)
-	: meshes(meshes), shaderProgram(shaderProgram), frameBufferObject(0)
-{
-	frameBufferObject = new FrameBufferObject();
+	
 }
 
 
-RenderPass::RenderPass(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram, int width, int height)
-: meshes(meshes), shaderProgram(shaderProgram), frameBufferObject(0)
-{
-
-    autoGenerateFrameBufferObject(width, height);
-
-}
-
-RenderPass::RenderPass(Mesh* mesh, ShaderProgram* shaderProgram)
-	: mesh(mesh), shaderProgram(shaderProgram), frameBufferObject(0)
-{
-	frameBufferObject = new FrameBufferObject();
-}
 
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height)
-	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0)
-{
-	autoGenerateFrameBufferObject(width, height);
-}
+	: RenderPassBase(vertexArrayObject, shaderProgram, width, height)
+	{
+	    
+     }
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject)
-	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(frameBufferObject)
+	: RenderPassBase( vertexArrayObject, shaderProgram, frameBufferObject)
 {
 }
 
@@ -49,108 +30,5 @@ void RenderPass::run() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderPass::runOneMesh() {
-	cout << "drawing mesh" << endl;
-	frameBufferObject->bind();
-	shaderProgram->use();
-	mesh->draw();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
 
 
-
-void RenderPass::runModel() {
-	
-      frameBufferObject->bind();
-    //   cout << "DEBUG: drawing meshes  "<< endl;
-
-	for (int i=0; i<this->meshes.size(); i++ ){
-	    vertexArrayObject = meshes[i];
-        shaderProgram->use();
-
-     if (this->meshes[i]->getTextures().size() > 0) {
-
-
-     	for (MeshTexture tex: this->meshes[i]->getTextures()){
-      	
-
-      switch( tex.type  ) 
-  { 
-
-
-  	case 'a': 
-
-  	shaderProgram->texture("ambient_text", tex.id) ; 
-
-  	case 'd': 
-
-  	shaderProgram->texture("diffuse_text", tex.id) ; 
-
-
-    case 's': 
-
-   // shaderProgram->texture("specular_text", tex.id)
-    ; 
-
-      case 'e': 
-
-  //  shaderProgram->texture("emission_text", tex.id) 
-      ; 
-
-
-}
-
-     	}
-
-		
-
-     } 
-        
-     	vertexArrayObject->draw();       
-        
-	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	
-}
-
-
-void RenderPass::autoGenerateFrameBufferObject(int width, int height) {
-	if (frameBufferObject) delete frameBufferObject;
-	frameBufferObject = new FrameBufferObject(&(shaderProgram->outputMap), width, height);
-}
-
-RenderPass* RenderPass::texture(std::string name, GLuint textureHandle) {
-	shaderProgram->texture(name, textureHandle);
-	return this;
-}
-
-
-RenderPass* RenderPass::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
-	shaderProgram->texture(name, textureHandle, samplerHandle);
-	return this;
-}
-
-RenderPass* RenderPass::clear(float r, float g, float b, float a) {
-		frameBufferObject->clear(r, g, b, a);
-		return this;
-	}
-
-GLuint RenderPass::get(std::string name) {
-	return frameBufferObject->get(name);
-}
-
-RenderPass* RenderPass::clear() {
-	frameBufferObject->clear();
-	return this;
-}
-
-RenderPass* RenderPass::clearDepth() {
-	frameBufferObject->clearDepth();
-	return this;
-}
-
-RenderPass* RenderPass::setFrameBufferObject(FrameBufferObject* frameBufferObject) {
-	this->frameBufferObject = frameBufferObject;
-	return this;
-}

@@ -1,5 +1,6 @@
 #include "ShaderTools/Renderer.h"
 #include <assimp/Importer.hpp> 
+#include "ShaderTools/RenderPassModel.h"
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
@@ -34,9 +35,9 @@ vector<Mesh*> meshes = m->getMeshes();
 
 
 
-auto passModel= new RenderPass( meshes, suzanneSp);
+auto passModel= new RenderPassModel( meshes, suzanneSp);
 
-auto passModelWithLight= new RenderPass( meshes, lighting);
+auto passModelWithLight= new RenderPassModel( meshes, lighting);
 
 double lasttime;
 
@@ -120,7 +121,7 @@ int main(int argc, char *argv[]) {
         ->  update("lightPos", lightPosition)
         ->  update("cameraPos", (0,0,0))
         ->  update("color", vec4(0,1,0,1))
-        ->  runModel();
+        ->  run();
 
    /*    passModel
   

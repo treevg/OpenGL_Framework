@@ -22,8 +22,8 @@ public:
 	int getMipmapNumber();
 
 private:
-	RenderPass* reduce;
-	RenderPass* fill;
+	RenderPassBase* reduce;
+	RenderPassBase* fill;
 	VertexArrayObject* vertexArrayObject;
 
 	GLuint mipmapNumber;

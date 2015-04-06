@@ -8,6 +8,7 @@
 #include "game.h"
 #include "RenderTechniques/HierarchicalHoleFilling.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
+#include "ShaderTools/RenderPassModel.h"
 
 using namespace glm;
 
@@ -39,14 +40,14 @@ vec3 currentChestPosition;
 
  RenderPass*  skyBoxPass;
  RenderPass*  plane ;
- RenderPass* trees;
+ RenderPassModel* trees;
  RenderPass* diffWarp;
  RenderPass* diffWarpMuelle;
- RenderPass* castlePass;
- RenderPass* chestPass;
- RenderPass* followMePass;
- RenderPass* windMillPass;
- RenderPass* vikingPass;
+ RenderPassModel* castlePass;
+ RenderPassModel* chestPass;
+ RenderPassModel* followMePass;
+ RenderPassModel* windMillPass;
+ RenderPassModel* vikingPass;
 
 
  RenderPass* quadPass;
@@ -237,12 +238,12 @@ void Game::init(){
 
 
    plane = new RenderPass( new Plane(32.0f), sp1, getWidth(window), getHeight(window));
-   trees = new RenderPass(meshes, sp1, getWidth(window), getHeight(window));
-   castlePass = new RenderPass(castleMeshes, model, getWidth(window), getHeight(window) );
-   chestPass = new RenderPass(chestMeshes, model, getWidth(window), getHeight(window) );
-   followMePass = new RenderPass(suzanneMeshes,suzanneSp, getWidth(window), getHeight(window));
-   windMillPass = new RenderPass(windMillMeshes, model, getWidth(window), getHeight(window));
-   vikingPass =  new RenderPass(vikingMeshes, suzanneSp, getWidth(window), getHeight(window) );
+   trees = new RenderPassModel(meshes, sp1, getWidth(window), getHeight(window));
+   castlePass = new RenderPassModel(castleMeshes, model, getWidth(window), getHeight(window) );
+   chestPass = new RenderPassModel(chestMeshes, model, getWidth(window), getHeight(window) );
+   followMePass = new RenderPassModel(suzanneMeshes,suzanneSp, getWidth(window), getHeight(window));
+   windMillPass = new RenderPassModel(windMillMeshes, model, getWidth(window), getHeight(window));
+   vikingPass =  new RenderPassModel(vikingMeshes, suzanneSp, getWidth(window), getHeight(window) );
    skyBoxPass = new RenderPass(new Skybox(), skyboxSp, getWidth(window), getHeight(window));
    diffWarp = new RenderPass(grid, warp);
 
@@ -250,12 +251,12 @@ void Game::init(){
  }else{
 
    plane = new RenderPass( new Plane(32.0f), sp1);
-   trees = new RenderPass(meshes, sp1);
-   castlePass = new RenderPass(castleMeshes, model );
-   chestPass = new RenderPass(chestMeshes, model );
-   followMePass = new RenderPass(suzanneMeshes,suzanneSp);
-   windMillPass = new RenderPass(windMillMeshes, model );
-   vikingPass =  new RenderPass(vikingMeshes, suzanneSp );
+   trees = new RenderPassModel(meshes, sp1);
+   castlePass = new RenderPassModel(castleMeshes, model );
+   chestPass = new RenderPassModel(chestMeshes, model );
+   followMePass = new RenderPassModel(suzanneMeshes,suzanneSp);
+   windMillPass = new RenderPassModel(windMillMeshes, model );
+   vikingPass =  new RenderPassModel(vikingMeshes, suzanneSp );
    skyBoxPass = new RenderPass(new Skybox(), skyboxSp);
 
  }
@@ -466,7 +467,7 @@ diffWarp
         ->  update("uniformModel", vikingModel2)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
 
  cout << "VIKING" << endl;
 
@@ -475,7 +476,7 @@ diffWarp
         ->  update("uniformModel", modelCastle)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
  cout << "CASTLE" << endl;
 
 followMePass
@@ -483,7 +484,7 @@ followMePass
         -> update("uniformView", viewMat_old)
         -> update("uniformModel",followMeModel)
         -> update("uniformProjection", projMat)
-        -> runModel(); 
+        -> run(); 
 
   
 
@@ -492,7 +493,7 @@ windMillPass
         ->  update("uniformModel", modelWindMill)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
 
 
 diffWarpMuelle
@@ -531,14 +532,14 @@ diffWarpMuelle
         ->  update("uniformModel", vikingModel)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
 
  chestPass
         -> clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", modelChest)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
 
 
  for (int i = 6; i < 130; i=i+6){
@@ -566,7 +567,7 @@ diffWarpMuelle
         ->  update("uniformModel", modelTree)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
      
         modelTree = glm::mat4(1);
     
@@ -649,14 +650,14 @@ skyBoxPass
         ->  update("uniformModel", modelCastle)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
 
 
 windMillPass
         ->  update("uniformModel", modelWindMill)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
         
  
  plane
@@ -672,26 +673,26 @@ windMillPass
         -> update("uniformView", viewMat_old)
         -> update("uniformModel",followMeModel)
         -> update("uniformProjection", projMat)
-        -> runModel(); 
+        -> run(); 
 
    vikingPass
         //-> clear(0.2,0.3,0.4,1)
         ->  update("uniformModel", vikingModel2)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
 
    vikingPass
         ->  update("uniformModel", vikingModel)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
 
  chestPass
         ->  update("uniformModel", modelChest)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
 
 
  for (int i = 6; i < 130; i=i+6){
@@ -718,7 +719,7 @@ windMillPass
         ->  update("uniformModel", modelTree)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
-        ->  runModel();
+        ->  run();
      
         modelTree = glm::mat4(1);
       }
