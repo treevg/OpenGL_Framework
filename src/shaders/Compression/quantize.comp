@@ -1,6 +1,6 @@
 #version 430
 layout ( binding = 0, r32f ) readonly uniform image2D inImg;
-layout ( binding = 1, r32f ) writeonly uniform image2D outImg;
+layout ( binding = 1, r16f ) writeonly uniform image2D outImg;
 
 
 layout (local_size_x = 8, local_size_y = 8) in;
@@ -21,15 +21,21 @@ void main() {
 	
 	vec4 texel_color = imageLoad(inImg, index);
 	
-	if((mod(index.x, 8) > 3) || (mod(index.y, 8) > 3)){
-		
-	}
+	ivec2 newIndex;
+	newIndex.x = int (mod(index.x, 8));
+	newIndex.y = int (mod(index.y, 8));
 	
-	else{
-		ivec2 newIndex;
-		newIndex.x = int(floor(index.x/8) * 4) + int(mod(index.x, 8));
-		newIndex.y = int(floor(index.y/8) * 4) + int(mod(index.y, 8));
-		imageStore(outImg, newIndex, vec4(texel_color.r, 0, 0, 0));
-	}
+	imageStore(outImg, newIndex, vec4(texel_color.r / qTable[newIndex.x][newIndex.y], 0, 0, 0));
+	
+//	if((mod(index.x, 8) > 3) || (mod(index.y, 8) > 3)){
+//		
+//	}
+//	
+//	else{
+//		ivec2 newIndex;
+//		newIndex.x = int(floor(index.x/8) * 4) + int(mod(index.x, 8));
+//		newIndex.y = int(floor(index.y/8) * 4) + int(mod(index.y, 8));
+//		imageStore(outImg, newIndex, vec4(texel_color.r, 0, 0, 0));
+//	}
 	
 }

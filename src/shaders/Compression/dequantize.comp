@@ -1,25 +1,44 @@
 #version 430
-layout ( binding = 0, r32f ) readonly uniform image2D inImg;
+layout ( binding = 0, r16f ) readonly uniform image2D inImg;
 layout ( binding = 1, r32f ) writeonly uniform image2D outImg;
 
 
 layout (local_size_x = 8, local_size_y = 8) in;
+
+shared float qTable[8][8] = {
+		{10.0, 15.0, 25.0, 37.0, 51.0, 66.0, 82.0, 100.0},
+		{15.0, 19.0, 28.0, 39.0, 52.0, 67.0, 83.0, 101.0},
+		{25.0, 28.0, 35.0, 45.0, 58.0, 72.0, 88.0, 105.0},
+		{37.0, 39.0, 45.0, 54.0, 66.0, 79.0, 94.0, 111.0},
+		{51.0, 52.0, 58.0, 66.0, 76.0, 89.0, 103.0, 119.0},
+		{66.0, 67.0, 72.0, 79.0, 89.0, 101.0, 114.0, 130.0},
+		{82.0, 83.0, 88.0, 94.0, 103.0, 114.0, 17.0, 142.0},
+		{100.0, 101.0, 105.0, 111.0, 119.0, 130.0, 142.0, 156.0}
+};
 void main() {
 
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 	
+	vec4 texel_color = imageLoad(inImg, index);
+	
 	ivec2 newIndex;
-	newIndex.x = int(floor(index.x/8) * 4) + int(mod(index.x, 8));
-	newIndex.y = int(floor(index.y/8) * 4) + int(mod(index.y, 8));
+	newIndex.x = int (mod(index.x, 8));
+	newIndex.y = int (mod(index.y, 8));
 	
-	vec4 texel_color = imageLoad(inImg, newIndex);
+	imageStore(outImg, newIndex, vec4(texel_color.r * qTable[newIndex.x][newIndex.y], 0, 0, 0));
 	
-	if((mod(index.x, 8) > 3) || (mod(index.y, 8) > 3)){
-		imageStore(outImg, index, vec4(0, 0, 0, 0));
-	}
-	
-	else{
-		imageStore(outImg, index, vec4(texel_color.r, 0, 0, 0));
-	}
+//	ivec2 newIndex;
+//	newIndex.x = int(floor(index.x/8) * 4) + int(mod(index.x, 8));
+//	newIndex.y = int(floor(index.y/8) * 4) + int(mod(index.y, 8));
+//	
+//	vec4 texel_color = imageLoad(inImg, newIndex);
+//	
+//	if((mod(index.x, 8) > 3) || (mod(index.y, 8) > 3)){
+//		imageStore(outImg, index, vec4(0, 0, 0, 0));
+//	}
+//	
+//	else{
+//		imageStore(outImg, index, vec4(texel_color.r, 0, 0, 0));
+//	}
 	
 }
