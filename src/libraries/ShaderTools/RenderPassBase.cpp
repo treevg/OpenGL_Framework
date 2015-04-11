@@ -47,6 +47,8 @@ RenderPassBase* RenderPassBase::texture(std::string name, GLuint textureHandle) 
 }
 
 
+
+
 RenderPassBase* RenderPassBase::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
 	shaderProgram->texture(name, textureHandle, samplerHandle);
 	return this;

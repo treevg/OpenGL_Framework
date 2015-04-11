@@ -54,9 +54,10 @@ namespace TextureTools {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 
-        glBindTexture(GL_TEXTURE_2D, 0);
+        
 
         stbi_image_free(data);
+        glBindTexture(GL_TEXTURE_2D, 0);
 
         std::cout << "SUCCESS: image loaded from " << new_name << std::endl;
         return textureHandle;

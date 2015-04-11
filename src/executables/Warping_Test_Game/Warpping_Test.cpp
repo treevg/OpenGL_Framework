@@ -22,7 +22,7 @@ Camera* camera = new Camera();
 
 glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 
-
+GLuint textureHandle = TextureTools::loadTexture("grass_repeating.jpg");
 
 auto sp = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
 auto myModel = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
@@ -39,18 +39,28 @@ Model* m = new Model(RESOURCES_PATH "/monkey2.obj");
 vector<Mesh*> meshes = m->getMeshes();
 
 
+Model* chest = new Model(RESOURCES_PATH "/WoodHouse.obj");
+vector<Mesh*> chestMeshes = chest->getMeshes();
 
-auto passModel= new RenderPassModel( meshes, suzanneSp);
+
+Model* capsule = new Model(RESOURCES_PATH "/capsule.obj");
+vector<Mesh*> capsuleMeshes = capsule->getMeshes();
 
 
-auto  passCube = new RenderPass(new Pyramid(), sp);
+
+auto passModel = new RenderPassModel( meshes, suzanneSp);
+
+auto passModelChest = new RenderPassModel( chestMeshes, myModel);
+
+auto passModelCapsule = new RenderPassModel(capsuleMeshes, myModel);
+
+auto passCube = new RenderPass(new Pyramid(), sp);
+
+/*    SOME OTHER PARAMETERS   */
 
 double lasttime;
 
 vec3 lightPosition = vec3(1.2f, 1.0f, 2.0f);
-
-
-
 
 
 
@@ -107,11 +117,6 @@ int main(int argc, char *argv[]) {
            delete m;
          }
 
-
-
-
-
-
      
 
       mat4 modelMatrix1 =mat4(1);
@@ -120,13 +125,26 @@ int main(int argc, char *argv[]) {
      mat4 view = translate(mat4(1), vec3(0,0,-5));
   
 
-    cout << "TEST " << endl;
+
        
 
    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
       
-      passModel
+      cout << "render  capsule " << endl;
+ 
+
+     cout << "RENDER  CHEST " << endl;
+
+        passModelChest
         ->  clear (0.5,0.3,0.2,1)
+        ->  update("uniformModel", translate (mat4(1), vec3(-2.0, 0.0,-3.0)))
+        ->  update("uniformView", view)
+        ->  update("uniformProjection", projMat)
+        ->  run(); 
+
+
+             passModelCapsule
+      
         ->  update("uniformModel", translate (mat4(1), vec3(2.0, 0.0,-3.0)))
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
@@ -140,15 +158,11 @@ int main(int argc, char *argv[]) {
         ->  update("uniformModel", modelMatrix1)
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
-        ->  update("color", vec4(0,1,0,1))
+        ->  texture("diffuse_text", textureHandle)
         ->  run();
 
   }
-     
-
-
-
-      
+           
 
     });
 

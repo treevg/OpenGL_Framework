@@ -26,6 +26,7 @@ public:
 	RenderPassBase* clearDepth();
 	RenderPassBase* texture(std::string name, GLuint textureID);
 	RenderPassBase* texture(std::string name, GLuint textureID, GLuint samplerID);
+	
 
 	RenderPassBase* setFrameBufferObject(FrameBufferObject* frameBufferObject);
 

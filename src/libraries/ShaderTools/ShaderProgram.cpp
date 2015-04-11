@@ -92,6 +92,7 @@ ShaderProgram::ShaderProgram(GLenum type, string path){
 }
 
 void ShaderProgram::use() {
+	currentTextureUnit = 0;
 	for (int i = 0; i < textureList.size(); i++) {
 		glActiveTexture(GL_TEXTURE0 + i);
 	    glBindTexture(GL_TEXTURE_2D, textureList[i].textureHandle);
@@ -101,6 +102,7 @@ void ShaderProgram::use() {
 }
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle) {
+      std::cout << "Texture handle " << textureHandle << std::endl;
 	return texture(name, textureHandle, 0);
 }
 
@@ -121,6 +123,31 @@ ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GL
 		glUseProgram(shaderProgramHandle);
 		glUniform1i(updateInfo->location, textureList.size());
 		textureList.push_back(o);
+	}
+	return this;
+}
+
+ShaderProgram* ShaderProgram::textureSkybox(std::string name, GLuint textureHandle) {
+	Info* updateInfo = checkUpdate(name, "samplerCube");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(updateInfo->location, currentTextureUnit);
+		glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
+	    glBindTexture(GL_TEXTURE_2D, textureHandle);
+		currentTextureUnit++;
+	}
+	return this;
+}
+
+
+ShaderProgram* ShaderProgram::textureModel(std::string name, GLuint textureHandle) {
+	Info* updateInfo = checkUpdate(name, "sampler2D");
+	if (updateInfo != NULL) {	
+		glUseProgram(shaderProgramHandle);
+		glUniform1i(updateInfo->location, currentTextureUnit);
+		glActiveTexture(GL_TEXTURE0 + currentTextureUnit);
+	    glBindTexture(GL_TEXTURE_2D, textureHandle);
+		currentTextureUnit++;
 	}
 	return this;
 }

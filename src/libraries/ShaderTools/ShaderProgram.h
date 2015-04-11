@@ -64,7 +64,9 @@ public:
 	void use();
 
 	virtual ShaderProgram* texture(std::string name, GLuint textureHandle);
+	virtual ShaderProgram* textureModel(std::string name, GLuint textureHandle);
 	virtual ShaderProgram* texture(std::string name, GLuint textureHandle, GLuint samplerHandle);
+	virtual ShaderProgram* textureSkybox(std::string name, GLuint textureHandle);
 
 	/**
 	 * @brief Updates a boolean uniform variable
@@ -263,6 +265,7 @@ public:
 protected:
 	GLuint shaderProgramHandle;
 	bool errorOccured = false;
+	int currentTextureUnit;
 
 	/**
 	 * @brief Links the shader program against the OpenGL host code

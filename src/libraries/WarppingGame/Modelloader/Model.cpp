@@ -97,7 +97,7 @@ using namespace Assimp;
 
            material->GetTexture(type, i, &pathToTexture);
             
-          bool skip = false;
+           bool skip = false;
 
             for(int j = 0; j < this->m_textures.size(); j++)
             {

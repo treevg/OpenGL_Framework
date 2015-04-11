@@ -21,57 +21,55 @@ void RenderPassModel::runOneMesh()  const{
 
 void RenderPassModel::run(){
 
-  cout << " RENDERING MESH " << endl;
+ // cout << " RENDERING MESH " << endl;
 	
       frameBufferObject->bind();
 
-   cout << " ------  DEBUG: drawing meshes -------  "<< endl;
 
 	for (int i=0; i<this->meshes.size(); i++ ){
 	
         shaderProgram->use();
 
- //       cout << " ver Obj " <<  meshes[i]->getVertexArrayObject() << endl;
-
     if (this->meshes[i]->getTextures().size() > 0) {
 
       for (MeshTexture tex: this->meshes[i]->getTextures()){
+        
+     //   cout <<  " ------  DEBUG: TEXTURE ID "  << tex.id << endl; 
      
     switch( tex.type  ) { 
 
-
   	case 'a': 
 
-  	shaderProgram->texture("ambient_text", tex.id) ; 
+  	shaderProgram->textureModel("ambient_text", tex.id) ; 
 
   	case 'd': 
 
-  	shaderProgram->texture("diffuse_text", tex.id) ; 
-
+  	shaderProgram->textureModel("diffuse_text", tex.id) ; 
 
     case 's': 
 
-   // shaderProgram->texture("specular_text", tex.id)
+   // shaderProgram->textureModel("specular_text", tex.id)
     ; 
 
       case 'e': 
 
-  //  shaderProgram->texture("emission_text", tex.id) 
+  //  shaderProgram->textureModel("emission_text", tex.id) 
       ; 
 
 }
     	}
 
     } 
-        cout << " **************** AND NOW DRAWING VERTEX OBJECT **************** " << vertexArrayObject <<  endl; 
+      
 
 
   	 meshes[i]->draw();     
-
+    
         
 	}
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 
 	
 }

@@ -8,8 +8,6 @@ RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shad
 }
 
 
-
-
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height)
 	: RenderPassBase(vertexArrayObject, shaderProgram, width, height)
 	{

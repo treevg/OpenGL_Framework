@@ -214,7 +214,7 @@ void Game::init(){
 
     /* external Textures */
 
- textureHandle = TextureTools::loadTexture("/grass_repeating.jpg");
+ textureHandle = TextureTools::loadTexture("grass_repeating.jpg");
  cubeText = new CubemapTexture();
    
 
@@ -234,7 +234,7 @@ void Game::init(){
     cout << "######## RENDER TO TEXTURE ###########" << endl;
     quadPass = new RenderPass(quad, sp1, getWidth(window), getHeight(window));
     quadPass -> texture("diffuse_text", textureHandle);
-   // holefilling = new RenderPass(); 
+
 
 
    plane = new RenderPass( new Plane(32.0f), sp1, getWidth(window), getHeight(window));
@@ -637,7 +637,7 @@ diffWarp
 
 
 skyBoxPass
-        -> clear (0.2, 0.2, 0.7, 1)
+        ->  clear (0.2, 0.2, 0.7, 1)
         ->  update("uniformModel", modelSkybox)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
@@ -659,7 +659,7 @@ windMillPass
         ->  update("uniformProjection", projMat)
         ->  run();
         
- 
+ cout << " TEXTTURE HANDLE FOR PLANE " << textureHandle << endl;
  plane
         -> update("uniformView", viewMat_old)
         -> update("uniformModel",model)
@@ -736,7 +736,7 @@ windMillPass
 
 int main(int argc, char *argv[]) { 
 
-Game * g = new Game(true);
+Game * g = new Game(false);
 
 delete g;
 }
