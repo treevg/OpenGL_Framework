@@ -15,29 +15,35 @@ using namespace std;
 using namespace glm;
 
 
-
-Camera* camera = new Camera();
 GLFWwindow* window = generateWindow();
+Camera* camera = new Camera();
+
+
+
+glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 
 
 
 auto sp = new ShaderProgram({"/Warpping/myTest.vert", "/Warpping/myTest.frag"});
 auto myModel = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
 
+
+//model
+
 auto suzanneSp = new ShaderProgram({"/Warpping/suzanne.vert", "/Warpping/suzanne.frag"});
 auto lighting = new ShaderProgram({"/Warpping/lighting.vert", "/Warpping/lighting.frag"});
 
 
+
 Model* m = new Model(RESOURCES_PATH "/monkey2.obj");
-
-
 vector<Mesh*> meshes = m->getMeshes();
 
 
 
 auto passModel= new RenderPassModel( meshes, suzanneSp);
 
-auto passModelWithLight= new RenderPassModel( meshes, lighting);
+
+auto  passCube = new RenderPass(new Pyramid(), sp);
 
 double lasttime;
 
@@ -45,7 +51,7 @@ vec3 lightPosition = vec3(1.2f, 1.0f, 2.0f);
 
 
 
-glm::mat4 projMat = glm::perspective(45.0f, (float)(getWidth(window), getHeight(window)), 0.1f, 1000.0f);
+
 
 
  static glm::mat4 getLookAt(){
@@ -93,42 +99,56 @@ int main(int argc, char *argv[]) {
     lasttime = glfwGetTime();
 
 
-     render(window,  [&] (float deltaTime){
+     render(window, [&] (float deltaTime){
 
 
-      mat4 view = getLookAt();
-
-
-        mat4 modelMatrix1 =mat4(1);
-    
-         modelMatrix1 =  scale(modelMatrix1, vec3(0.3, 0.3, 0.3));
-         modelMatrix1 = translate (modelMatrix1, vec3(0.0, 0.0,-3.0));
-      
-       if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+      if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
            glfwSetWindowShouldClose(window, GL_TRUE);
-         delete m;
-       } 
+           delete m;
+         }
 
-       lookAround(); 
+
+
+
+
+
+     
+
+      mat4 modelMatrix1 =mat4(1);
+       //  modelMatrix1 =  scale(modelMatrix1, vec3(0.5, 0.3, 0.3));
+       
+     mat4 view = translate(mat4(1), vec3(0,0,-5));
   
-    moveWithKeybord();
 
-        passModelWithLight
+    cout << "TEST " << endl;
+       
+
+   if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+      
+      passModel
         ->  clear (0.5,0.3,0.2,1)
-        ->  update("uniformModel", modelMatrix1)
-        ->  update("uniformView", mat4(1))
-        ->  update("uniformProjection", projMat)
-        ->  update("lightPos", lightPosition)
-        ->  update("cameraPos", (0,0,0))
-        ->  update("color", vec4(0,1,0,1))
-        ->  run();
-
-   /*    passModel
-  
         ->  update("uniformModel", translate (mat4(1), vec3(2.0, 0.0,-3.0)))
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
-        ->  runModel(); */
+        ->  run(); 
+     
+
+  }else {
+
+   passCube
+        ->  clear (0.5,0.3,0.2,1)
+        ->  update("uniformModel", modelMatrix1)
+        ->  update("uniformView", view)
+        ->  update("uniformProjection", projMat)
+        ->  update("color", vec4(0,1,0,1))
+        ->  run();
+
+  }
+     
+
+
+
+      
 
     });
 

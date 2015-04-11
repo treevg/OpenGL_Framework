@@ -1,12 +1,14 @@
 #ifndef MESH_H
 #define MESH_H
 
+
+#include <GL/glew.h>
 #include <assert.h>
 #include <vector>
 #include <string>
 #include <iostream>
 #include <glm/glm.hpp>
-#include "../VertexArrayObject.h"
+
 
 using namespace std;
 using namespace glm;
@@ -20,7 +22,7 @@ string path;
 };
 
 
-class Mesh: public VertexArrayObject  {
+class Mesh  {
 
 public:
 	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices);
@@ -33,6 +35,7 @@ public:
 	vector<GLuint> getIndices() const;
 	vector<MeshTexture> getTextures() const;
 
+    GLuint getVertexArrayObject() const;
 	
 	
 protected: 
@@ -46,6 +49,7 @@ vector<MeshTexture> m_textures;
 GLuint IBO;
 GLuint VBO;
 GLuint tVBO;
+GLuint ABO;
 
 
 	};

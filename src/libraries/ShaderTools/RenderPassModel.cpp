@@ -18,21 +18,26 @@ void RenderPassModel::runOneMesh()  const{
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
+
 void RenderPassModel::run(){
+
+  cout << " RENDERING MESH " << endl;
 	
       frameBufferObject->bind();
-    //   cout << "DEBUG: drawing meshes  "<< endl;
+
+   cout << " ------  DEBUG: drawing meshes -------  "<< endl;
 
 	for (int i=0; i<this->meshes.size(); i++ ){
 	
         shaderProgram->use();
 
-     if (this->meshes[i]->getTextures().size() > 0) {
+ //       cout << " ver Obj " <<  meshes[i]->getVertexArrayObject() << endl;
+
+    if (this->meshes[i]->getTextures().size() > 0) {
 
       for (MeshTexture tex: this->meshes[i]->getTextures()){
      
-    switch( tex.type  ) 
-  { 
+    switch( tex.type  ) { 
 
 
   	case 'a': 
@@ -58,8 +63,11 @@ void RenderPassModel::run(){
     	}
 
     } 
-        
-  	vertexArrayObject->draw();       
+        cout << " **************** AND NOW DRAWING VERTEX OBJECT **************** " << vertexArrayObject <<  endl; 
+
+
+  	 meshes[i]->draw();     
+
         
 	}
 

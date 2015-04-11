@@ -16,7 +16,7 @@ void main() {
 
  
     
-     fragColor = texture(diffuse_text, passTextureCoordinate);
+     fragColor = vec4 (1,0,0,0);
   
    // if (fragColor == 0){
 
@@ -24,7 +24,7 @@ void main() {
      
    //   }
 
-     fragPosition = passPosition;
+    
    
 
 }

@@ -28,8 +28,8 @@ for ( int i = 0; i< this->m_indices.size(); i++){
    // cout<< "size  textCoord " << this->m_texCoords.size()  << endl;
    // cout<< "number of texture: " << this->m_textures.size()  << endl;
      
-    glGenVertexArrays(1, &vertexArrayObjectHandle);
-    glBindVertexArray(vertexArrayObjectHandle);
+    glGenVertexArrays(1, &ABO);
+    glBindVertexArray(ABO);
 
     glGenBuffers(1, &this->VBO);
     glBindBuffer(GL_ARRAY_BUFFER, this->VBO);  
@@ -103,13 +103,16 @@ vector<vec3> Mesh::getVertices() const{
     }
 
 
-    
+    GLuint Mesh::getVertexArrayObject() const {
+
+      return this->ABO;
+    }
 
 
 //calculate vericies number for verticies
 void Mesh::draw() {
    // cout << "drawing mesh" << endl;
-    glBindVertexArray(vertexArrayObjectHandle);
+    glBindVertexArray(ABO);
     glDrawElements(GL_TRIANGLES, this->m_indices.size(), GL_UNSIGNED_INT, 0);
     //set to default for good praxice 
     glBindVertexArray(0);
