@@ -14,7 +14,7 @@ using namespace glm;
 
 
 
-//helpers
+/* parameters */
 
 
 float z=50.0;
@@ -26,6 +26,8 @@ bool targetReached = false;
 GLuint skybox;
 bool warpping;
 double lasttime;
+vec3 lightPosition = vec3(0,80,0);
+float shinines = 32.0f;
 
  
  /* GAME LOGIC*/
@@ -78,7 +80,7 @@ vec3 currentChestPosition;
 
 
  std::queue<glm::mat4> latencyQueue;
- int latencyFrameCount = 16;
+ int latencyFrameCount = 1;
 
 GLuint textureHandle;
 CubemapTexture* cubeText;
@@ -159,7 +161,7 @@ static void setChestPosition(){
       chestPositions.push_back(glm::vec3( 20, castel_y, -15));
       chestPositions.push_back(glm::vec3( 16, castel_y, -44));
       chestPositions.push_back(glm::vec3( -16, castel_y, -44));
-      chestPositions.push_back(glm::vec3(-20, castel_y, -16));
+      chestPositions.push_back(glm::vec3(-20,  castel_y, -16));
       chestPositions.push_back(glm::vec3(-24.75, castel_y, 22.34));
       chestPositions.push_back(glm::vec3( -16, castel_y, -34));
       chestPositions.push_back(glm::vec3( 16, castel_y, -34));
@@ -410,6 +412,8 @@ glm:: mat4 modelSkybox = translate(mat4(1), camera->getPosition());
   
     moveWithKeybord();
 
+cout << "camera position " << camera->getPosition().x << " " << camera->getPosition().y << " " << camera->getPosition().z << endl;
+
 if(warpping){
 
 cout << "TEST " << endl;
@@ -634,6 +638,7 @@ diffWarp
  */
 
 }else {
+ 
 
 
 skyBoxPass
@@ -650,6 +655,10 @@ skyBoxPass
         ->  update("uniformModel", modelCastle)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
+        ->  update("lightPos", lightPosition)
+        ->  update ("viewPosition", camera->getPosition())
+        ->  update("shinines", shinines)
+        ->  update("attenuatFactor", false)
         ->  run();
 
 
@@ -657,9 +666,12 @@ windMillPass
         ->  update("uniformModel", modelWindMill)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
+        ->  update("shinines", shinines)
+        ->  update ("viewPosition", camera->getPosition())
+        ->  update("lightPos", lightPosition)
+        ->  update("attenuatFactor", false)
         ->  run();
         
- cout << " TEXTTURE HANDLE FOR PLANE " << textureHandle << endl;
  plane
         -> update("uniformView", viewMat_old)
         -> update("uniformModel",model)
@@ -692,6 +704,10 @@ windMillPass
         ->  update("uniformModel", modelChest)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
+        ->  update ("viewPosition", camera->getPosition())
+        ->  update("lightPos", lightPosition)
+        ->  update("shinines", shinines)
+        ->  update("attenuatFactor", false)
         ->  run();
 
 
@@ -711,7 +727,7 @@ windMillPass
         }
         
 
-       modelTree=   glm::scale(modelTree,glm::vec3(2, 2 ,2));
+       modelTree =   glm::scale(modelTree,glm::vec3(2, 2 ,2));
        modelTree = rotate(modelTree, 80.0f,  vec3(1.0,0.0,0.0));
        
        
@@ -719,6 +735,10 @@ windMillPass
         ->  update("uniformModel", modelTree)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
+        ->  update ("viewPosition", camera->getPosition())
+        ->  update("lightPos", lightPosition)
+        ->  update("shinines", shinines)
+        ->  update("attenuatFactor", false)
         ->  run();
      
         modelTree = glm::mat4(1);

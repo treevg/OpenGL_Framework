@@ -7,7 +7,6 @@
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Skybox.h"
 #include "ShaderTools/VertexArrayObjects/Pyramid.h"
-#include "WarppingGame/CubemapTexture/CubemapTexture.h"
 #include "WarppingGame/Modelloader/Model.h"
 #include "WarppingGame/Camera/Camera.h"
 
@@ -17,6 +16,7 @@ using namespace glm;
 
 GLFWwindow* window = generateWindow();
 Camera* camera = new Camera();
+
 
 
 
@@ -39,28 +39,28 @@ Model* m = new Model(RESOURCES_PATH "/monkey2.obj");
 vector<Mesh*> meshes = m->getMeshes();
 
 
-Model* chest = new Model(RESOURCES_PATH "/WoodHouse.obj");
-vector<Mesh*> chestMeshes = chest->getMeshes();
+Model* woodHouse = new Model(RESOURCES_PATH "/WoodHouse.obj");
+vector<Mesh*> woodHouseMeshes = woodHouse->getMeshes();
 
 
-Model* capsule = new Model(RESOURCES_PATH "/capsule.obj");
-vector<Mesh*> capsuleMeshes = capsule->getMeshes();
+Model* cube = new Model(RESOURCES_PATH "/cube.obj");
+vector<Mesh*> cubeMeshes = cube->getMeshes();
 
 
 
 auto passModel = new RenderPassModel( meshes, suzanneSp);
 
-auto passModelChest = new RenderPassModel( chestMeshes, myModel);
+auto passwoodHouse= new RenderPassModel( woodHouseMeshes, myModel);
 
-auto passModelCapsule = new RenderPassModel(capsuleMeshes, myModel);
+auto passModelcube = new RenderPassModel(cubeMeshes, myModel);
 
-auto passCube = new RenderPass(new Pyramid(), sp);
+auto passPyramid = new RenderPass(new Pyramid(), lighting);
 
 /*    SOME OTHER PARAMETERS   */
 
 double lasttime;
+vec3 lightPosition = vec3(0,5,3);
 
-vec3 lightPosition = vec3(1.2f, 1.0f, 2.0f);
 
 
 
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
       mat4 modelMatrix1 =mat4(1);
        //  modelMatrix1 =  scale(modelMatrix1, vec3(0.5, 0.3, 0.3));
        
-     mat4 view = translate(mat4(1), vec3(0,0,-5));
+       mat4 view = translate(mat4(1), vec3(0,0,-5));
   
 
 
@@ -130,30 +130,37 @@ int main(int argc, char *argv[]) {
 
    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
       
-      cout << "render  capsule " << endl;
+    
  
 
-     cout << "RENDER  CHEST " << endl;
+     cout << "RENDER  House " << endl;
 
-        passModelChest
+        passwoodHouse
         ->  clear (0.5,0.3,0.2,1)
         ->  update("uniformModel", translate (mat4(1), vec3(-2.0, 0.0,-3.0)))
         ->  update("uniformView", view)
-        ->  update("uniformProjection", projMat)
+        ->  update("uniformProjection", projMat)   
+        ->  update("shinines", 32)
+        ->  update("lightPos", lightPosition)
+        ->  update("viewPosition", vec3(0,0,-5))
+        ->  update("attenuatFactor", 0)
         ->  run(); 
 
 
-             passModelCapsule
-      
+        passModelcube
         ->  update("uniformModel", translate (mat4(1), vec3(2.0, 0.0,-3.0)))
         ->  update("uniformView", view)
         ->  update("uniformProjection", projMat)
+        ->  update("shinines", 32)
+        ->  update("lightPos", lightPosition)
+        ->  update("viewPosition", vec3(0,0,-5)) 
+        ->  update("attenuatFactor", 1)
         ->  run(); 
-     
+        
 
   }else {
 
-   passCube
+   passPyramid
         ->  clear (0.5,0.3,0.2,1)
         ->  update("uniformModel", modelMatrix1)
         ->  update("uniformView", view)

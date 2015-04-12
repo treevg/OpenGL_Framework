@@ -12,13 +12,14 @@ out vec4 fragColor;
 out vec4 fragPosition;
 
 
+
 void main() {
 
      fragPosition = passPosition;
    
      fragColor = texture(diffuse_text, passTextureCoordinate);
   
-   if (fragColor == 0){
+     if (fragColor == 0){
 
      fragColor = vec4 (1,0,0,0);
      
