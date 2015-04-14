@@ -20,6 +20,6 @@ void main() {
            
         passNormal = vec3(temp_normal.xyz);
         passUV = vertexUV;
-        passPosition = uniformView *  uniformModel * vertex_modelSpace ;
+        passPosition = uniformModel * vertex_modelSpace ;
      
 }

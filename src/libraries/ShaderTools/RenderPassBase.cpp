@@ -48,7 +48,6 @@ RenderPassBase* RenderPassBase::texture(std::string name, GLuint textureHandle) 
 
 
 
-
 RenderPassBase* RenderPassBase::texture(std::string name, GLuint textureHandle, GLuint samplerHandle) {
 	shaderProgram->texture(name, textureHandle, samplerHandle);
 	return this;
@@ -77,3 +76,5 @@ RenderPassBase* RenderPassBase::setFrameBufferObject(FrameBufferObject* frameBuf
 	this->frameBufferObject = frameBufferObject;
 	return this;
 }
+
+

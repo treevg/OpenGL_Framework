@@ -48,7 +48,7 @@ void RenderPassModel::run(){
 
     case 's': 
 
-   // shaderProgram->textureModel("specular_text", tex.id)
+    shaderProgram->textureModel("specular_text", tex.id)
     ; 
 
       case 'e': 
@@ -68,8 +68,13 @@ void RenderPassModel::run(){
         
 	}
 
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
+	
+ glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	
+}
+
+RenderPassModel* RenderPassModel::setFrameBufferObject(FrameBufferObject* frameBufferObject) {
+  this->frameBufferObject = frameBufferObject;
+  return this;
 }

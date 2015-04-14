@@ -1,8 +1,12 @@
-#include "Cube.h"
+#include "Cube2.h"
 
-Cube::Cube() {
+Cube2::Cube2(mat4 modelMatrix, vec4 color, GLuint textureHandle) {
+
 	const float size = 1.0f;
 	mode = GL_TRIANGLES;
+    this->color = color;
+    this->modelMatrix = modelMatrix;
+    this->textureHandle = textureHandle;
 
     glGenVertexArrays(1, &vertexArrayObjectHandle);
     glBindVertexArray(vertexArrayObjectHandle);
@@ -60,7 +64,7 @@ Cube::Cube() {
     glEnableVertexAttribArray(1);
 }
 
-void Cube::draw() {
+void Cube2::draw() {
     glBindVertexArray(vertexArrayObjectHandle);
     glDrawArrays(mode, 0, 12*3);
 }

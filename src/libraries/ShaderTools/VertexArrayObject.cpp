@@ -4,3 +4,4 @@ VertexArrayObject* VertexArrayObject::setMode(GLenum mode) {
     this->mode = mode;
     return this;
 }
+

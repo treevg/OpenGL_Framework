@@ -80,7 +80,7 @@ vec3 currentChestPosition;
 
 
  std::queue<glm::mat4> latencyQueue;
- int latencyFrameCount = 1;
+ int latencyFrameCount = 12;
 
 GLuint textureHandle;
 CubemapTexture* cubeText;
@@ -197,7 +197,8 @@ void Game::init(){
   //Warping shader
   auto warp = new ShaderProgram("/Warpping/warp.vert", "/Raytracing/warp.frag");
  
-  diffWarpMuelle = new RenderPass(grid, warp, getWidth(window), getHeight(window));
+  //diffWarpMuelle = new RenderPass(grid, warp, getWidth(window), getHeight(window));
+  diffWarpMuelle = new RenderPass(grid, warp);
 
 
    auto sp = new ShaderProgram("/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag");
@@ -344,7 +345,7 @@ void Game::init(){
      
     glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
     glm::mat4 model=glm::mat4(1.0);
-    glm::mat4  viewMat= getLookAt();
+    glm::mat4 viewMat= getLookAt();
 
        
       simulateLanetcy (latencyFrameCount, viewMat);
@@ -425,16 +426,8 @@ cout << "TEST " << endl;
 //         ->  update("uniformProjection", projMat)
 //         ->  texture("tex", skybox)
 //         ->  run();
-diffWarp
-        ->  clear (0, 0, 0,0)
-        -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
-        -> update("viewMat", viewMat)
-        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
-        -> update("projection", projMat)
-        -> texture("colorTexture", skyBoxPass->get("fragColor"))
-        -> texture("positionTexture", skyBoxPass->get("fragPosition"))
-        -> run();
-  plane
+
+       plane
         -> clear(0,0,0,0)
         -> update("uniformView", viewMat_old)
         -> update("uniformModel", model)
@@ -442,7 +435,19 @@ diffWarp
         -> texture("diffuse_text", textureHandle)
         -> run();
 
+        
 
+        diffWarp
+        ->  clear (0, 0, 0,0)
+        -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
+        -> texture("colorTexture", plane->get("fragColor"))
+        -> texture("positionTexture", plane->get("fragPosition"))
+        -> run();
+
+/*
     diffWarpMuelle
         -> clear(0,0,0,0)
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
@@ -452,6 +457,7 @@ diffWarp
         -> texture("colorTexture", plane->get("fragColor"))
         -> texture("positionTexture", plane->get("fragPosition"))
         -> run();
+
   
   holefilling
         ->texture(diffWarpMuelle->get("fragColor"))
@@ -464,7 +470,7 @@ diffWarp
             // plane->get("fragColor"))
             ->update("resolution", getResolution(window))
             ->run();
- 
+ */
 
 /*vikingPass
         ->  clear(0.2,0.3,0.4,1)
@@ -756,7 +762,7 @@ windMillPass
 
 int main(int argc, char *argv[]) { 
 
-Game * g = new Game(false);
+Game * g = new Game(true);
 
 delete g;
 }

@@ -19,6 +19,7 @@ public:
         virtual void run() = 0;
 	
 	void autoGenerateFrameBufferObject(int width, int height);
+	
 	GLuint get(std::string name);
 
 	RenderPassBase* clear(float r, float g, float b, float a);

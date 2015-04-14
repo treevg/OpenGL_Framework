@@ -14,6 +14,7 @@ class RenderPassModel: public RenderPassBase
 	RenderPassModel(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram, int width, int height);
 	RenderPassModel(Mesh* mesh, ShaderProgram* shaderProgram);
 	RenderPassModel(Mesh* mesh, ShaderProgram* shaderProgram, int width, int height);
+	RenderPassModel* setFrameBufferObject(FrameBufferObject* frameBufferObject);
 
 	void run();
 	void runOneMesh() const ;

@@ -13,10 +13,16 @@
 #include <glm/ext.hpp>
 #include <map>
 
+using namespace glm;
+
 class VertexArrayObject {
 public:
 	VertexArrayObject* setMode(GLenum mode);
 	virtual void draw() = 0;
+
+     mat4 modelMatrix;
+     vec4 color;
+     GLuint textureHandle;
 protected:
 	GLuint vertexArrayObjectHandle;
 	GLenum mode;
