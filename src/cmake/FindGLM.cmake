@@ -9,7 +9,10 @@
 set(GLM_ROOT_ENV $ENV{GLM_ROOT})
 
 FIND_PATH(GLM_INCLUDE_PATH glm/glm.hpp
-	${GLM_ROOT_ENV}
+    PATHS
+        ${GLM_ROOT_ENV}
+    PATH_SUFFIXES
+        include
 )
 
 SET(GLM_FOUND "NO")

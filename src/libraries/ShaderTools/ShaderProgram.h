@@ -42,6 +42,11 @@ public:
 	 * @param attachShaders List of GLSL source code files
 	 */
 	ShaderProgram(std::vector<std::string> attachShaders);
+	//MSVC Workaround
+	ShaderProgram(std::string a, std::string b);
+	ShaderProgram(std::string a, std::string b, std::string c);
+	ShaderProgram(std::string a, std::string b, std::string c, std::string d);
+	ShaderProgram(std::string a, std::string b, std::string c, std::string d, std::string e);
 
 	/**
 	 * @brief Creates a shader program from a given shader code file
@@ -298,8 +303,8 @@ protected:
 	 *        to the console
 	 */
 	void printShaderProgramInfoLog();
-	void mapShaderProperties(GLenum interface, std::map<std::string, Info>* map);
-	void printInfo(std::map<std::string, Info>* map);
+	void mapShaderProperties(GLenum iFace, std::map < std::string, Info >* map);
+	void printInfo(std::map < std::string, Info >* map);
 	std::string getTypeString(GLenum type);
 };
 

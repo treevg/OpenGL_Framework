@@ -11,12 +11,12 @@ int main(int argc, char *argv[]) {
 
     float rotX = 0.785f;
     float rotY = 0.0f;
-    int numMipmaps = glm::log2(glm::max(getWidth(window), getHeight(window)));
+    int numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
     auto quad = new Quad();
 
     auto sparse = (new RenderPass(
         new Grid(200, 200), 
-        new ShaderProgram({"/3DObject/modelViewProjection.vert","/Filters/toneMapperLinear.frag"}),
+        new ShaderProgram("/3DObject/modelViewProjection.vert","/Filters/toneMapperLinear.frag"),
         getWidth(window), getHeight(window)))
             ->texture("tex", Texture::load(RESOURCES_PATH "/jpg/bambus.jpg"))
             ->update("model", translate(vec3(-0.5,-0.5,0)))
@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
 
     auto tonemapping = (new RenderPass(
         new Quad(), 
-        new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
+        new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag")))
             ->texture("tex", holefilling->getOutput())
             ->update("resolution", getResolution(window));
 

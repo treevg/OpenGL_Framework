@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
     int blurStrength = 1;
     RenderPass* blurring = (new RenderPass(
         new Quad(), 
-        new ShaderProgram({"/Filters/fullscreen.vert","/Filters/boxBlur.frag"}), 
+        new ShaderProgram("/Filters/fullscreen.vert","/Filters/boxBlur.frag"), 
         getWidth(window), 
         getHeight(window)))
             ->texture("tex", TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg"))
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
     float toneMax = 1.0;
     RenderPass* tonemapping = (new RenderPass(
         new Quad(), 
-        new ShaderProgram({"/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"})))
+        new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag")))
             ->texture("tex", blurring->get("fragColor"))
             ->update("minRange", toneMin)
             ->update("maxRange", toneMax);

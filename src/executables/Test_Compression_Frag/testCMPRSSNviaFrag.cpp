@@ -8,15 +8,15 @@
 using namespace std;
 using namespace glm;
 
-auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+auto sp = new ShaderProgram("/Compression/test1.vert", "/Compression/test1.frag");
 auto pass = new RenderPass(new Cube(), sp, width, height);
 //auto pass = new RenderPass(new Cube(), sp);
 
-auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compositing.frag"});
+auto compositingSP = new ShaderProgram("/Compression/pass.vert", "/Compression/compositing.frag");
 
 auto pass2 = new RenderPass(new Quad(), compositingSP);
 
-auto compressingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compressCbCr.frag"});
+auto compressingSP = new ShaderProgram("/Compression/pass.vert", "/Compression/compressCbCr.frag");
 
 auto passCompress = new RenderPass(new Quad(), compressingSP);
 

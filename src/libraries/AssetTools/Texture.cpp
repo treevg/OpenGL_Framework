@@ -1,4 +1,5 @@
 #include "Texture.h"
+#include <iostream>
 
 Texture::Texture(std::string path) {
 
@@ -24,7 +25,10 @@ GLuint Texture::load(std::string path) {
     ILuint iid;
     ilGenImages(1, &iid);
     ilBindImage(iid);
-    ilLoadImage(path.c_str());
+	//int e = ilLoadImage((wchar_t*)path.c_str());
+	// eventuell precompiler define einsetzen "w_charT define" oderso
+	int e = ilLoadImage( path.c_str() );
+	//texture = ilutGLLoadImage((wchar_t*)"filename.bmp");
 
     int w = ilGetInteger(IL_IMAGE_WIDTH);
     int h = ilGetInteger(IL_IMAGE_HEIGHT);
