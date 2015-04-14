@@ -16,7 +16,7 @@ out vec2 passTextureCoordinate;
 
 void main() {
 
-	passPosition = uniformModel * vertex_modelSpace ;
+	    passPosition =  uniformModel * vertex_modelSpace ;
         gl_Position =  uniformProjection *  uniformView * uniformModel *vertex_modelSpace ;
         passTextureCoordinate = textureCoordinates;
        

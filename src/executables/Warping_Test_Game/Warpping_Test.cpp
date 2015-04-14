@@ -15,6 +15,7 @@
 #include "WarppingGame/Camera/Camera.h"
 #include "ShaderTools/VertexArrayObjects/Grid.h"
 #include "ShaderTools/VertexArrayObjects/Plane.h"
+#include "RenderTechniques/HierarchicalHoleFilling.h"
 #include <queue>
 
 using namespace std;
@@ -31,6 +32,7 @@ Camera* camera = new Camera();
 glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
 
 GLuint textureHandle = TextureTools::loadTexture("grass_repeating.jpg");
+GLuint textureHandle2 = TextureTools::loadTexture("w1.jpg");
 
 auto sp = new ShaderProgram({"/Warpping/demo.vert", "/Warpping/demo.frag"});
 auto myModel = new ShaderProgram({"/Warpping/model.vert", "/Warpping/model.frag"});
@@ -52,6 +54,7 @@ auto warp = new ShaderProgram("/Warpping/warp.vert", "/Raytracing/warp.frag");
 auto spPlane = new ShaderProgram("/Warpping/myTest.vert", "/Warpping/myTest.frag");
 
 RenderPass*  plane  = new RenderPass( new Quad(),spPlane,getWidth(window), getHeight(window)); 
+//RenderPass* diffWarp  = new RenderPass(grid, warp, getWidth(window), getHeight(window));
 RenderPass* diffWarp  = new RenderPass(grid, warp);
 
 /*    RENDER COLLECTOR   */
@@ -61,17 +64,21 @@ Cube2* c1;
 
 vector<VertexArrayObject*> cubes;
 
-
-
-
-
-
 RenderPassCollector* collector ; 
 
 /*    SOME OTHER PARAMETERS   */
 
 double lasttime;
 vec3 lightPosition = vec3(0,5,3);
+
+/*    HOLEFILLING   */
+
+
+int numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
+ auto  quad = new Quad();
+ auto holefilling = new HierarchicalHoleFilling( getResolution(window), quad);
+
+ auto tonemapping = new RenderPass( new Quad(), new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"));
 
 
 
@@ -119,10 +126,6 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat){
 
 
 
-
-
-
-
 int main(int argc, char *argv[]) {
 
     sp -> printUniformInfo();
@@ -132,11 +135,18 @@ int main(int argc, char *argv[]) {
 
 
 cubes.clear();
-mat4 mc1 = translate(mat4(1),vec3(-2,3,0));
+mat4 mc1 = scale(mat4(1), vec3(6,6,6));
+     mc1 = translate( mc1,vec3(-2,1,0));
 
+mat4 mc2 = scale(mat4(1), vec3(6,6,6));
+     mc2 = translate( mc2,vec3(2,1,0));
 c = new Cube2(mc1, vec4(-1,0,0,0), textureHandle);
+
 cubes.push_back(c);
-cubes.push_back(new Cube2(translate(mat4(1),vec3(2,3,0)),vec4(-1,1,0,0), -1));
+
+c1 = new Cube2(mc2, vec4(-1,0,0,0), textureHandle2);
+
+cubes.push_back(c1);
    
 collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window));
 
@@ -144,7 +154,7 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
 
      render(window, [&] (float deltaTime){
    
-   lookAround(); 
+    lookAround(); 
   
     moveWithKeybord();
 
@@ -189,7 +199,7 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
   } else {
      cout << " render plane" << endl;
 
-     plane   
+  /*   plane   
         -> clear (0.5,0.3,0.2,1)
         -> update("uniformView", viewMat_old)
         -> update("uniformModel", model)
@@ -198,7 +208,7 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
         -> run();
 
          diffWarp
-        -> clear (0.5,0.3,0.2,1)
+        -> clear()
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
         -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
@@ -207,7 +217,7 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
         -> texture("positionTexture", plane->get("fragPosition"))
         -> run();
   
-
+  */
       collector
         ->  clear (0, 0, 0,0)
         ->  update("uniformView", viewMat_old)
@@ -215,7 +225,7 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
         ->  run();
 
         diffWarp
-     
+        -> clear (0, 0, 0,0)
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
         -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
@@ -223,8 +233,17 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
         -> texture("colorTexture", collector->get("fragColor"))
         -> texture("positionTexture", collector->get("fragPosition"))
         -> run();
+
+    /*    holefilling
+        ->texture(diffWarp->get("fragColor"))
+        ->run();
+
+  tonemapping
+            ->texture("tex", holefilling->getOutput())
+            ->update("resolution", getResolution(window))
+            ->run();
   
-       
+       */
 
   }
            

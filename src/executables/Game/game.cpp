@@ -59,7 +59,7 @@ vec3 currentChestPosition;
 
  Camera* camera;
  FollowObject* followMe;
- Quad* quad;
+
 
  Model* myModel;
  Model* castle;
@@ -89,7 +89,7 @@ CubemapTexture* cubeText;
 //holefilling
 
   int numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
-
+  Quad* quad;
 
 /* static methods */
 
@@ -191,14 +191,14 @@ void Game::init(){
 
    auto grid = new Grid(getWidth(window), getHeight(window));
   
-   numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
+
 
 
   //Warping shader
   auto warp = new ShaderProgram("/Warpping/warp.vert", "/Raytracing/warp.frag");
  
-  //diffWarpMuelle = new RenderPass(grid, warp, getWidth(window), getHeight(window));
-  diffWarpMuelle = new RenderPass(grid, warp);
+  //diffWarpMuelle = new RenderPass(grid, warp);
+  diffWarpMuelle = new RenderPass(grid, warp, getWidth(window), getHeight(window));
 
 
    auto sp = new ShaderProgram("/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag");
@@ -329,7 +329,7 @@ void Game::init(){
 
     render(window,  [&] (float deltaTime){
 
-    double  currentTime = glfwGetTime();
+    double currentTime = glfwGetTime();
     
     if(!targetReached){
     
@@ -345,7 +345,7 @@ void Game::init(){
      
     glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
     glm::mat4 model=glm::mat4(1.0);
-    glm::mat4 viewMat= getLookAt();
+    glm::mat4  viewMat= getLookAt();
 
        
       simulateLanetcy (latencyFrameCount, viewMat);
@@ -417,17 +417,26 @@ cout << "camera position " << camera->getPosition().x << " " << camera->getPosit
 
 if(warpping){
 
-cout << "TEST " << endl;
 
-// skyBoxPass
-//         ->  clear (0, 0, 0,0)
-//         ->  update("uniformModel", modelSkybox)
-//         ->  update("uniformView", viewMat_old)
-//         ->  update("uniformProjection", projMat)
-//         ->  texture("tex", skybox)
-//         ->  run();
 
-       plane
+/* skyBoxPass
+         ->  clear (0, 0, 0,0)
+         ->  update("uniformModel", modelSkybox)
+         ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+         ->  texture("tex", skybox)
+         ->  run();
+diffWarp
+        ->  clear (0, 0, 0,0)
+        -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
+        -> update("viewMat", viewMat)
+        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
+        -> update("projection", projMat)
+        -> texture("colorTexture", skyBoxPass->get("fragColor"))
+        -> texture("positionTexture", skyBoxPass->get("fragPosition"))
+        -> run();
+        */
+  plane
         -> clear(0,0,0,0)
         -> update("uniformView", viewMat_old)
         -> update("uniformModel", model)
@@ -435,21 +444,9 @@ cout << "TEST " << endl;
         -> texture("diffuse_text", textureHandle)
         -> run();
 
-        
 
-        diffWarp
-        ->  clear (0, 0, 0,0)
-        -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
-        -> update("viewMat", viewMat)
-        -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
-        -> update("projection", projMat)
-        -> texture("colorTexture", plane->get("fragColor"))
-        -> texture("positionTexture", plane->get("fragPosition"))
-        -> run();
-
-/*
     diffWarpMuelle
-        -> clear(0,0,0,0)
+        -> clear()
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
         // -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
@@ -457,7 +454,6 @@ cout << "TEST " << endl;
         -> texture("colorTexture", plane->get("fragColor"))
         -> texture("positionTexture", plane->get("fragPosition"))
         -> run();
-
   
   holefilling
         ->texture(diffWarpMuelle->get("fragColor"))
@@ -470,7 +466,7 @@ cout << "TEST " << endl;
             // plane->get("fragColor"))
             ->update("resolution", getResolution(window))
             ->run();
- */
+ 
 
 /*vikingPass
         ->  clear(0.2,0.3,0.4,1)
