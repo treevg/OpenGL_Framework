@@ -33,6 +33,12 @@ int main(int argc, char *argv[]) {
 	LeapMotionHandler leapHandler;
 	Controller controller;
 
+	// Leap Constraint
+	if (argc > 1 && strcmp(argv[1], "--bg") == 0)
+		controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+
+
+
 	// Initialize Kinect
 	KinectHandler kinectHandler;
 	kinectHandler.initializeDefaultSensor();
@@ -41,19 +47,30 @@ int main(int argc, char *argv[]) {
 	GLfloat *positionData;
 	//tex = (float*)malloc(depthWidth * depthHeight * 3 * sizeof(float)); // fuer Texturausgabe
 
-	// Leap Constraint
-	if (argc > 1 && strcmp(argv[1], "--bg") == 0)
-		controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
 
 
+	//transform due to head mounted Leap Motion
+	float tz = -0.08f;
+	glm::mat4 oculusToLeap(-1.0f, 0.0, 0.0, 0.0,
+		0.0, 0.0, -1.0f, 0.0,
+		0.0, -1.0f, 0.0, tz,
+		0.0, 0.0, 0.0, 1.0);
 
+	//transform from millimeter to meter
+	glm::mat4 normalizeMat(0.001f, 0.0, 0.0, 0.0,
+		0.0, 0.001f, 0.0, 0.0,
+		0.0, 0.0, 0.001f, 0.0,
+		0.0, 0.0, 0.0, 1.0);
+
+
+	
 	Cube* cube = new Cube(vec3(2.0f, 2.0f, -10.0f), 1.0f);
 	std::vector<std::string> attachShaders = { "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" };
 	RenderPass* cubePass = new RenderPass(
 		cube,
 		new ShaderProgram(attachShaders));
 	
-	Sphere* sphere = new Sphere(0.1f);
+	Sphere* sphere = new Sphere(10.0f);
 	RenderPass* spherePass = new RenderPass(
 		sphere,
 		new ShaderProgram(attachShaders));
@@ -71,11 +88,6 @@ int main(int argc, char *argv[]) {
 		new ShaderProgram(attachMinimalShaders));
 
 
-
-
-	mat4 modelMatrixJoints = mat4(1.0f);
-	mat4 modelMatrixGoal = mat4(1.0f);
-	vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 	
 	cubePass
 		->update("diffuseColor", vec3(1.0, 0.0, 0.0))
@@ -90,6 +102,8 @@ int main(int argc, char *argv[]) {
 	colorData = new float[depthWidth * depthHeight * 3];
 	positionData = new float[depthWidth * depthHeight * 3];
 
+	vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
+
 	int count = 0;
 	render(window, [&](float deltaTime, glm::mat4 projection, glm::mat4 view) {
 		//cout << count++ << " " << deltaTime << endl;
@@ -100,7 +114,6 @@ int main(int argc, char *argv[]) {
 		//glClearColor(0.95, 0.95, 0.95, 1.0);
 		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		//view = glm::lookAt(glm::vec3(leftRight, upDown, nearFar), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		cubePass
 			->update("lightPosition", lightPos)
 			->update("projectionMatrix", projection)
@@ -113,19 +126,14 @@ int main(int argc, char *argv[]) {
 		pointCloudPass
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
-
 		//texturePass
 		//	->update("resolution", getResolution(window));
 		
-		
-		
-
 		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
 
 		kinectHandler.update(positionData, colorData);
 		pointCloud->updatePointCloud(positionData, colorData);
 		
-
 		////bind the texture
 		//glBindTexture(GL_TEXTURE_2D, texture);
 		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, colorData);
@@ -141,25 +149,31 @@ int main(int argc, char *argv[]) {
 
 
 		vector<Bone> bones = leapHandler.getBoneList(controller);
-		InteractionBox box = controller.frame().interactionBox();
-
-		
+		//InteractionBox box = controller.frame().interactionBox();
 
 		//draw Goal
 		cubePass
-			->update("modelMatrix", modelMatrixGoal)
+			->update("modelMatrix", mat4(1.0f))
 			->run();
+
+
+
+		//transform world coordinates into Oculus coordinates (for attached Leap Motion)
+		ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
+		glm::mat4 M_trans = toGlm(OVR::Matrix4f::Translation(headPose.Position));
+		glm::mat4 M_rot = toGlm(OVR::Matrix4f(headPose.Orientation));
 
 		//draw Bones
 		if (bones.size() != 0){
 			for (int i = 0; i < bones.size(); i++)
 			{
-				modelMatrixJoints = mat4(1.0f);
-
-				//compute rotation and translation 
+				//compute rotation and translation of Leap Motion Bones
 				mat4 rotationMat = leapHandler.convertLeapMatToGlm(bones[i].basis());
-				mat4 translateMat = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[i].nextJoint(), false)) * 2.0f - 1.0f);
-				mat4 finalMat = translateMat * rotationMat;
+				mat4 translateMat = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[i].nextJoint()));
+				mat4 leapWorldCoordinates = translateMat * rotationMat;
+
+				//Pipeline for transforming Leap Motion bones
+				mat4 finalMat = M_trans * M_rot * oculusToLeap * normalizeMat * leapWorldCoordinates;
 				
 				//draw Bone 
 				spherePass
@@ -167,44 +181,75 @@ int main(int argc, char *argv[]) {
 					->run();
 			}
 
-			//compute direction and translation for pointing bone
-			modelMatrixJoints = mat4(1.0f);
-			vec3 eins = leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[7].nextJoint(), false)) * 2.0f - 1.0f;
-			vec3 zwei = leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[5].prevJoint(), false)) * 2.0f - 1.0f;
-			vec3 dTest = eins - zwei; 
-			normalize(dTest);
+			//Hack fuer zusaetzlichen Bobbel in erster Hand 
+			mat4 rotationMatFirstHand = leapHandler.convertLeapMatToGlm(bones[16].basis());
+			mat4 translateMatFirstHand = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[16].prevJoint()));
+			mat4 finalMatFirstHand = translateMatFirstHand * rotationMatFirstHand;
+
+			mat4 finalMatHack = M_trans * M_rot * oculusToLeap * normalizeMat * finalMatFirstHand;
+
+			spherePass
+				->update("modelMatrix", finalMatHack)
+				->run();
 
 			
+			//Hack fuer zusaetzlichen Bobbel in zweiter Hand 
+			if (bones.size() > 20){
+				mat4 rotationMatSecondHand = leapHandler.convertLeapMatToGlm(bones[36].basis());
+				mat4 translateMatSecondHand = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[36].prevJoint()));
+				mat4 finalMatSecondHand = translateMatSecondHand * rotationMatSecondHand;
 
-			vec3 directionTest1 = dTest;
-			mat4 boneTestRot = leapHandler.convertLeapMatToGlm(bones[7].basis());
-			mat4 boneTest = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[7].nextJoint(), false)) * 2.0f - 1.0f);
-			mat4 dirMatTest = boneTest; //* boneTestRot;
+				mat4 finalMatHack2 = M_trans * M_rot * oculusToLeap * normalizeMat * finalMatSecondHand;
+
+				spherePass
+					->update("modelMatrix", finalMatHack2)
+					->run();
+			}
+
+
+
+
+
+
+
+
+			////compute direction and translation for pointing bone
+			//vec3 eins = leapHandler.convertLeapVecToGlm(bones[7].nextJoint());
+			//vec3 zwei = leapHandler.convertLeapVecToGlm(bones[5].prevJoint());
+			//vec3 directionTest = normalize(eins - zwei);
+			//
+			//
+			//
+			//mat4 boneTestRot = leapHandler.convertLeapMatToGlm(bones[7].basis());
+			//mat4 boneTest = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()));
+			//mat4 finalDirMatTest = boneTest; // *boneTestRot;
+
+			//mat4 boneOrigin = M_trans * M_rot * oculusToLeap * normalizeMat * finalDirMatTest;
 
 			////show pointing direction 
 			//spherePass
-			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 1.0f))
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 5.0f))
 			//	->run();
 			//spherePass
-			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 2.6f))
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 15.0f))
 			//	->run();
 			//spherePass
-			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 4.2f))
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 25.0f))
 			//	->run();
 			//spherePass
-			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 5.8f))
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 35.0f))
 			//	->run();
 			//spherePass
-			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 7.4f))
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 45.0f))
 			//	->run();
 			//spherePass
-			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 9.0f))
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 55.0f))
 			//	->run();
 			//spherePass
-			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 10.6f))
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 65.0f))
 			//	->run();
 			//spherePass
-			//	->update("modelMatrix", translate(dirMatTest, directionTest1 * 12.2f))
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 75.0f))
 			//	->run();
 
 
@@ -212,47 +257,29 @@ int main(int argc, char *argv[]) {
 
 
 
-			//Hack fuer zusaetzliche Bobbels in linker und rechter Hand 
-			modelMatrixJoints = mat4(1.0f);
-
-			mat4 rotationMatFirstHand = leapHandler.convertLeapMatToGlm(bones[16].basis());
-			mat4 translateMatFirstHand = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[16].prevJoint(), false)) * 2.0f - 1.0f);
-			mat4 finalMatFirstHand = translateMatFirstHand * rotationMatFirstHand;
-
-			spherePass
-				->update("modelMatrix", finalMatFirstHand)
-				->run();
-
-			if (bones.size() > 20){
-				mat4 rotationMatSecondHand = leapHandler.convertLeapMatToGlm(bones[36].basis());
-				mat4 translateMatSecondHand = translate(modelMatrixJoints, leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[36].prevJoint(), false)) * 2.0f - 1.0f);
-				mat4 finalMatSecondHand = translateMatSecondHand * rotationMatSecondHand;
-			spherePass
-				->update("modelMatrix", finalMatSecondHand)
-				->run();
-			}
 
 
 
 
-			//check for intersection
-			if (bones.size() != 0){
-				bool a = leapHandler.checkForIntersection(cube->getVertices(), leapHandler.convertLeapVecToGlm(box.normalizePoint(bones[7].nextJoint(), false)) * 2.0f - 1.0f, directionTest1);
-				//cout << "X: "<< directionTest1.x << ", Y: " << directionTest1.y << ", Z: " << directionTest1.z << endl;
 
-				if (a == true){
-					//cout << "Getroffen" << endl;
-					cubePass
-						->update("diffuseColor", vec3(0.0, 1.0, 0.0))
-						->run();
-				}
-				else{
-					//cout << "Nicht getroffen" << endl;
-					cubePass
-						->update("diffuseColor", vec3(1.0, 0.0, 0.0))
-						->run();
-				}
-			}
+			////check for intersection
+			//if (bones.size() != 0){
+			//	bool a = leapHandler.checkForIntersection(cube->getVertices(), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), directionTest);
+			//	//cout << "X: "<< directionTest1.x << ", Y: " << directionTest1.y << ", Z: " << directionTest1.z << endl;
+
+			//	if (a == true){
+			//		//cout << "Getroffen" << endl;
+			//		cubePass
+			//			->update("diffuseColor", vec3(0.0, 1.0, 0.0))
+			//			->run();
+			//	}
+			//	else{
+			//		//cout << "Nicht getroffen" << endl;
+			//		cubePass
+			//			->update("diffuseColor", vec3(1.0, 0.0, 0.0))
+			//			->run();
+			//	}
+			//}
 		}
 
 

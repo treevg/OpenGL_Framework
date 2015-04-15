@@ -399,7 +399,7 @@ void KinectHandler::update(GLfloat *positionData, GLfloat *colorData)
 																			//depthData[count + 1] = (float)(-y) / (float)depthHeight;
 																			//depthData[count + 2] = -(float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance);
 
-																		positionData[count] = cameraPoint.X;
+																		positionData[count] = -cameraPoint.X;
 																		positionData[count + 1] = cameraPoint.Y;
 																		positionData[count + 2] = -cameraPoint.Z;
 
