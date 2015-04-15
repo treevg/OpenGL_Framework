@@ -14,7 +14,7 @@ uniform int test;
 out vec4 warpedColor;
 
 vec3 eyePosition = (inverse(view) * vec4(0,0,0,1)).xyz;
-vec2 uv = gl_FragCoord.xy  / resolution;
+vec2 uv = gl_FragCoord.xy / resolution;
 vec3 warpedDiffusePosition = texture(warpedDiffusePositionTexture, uv).xyz;
 vec4 warpedNormal = texture(warpedNormalTexture,uv);
 vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyePosition, normalize(warpedNormal.xyz)));
@@ -27,6 +27,13 @@ float reflectionQuality(vec2 coord) {
     vec3 testReflectionPosition = texture(reflectionPositionTexture, coord).xyz;
     vec3 testReflectionVector = normalize(testReflectionPosition - warpedDiffusePosition);
     return acos(clamp(dot(reflectionVector, testReflectionVector), -1, 1));
+}
+
+//original
+float reflectionQualityTester(vec2 coord) {
+    vec3 testReflectionPosition = texture(reflectionPositionTexture, coord).xyz;
+    vec3 testReflectionVector = normalize(testReflectionPosition - warpedDiffusePosition);
+    return dot(reflectionVector, testReflectionVector);
 }
 
 //TODO: avoid "black" coords
@@ -160,25 +167,37 @@ vec2 reflectionQualityVec(vec2 coordDiff, vec2 coordRef) {
 }
 
 vec2 interpolateGuess(vec2 g1, vec2 g2) {
-	if(test==0){
-		vec2 refQuality = reflectionQualityVec_try2(g1, g2);
-		float q = refQuality.x + refQuality.y;
+	// if(test==0){
+	// 	vec2 refQuality = reflectionQualityVec_try2(g1, g2);
+	// 	float q = refQuality.x + refQuality.y;
 
-		return g1 * refQuality.y / q + g2 * refQuality.x / q;
+	// 	return g1 * refQuality.y / q + g2 * refQuality.x / q;
 
 	
-		//float g1Q = reflectionQuality_diff(g1);
-		//float g2Q = reflectionQuality_ref(g2);		
-		//float q = g1Q + g2Q;
-		//return g1 * g2Q / q + g2 * g1Q / q;
-	}
+	// }
 	
-	else{
-		vec2 refQuality = reflectionQualityVec(g1, g2);
-		float q = refQuality.x + refQuality.y;
-		return g1 * refQuality.y / q + g2 * refQuality.x / q;
+	// else{
+		float g1Q = reflectionQuality(g1);
+		float g2Q = reflectionQuality(g2);		
+		float q = g1Q + g2Q;
+		return (g1 * g2Q + g2 * g1Q) / q;
+	// }
+}
+
+vec2 interpolateGuessPrimitively(vec2 g1, vec2 g2) {
+	if(reflectionQuality(g1) > reflectionQuality(g2)){
+		return g1;
+	} else {
+		return g2;
 	}
 }
+
+vec4 qualityVisualization(vec2 g1, vec2 g2) {
+	float g1Q = 1.5708 - reflectionQuality(g1);
+	float g2Q = 1.5708 - reflectionQuality(g2);
+	return vec4(g1Q ,0, g2Q, 1);		
+}
+
 
 vec2 gradientDescent(vec2 initialGuess) {
     vec2 gradient;
@@ -221,8 +240,12 @@ void main() {
 	if (true) {
 	//	if (length(uvRef) != 0) {
 		vec2 uvNew = interpolateGuess(uvDiff, uvRef);
+		//  vec2 uvNew = uvRef;
 		//uvNew = gradientDescent(uvNew);
-		warpedColor = texture(colorReflect, uvNew);  
+		warpedColor = texture(colorReflect, uvDiff);  
+		//warpedColor = vec4(reflectionQuality(uvDiff)) * 4;
+		// warpedColor = vec4(interpolateGuess(uvDiff, uvRef),1);
+		if(test==0) warpedColor = qualityVisualization(uvDiff, vec2(0));
 		} 
 		else {
 		warpedColor = vec4(0,0,0,0);
