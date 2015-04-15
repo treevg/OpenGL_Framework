@@ -52,7 +52,7 @@ void main() {
        /*             specular shading        */
      vec3 reflectDirection = normalize(reflect(-lightDirection, norm));
      float spec = (pow(max(dot(viewVector, reflectDirection), 0.0), shinines))*0.2f;
-     vec3 specularComponent =  specular_light * spec * specular_color.xyz ;
+     vec3 specularComponent =  specular_light  * specular_color.xyz ;
     
 
 
@@ -70,10 +70,11 @@ void main() {
            }
 
 
+
     fragColor = vec4(ambientComponent + specularComponent + diffuseComponen, 1.0f);
     
 
-          if (fragColor == 0){
+          if (ambient_color == 0){
  
               fragColor = vec4(1,1,0,1);
     

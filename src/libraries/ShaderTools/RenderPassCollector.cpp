@@ -1,5 +1,5 @@
 #include "RenderPassCollector.h"
-#include <math.h>
+#include <cmath>
 
 
 RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, ShaderProgram* shaderProgram) 
@@ -28,14 +28,52 @@ void RenderPassCollector::run() {
 	     for ( int i=0; i < this->objects.size(); i++ ){
 	        	shaderProgram->use();
 	      	    shaderProgram->update("uniformModel", objects[i]->modelMatrix);
-	      	    cout << "color is " << objects[i]->color.x<< " " << objects[i]->color.y << " " << objects[i]->color.y << endl;
+	     cout << "color is " << objects[i]->color.x<< " " << objects[i]->color.y << " " << objects[i]->color.y << endl;
+	      cout <<  " texture handle is "  << objects[i]->textureHandle << endl; 
 	      	    
-	      	    if(objects[i]->color.x>-1){
-	      	    	shaderProgram->update("color", objects[i]->color);}
+	      	   /* if(objects[i]->color.x>-1){
+	      	    	shaderProgram->update("color", objects[i]->color);}*/ 
 
 	      	    if(objects[i]->textureHandle!= -1){
                     shaderProgram->texture("diffuse_text", objects[i]->textureHandle);
 	      	    }
+
+	      	        if (this->objects[i]->getTextures().size() > 0) {
+
+                      for (MeshTexture tex: this->objects[i]->getTextures()){
+        
+                       cout <<  " ------  DEBUG: TEXTURE ID ------ "  << tex.id << endl; 
+     
+                            switch( tex.type ) { 
+
+  	                    case 'a': 
+
+                    	shaderProgram->textureModel("ambient_text", tex.id); 
+
+                     	case 'd': 
+
+                    	shaderProgram->textureModel("diffuse_text", tex.id); 
+
+                        case 's': 
+
+                         shaderProgram->textureModel("specular_text", tex.id); 
+
+                 //       case 'e': 
+
+                     //    shaderProgram->textureModel("emission_text", tex.id); 
+
+                    }
+    	          }
+
+         }
+                       //TODO: check somehow if struct is set
+                       /* if(objects[i]->material!=NULL){
+
+                          shaderProgram->update("light_diffuse", objects[i]->material.color_dif);
+
+                        }
+                        */
+
 	        	objects[i]->draw();
 	        	
 	      }
@@ -66,5 +104,26 @@ void RenderPassCollector::autoGenerateFrameBufferObject(int width, int height) {
 
 GLuint  RenderPassCollector::getFrameBufferHandle(){
      return frameBufferObject->getFrameBufferObjectHandle();
+
+}
+
+RenderPassCollector* RenderPassCollector::setFrameBufferObject(FrameBufferObject* frameBufferObject) {
+        this->frameBufferObject = frameBufferObject;
+     return this;
+}
+
+
+void RenderPassCollector::addVAOS(vector<VertexArrayObject*> moreObjects) {
+
+
+this->objects.insert(this->objects.end(),moreObjects.begin(), moreObjects.end());
+
+}
+
+
+void RenderPassCollector::addVertexArrayObject( VertexArrayObject* obj) {
+
+
+this->objects.push_back(obj);
 
 }

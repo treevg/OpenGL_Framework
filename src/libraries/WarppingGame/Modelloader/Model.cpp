@@ -2,7 +2,8 @@
 
 using namespace Assimp;
 
- Model::Model(const string& path){
+ Model::Model(const string& path, mat4 modelMatrix){
+  this->modelMatrix = modelMatrix;
  bool loaded = loadModel(path);
     assert (loaded); 
 
@@ -16,7 +17,7 @@ using namespace Assimp;
  }
  
 
- vector<Mesh*>  Model::getMeshes() const{
+ vector<VertexArrayObject*>  Model::getMeshes() const{
 
      	return this->m_meshes;
      }
@@ -201,10 +202,12 @@ using namespace Assimp;
         }
 
            indices = getIndexFromFace(aSmesh);
+            Material mat;
 
            //   cout << "size of indices after filling " << indices.size() << endl;
            if(aSmesh->mMaterialIndex >= 0){
                 //get material
+               
                
 
                 aiMaterial* material = scene->mMaterials[aSmesh->mMaterialIndex];
@@ -223,12 +226,22 @@ using namespace Assimp;
                  
                 // //I need colors for lighting
                 aiColor3D colorD (0.f,0.f,0.f);
-                 material->Get(AI_MATKEY_COLOR_DIFFUSE,colorD);
+                material->Get(AI_MATKEY_COLOR_DIFFUSE,colorD);
+                mat.color_dif = vec3(colorD[0],colorD[1],colorD[2]);
+
                //  cout<< "difusse color" << colorD[0] << " "<< colorD[1] << endl;
 
                  aiColor3D colorA (0.f,0.f,0.f);
                  material->Get(AI_MATKEY_COLOR_AMBIENT,colorA);
               //   cout<<"ambient_color"<<  colorA[0] << "  "<< colorA[1] << endl;
+                 mat.color_amb = vec3(colorA[0],colorA[1],colorA[2]);
+
+
+                 aiColor3D colorSp (0.f,0.f,0.f);
+                 material->Get(AI_MATKEY_COLOR_SPECULAR,colorSp);
+              //   cout<<"ambient_color"<<  colorA[0] << "  "<< colorA[1] << endl;
+                 mat.color_spec = vec3(colorSp[0],colorSp[1],colorSp[2]);
+
 
 
                 vector<MeshTexture> diffuse = this->loadTextures(material, 'd', aiTextureType_DIFFUSE);
@@ -242,7 +255,7 @@ using namespace Assimp;
             vector<MeshTexture> ambient = this->loadTextures(material, 'a', aiTextureType_AMBIENT);
 
             if(ambient.size()>0){
-                       textures.insert(textures.end(),ambient.begin(), ambient.end());
+                  textures.insert(textures.end(),ambient.begin(), ambient.end());
                 }
 
          //dont need for warping...
@@ -261,7 +274,7 @@ using namespace Assimp;
             }
 
 
-     Mesh* m = new  Mesh(vertices, normals, texCoords, indices, textures);
+     Mesh* m = new  Mesh(vertices, normals, texCoords, indices, textures, this->modelMatrix, mat);
 
      return m;
 
@@ -288,5 +301,12 @@ using namespace Assimp;
         this->processNode(node->mChildren[j], scene);
     }
 
+
+    }
+
+
+    mat4 Model::getModelMatrix() const{
+
+          return this->modelMatrix;
 
     }

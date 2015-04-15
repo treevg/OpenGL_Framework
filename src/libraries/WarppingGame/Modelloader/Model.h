@@ -12,6 +12,7 @@
 #include <assimp/postprocess.h> 
 #include <assert.h>
 #include "ShaderTools/VertexArrayObjects/Mesh.h"
+#include "ShaderTools/VertexArrayObject.h"
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
 
@@ -23,14 +24,16 @@ class Model{
 
 public:
 
-     Model(const string& path);
+     Model(const string& path, mat4 modelMatrix);
      ~Model();
-     vector<Mesh*> getMeshes() const;
+     vector<VertexArrayObject*> getMeshes() const;
      vector<MeshTexture> getTextures() const;
+     mat4 getModelMatrix() const;
      
 
 private:
-    vector<Mesh*> m_meshes;
+    vector<VertexArrayObject*> m_meshes;
+    mat4 modelMatrix;
     vector<MeshTexture> m_textures;
     bool loadModel(const string& path);
     void processNode(aiNode* node, const aiScene* scene);

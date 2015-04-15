@@ -13,15 +13,18 @@ for ( int i = 0; i< this->m_indices.size(); i++){
 }
 
 
-   Mesh::Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures){
+   Mesh::Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures, mat4 modelMatrix, Material mat){
     
+   
+
 
    this->m_vertices = vertices;
    this->m_normals = normals;
    this->m_texCoords = textCoord;
    this->m_indices = indices;
    this->m_textures = textures;
-
+   this->modelMatrix = modelMatrix;
+   this->material = mat;
   //  cout<< "size indices " << this->m_indices.size()  << endl;
    // cout<< "size  vertices " << this->m_vertices.size()  << endl;
    // cout<< "size  normals " << this->m_normals.size()  << endl;

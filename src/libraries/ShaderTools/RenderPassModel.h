@@ -10,8 +10,8 @@
 class RenderPassModel: public RenderPassBase
 {
    public: 
-    RenderPassModel(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram);
-	RenderPassModel(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram, int width, int height);
+    RenderPassModel(std::vector<VertexArrayObject*> meshes, ShaderProgram* shaderProgram);
+	RenderPassModel(std::vector<VertexArrayObject*> meshes, ShaderProgram* shaderProgram, int width, int height);
 	RenderPassModel(Mesh* mesh, ShaderProgram* shaderProgram);
 	RenderPassModel(Mesh* mesh, ShaderProgram* shaderProgram, int width, int height);
 	RenderPassModel* setFrameBufferObject(FrameBufferObject* frameBufferObject);
@@ -27,7 +27,7 @@ class RenderPassModel: public RenderPassBase
 
 
     protected:
-    std::vector<Mesh*> meshes;
+    std::vector<VertexArrayObject*> meshes;
     Mesh* mesh;
 };
 

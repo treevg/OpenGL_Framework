@@ -5,3 +5,8 @@ VertexArrayObject* VertexArrayObject::setMode(GLenum mode) {
     return this;
 }
 
+  std::vector<MeshTexture> VertexArrayObject::getTextures() const{
+   
+          return this->m_textures;
+
+    }

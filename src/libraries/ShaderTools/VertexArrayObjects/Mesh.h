@@ -7,7 +7,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+#include "../VertexArrayObject.h"
 
 
 using namespace std;
@@ -15,18 +17,14 @@ using namespace glm;
 
 /*diffuse: d, ambient: a, specular: s*/
 
-struct MeshTexture {
-GLuint id;
-char type;
-string path;
-};
 
 
-class Mesh  {
+
+class Mesh  : public VertexArrayObject {
 
 public:
-	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices);
-	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures);
+	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, mat4 modelMatrix);
+	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures, mat4 modelMatrix, Material mat);
 	void draw();
 	void printInd();
 	vector<vec3> getVertices() const;
@@ -40,11 +38,11 @@ public:
 	
 protected: 
 
-vector<vec3> m_vertices;
+/*vector<vec3> m_vertices;
 vector<vec3> m_normals;
 vector<vec2> m_texCoords;
-vector<GLuint> m_indices;
-vector<MeshTexture> m_textures;
+vector<GLuint> m_indices; 
+vector<MeshTexture> m_textures; */
 
 GLuint IBO;
 GLuint VBO;

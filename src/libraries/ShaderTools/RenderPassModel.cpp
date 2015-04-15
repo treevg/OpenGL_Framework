@@ -3,10 +3,10 @@
 using namespace std;
 
 
-RenderPassModel::RenderPassModel(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram)
+RenderPassModel::RenderPassModel(std::vector<VertexArrayObject*> meshes, ShaderProgram* shaderProgram)
 	    : meshes(meshes), RenderPassBase(shaderProgram){}
 
-RenderPassModel::RenderPassModel(std::vector<Mesh*> meshes, ShaderProgram* shaderProgram, int width, int height)
+RenderPassModel::RenderPassModel(std::vector<VertexArrayObject*> meshes, ShaderProgram* shaderProgram, int width, int height)
       : meshes(meshes), RenderPassBase(shaderProgram, width, height){}
 	    
 	

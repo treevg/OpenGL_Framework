@@ -41,9 +41,14 @@ auto compositingSP = new ShaderProgram({"/Warpping/demo.vert", "/Warpping/comp.f
 
 
 /*                  WOOD HOUSE           */
-Model* woodHouse = new Model(RESOURCES_PATH "/WoodHouse.obj");
-vector<Mesh*> woodHouseMeshes = woodHouse->getMeshes();
+glm::mat4 house = translate(mat4(1), vec3(-2.0, -10.0,-3.0));
+Model* woodHouse = new Model(RESOURCES_PATH "/WoodHouse.obj", house);
+vector<VertexArrayObject*> woodHouseMeshes = woodHouse->getMeshes();
 RenderPassModel* passwoodHouse= new RenderPassModel( woodHouseMeshes, myModel);
+
+
+Model* cubeModel = new Model(RESOURCES_PATH "/cube.obj", translate(mat4(1), vec3(-2.0, 0.0,-3.0)));
+vector<VertexArrayObject*> cubeVertexA = cubeModel->getMeshes();
 
 
 
@@ -54,8 +59,8 @@ auto warp = new ShaderProgram("/Warpping/warp.vert", "/Raytracing/warp.frag");
 auto spPlane = new ShaderProgram("/Warpping/myTest.vert", "/Warpping/myTest.frag");
 
 RenderPass*  plane  = new RenderPass( new Quad(),spPlane,getWidth(window), getHeight(window)); 
-//RenderPass* diffWarp  = new RenderPass(grid, warp, getWidth(window), getHeight(window));
-RenderPass* diffWarp  = new RenderPass(grid, warp);
+RenderPass* diffWarp  = new RenderPass(grid, warp, getWidth(window), getHeight(window));
+//RenderPass* diffWarp  = new RenderPass(grid, warp);
 
 /*    RENDER COLLECTOR   */
 
@@ -146,9 +151,13 @@ cubes.push_back(c);
 
 c1 = new Cube2(mc2, vec4(-1,0,0,0), textureHandle2);
 
-cubes.push_back(c1);
+cubes.push_back(c);
    
-collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window));
+//collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window));
+woodHouseMeshes.push_back(c);
+collector = new RenderPassCollector(woodHouseMeshes,myModel, getWidth(window), getHeight(window));
+
+collector->addVAOS(cubeVertexA);
 
  
 
@@ -168,12 +177,12 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
     glm::mat4 model=rotate (glm::mat4(1.0),88.5f, vec3(1,0,0));
     model=scale (model, vec3(100,100,0));
     
-    glm::mat4 house = translate(mat4(1), vec3(-2.0, -10.0,-3.0));
+    
 
 
     glm::mat4 viewMat= getLookAt();
 
-    simulateLanetcy (12, viewMat);
+    simulateLanetcy (1, viewMat);
 
 
      //use this matrix for simulating latency
@@ -217,12 +226,16 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
         -> texture("positionTexture", plane->get("fragPosition"))
         -> run();
   
-  */
-      collector
-        ->  clear (0, 0, 0,0)
-        ->  update("uniformView", viewMat_old)
-        ->  update("uniformProjection", projMat)
-        ->  run();
+ */
+      collector   
+        -> clear (0.5,0.3,0.2,1)
+        -> update("uniformView", viewMat_old)
+        -> update("uniformProjection", projMat)
+        ->  update ("viewPosition", camera->getPosition())
+        ->  update("lightPos", vec3(0,5,-1))
+        ->  update("shinines", 32)
+        ->  update("attenuatFactor", false)
+        -> run();
 
         diffWarp
         -> clear (0, 0, 0,0)
@@ -234,16 +247,17 @@ collector = new RenderPassCollector(cubes,sp, getWidth(window), getHeight(window
         -> texture("positionTexture", collector->get("fragPosition"))
         -> run();
 
-    /*    holefilling
+        holefilling
         ->texture(diffWarp->get("fragColor"))
         ->run();
 
   tonemapping
+            ->  clear (0, 0, 0,0)
             ->texture("tex", holefilling->getOutput())
             ->update("resolution", getResolution(window))
             ->run();
-  
-       */
+   
+       
 
   }
            

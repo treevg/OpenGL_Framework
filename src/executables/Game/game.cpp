@@ -68,12 +68,12 @@ vec3 currentChestPosition;
  Model* viking;
 
 
- vector<Mesh*> meshes;
- vector<Mesh*> castleMeshes;
- vector<Mesh*> chestMeshes;
- vector<Mesh*> windMillMeshes;
- vector<Mesh*> suzanneMeshes; 
- vector<Mesh*> vikingMeshes; 
+ vector<VertexArrayObject*> meshes;
+ vector<VertexArrayObject*> castleMeshes;
+ vector<VertexArrayObject*> chestMeshes;
+ vector<VertexArrayObject*> windMillMeshes;
+ vector<VertexArrayObject*> suzanneMeshes; 
+ vector<VertexArrayObject*> vikingMeshes; 
 
  GLFWwindow* window;
 
@@ -209,11 +209,11 @@ void Game::init(){
 
         /* Models */
 
-   myModel = new Model(RESOURCES_PATH "/hemlock.3ds");
-   castle = new Model(RESOURCES_PATH "/castle.obj");
-   chest = new Model(RESOURCES_PATH "/chest.obj");
-   windMill = new Model(RESOURCES_PATH "/windmill02.obj");
-   viking = new Model(RESOURCES_PATH "/viking.obj");
+   myModel = new Model(RESOURCES_PATH "/hemlock.3ds", mat4(1));
+   castle = new Model(RESOURCES_PATH "/castle.obj", mat4(1));
+   chest = new Model(RESOURCES_PATH "/chest.obj", mat4(1));
+   windMill = new Model(RESOURCES_PATH "/windmill02.obj", mat4(1));
+   viking = new Model(RESOURCES_PATH "/viking.obj", mat4(1));
 
     /* external Textures */
 
@@ -419,11 +419,11 @@ if(warpping){
 
 
 
-/* skyBoxPass
+ skyBoxPass
          ->  clear (0, 0, 0,0)
          ->  update("uniformModel", modelSkybox)
          ->  update("uniformView", viewMat_old)
-        ->  update("uniformProjection", projMat)
+         ->  update("uniformProjection", projMat)
          ->  texture("tex", skybox)
          ->  run();
 diffWarp
@@ -435,7 +435,7 @@ diffWarp
         -> texture("colorTexture", skyBoxPass->get("fragColor"))
         -> texture("positionTexture", skyBoxPass->get("fragPosition"))
         -> run();
-        */
+        
   plane
         -> clear(0,0,0,0)
         -> update("uniformView", viewMat_old)
@@ -460,10 +460,9 @@ diffWarp
         ->run();
 
   tonemapping
+            -> clear(0,0,0,0)
             ->texture("tex", 
             holefilling->getOutput())
-            // diffWarpMuelle->get("fragColor"))
-            // plane->get("fragColor"))
             ->update("resolution", getResolution(window))
             ->run();
  

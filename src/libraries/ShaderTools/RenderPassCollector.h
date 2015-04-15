@@ -13,16 +13,14 @@ using namespace std;
 class RenderPassCollector
 {
 public:
-	RenderPassCollector(vector<VertexArrayObject*> objects, ShaderProgram* shaderProgram);
-	
-
+	RenderPassCollector(vector<VertexArrayObject*> objects,  ShaderProgram* shaderProgram);
 	RenderPassCollector(vector<VertexArrayObject*> objects,  ShaderProgram* shaderProgram, int width, int height);
 	RenderPassCollector(vector<VertexArrayObject*> objects,  ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 	
 	void run();
 
     void setShaderProgramm(ShaderProgram*);
-    void setFrameBufferObject(FrameBufferObject*);
+    RenderPassCollector* setFrameBufferObject(FrameBufferObject*);
     ShaderProgram* getShaderProgramm() const;
     FrameBufferObject* getFrameBufferObject() const;
 
@@ -30,6 +28,8 @@ public:
     GLuint get(std::string name);
     void autoGenerateFrameBufferObject(int width, int height);
     GLuint  getFrameBufferHandle();
+    void addVAOS(vector<VertexArrayObject*> moreObjects);
+    void addVertexArrayObject( VertexArrayObject* obj);
 
 
     	template <class T>
@@ -41,7 +41,7 @@ public:
 
 
     vector<VertexArrayObject*> objects;
-   // vector<RenderPassModel*> models;
+  //  vector<RenderPassModel*> models;
 
  	ShaderProgram* shaderProgram;
 	FrameBufferObject* frameBufferObject;
