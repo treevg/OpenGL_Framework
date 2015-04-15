@@ -272,7 +272,7 @@ int main(int argc, char *argv[]) {
         mat4 invViewProjection_old = inverse(projection * view_old);
         mat4 vp_old = projection * view_old;
 
-        //bind object
+        //bind mesh
         ssbo2->bind(11);
 
         raytracePass
@@ -311,7 +311,7 @@ int main(int argc, char *argv[]) {
 
         gatherRefPass
         ->clear()
-        ->update("test" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?1:0)
+        ->update("test" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?0:1)
         ->update("view", view)
         ->run();
 

@@ -30,9 +30,9 @@ float reflectionQuality(vec2 coord) {
 }
 
 //TODO: avoid "black" coords
-//wenn UV schwarz(==undefiniert), dann wird in mitte(0,0) von refPosTex geguckt. =>falscher vektor entsteht...
+//wenn UV schwarz(==undefiniert), dann wird unten links(0,0) von refPosTex geguckt. =>falscher vektor entsteht...
 //hierarchie der UVTex aufbauen? wenn an beiden Pos schwarz, dann def. undefinierte stelle
-//idee: viewmatrix einbeziehen und als schätzung für guess benutzen. ->schwarze UV effizienter vermeiden
+//idee: viewmatrix einbeziehen und als schätzung für guess benutzen. 
 //idee: entfernung zum ursprung einbeziehen
 //idee: komplexere gewichtung statt interpolation
 //idee: mit "uv" direkt in refPosTex nachgucken
@@ -103,22 +103,23 @@ vec2 reflectionQualityVec_try(vec2 coordDiff, vec2 coordRef) {
 	float angleInter = acos(clamp(dot(reflectionVector, testReflectionVector_inter), -1, 1));
 	float interpolateSum_2 = interpolateSum + angleOrig;
 	
-	return interpolateUV*angleOrig/interpolateSum_2*chanceDiffCoord+chanceRefCoord + uv*(1-chanceDiffCoord-chanceRefCoord)*angleInter/interpolateSum_2;
+	return interpolateUV*angleOrig/interpolateSum_2*chanceDiffCoord+chanceRefCoord + testReflectionPosition_orig.xy*(1-chanceDiffCoord-chanceRefCoord)*angleInter/interpolateSum_2;
 }
 
+
 vec2 reflectionQualityVec_try2(vec2 coordDiff, vec2 coordRef) {
+	
 	float chanceRefCoord = 0.5;
 	float chanceDiffCoord = 0.5;
 
 	if(length(coordDiff) == 0){
-		chanceRefCoord = 0.8;
+		chanceRefCoord = 0.6;
 		chanceDiffCoord = 0.0;
 	}
 	else if(length(coordRef) == 0){
 		chanceRefCoord = 0.0;
 		chanceDiffCoord = 0.7;
 	}
-
     vec3 testReflectionPosition_diff = texture(reflectionPositionTexture, coordDiff).xyz;
 	vec3 testReflectionPosition_ref = texture(reflectionPositionTexture, coordRef).xyz;
 	vec3 testReflectionPosition_orig = texture(reflectionPositionTexture, uv).xyz;
@@ -132,13 +133,18 @@ vec2 reflectionQualityVec_try2(vec2 coordDiff, vec2 coordRef) {
 	float angleOrig = acos(clamp(dot(reflectionVector, testReflectionVector_orig), -1, 1));
 
 	float interpolateSum = angleDiff + angleRef;
-	vec2 interpolateUV = (coordDiff*angleRef*chanceDiffCoord/interpolateSum + coordRef*angleDiff*chanceRefCoord/interpolateSum);				 
+	vec2 interpolateUV = coordDiff * angleRef * chanceDiffCoord/interpolateSum + 
+						  coordRef * angleDiff * chanceRefCoord/interpolateSum;		
+						  
 	vec3 testReflectionPosition_inter = texture(reflectionPositionTexture, interpolateUV).xyz;
 	vec3 testReflectionVector_inter = normalize(testReflectionPosition_inter - warpedDiffusePosition);
-	float angleInter = acos(clamp(dot(reflectionVector, testReflectionVector_inter), -1, 1));
-	float interpolateSum_2 = interpolateSum + angleOrig;
 	
-	return interpolateUV*angleOrig/interpolateSum_2*chanceDiffCoord+chanceRefCoord + testReflectionPosition_orig.xy*(1-chanceDiffCoord-chanceRefCoord)*angleInter/interpolateSum_2;
+	float angleInter = acos(clamp(dot(reflectionVector, testReflectionVector_inter), -1, 1));
+	interpolateSum += angleOrig;
+	
+	// not perfect
+	return interpolateUV * angleOrig/interpolateSum * chanceDiffCoord+chanceRefCoord + 
+		   testReflectionPosition_orig.xy * (1-chanceDiffCoord-chanceRefCoord) * angleInter/interpolateSum;
 }
 
 // more compact version 
@@ -154,22 +160,23 @@ vec2 reflectionQualityVec(vec2 coordDiff, vec2 coordRef) {
 }
 
 vec2 interpolateGuess(vec2 g1, vec2 g2) {
-	if(test==1){
-	vec2 refQuality = reflectionQualityVec_try2(g1, g2);
-	float q = refQuality.x + refQuality.y;
-	return g1 * refQuality.y / q + g2 * refQuality.x / q;
+	if(test==0){
+		vec2 refQuality = reflectionQualityVec_try2(g1, g2);
+		float q = refQuality.x + refQuality.y;
+
+		return g1 * refQuality.y / q + g2 * refQuality.x / q;
 
 	
-//	float g1Q = reflectionQuality_diff(g1);
-//	float g2Q = reflectionQuality_ref(g2);		
-//	float q = g1Q + g2Q;
-//	return g1 * g2Q / q + g2 * g1Q / q;
+		//float g1Q = reflectionQuality_diff(g1);
+		//float g2Q = reflectionQuality_ref(g2);		
+		//float q = g1Q + g2Q;
+		//return g1 * g2Q / q + g2 * g1Q / q;
 	}
 	
 	else{
-	vec2 refQuality = reflectionQualityVec(g1, g2);
-	float q = refQuality.x + refQuality.y;
-	return g1 * refQuality.y / q + g2 * refQuality.x / q;
+		vec2 refQuality = reflectionQualityVec(g1, g2);
+		float q = refQuality.x + refQuality.y;
+		return g1 * refQuality.y / q + g2 * refQuality.x / q;
 	}
 }
 
@@ -177,7 +184,7 @@ vec2 gradientDescent(vec2 initialGuess) {
     vec2 gradient;
     float g00;
     float g01;
-	int maxGDSteps = 5;
+	int maxGDSteps = 10;
 	float newQuality;
 	// pixel vs. subpixel
 	vec2 eps = vec2(1, 1); // / resolution;
@@ -214,7 +221,7 @@ void main() {
 	if (true) {
 	//	if (length(uvRef) != 0) {
 		vec2 uvNew = interpolateGuess(uvDiff, uvRef);
-		uvNew = gradientDescent(uvNew);
+		//uvNew = gradientDescent(uvNew);
 		warpedColor = texture(colorReflect, uvNew);  
 		} 
 		else {
