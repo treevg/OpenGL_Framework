@@ -1,9 +1,36 @@
 #include <iostream>
 
 #include <btBulletDynamicsCommon.h>
+#include "ShaderTools/Renderer.h"
+#include <assimp/Importer.hpp> 
+#include "ShaderTools/RenderPassModel.h"
+#include "ShaderTools/RenderPassCollector.h"
+#include "ShaderTools/RenderPass.h"
+#include "Compression/TextureTools.h"
+#include "Compression/ComputeShaderTools.h"
+#include "ShaderTools/VertexArrayObjects/Cube.h"
+#include "ShaderTools/VertexArrayObjects/Quad.h"
+#include "ShaderTools/VertexArrayObjects/Quad2.h"
+#include "ShaderTools/VertexArrayObjects/Cube2.h"
+#include "ShaderTools/VertexArrayObject.h"
+#include "ShaderTools/VertexArrayObjects/Skybox.h"
+#include "ShaderTools/VertexArrayObjects/Pyramid.h"
+#include "WarppingGame/Modelloader/Model.h"
+#include "WarppingGame/Camera/Camera.h"
+#include "AssetTools/Texture.h"
+#include "ShaderTools/VertexArrayObjects/Grid.h"
+#include "ShaderTools/VertexArrayObjects/Plane.h"
+#include "RenderTechniques/HierarchicalHoleFilling.h"
+#include <queue>
+#include <map>
 
-int main (void)
+
+
+
+
+int main (int argc, char *argv[])
 {
+
     btBroadphaseInterface* broadphase = new btDbvtBroadphase();
 
     btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
@@ -67,5 +94,5 @@ int main (void)
     delete dispatcher;
     delete broadphase;
 
-    return 0;
+    
 }

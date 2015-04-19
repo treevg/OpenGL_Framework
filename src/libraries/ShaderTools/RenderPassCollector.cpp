@@ -5,16 +5,6 @@
 #include "ShaderTools/VertexArrayObjects/Skybox2.h"
 #include <cmath>
 
- CubemapTexture* cubeText = new CubemapTexture();
-
-    GLuint textureS= cubeText->create_cube_map(
-           RESOURCES_PATH "/skybox/jajlands1_rt.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_lf.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_up.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_dn.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_bk.jpg",
-    RESOURCES_PATH "/skybox/jajlands1_ft.jpg"    
- );
 
 
 RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, map<string, ShaderProgram*> shaderPrograms) 
@@ -27,6 +17,8 @@ RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, map
 RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, map<string, ShaderProgram*> shaderPrograms, int width, int height ) 
  : objects(objects), shaderProgramms(shaderPrograms), frameBufferObject(0)
 {
+
+
    autoGenerateFrameBufferObject(width, height);
    
 }
@@ -157,32 +149,11 @@ return this;
 }
 
 
-RenderPassCollector*  RenderPassCollector::renderSkybox(mat4 view){
+   RenderPassCollector::~RenderPassCollector(){
 
+          for(VertexArrayObject* v: this->objects){
 
-     frameBufferObject->bind();
+            delete v;
+          }
 
-  
-      
-        Skybox2* skybox = new Skybox2();
-       
-         glDepthFunc(GL_LEQUAL);
-      //     glm:: mat4 modelSkybox = translate(mat4(1), pos);
-           ShaderProgram* sky = new ShaderProgram("/Warpping/sky.vert", "/Warpping/sky.frag");
-            sky->use();
-        
-            sky->texture("tex", textureS);
-            sky->update ("uniformView", view);
-   
-   
-           glDisable(GL_DEPTH_TEST);
-             //DRAW CUBEMAP
-         
-            skybox->draw();
-          glEnable(GL_DEPTH_TEST);
-     //frameBufferObject->clearDepth();
-
-     return this;
-
-
-}
+   }

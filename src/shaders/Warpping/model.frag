@@ -76,7 +76,7 @@ void main() {
 
           if (ambient_color == 0){
  
-              fragColor = vec4(1,1,0,1);
+              fragColor = vec4(1,0,0,1);
     
                     }
   

@@ -8,7 +8,6 @@
 #include "FrameBufferObject.h"
 #include "VertexArrayObject.h"
 #include "RenderPassBase.h"
-#include "RenderPassModel.h"
 #include "ShaderProgram.h"
 
 using namespace std;
@@ -21,7 +20,7 @@ public:
 	RenderPassCollector(vector<VertexArrayObject*> objects,  ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 	
 	void run();
-
+    ~RenderPassCollector();
     void setShaderProgramm(ShaderProgram*);
     RenderPassCollector* setFrameBufferObject(FrameBufferObject*);
     ShaderProgram* getShaderProgramm() const;
@@ -33,7 +32,7 @@ public:
     GLuint  getFrameBufferHandle();
     RenderPassCollector*  addVAOS(vector<VertexArrayObject*> moreObjects);
     RenderPassCollector*  addVertexArrayObject( VertexArrayObject* obj);
-    RenderPassCollector*  renderSkybox( mat4 view);
+
 
 
     	template <class T>
