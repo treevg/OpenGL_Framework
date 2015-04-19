@@ -10,14 +10,11 @@ private:
 
 public:
 int appearence;
-float r, g, b, a;
+float color;
 	ColorField();
-	ColorField(int appearence, float rNew, float gNew, float bNew, float aNew){
+	ColorField(int appearence, float color){
 		this->appearence = appearence;
-		this->r = rNew;
-		this->g = gNew;
-		this->b = bNew;
-		this->a = aNew;
+		this->color = color;
 	}
 
 };

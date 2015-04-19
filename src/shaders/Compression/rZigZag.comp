@@ -1,16 +1,32 @@
 #version 430
-layout ( binding = 0, r32f ) readonly uniform image2D inImg1;
-layout ( binding = 1, r32f ) readonly uniform image2D inImg2;
-layout ( binding = 2, rg32f ) writeonly uniform image2D outImg;
+layout ( binding = 0, r16f ) readonly uniform image2D inImg1;
+layout ( binding = 2, r16f ) writeonly uniform image2D outImg;
 
-layout (local_size_x = 8, local_size_y = 8) in;
+layout (local_size_x = 64, local_size_y = 1) in;
+
+
+
+shared int orderTable[2][64] = {
+		{0,1,0,0,1,2,3,2,1,0,0,1,2,3,4,5,4,3,2,1,0,0,1,2,3,4,5,6,7,6,5,4,
+		 3,2,1,0,1,2,3,4,5,6,7,7,6,5,4,3,2,3,4,5,6,7,7,6,5,4,5,6,7,7,6,7},
+		 
+		{0,0,1,2,1,0,0,1,2,3,4,3,2,1,0,0,1,2,3,4,5,6,5,4,3,2,1,0,0,1,2,3,
+		 4,5,6,7,7,6,5,4,3,2,1,2,3,4,5,6,7,7,6,5,4,3,4,5,6,7,7,6,5,6,7,7}
+		};
+
 void main() {
 
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 	
-	vec4 texel_color1 = imageLoad(inImg1, index);
-	vec4 texel_color2 = imageLoad(inImg2, index);
+	int newIndex;
+	newIndex = int(mod(index.x, 64));
 	
-	imageStore(outImg, index, vec4(texel_color1.r, texel_color2.r, 0, 0));
+	ivec2 zigZagIndex;
+	zigZagIndex.x = orderTable[0][newIndex];
+	zigZagIndex.y = orderTable[1][newIndex];
+	
+	vec4 texel_color = imageLoad(inImg1, index);
+	
+	imageStore(outImg, zigZagIndex, vec4(texel_color.r, 0, 0, 0));
 	
 }

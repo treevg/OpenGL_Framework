@@ -29,7 +29,6 @@ auto RGBtoYCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rgbToYCbCr.
 auto YCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/YCbCrToRGB.comp");
 auto compressCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressCbCr.comp");
 auto compressedYCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressedYCbCrToRGB.comp");
-auto rleEncoder = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rle.comp");
 auto dct = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct.comp");
 auto dct2 = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct2.comp");
 auto dct3 = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct3.comp");
@@ -41,6 +40,8 @@ auto splitChannels = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/splitCha
 auto split2Channels = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/split2Channels.comp");
 auto mergeChannels = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/mergeChannels.comp");
 auto merge2Channels = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/merge2Channels.comp");
+auto fZigZag = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/fZigZag.comp");
+auto rZigZag = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rZigZag.comp");
 
 float cubeAngle = 0.0f;
 float rotationSpeed = 0.01f;
@@ -76,6 +77,7 @@ vector<float> pixelColor(4);																//container for color of texture at 
 int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Memory
 float* data;																			//container for texture in CPU-Memory as plain array
 float* data2;
+int* counts;
 
 double oldTime, newTime;
 
@@ -83,128 +85,28 @@ double oldTime, newTime;
  *------------------------------------------------------function declaration--------------------------------------------------------------------------
  -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-vector<ColorField> doRLE(float *array){
-	vector<ColorField> data;
-	int startAddressOfPixel = 0;
-	float rOld, gOld, bOld, aOld;
-	int count = 1;
-	for(int x = 0; x < tWidth; x++){
-		for(int y = 0; y < tHeight; y++){
-			startAddressOfPixel = ((y * tWidth) + x) * 4;
-			float r = array[startAddressOfPixel];
-			float g = array[startAddressOfPixel + 4];
-			float b = array[startAddressOfPixel + 8];
-			float a = array[startAddressOfPixel + 12];
-
-			if (rOld == r && gOld == g && bOld == b && aOld == a){
-				count++;
-			}
-			else{
-			rOld = r;
-			gOld = g;
-			bOld = b;
-			aOld = a;
-			ColorField *temp = new ColorField(count, r, g, b,a);
-			data.push_back(*temp);
-			count = 1;
-			}
-		}
-	}
-
-	return data;
-}
-
-vector<ColorField*> doRLE2(float *array){
-	vector<ColorField*> data;
-	float rOld = array[0];
-	float gOld = array[4];
-	float bOld = array[8];
-	float aOld = array[12];
+void doRLE2(float *array, vector<float> *outValue, vector<int> *outCounts){
+	float colorOld = array[0];
+	cout<<"array has : "<< sizeof(array) << endl;
+	float color;
 	int count = 1;
 
-	int i = 16;
+	for(int i = 4; i < (tWidth * tHeight * 4) ; i+=4){
+		color = array[i];
 
-	do{
-		float r = array[i];
-		float g = array[i + 4];
-		float b = array[i + 8];
-		float a = array[i + 12];
-
-		if (rOld == r && gOld == g && bOld == b && aOld == a){
+		if(colorOld == color)
 			count++;
-		}
+
 		else{
-		ColorField *temp = new ColorField(count, rOld, gOld, bOld, aOld);
-		data.push_back(temp);
-		rOld = r;
-		gOld = g;
-		bOld = b;
-		aOld = a;
-		count = 1;
+			outValue->push_back(colorOld);
+			outCounts->push_back(count);
+			colorOld = color;
+			count = 1;
 		}
-	i += 16;
-	}
-	while (i < (tWidth * tHeight) *4);
-
-	ColorField *temp = new ColorField(count, rOld, gOld, bOld, aOld);
-	data.push_back(temp);
-
-//	cout << "array had: " << i << endl;
-
-	return data;
-}
-
-void doRLEDecode(vector<ColorField*> data, float* array){
-	int count;
-	for(int i = 0; i < (tWidth * tHeight) * 4; i+=16){
-		count = data.back()->appearence;
-		if (count == 1){
-			array[i] = data.back()->r;
-			array[i + 4] = data.back()->g;
-			array[i + 8] = data.back()->b;
-			array[i + 12] = data.back()->a;
-		}
-		else{
-			for(int j = 0; j < count; j++){
-				array[i] = data.back()->r;
-				array[i + 4] = data.back()->g;
-				array[i + 8] = data.back()->b;
-				array[i + 12] = data.back()->a;
-				i += 16;
-				}
-		}
-			data.pop_back();
-	}
-}
-
-void doRLEDecode2(vector<ColorField*> data, float* array){
-	int count;
-	int i = 0;
-
-	for (ColorField* c : data){
-		count = data.back()->appearence;
-		if (count == 1){
-			array[i] = data.back()->r;
-			array[i + 4] = data.back()->g;
-			array[i + 8] = data.back()->b;
-			array[i + 12] = data.back()->a;
-
-			i += 16;
-		}
-		else{
-			for(int j = 0; j < count; j++){
-				array[i] = data.back()->r;
-				array[i + 4] = data.back()->g;
-				array[i + 8] = data.back()->b;
-				array[i + 12] = data.back()->a;
-				i += 16;
-			}
-		}
-
-		data.pop_back();
 	}
 
-//	cout << "array has now: " << i << " Entries" << endl;
+	outValue->push_back(colorOld);
+	outCounts->push_back(count);
 }
 
 void doRLEDecode3(vector<ColorField*> data, float* array){
@@ -214,20 +116,14 @@ void doRLEDecode3(vector<ColorField*> data, float* array){
 	for (ColorField* c : data){
 		count = data.back()->appearence;
 		if (count == 1){
-			array[i] = data.back()->a;
-			array[i + 4] = data.back()->b;
-			array[i + 8] = data.back()->g;
-			array[i + 12] = data.back()->r;
+			array[i] = data.back()->color;
 
-			i += 16;
+			i += 4;
 		}
 		else{
 			for(int j = 0; j < count; j++){
-				array[i] = data.back()->a;
-				array[i + 4] = data.back()->b;
-				array[i + 8] = data.back()->g;
-				array[i + 12] = data.back()->r;
-				i += 16;
+				array[i] = data.back()->color;
+				i += 4;
 			}
 		}
 
@@ -342,7 +238,7 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, tex7Handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width/8*64, height/8, 0, GL_RED, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT6, GL_TEXTURE_2D, tex7Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT6);
 
@@ -378,22 +274,23 @@ int main(int argc, char *argv[]) {
     glClearBufferfv(GL_COLOR, 0, clearColor);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-//    glBindTexture(GL_TEXTURE_2D, tex1Handle);																	//prepare swapping Texture between Memories
-//    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
-//    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
-//    std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
-//
-//    data = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
-//    data2 = (float*)malloc( sizeof(float) * tHeight * tWidth * 4);
-//    glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);														//this is where the swapping magic happens
-//    int y=0;
-//        for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
-//                {
-//                        y++;
-//                }
-//    cout<<"array has: " << y << " entries, which makes a total of ..." << endl;
-//    cout<<"... size : "<< (float)(sizeof(float) * tHeight * tWidth * 4)/1000000<< " MByte"<<endl;
-//    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
+    glBindTexture(GL_TEXTURE_2D, tex7Handle);																	//prepare swapping Texture between Memories
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
+    glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
+    std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
+
+    data = (float*)malloc( sizeof(float) * tHeight * tWidth);
+    data2 = (float*)malloc( sizeof(float) * tHeight * tWidth);
+    counts = (int*)malloc( sizeof(int) * tHeight * tWidth);
+    glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);														//this is where the swapping magic happens
+    int y=0;
+        for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
+                {
+                        y++;
+                }
+    cout<<"array has: " << y << " entries, which makes a total of ..." << endl;
+    cout<<"... size : "<< sizeof(float) * tHeight * tWidth<< " MByte"<<endl;
+    glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
 
     renderLoop([]{
 		    calculateFPS(1.0, "OpenGL Window");
@@ -461,6 +358,36 @@ int main(int argc, char *argv[]) {
 	        glDispatchCompute(int(width/8), int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+	        fZigZag->use();
+	        glBindImageTexture(0, texQuantHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
+	        glBindImageTexture(1, tex7Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width/8), int(height/8), 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	        glBindTexture(GL_TEXTURE_2D, tex7Handle);
+	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
+	        glBindTexture(GL_TEXTURE_2D, 0);
+
+	        vector<float> values;
+	        vector<int> counts;
+
+	        doRLE2(data, &values, &counts);
+
+             glBindTexture(GL_TEXTURE_2D, tex7Handle);
+             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data);
+             glBindTexture(GL_TEXTURE, 0);
+
+//        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
+//
+//        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
+//        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
+
+	        rZigZag->use();
+	        glBindImageTexture(0, tex7Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
+	        glBindImageTexture(1, texQuantHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width*8/64), int(height/8), 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
 	        pseudoDequantize->use();
 	        glBindImageTexture(0, texQuantHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
 	        glBindImageTexture(1, tex5Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
@@ -504,37 +431,11 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        rleEncoder->use();
-//        glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-//        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-//        glDispatchCompute(1, (height), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-//        glBindTexture(GL_TEXTURE_2D, pass->get("fragColor"));
-//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_FLOAT, data);
-//        glBindTexture(GL_TEXTURE_2D, 0);
-
-//        double lastTime = glfwGetTime();
-//        vector<ColorField*> test = doRLE2(data);
-//
-//        test.clear();
-//
-//        double thisTime = glfwGetTime();
-//
-//        doRLEDecode3(test, data2);
-//
-//        for (ColorField* x : test){
-//     	   delete x;
-//        }
-//        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
-//
-//        cout<<"array has: " << test.size() << " entries, which makes a total of ..." << endl;
-//        cout<<"... size : "<< (float)(sizeof(float) * test.size() * 4)/1000000<< " MByte"<<endl;
 
 
-        glBindTexture(GL_TEXTURE_2D, tex2Handle);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data2);
-        glBindTexture(GL_TEXTURE, 0);
+//        glBindTexture(GL_TEXTURE_2D, tex2Handle);
+//        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RGBA, GL_FLOAT, data2);
+//        glBindTexture(GL_TEXTURE, 0);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
