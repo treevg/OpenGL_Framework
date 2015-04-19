@@ -36,7 +36,7 @@ void main() {
 
     vec3 lightDirection = normalize(lightPos - passPosition.xyz);
     vec3 lightColor = vec3(1,1,1);
-    vec3 viewVector = normalize(viewPosition-passPosition.xyz);
+    vec3 viewVector = normalize(viewPosition-passPosition.xyz)*0.1f;
     vec3 norm = normalize(passNormal);
 
       //ambient shading

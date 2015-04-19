@@ -1,4 +1,4 @@
-#version 410
+#version 430
 
 in vec4 passPosition;
 in vec3 passNormal;

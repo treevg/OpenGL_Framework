@@ -30,6 +30,7 @@ public:
 	
 
 	RenderPassBase* setFrameBufferObject(FrameBufferObject* frameBufferObject);
+	FrameBufferObject* getFrameBufferObject();
 
 	template <class T>
 	RenderPassBase* update(std::string name, T value) {

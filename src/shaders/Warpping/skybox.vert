@@ -12,8 +12,8 @@ smooth out vec3 uv;
 
 
 void main() {
-	        passPosition = uniformModel * vertex_modelSpace ;
-            gl_Position =  uniformProjection *  uniformView * uniformModel * vertex_modelSpace ;
-            uv = vertex_modelSpace.xyz;
+	       passPosition = uniformModel * vertex_modelSpace ;
+               gl_Position =  uniformProjection *  uniformView * uniformModel * vertex_modelSpace ;
+               uv = vertex_modelSpace.xyz;
    
 }

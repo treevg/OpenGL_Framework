@@ -78,7 +78,7 @@ GLuint FrameBufferObject::getFrameBufferObjectHandle() const {
 
 void FrameBufferObject::setFrameBufferObjectHandle(
 		GLuint frameBufferObjectHandle) {
-	this->frameBufferObjectHandle = frameBufferObjectHandle;
+	 this->frameBufferObjectHandle = frameBufferObjectHandle;
 }
 
 GLuint FrameBufferObject::getHandle(){

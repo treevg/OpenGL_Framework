@@ -29,7 +29,13 @@ double lasttime;
 vec3 lightPosition = vec3(0,80,0);
 float shinines = 32.0f;
 
- 
+
+
+
+/*          PROJECTION     */
+glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
+
+
  /* GAME LOGIC*/
 float castel_y = -0.28;
 vector<vec3> chestPositions;
@@ -41,6 +47,7 @@ vec3 currentChestPosition;
 /* TODO: pack into vector */
 
  RenderPass*  skyBoxPass;
+ RenderPass*  sky;
  RenderPass*  plane ;
  RenderPassModel* trees;
  RenderPass* diffWarp;
@@ -80,9 +87,10 @@ vec3 currentChestPosition;
 
 
  std::queue<glm::mat4> latencyQueue;
- int latencyFrameCount = 12;
+ int latencyFrameCount = 6;
 
 GLuint textureHandle;
+Texture* skyText;
 CubemapTexture* cubeText;
 
 
@@ -198,7 +206,7 @@ void Game::init(){
   auto warp = new ShaderProgram("/Warpping/warp.vert", "/Raytracing/warp.frag");
  
   //diffWarpMuelle = new RenderPass(grid, warp);
-  diffWarpMuelle = new RenderPass(grid, warp, getWidth(window), getHeight(window));
+  diffWarpMuelle = new RenderPass(grid, warp);
 
 
    auto sp = new ShaderProgram("/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag");
@@ -206,19 +214,23 @@ void Game::init(){
    auto model = new ShaderProgram("/Warpping/model.vert", "/Warpping/model.frag");
    auto suzanneSp = new ShaderProgram("/Warpping/suzanne.vert", "/Warpping/suzanne.frag");
    auto skyboxSp = new ShaderProgram("/Warpping/skybox.vert", "/Warpping/skybox.frag");
+   auto skyProg = new ShaderProgram("/Filters/fullscreen.vert","/Warpping/equirectangularSky.frag");
+
 
         /* Models */
+   string modSP = "model";
 
-   myModel = new Model(RESOURCES_PATH "/hemlock.3ds", mat4(1));
-   castle = new Model(RESOURCES_PATH "/castle.obj", mat4(1));
-   chest = new Model(RESOURCES_PATH "/chest.obj", mat4(1));
-   windMill = new Model(RESOURCES_PATH "/windmill02.obj", mat4(1));
-   viking = new Model(RESOURCES_PATH "/viking.obj", mat4(1));
+   myModel = new Model(RESOURCES_PATH "/hemlock.3ds", mat4(1), modSP);
+   castle = new Model(RESOURCES_PATH "/castle.obj", mat4(1), modSP);
+   chest = new Model(RESOURCES_PATH "/chest.obj", mat4(1), modSP);
+   windMill = new Model(RESOURCES_PATH "/windmill02.obj", mat4(1), modSP);
+   viking = new Model(RESOURCES_PATH "/viking.obj", mat4(1), modSP);
 
     /* external Textures */
 
  textureHandle = TextureTools::loadTexture("grass_repeating.jpg");
  cubeText = new CubemapTexture();
+ skyText = new Texture(RESOURCES_PATH "/equirectangular/plaza.png");
    
 
      /* Meshes */
@@ -237,9 +249,12 @@ void Game::init(){
     cout << "######## RENDER TO TEXTURE ###########" << endl;
     quadPass = new RenderPass(quad, sp1, getWidth(window), getHeight(window));
     quadPass -> texture("diffuse_text", textureHandle);
+    sky = new RenderPass( new Quad(),skyProg,getWidth(window), getHeight(window));
+    sky->texture("tex", skyText->getHandle())
+      ->update("resolution", getResolution(window))
+      ->update("projection", projMat);
 
-
-
+   
    plane = new RenderPass( new Plane(32.0f), sp1, getWidth(window), getHeight(window));
    trees = new RenderPassModel(meshes, sp1, getWidth(window), getHeight(window));
    castlePass = new RenderPassModel(castleMeshes, model, getWidth(window), getHeight(window) );
@@ -252,6 +267,11 @@ void Game::init(){
 
 
  }else{
+
+   sky = new RenderPass( new Quad(),skyProg);
+   sky->texture("tex", skyText->getHandle())
+      ->update("resolution", getResolution(window))
+      ->update("projection", projMat);
 
    plane = new RenderPass( new Plane(32.0f), sp1);
    trees = new RenderPassModel(meshes, sp1);
@@ -272,7 +292,7 @@ void Game::init(){
    fillPositions();
    setChestPosition();
 
-   log (sp);
+  // log (sp);
 
  }
 
@@ -343,7 +363,7 @@ void Game::init(){
      /*  MATRIX STUFF */
 
      
-    glm::mat4 projMat = glm::perspective(45.0f, 4.0f / 3.0f, 0.1f, 1000.0f);
+    
     glm::mat4 model=glm::mat4(1.0);
     glm::mat4  viewMat= getLookAt();
 
@@ -397,7 +417,7 @@ void Game::init(){
 
     /*   MODEL FOR SKYBOX   */
 
-glm:: mat4 modelSkybox = translate(mat4(1), camera->getPosition());
+  glm:: mat4 modelSkybox = translate(mat4(1), camera->getPosition());
 
 
      glm:: mat4 vikingModel(1);
@@ -420,14 +440,15 @@ if(warpping){
 
 
  skyBoxPass
-         ->  clear (0, 0, 0,0)
-         ->  update("uniformModel", modelSkybox)
-         ->  update("uniformView", viewMat_old)
-         ->  update("uniformProjection", projMat)
-         ->  texture("tex", skybox)
-         ->  run();
+          ->  clear (0, 0, 0,0)
+          ->  update("uniformModel", modelSkybox)
+          ->  update("uniformView", viewMat_old)
+          ->  update("uniformProjection", projMat)
+          ->  texture("tex", skybox)
+          ->  run();
+
 diffWarp
-        ->  clear (0, 0, 0,0)
+        -> clear (0, 0, 0,0)
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
         -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
@@ -435,36 +456,47 @@ diffWarp
         -> texture("colorTexture", skyBoxPass->get("fragColor"))
         -> texture("positionTexture", skyBoxPass->get("fragPosition"))
         -> run();
+
+//   holefilling
+
+//         ->texture(diffWarp->get("fragColor"))
+//         ->run();
+
+//   tonemapping
+//             -> clear(0,0,0,0)
+//             ->texture("tex", 
+//             holefilling->getOutput())
+//             ->update("resolution", getResolution(window))
+//             ->run();
         
-  plane
-        -> clear(0,0,0,0)
-        -> update("uniformView", viewMat_old)
-        -> update("uniformModel", model)
-        -> update("uniformProjection", projMat)
-        -> texture("diffuse_text", textureHandle)
-        -> run();
+  castlePass
+        ->  clear(0.2,0.3,0.4,1)
+        ->  update("uniformModel", modelCastle)
+        ->  update("uniformView", viewMat_old)
+        ->  update("uniformProjection", projMat)
+        ->  run();
 
 
     diffWarpMuelle
-        -> clear()
+      
         -> update("switchWarp", (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)?1:0)
         -> update("viewMat", viewMat)
         // -> update("invViewProjection", glm::inverse(projMat * viewMat_old))
         -> update("projection", projMat)
-        -> texture("colorTexture", plane->get("fragColor"))
-        -> texture("positionTexture", plane->get("fragPosition"))
+        -> texture("colorTexture", castlePass->get("fragColor"))
+        -> texture("positionTexture", castlePass->get("fragPosition"))
         -> run();
   
-  holefilling
-        ->texture(diffWarpMuelle->get("fragColor"))
-        ->run();
+  // holefilling
+  //       ->texture(diffWarpMuelle->get("fragColor"))
+  //       ->run();
 
-  tonemapping
-            -> clear(0,0,0,0)
-            ->texture("tex", 
-            holefilling->getOutput())
-            ->update("resolution", getResolution(window))
-            ->run();
+  // tonemapping
+  //           -> clear(0,0,0,0)
+  //           ->texture("tex", 
+  //           holefilling->getOutput())
+  //           ->update("resolution", getResolution(window))
+  //           ->run();
  
 
 /*vikingPass
@@ -649,10 +681,12 @@ skyBoxPass
         ->  update("uniformProjection", projMat)
         ->  texture("tex", skybox)
         ->  run();
+cout<< "RESOLUTION: " << getResolution(window).x << "  " << getResolution(window).y << endl;
+
 
 
  castlePass
-        -> clearDepth()
+        ->  clearDepth()
         ->  update("uniformModel", modelCastle)
         ->  update("uniformView", viewMat_old)
         ->  update("uniformProjection", projMat)
@@ -672,13 +706,14 @@ windMillPass
         ->  update("lightPos", lightPosition)
         ->  update("attenuatFactor", false)
         ->  run();
-        
- plane
-        -> update("uniformView", viewMat_old)
-        -> update("uniformModel",model)
-        -> update("uniformProjection", projMat)
-        -> texture("diffuse_text", textureHandle)
-        -> run();
+      
+ // plane
+ //        -> update("uniformView", viewMat_old)
+ //        -> update("uniformModel",model)
+ //        -> update("uniformProjection", projMat)
+ //        -> texture("diffuse_text", textureHandle)
+ //        -> run();
+
 
 
  followMePass
@@ -748,7 +783,6 @@ windMillPass
 
 }
 
-
    });
 
   }
@@ -756,6 +790,7 @@ windMillPass
 
 
 int main(int argc, char *argv[]) { 
+  
 
 Game * g = new Game(true);
 

@@ -7,7 +7,7 @@
 
 FollowObject::FollowObject(Camera* camera, float speed) {
 
-   this->m_model = new Model(RESOURCES_PATH "/monkey2.obj", mat4(1));
+   this->m_model = new Model(RESOURCES_PATH "/monkey2.obj", mat4(1), "followObject");
    this->m_speed= speed;
    this->m_currentPosition = vec3(camera->getPosition().x , camera->getPosition().y ,  camera->getPosition().z - 4);
    

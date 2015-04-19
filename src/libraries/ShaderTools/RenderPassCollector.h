@@ -2,19 +2,22 @@
 #define RENDER_PASS_COLLECTOR_H
 
 #include <vector>
+#include <map>
+#include <string>
 #include "ShaderProgram.h"
 #include "FrameBufferObject.h"
 #include "VertexArrayObject.h"
 #include "RenderPassBase.h"
 #include "RenderPassModel.h"
+#include "ShaderProgram.h"
 
 using namespace std;
 
 class RenderPassCollector
 {
 public:
-	RenderPassCollector(vector<VertexArrayObject*> objects,  ShaderProgram* shaderProgram);
-	RenderPassCollector(vector<VertexArrayObject*> objects,  ShaderProgram* shaderProgram, int width, int height);
+	RenderPassCollector(vector<VertexArrayObject*> objects,  map<string, ShaderProgram*> shaderProgramms);
+	RenderPassCollector(vector<VertexArrayObject*> objects,  map<string, ShaderProgram*> shaderProgramms, int width, int height);
 	RenderPassCollector(vector<VertexArrayObject*> objects,  ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 	
 	void run();
@@ -28,22 +31,23 @@ public:
     GLuint get(std::string name);
     void autoGenerateFrameBufferObject(int width, int height);
     GLuint  getFrameBufferHandle();
-    void addVAOS(vector<VertexArrayObject*> moreObjects);
-    void addVertexArrayObject( VertexArrayObject* obj);
+    RenderPassCollector*  addVAOS(vector<VertexArrayObject*> moreObjects);
+    RenderPassCollector*  addVertexArrayObject( VertexArrayObject* obj);
+    RenderPassCollector*  renderSkybox( mat4 view);
 
 
     	template <class T>
-	RenderPassCollector* update(std::string name, T value) {
-	      shaderProgram->update(name, value);
+	RenderPassCollector* update(std::string name, T value, string key) {
+	      shaderProgramms[key]->update(name, value);
 	return this;
 	}
 
 
 
     vector<VertexArrayObject*> objects;
-  //  vector<RenderPassModel*> models;
+    std::map<string, ShaderProgram*> shaderProgramms;
 
- 	ShaderProgram* shaderProgram;
+ 	
 	FrameBufferObject* frameBufferObject;
 
       

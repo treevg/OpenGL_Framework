@@ -78,3 +78,6 @@ RenderPassBase* RenderPassBase::setFrameBufferObject(FrameBufferObject* frameBuf
 }
 
 
+FrameBufferObject* RenderPassBase::getFrameBufferObject() {
+      return frameBufferObject;
+}

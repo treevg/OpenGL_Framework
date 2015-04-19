@@ -24,7 +24,7 @@ class Model{
 
 public:
 
-     Model(const string& path, mat4 modelMatrix);
+     Model(const string& path, mat4 modelMatrix, string shaderProgramKey);
      ~Model();
      vector<VertexArrayObject*> getMeshes() const;
      vector<MeshTexture> getTextures() const;
@@ -35,6 +35,7 @@ private:
     vector<VertexArrayObject*> m_meshes;
     mat4 modelMatrix;
     vector<MeshTexture> m_textures;
+    string shaderProgramKey;
     bool loadModel(const string& path);
     void processNode(aiNode* node, const aiScene* scene);
      Mesh* convertMesh(const aiScene* scene, aiMesh* aSmesh);

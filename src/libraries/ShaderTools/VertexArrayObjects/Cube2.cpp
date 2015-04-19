@@ -1,12 +1,13 @@
 #include "Cube2.h"
 
-Cube2::Cube2(mat4 modelMatrix, vec4 color, GLuint textureHandle) {
+Cube2::Cube2(mat4 modelMatrix, GLuint textureHandle, string shaderProgramKey) {
 
 	const float size = 1.0f;
 	mode = GL_TRIANGLES;
     this->color = color;
     this->modelMatrix = modelMatrix;
     this->textureHandle = textureHandle;
+    this->shaderProgramKey = shaderProgramKey;
 
     glGenVertexArrays(1, &vertexArrayObjectHandle);
     glBindVertexArray(vertexArrayObjectHandle);

@@ -59,7 +59,7 @@ GLuint CubemapTexture::create_cube_map(const string& r, const string& l,const st
 	                                const string& down,const string& back, const string& front){
 
 	GLuint  tex_cube;
-    glDepthMask(0);
+
     glActiveTexture (GL_TEXTURE0);
     glGenTextures (1, &tex_cube);
 
@@ -76,8 +76,9 @@ glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 glTexParameteri (GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 
-  glDepthMask(1);
+ glDepthFunc(GL_LEQUAL);
 
 
 return  tex_cube;

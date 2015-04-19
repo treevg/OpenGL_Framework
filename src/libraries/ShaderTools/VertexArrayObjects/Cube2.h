@@ -9,7 +9,7 @@ using namespace glm;
 
 class Cube2 : public VertexArrayObject {
 public:
-	Cube2(mat4 modelMatrix, vec4 color, GLuint textureHandle);
+	Cube2(mat4 modelMatrix,  GLuint textureHandle, string shaderProgramKey);
 	void draw();
         
         

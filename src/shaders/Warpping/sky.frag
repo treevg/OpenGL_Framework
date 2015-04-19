@@ -3,10 +3,8 @@
 
 uniform samplerCube tex;
 
-in vec3 uv;
+in vec3 passTextureCoord;
 in vec4 passPosition;
-
-uniform mat4 uniformView;
 
 out vec4 fragColor;
 out vec4 fragPosition;
@@ -14,8 +12,7 @@ out vec4 fragPosition;
 
 void main() {
 
-    vec3 textCoord = uv;
-    fragColor  = texture(tex, textCoord);
+    fragColor  = texture(tex, passTextureCoord);
     fragPosition = passPosition;
 
 }

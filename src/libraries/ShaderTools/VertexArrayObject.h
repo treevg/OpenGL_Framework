@@ -48,6 +48,7 @@ public:
      vector<GLuint> m_indices;
      vector<MeshTexture> m_textures;
      Material material;
+     string shaderProgramKey;
 protected:
 	GLuint vertexArrayObjectHandle;
 	GLenum mode;

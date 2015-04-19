@@ -13,7 +13,7 @@ for ( int i = 0; i< this->m_indices.size(); i++){
 }
 
 
-   Mesh::Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures, mat4 modelMatrix, Material mat){
+   Mesh::Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures, mat4 modelMatrix, Material mat, string shaderProgramKey){
     
    
 
@@ -25,6 +25,7 @@ for ( int i = 0; i< this->m_indices.size(); i++){
    this->m_textures = textures;
    this->modelMatrix = modelMatrix;
    this->material = mat;
+   this->shaderProgramKey = shaderProgramKey;
   //  cout<< "size indices " << this->m_indices.size()  << endl;
    // cout<< "size  vertices " << this->m_vertices.size()  << endl;
    // cout<< "size  normals " << this->m_normals.size()  << endl;
@@ -48,7 +49,7 @@ for ( int i = 0; i< this->m_indices.size(); i++){
     assert (this->m_indices.size() > 0 ); 
     glGenBuffers(1, &this->IBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->IBO);
-    cout << "IBO " << this->IBO << endl;
+    //cout << "IBO " << this->IBO << endl;
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, this->m_indices.size()*sizeof(GLuint), &this->m_indices[0], GL_STATIC_DRAW);
   
 
@@ -58,7 +59,7 @@ for ( int i = 0; i< this->m_indices.size(); i++){
      //for Texture coordinates
     glGenBuffers(1, &this->tVBO);
     glBindBuffer(GL_ARRAY_BUFFER, this->tVBO);
-    cout << "tVBO " << this->tVBO << endl;
+  //  cout << "tVBO " << this->tVBO << endl;
     glBufferData(GL_ARRAY_BUFFER, this->m_texCoords.size()*sizeof(vec2), &this->m_texCoords[0], GL_STATIC_DRAW);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);

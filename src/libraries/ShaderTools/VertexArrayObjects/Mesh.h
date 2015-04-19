@@ -23,8 +23,8 @@ using namespace glm;
 class Mesh  : public VertexArrayObject {
 
 public:
-	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, mat4 modelMatrix);
-	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures, mat4 modelMatrix, Material mat);
+	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, mat4 modelMatrix, string shaderProgramKey);
+	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures, mat4 modelMatrix, Material mat, string shaderProgramKey);
 	void draw();
 	void printInd();
 	vector<vec3> getVertices() const;

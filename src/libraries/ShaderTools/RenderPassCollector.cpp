@@ -1,16 +1,31 @@
 #include "RenderPassCollector.h"
+#include "AssetTools/Texture.h"
+#include "ShaderTools/VertexArrayObjects/Quad.h"
+#include "WarppingGame/CubemapTexture/CubemapTexture.h"
+#include "ShaderTools/VertexArrayObjects/Skybox2.h"
 #include <cmath>
 
+ CubemapTexture* cubeText = new CubemapTexture();
 
-RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, ShaderProgram* shaderProgram) 
- : objects(objects), shaderProgram(shaderProgram), frameBufferObject(0)
+    GLuint textureS= cubeText->create_cube_map(
+           RESOURCES_PATH "/skybox/jajlands1_rt.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_lf.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_up.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_dn.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_bk.jpg",
+    RESOURCES_PATH "/skybox/jajlands1_ft.jpg"    
+ );
+
+
+RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, map<string, ShaderProgram*> shaderPrograms) 
+ : objects(objects), shaderProgramms(shaderPrograms), frameBufferObject(0)
 {
    frameBufferObject = new FrameBufferObject();
    
 }
 
-RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, ShaderProgram* shaderProgram, int width, int height ) 
- : objects(objects), shaderProgram(shaderProgram), frameBufferObject(0)
+RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, map<string, ShaderProgram*> shaderPrograms, int width, int height ) 
+ : objects(objects), shaderProgramms(shaderPrograms), frameBufferObject(0)
 {
    autoGenerateFrameBufferObject(width, height);
    
@@ -19,23 +34,23 @@ RenderPassCollector::RenderPassCollector(vector<VertexArrayObject*> objects, Sha
 	
 
 void RenderPassCollector::run() {
-	if(frameBufferObject->getFrameBufferObjectHandle()!=0){
+	
+	    
+        frameBufferObject->bind();
+        frameBufferObject->clear();
+  
 
-		 cout << " -------------------Rendered to texture in the location  " << frameBufferObject->getFrameBufferObjectHandle() << endl;
-	}
-  	frameBufferObject->bind();
-
-	     for ( int i=0; i < this->objects.size(); i++ ){
-	        	shaderProgram->use();
-	      	    shaderProgram->update("uniformModel", objects[i]->modelMatrix);
-	     cout << "color is " << objects[i]->color.x<< " " << objects[i]->color.y << " " << objects[i]->color.y << endl;
-	      cout <<  " texture handle is "  << objects[i]->textureHandle << endl; 
-	      	    
-	      	   /* if(objects[i]->color.x>-1){
-	      	    	shaderProgram->update("color", objects[i]->color);}*/ 
+       for ( int i=0; i < this->objects.size(); i++ ){
+              string sp = objects[i]->shaderProgramKey;
+         
+           	shaderProgramms[sp]->use();
+	      	  shaderProgramms[sp]->update("uniformModel", objects[i]->modelMatrix);
+	         
+       
+	   
 
 	      	    if(objects[i]->textureHandle!= -1){
-                    shaderProgram->texture("diffuse_text", objects[i]->textureHandle);
+                    shaderProgramms[sp]->texture("diffuse_text", objects[i]->textureHandle);
 	      	    }
 
 	      	        if (this->objects[i]->getTextures().size() > 0) {
@@ -48,15 +63,15 @@ void RenderPassCollector::run() {
 
   	                    case 'a': 
 
-                    	shaderProgram->textureModel("ambient_text", tex.id); 
+                    	shaderProgramms[sp]->textureModel("ambient_text", tex.id); 
 
                      	case 'd': 
 
-                    	shaderProgram->textureModel("diffuse_text", tex.id); 
+                    	shaderProgramms[sp]->textureModel("diffuse_text", tex.id); 
 
                         case 's': 
 
-                         shaderProgram->textureModel("specular_text", tex.id); 
+                      shaderProgramms[sp]->textureModel("specular_text", tex.id); 
 
                  //       case 'e': 
 
@@ -98,8 +113,17 @@ void RenderPassCollector::run() {
 }
 
 void RenderPassCollector::autoGenerateFrameBufferObject(int width, int height) {
+  std::map<std::string, ShaderProgram::Info> output;
+
+for ( const auto &p : this->shaderProgramms )
+{
+  std::map<std::string, ShaderProgram::Info> om = p.second->outputMap;
+  output.insert(om.begin(), om.end()); 
+}
+
+
 	if (frameBufferObject) delete frameBufferObject;
-	   frameBufferObject = new FrameBufferObject(&(shaderProgram->outputMap), width, height);
+	   frameBufferObject = new FrameBufferObject(&(output), width, height);
 }
 
 GLuint  RenderPassCollector::getFrameBufferHandle(){
@@ -113,17 +137,52 @@ RenderPassCollector* RenderPassCollector::setFrameBufferObject(FrameBufferObject
 }
 
 
-void RenderPassCollector::addVAOS(vector<VertexArrayObject*> moreObjects) {
+RenderPassCollector*  RenderPassCollector::addVAOS(vector<VertexArrayObject*> moreObjects) {
 
 
 this->objects.insert(this->objects.end(),moreObjects.begin(), moreObjects.end());
+return this;
+
 
 }
 
 
-void RenderPassCollector::addVertexArrayObject( VertexArrayObject* obj) {
+RenderPassCollector*  RenderPassCollector::addVertexArrayObject( VertexArrayObject* obj) {
 
 
 this->objects.push_back(obj);
+return this;
+
+
+}
+
+
+RenderPassCollector*  RenderPassCollector::renderSkybox(mat4 view){
+
+
+     frameBufferObject->bind();
+
+  
+      
+        Skybox2* skybox = new Skybox2();
+       
+         glDepthFunc(GL_LEQUAL);
+      //     glm:: mat4 modelSkybox = translate(mat4(1), pos);
+           ShaderProgram* sky = new ShaderProgram("/Warpping/sky.vert", "/Warpping/sky.frag");
+            sky->use();
+        
+            sky->texture("tex", textureS);
+            sky->update ("uniformView", view);
+   
+   
+           glDisable(GL_DEPTH_TEST);
+             //DRAW CUBEMAP
+         
+            skybox->draw();
+          glEnable(GL_DEPTH_TEST);
+     //frameBufferObject->clearDepth();
+
+     return this;
+
 
 }

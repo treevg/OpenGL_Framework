@@ -2,8 +2,9 @@
 
 using namespace Assimp;
 
- Model::Model(const string& path, mat4 modelMatrix){
+ Model::Model(const string& path, mat4 modelMatrix, string shaderProgramKey){
   this->modelMatrix = modelMatrix;
+  this->shaderProgramKey = shaderProgramKey;
  bool loaded = loadModel(path);
     assert (loaded); 
 
@@ -44,9 +45,9 @@ using namespace Assimp;
 
      }else {
 
-      cout << "Number of  meshes " <<  scene->mNumMeshes << endl;
-     cout << "Number of  materials " <<  scene->mNumMaterials << endl;
-      cout << "Number of  textures " <<  scene->mNumTextures << endl;
+//      cout << "Number of  meshes " <<  scene->mNumMeshes << endl;
+  //   cout << "Number of  materials " <<  scene->mNumMaterials << endl;
+    //  cout << "Number of  textures " <<  scene->mNumTextures << endl;
       
 
      cout << "Model loaded from : " << path << endl;
@@ -212,9 +213,9 @@ using namespace Assimp;
 
                 aiMaterial* material = scene->mMaterials[aSmesh->mMaterialIndex];
                
-                aiString pathD;
+                 aiString pathD;
                  material->Get(AI_MATKEY_NAME,pathD);
-                 cout<< pathD.C_Str() << endl;
+             //    cout<< pathD.C_Str() << endl;
                  
                 //  aiString textureD;
                 //  material->Get(AI_MATKEY_TEXTURE(aiTextureType_DIFFUSE ,0),textureD);
@@ -274,7 +275,7 @@ using namespace Assimp;
             }
 
 
-     Mesh* m = new  Mesh(vertices, normals, texCoords, indices, textures, this->modelMatrix, mat);
+     Mesh* m = new  Mesh(vertices, normals, texCoords, indices, textures, this->modelMatrix, mat, this->shaderProgramKey);
 
      return m;
 
