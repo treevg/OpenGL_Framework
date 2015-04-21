@@ -87,26 +87,28 @@ double oldTime, newTime;
 
 void doRLE2(float *array, vector<float> *outValue, vector<int> *outCounts){
 	float colorOld = array[0];
-	cout<<"array has : "<< sizeof(array) << endl;
 	float color;
 	int count = 1;
 
-	for(int i = 4; i < (tWidth * tHeight * 4) ; i+=4){
-		color = array[i];
+	for(int i = 1; i < (tWidth * tHeight) ; i++){
 
-		if(colorOld == color)
-			count++;
-
-		else{
-			outValue->push_back(colorOld);
-			outCounts->push_back(count);
-			colorOld = color;
-			count = 1;
-		}
+		if (array[i] != 0)
+			cout<<"hier!" << endl;
+//		color = array[i];
+//
+//		if(colorOld == color)
+//			count++;
+//
+//		else{
+//			outValue->push_back(colorOld);
+//			outCounts->push_back(count);
+//			colorOld = color;
+//			count = 1;
+//		}
 	}
 
-	outValue->push_back(colorOld);
-	outCounts->push_back(count);
+//	outValue->push_back(colorOld);
+//	outCounts->push_back(count);
 }
 
 void doRLEDecode3(vector<ColorField*> data, float* array){
@@ -238,7 +240,7 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, tex7Handle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width/8*64, height/8, 0, GL_RED, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, width/8*64, height/8, 0, GL_RED, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT6, GL_TEXTURE_2D, tex7Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT6);
 
@@ -277,20 +279,20 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, tex7Handle);																	//prepare swapping Texture between Memories
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
-    std::cout<<"width: "<< tWidth <<", height: " << height << std::endl;
+    std::cout<<"width: "<< tWidth <<", height: " << tHeight << std::endl;
 
     data = (float*)malloc( sizeof(float) * tHeight * tWidth);
     data2 = (float*)malloc( sizeof(float) * tHeight * tWidth);
     counts = (int*)malloc( sizeof(int) * tHeight * tWidth);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);														//this is where the swapping magic happens
-    int y=0;
-        for( unsigned int i = 0; i < tWidth * tHeight * 4 ; i++ )
-                {
-                        y++;
-                }
-    cout<<"array has: " << y << " entries, which makes a total of ..." << endl;
-    cout<<"... size : "<< sizeof(float) * tHeight * tWidth<< " MByte"<<endl;
+
+    cout<<"array has: " << tHeight * tWidth << " entries, which makes a total of ..." << endl;
+    cout<<"... size : "<< sizeof(float) * tHeight * tWidth << " MByte"<<endl;
     glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
+
+    /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     *------------------------------------------------------RENDER LOOP--------------------------------------------------------------------------
+     -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
     renderLoop([]{
 		    calculateFPS(1.0, "OpenGL Window");
@@ -339,7 +341,7 @@ int main(int argc, char *argv[]) {
         glDispatchCompute(int(width/8), int(height/8), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        if (glfwGetKey(window, GLFW_KEY_ENTER) == !GLFW_PRESS) {
+//        if (glfwGetKey(window, GLFW_KEY_ENTER) == !GLFW_PRESS) {
 	        dct2->use();
 	        glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
 	        glBindImageTexture(1, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
@@ -368,14 +370,14 @@ int main(int argc, char *argv[]) {
 	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
 	        glBindTexture(GL_TEXTURE_2D, 0);
 
-	        vector<float> values;
-	        vector<int> counts;
+	        vector<float>* values;
+	        vector<int>* counts;
 
-	        doRLE2(data, &values, &counts);
-
-             glBindTexture(GL_TEXTURE_2D, tex7Handle);
-             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data);
-             glBindTexture(GL_TEXTURE, 0);
+	        doRLE2(data, values, counts);
+//
+//             glBindTexture(GL_TEXTURE_2D, tex7Handle);
+//             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data);
+//             glBindTexture(GL_TEXTURE, 0);
 
 //        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
 //
@@ -388,30 +390,30 @@ int main(int argc, char *argv[]) {
 	        glDispatchCompute(int(width*8/64), int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	        pseudoDequantize->use();
-	        glBindImageTexture(0, texQuantHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
-	        glBindImageTexture(1, tex5Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-	        glDispatchCompute(int(width/8), int(height/8), 1);
-	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//	        pseudoDequantize->use();
+//	        glBindImageTexture(0, texQuantHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
+//	        glBindImageTexture(1, tex5Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+//	        glDispatchCompute(int(width/8), int(height/8), 1);
+//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	        idct2->use();
-	        glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-	        glBindImageTexture(1, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-	        glDispatchCompute(int(width/8), height, 1);
-	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//	        idct2->use();
+//	        glBindImageTexture(0, tex7Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+//	        glBindImageTexture(1, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+//	        glDispatchCompute(int(width/8), height, 1);
+//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	        idct3->use();
-	        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-	        glBindImageTexture(1, tex8Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-	        glDispatchCompute(width, int(height/8), 1);
-	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-    	}
+//	        idct3->use();
+//	        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+//	        glBindImageTexture(1, tex8Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+//	        glDispatchCompute(width, int(height/8), 1);
+//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//    	}
 
         merge2Channels->use();
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-			glBindImageTexture(0, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
-        else 
-        	glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+//        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+			glBindImageTexture(0, texQuantHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);
+//        else
+//        	glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
         glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
         glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
         glDispatchCompute(int(width/8), int(height/8), 1);

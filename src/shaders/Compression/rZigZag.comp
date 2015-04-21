@@ -27,6 +27,12 @@ void main() {
 	
 	vec4 texel_color = imageLoad(inImg1, index);
 	
-	imageStore(outImg, zigZagIndex, vec4(texel_color.r, 0, 0, 0));
+	ivec2 finalIndex;
+	finalIndex.x = int(floor(index.x/64));
+	finalIndex.y = index.y * 8;
+	
+	finalIndex += zigZagIndex;
+	
+	imageStore(outImg, finalIndex, vec4(texel_color.r, 0, 0, 0));
 	
 }

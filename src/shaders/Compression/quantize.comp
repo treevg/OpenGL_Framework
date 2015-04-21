@@ -25,7 +25,7 @@ void main() {
 	newIndex.x = int (mod(index.x, 8));
 	newIndex.y = int (mod(index.y, 8));
 	
-	imageStore(outImg, newIndex, vec4(texel_color.r / qTable[newIndex.x][newIndex.y], 0, 0, 0));
+	imageStore(outImg, index, vec4(texel_color.r / qTable[newIndex.x][newIndex.y], 0, 0, 0));
 	
 //	if((mod(index.x, 8) > 3) || (mod(index.y, 8) > 3)){
 //		
