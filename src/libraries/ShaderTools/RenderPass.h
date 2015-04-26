@@ -14,6 +14,7 @@ public:
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
 	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 	void run();
+	void runOneMesh();
 
 
 	

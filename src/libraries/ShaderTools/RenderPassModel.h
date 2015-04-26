@@ -17,7 +17,9 @@ class RenderPassModel: public RenderPassBase
 	RenderPassModel* setFrameBufferObject(FrameBufferObject* frameBufferObject);
 
 	void run();
-	void runOneMesh() const ;
+	void runOneMesh();
+	void runTerrain(GLuint id1, GLuint id2);
+
 
 		template <class T>
 	RenderPassModel* update(std::string name, T value) {

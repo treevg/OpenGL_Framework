@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
 	/*                  WOOD HOUSE           */
 	glm::mat4 matr = translate(mat4(1), vec3(-2.0, -15.0, -2.0));
 	matr =  scale(matr, vec3(10, 10, 10 ));
-	Model* woodHouse = new Model(RESOURCES_PATH "/sfere.obj", matr,"model");
+	Model* woodHouse = new Model(RESOURCES_PATH "/twt.obj", matr,"model");
 
 
 	Model*  windMill = new Model(RESOURCES_PATH "/windmill02.obj", mat4(1), "model");

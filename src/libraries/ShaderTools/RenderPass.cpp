@@ -29,4 +29,8 @@ void RenderPass::run() {
 }
 
 
+void RenderPass::runOneMesh() {
+	
+}
+
 

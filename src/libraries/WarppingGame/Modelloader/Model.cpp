@@ -164,7 +164,7 @@ using namespace Assimp;
                     position.y = aSmesh->mVertices[i].y;
                     position.z = aSmesh->mVertices[i].z;
                     vertices.push_back(position);
-
+                    
                   }
 
                 if(aSmesh->HasNormals()){
@@ -228,22 +228,20 @@ using namespace Assimp;
                 // //I need colors for lighting
                 aiColor3D colorD (0.f,0.f,0.f);
                 material->Get(AI_MATKEY_COLOR_DIFFUSE,colorD);
-                mat.color_dif = vec3(colorD[0],colorD[1],colorD[2]);
+                mat.kd= vec3(colorD[0],colorD[1],colorD[2]);
 
                //  cout<< "difusse color" << colorD[0] << " "<< colorD[1] << endl;
 
                  aiColor3D colorA (0.f,0.f,0.f);
                  material->Get(AI_MATKEY_COLOR_AMBIENT,colorA);
               //   cout<<"ambient_color"<<  colorA[0] << "  "<< colorA[1] << endl;
-                 mat.color_amb = vec3(colorA[0],colorA[1],colorA[2]);
+                 mat.ka= vec3(colorA[0],colorA[1],colorA[2]);
 
 
                  aiColor3D colorSp (0.f,0.f,0.f);
                  material->Get(AI_MATKEY_COLOR_SPECULAR,colorSp);
               //   cout<<"ambient_color"<<  colorA[0] << "  "<< colorA[1] << endl;
-                 mat.color_spec = vec3(colorSp[0],colorSp[1],colorSp[2]);
-
-
+                 mat.ks = vec3(colorSp[0],colorSp[1],colorSp[2]);
 
                 vector<MeshTexture> diffuse = this->loadTextures(material, 'd', aiTextureType_DIFFUSE);
              
@@ -311,3 +309,22 @@ using namespace Assimp;
           return this->modelMatrix;
 
     }
+
+
+       vector<VertexArrayObject*> Model::setModelMatrix(mat4 matrix){
+
+            vector<VertexArrayObject*> updatedMeshes;
+
+           if(this->m_meshes.size()>0){
+
+            for (auto m: this->m_meshes){
+              Mesh* new_m = new  Mesh(m->getVertices(), m->getNormals(), m->getTexCoords(), m->getIndices(), m->getTextures(), matrix, m->getMaterial(), m->shaderProgramKey) ;
+     
+              updatedMeshes.push_back(new_m);
+            }
+
+           }
+
+           return updatedMeshes;
+       }
+     

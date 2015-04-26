@@ -44,9 +44,7 @@ public:
 
 
     vector<VertexArrayObject*> objects;
-    std::map<string, ShaderProgram*> shaderProgramms;
-
- 	
+    std::map<string, ShaderProgram*> shaderProgramms; 	
 	FrameBufferObject* frameBufferObject;
 
       

@@ -79,32 +79,6 @@ for ( int i = 0; i< this->m_indices.size(); i++){
 
 
 
-vector<vec3> Mesh::getVertices() const{
-    
-     return this->m_vertices;
-
-}
-  vector<vec3> Mesh::getNormals() const{
-        
-        return this->m_normals;
-
-  }
-  vector<vec2> Mesh::getTexCoords() const{
-
-        return this->m_texCoords;
-  }
-
-   
-    vector<GLuint> Mesh::Mesh::getIndices() const{
-
-          return  this->m_indices;
-
-    }
-    vector<MeshTexture> Mesh::getTextures() const{
-   
-          return this->m_textures;
-
-    }
 
 
     GLuint Mesh::getVertexArrayObject() const {

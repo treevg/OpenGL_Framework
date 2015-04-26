@@ -3,10 +3,12 @@
 uniform sampler2D ambient_text;
 uniform sampler2D diffuse_text;
 uniform sampler2D specular_text;
-uniform float shinines;
 uniform vec3 lightPos; 
 uniform bool attenuatFactor;
 uniform vec3 viewPosition;
+uniform vec3 Ka;
+uniform vec3 Kd;
+uniform vec3 Ks;
 
 
 in vec4 passPosition;
@@ -23,12 +25,7 @@ void main() {
  vec4 ambient_color = texture(ambient_text, passUV);
  vec4 diffuse_color = texture(diffuse_text, passUV); 
  vec4 specular_color = texture(specular_text, passUV);
-
-
- vec3 ambient_light = vec3(0.5, 0.5, 0.31);
- vec3 diffuse_light = vec3(1.0, 1.0, 1.0);
- vec3 specular_light = vec3(0.5,0.5, 0.5);
-
+     
 
  float lightConstantAtt = 0.0f;
  float lightLinearAtt = 0.009f;
@@ -41,18 +38,18 @@ void main() {
 
       //ambient shading
 
-        vec3 ambientComponent  = ambient_light * ambient_color.xyz;
+        vec3 ambientComponent  = Ka * ambient_color.xyz;
 
        /*         diffuse shading   */
 
       float diff = max(dot(norm, lightDirection), 0.0);
-      vec3 diffuseComponen =   diffuse_light * diff * diffuse_color.xyz;
+      vec3 diffuseComponen =   Kd * diff * diffuse_color.xyz;
     
 
        /*             specular shading        */
      vec3 reflectDirection = normalize(reflect(-lightDirection, norm));
-     float spec = (pow(max(dot(viewVector, reflectDirection), 0.0), shinines))*0.2f;
-     vec3 specularComponent =  specular_light  * specular_color.xyz ;
+   //  float spec = (pow(max(dot(viewVector, reflectDirection), 0.0), shinines))*0.2f;
+     vec3 specularComponent =  Ks  * specular_color.xyz ;
     
 
 

@@ -5,6 +5,9 @@ in vec4 passPosition;
 in vec2 passTextureCoordinate;
 
 uniform sampler2D diffuse_text;
+uniform vec3 Ka;
+uniform vec3 Kd;
+uniform vec3 Ks;
 
 
 
@@ -18,7 +21,11 @@ void main() {
 
      fragPosition = passPosition;
    
-     fragColor = texture(diffuse_text, passTextureCoordinate);
+     vec4 temporColor= texture(diffuse_text, passTextureCoordinate);
+
+     temporColor = temporColor + vec4(Ka.xyz,1) + vec4(Ks.xyz,1) + vec4(Kd.xyz,1);
+
+     fragColor = temporColor;
   
      if (fragColor == 0){
 

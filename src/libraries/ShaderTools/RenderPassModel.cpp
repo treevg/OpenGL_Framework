@@ -10,7 +10,7 @@ RenderPassModel::RenderPassModel(std::vector<VertexArrayObject*> meshes, ShaderP
       : meshes(meshes), RenderPassBase(shaderProgram, width, height){}
 	    
 	
-void RenderPassModel::runOneMesh()  const{
+void RenderPassModel::runOneMesh()  {
 	cout << "drawing one mesh" << endl;
 	frameBufferObject->bind();
 	shaderProgram->use();
@@ -51,18 +51,16 @@ void RenderPassModel::run(){
     shaderProgram->textureModel("specular_text", tex.id)
     ; 
 
-      case 'e': 
-
-  //  shaderProgram->textureModel("emission_text", tex.id) 
-      ; 
+      
 
 }
     	}
 
     } 
-      
-
-
+      shaderProgram->update("Ka", meshes[i]->getMaterial().ka);
+      shaderProgram->update("Kd", meshes[i]->getMaterial().kd);
+      shaderProgram->update("Ks", meshes[i]->getMaterial().ks);
+    
   	 meshes[i]->draw();     
     
         
@@ -73,6 +71,48 @@ void RenderPassModel::run(){
 
 	
 }
+
+
+
+void RenderPassModel::runTerrain(GLuint id1, GLuint id2){
+
+  cout << " RENDERING MESH " << this->meshes.size() <<  endl;
+  
+      frameBufferObject->bind();
+
+
+  for (int i=0; i<this->meshes.size(); i++ ){
+  
+        shaderProgram->use();
+
+  
+
+    shaderProgram->texture("grass_text", id1) ; 
+
+    shaderProgram->texture("rock_text", id2) ; 
+
+ 
+      
+
+    
+      
+
+
+    this->meshes[i]->draw();     
+    
+        
+  }
+
+   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
+  }
+
+
+
+
+
+
 
 RenderPassModel* RenderPassModel::setFrameBufferObject(FrameBufferObject* frameBufferObject) {
   this->frameBufferObject = frameBufferObject;

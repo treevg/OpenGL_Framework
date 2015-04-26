@@ -49,11 +49,10 @@ void RenderPassCollector::run() {
 
                       for (MeshTexture tex: this->objects[i]->getTextures()){
         
-                       cout <<  " ------  DEBUG: TEXTURE ID ------ "  << tex.id << endl; 
      
-                            switch( tex.type ) { 
+                      switch( tex.type ) { 
 
-  	                    case 'a': 
+  	                  case 'a': 
 
                     	shaderProgramms[sp]->textureModel("ambient_text", tex.id); 
 
@@ -61,25 +60,21 @@ void RenderPassCollector::run() {
 
                     	shaderProgramms[sp]->textureModel("diffuse_text", tex.id); 
 
-                        case 's': 
+                       case 's': 
 
                       shaderProgramms[sp]->textureModel("specular_text", tex.id); 
 
-                 //       case 'e': 
-
-                     //    shaderProgram->textureModel("emission_text", tex.id); 
+                 
 
                     }
     	          }
 
          }
-                       //TODO: check somehow if struct is set
-                       /* if(objects[i]->material!=NULL){
-
-                          shaderProgram->update("light_diffuse", objects[i]->material.color_dif);
-
-                        }
-                        */
+                              
+                shaderProgramms[sp]->update("Ka", objects[i]->getMaterial().ka);
+                shaderProgramms[sp]->update("Ks", objects[i]->getMaterial().ks);
+                shaderProgramms[sp]->update("Kd", objects[i]->getMaterial().kd);
+      
 
 	        	objects[i]->draw();
 	        	

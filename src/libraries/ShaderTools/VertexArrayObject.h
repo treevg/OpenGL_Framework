@@ -24,9 +24,9 @@ std::string path;
 
 struct Material {
 
-vec3 color_amb;
-vec3 color_dif;
-vec3 color_spec;
+vec3 ka;
+vec3 kd;
+vec3 ks;
 
      };
 
@@ -38,6 +38,13 @@ public:
 	virtual void draw() = 0;
   
     std::vector<MeshTexture> getTextures() const;
+    Material getMaterial() const;
+    void setModelMatrix(mat4 matrix);
+    vector<vec3> getVertices() const;
+     vector<vec3> getNormals() const;
+     vector<vec2> getTexCoords() const;
+     vector<GLuint> getIndices() const;
+ 
 
      mat4 modelMatrix;
      vec4 color;

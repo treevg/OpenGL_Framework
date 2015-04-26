@@ -17,6 +17,7 @@ public:
 	RenderPassBase(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 	
         virtual void run() = 0;
+        virtual void runOneMesh() = 0;
 	
 	void autoGenerateFrameBufferObject(int width, int height);
 	

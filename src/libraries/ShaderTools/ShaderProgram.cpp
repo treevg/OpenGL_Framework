@@ -102,7 +102,7 @@ void ShaderProgram::use() {
 }
 
 ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle) {
-      std::cout << "Texture handle " << textureHandle << std::endl;
+     // std::cout << "Texture handle " << textureHandle << std::endl;
 	return texture(name, textureHandle, 0);
 }
 
@@ -302,15 +302,15 @@ ShaderProgram::Info* ShaderProgram::checkUpdate(std::string name, std::string ty
 		return NULL;
 	}
 	if (it == uniformMap.end()) {
-		std::cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
-		<< "\"uniform " << type << " " << name << "\" is not set or has been removed by the GLSL compiler" << std::endl << std::endl;
+	//	std::cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+	//	<< "\"uniform " << type << " " << name << "\" is not set or has been removed by the GLSL compiler" << std::endl << std::endl;
 		return NULL;
 	}
 	return &(it->second);
 }
 
 void ShaderProgram::printUniformInfo() {
-	cout << "SHADER PROGRAM " << shaderProgramHandle << " UNIFORM INFO" << endl << endl;
+//	cout << "SHADER PROGRAM " << shaderProgramHandle << " UNIFORM INFO" << endl << endl;
 	printInfo(&uniformMap);
 }
 

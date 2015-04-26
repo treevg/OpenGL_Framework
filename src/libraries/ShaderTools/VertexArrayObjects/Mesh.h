@@ -27,11 +27,7 @@ public:
 	Mesh(vector<vec3> vertices, vector<vec3> normals, vector<vec2> textCoord,  vector<GLuint> indices, vector<MeshTexture> textures, mat4 modelMatrix, Material mat, string shaderProgramKey);
 	void draw();
 	void printInd();
-	vector<vec3> getVertices() const;
-	vector<vec3> getNormals() const;
-	vector<vec2> getTexCoords() const;
-	vector<GLuint> getIndices() const;
-	vector<MeshTexture> getTextures() const;
+	
 
     GLuint getVertexArrayObject() const;
 	
