@@ -132,7 +132,7 @@ glm::mat4 toGlm(const ovrMatrix4f & om) {
 	return glm::transpose(glm::make_mat4(&om.M[0][0]));
 }
 
-glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 50.0f, float farPlane = 10000.0f) {
+glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 0.1f, float farPlane = 10000.0f) {
 	return toGlm(ovrMatrix4f_Projection(fovport, nearPlane, farPlane, true));
 }
 
@@ -454,8 +454,8 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	}
 
 	// Projection matrici for each eye will not change at runtime, we can set them here...
-	g_ProjectionMatrici[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.3f, 10000.0f, true);
-	g_ProjectionMatrici[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.3f, 10000.0f, true);
+	g_ProjectionMatrici[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.1f, 10000.0f, true);
+	g_ProjectionMatrici[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.1f, 10000.0f, true);
 
 	// IPD offset values will not change at runtime, we can set them here...
 	g_EyeOffsets[ovrEye_Left] = g_EyeRenderDesc[ovrEye_Left].HmdToEyeViewOffset;

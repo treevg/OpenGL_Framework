@@ -13,13 +13,6 @@
 using namespace std;
 using namespace glm;
 
-float leftRight = 0.0f;
-
-float upDown = 0.0f;
-float nearFar = 5.0f;
-
-
-
 int main(int argc, char *argv[]) {
 
 	static const int depthWidth = 512;
