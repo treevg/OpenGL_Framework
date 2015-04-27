@@ -53,19 +53,19 @@ int main(int argc, char *argv[]) {
 	//transform due to head mounted Leap Motion
 	float tz = -0.08f;
 	glm::mat4 oculusToLeap(-1.0f, 0.0, 0.0, 0.0,
-							0.0, 0.0, -1.0f, 0.0,
-							0.0, -1.0f, 0.0, tz,
-							0.0, 0.0, 0.0, 1.0);
+		0.0, 0.0, -1.0f, 0.0,
+		0.0, -1.0f, 0.0, tz,
+		0.0, 0.0, 0.0, 1.0);
 
 	//transform from millimeter to meter
-	glm::mat4 normalizeMat(	0.001f, 0.0, 0.0, 0.0,
-							0.0, 0.001f, 0.0, 0.0,
-							0.0, 0.0, 0.001f, 0.0,
-							0.0, 0.0, 0.0, 1.0);
+	glm::mat4 normalizeMat(0.001f, 0.0, 0.0, 0.0,
+		0.0, 0.001f, 0.0, 0.0,
+		0.0, 0.0, 0.001f, 0.0,
+		0.0, 0.0, 0.0, 1.0);
 
 
 	
-	Cube* cube = new Cube(vec3(1.0f, 1.0f, -7.0f), 1.0f);
+	Cube* cube = new Cube(vec3(2.0f, 2.0f, -10.0f), 1.0f);
 	std::vector<std::string> attachShaders = { "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" };
 	RenderPass* cubePass = new RenderPass(
 		cube,
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
 			->update("viewMatrix", view);
 		spherePass
 			->update("lightPosition", lightPos)
-			->update("diffuseColor", vec3(0.2f, 0.2f, 0.2f))
+			->update("diffuseColor", vec3(1.0, 0.0, 0.0))
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
 		pointCloudPass
@@ -160,8 +160,7 @@ int main(int argc, char *argv[]) {
 
 
 		//transform world coordinates into Oculus coordinates (for attached Leap Motion)
-		//ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
-		ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, 0.0f).HeadPose.ThePose;
+		ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
 		glm::mat4 M_trans = toGlm(OVR::Matrix4f::Translation(headPose.Position));
 		glm::mat4 M_rot = toGlm(OVR::Matrix4f(headPose.Orientation));
 
@@ -213,76 +212,75 @@ int main(int argc, char *argv[]) {
 
 
 
-			// TODO: DIRECTION FUER DEN INTERSECTION TEST MUSS IRGENDWIE AUCH DURCH DIE "PIPELINE" GEJAGT WERDEN?!?!?!
 
-			//compute direction and translation for pointing bone
-			vec4 eins = vec4(leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), 1.0f);
-			vec4 zwei = vec4(leapHandler.convertLeapVecToGlm(bones[5].prevJoint()), 1.0f);
-			
-			vec4 directionTest = normalize(eins - zwei);
-			vec3 directionTest2(directionTest.x, directionTest.y, directionTest.z);
-						
-			mat4 boneTestRot = leapHandler.convertLeapMatToGlm(bones[7].basis());
-			mat4 boneTest = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()));
-			mat4 finalDirMatTest = boneTest; // * boneTestRot;
 
-			mat4 boneOrigin = M_trans * M_rot * oculusToLeap * normalizeMat * finalDirMatTest;
+			////compute direction and translation for pointing bone
+			//vec3 eins = leapHandler.convertLeapVecToGlm(bones[7].nextJoint());
+			//vec3 zwei = leapHandler.convertLeapVecToGlm(bones[5].prevJoint());
+			//vec3 directionTest = normalize(eins - zwei);
+			//
+			//
+			//
+			//mat4 boneTestRot = leapHandler.convertLeapMatToGlm(bones[7].basis());
+			//mat4 boneTest = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()));
+			//mat4 finalDirMatTest = boneTest; // *boneTestRot;
 
-			vec4 boneOrigin2 = M_trans * M_rot * oculusToLeap * normalizeMat * vec4(leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), 1.0);
+			//mat4 boneOrigin = M_trans * M_rot * oculusToLeap * normalizeMat * finalDirMatTest;
 
-			//show pointing direction 
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 5.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 15.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 25.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 35.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 45.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 55.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 65.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 75.0f))
-				->run();
-			
+			////show pointing direction 
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 5.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 15.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 25.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 35.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 45.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 55.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 65.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 75.0f))
+			//	->run();
 
 
 
-			eins = M_trans * M_rot * oculusToLeap * normalizeMat * eins;
-			zwei = M_trans * M_rot * oculusToLeap * normalizeMat * zwei;
-			vec4 drei = eins - zwei;
 
-			vec3 vier = normalize(vec3(drei.x, drei.y, drei.z));
 
-			//check for intersection
-			if (bones.size() != 0){
-				bool a = leapHandler.checkForIntersection(cube->getVertices(), vec3(boneOrigin2.x, boneOrigin2.y, boneOrigin2.z), vier);
-				//cout << "X: "<< directionTest1.x << ", Y: " << directionTest1.y << ", Z: " << directionTest1.z << endl;
 
-				if (a == true){
-					//cout << "Getroffen" << endl;
-					cubePass
-						->update("diffuseColor", vec3(0.0, 1.0, 0.0))
-						->run();
-				}
-				else{
-					//cout << "Nicht getroffen" << endl;
-					cubePass
-						->update("diffuseColor", vec3(1.0, 0.0, 0.0))
-						->run();
-				}
-			}
+
+
+
+
+
+			////check for intersection
+			//if (bones.size() != 0){
+			//	bool a = leapHandler.checkForIntersection(cube->getVertices(), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), directionTest);
+			//	//cout << "X: "<< directionTest1.x << ", Y: " << directionTest1.y << ", Z: " << directionTest1.z << endl;
+
+			//	if (a == true){
+			//		//cout << "Getroffen" << endl;
+			//		cubePass
+			//			->update("diffuseColor", vec3(0.0, 1.0, 0.0))
+			//			->run();
+			//	}
+			//	else{
+			//		//cout << "Nicht getroffen" << endl;
+			//		cubePass
+			//			->update("diffuseColor", vec3(1.0, 0.0, 0.0))
+			//			->run();
+			//	}
+			//}
 		}
 
 

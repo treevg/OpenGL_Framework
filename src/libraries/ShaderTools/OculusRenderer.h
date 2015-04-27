@@ -20,8 +20,6 @@
 #include "glm\glm.hpp"
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
-#include "ShaderTools/VertexArrayObjects/Quad.h"
-#include "ShaderTools/VertexArrayObjects/Cube.h"
 #include <functional>
 
 const bool l_MultiSampling = false;
@@ -134,7 +132,7 @@ glm::mat4 toGlm(const ovrMatrix4f & om) {
 	return glm::transpose(glm::make_mat4(&om.M[0][0]));
 }
 
-glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 0.01f, float farPlane = 10000.0f) {
+glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 50.0f, float farPlane = 10000.0f) {
 	return toGlm(ovrMatrix4f_Projection(fovport, nearPlane, farPlane, true));
 }
 
@@ -196,6 +194,9 @@ void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection,
 
 			glm::mat4 view = toGlm(l_ModelViewMatrix);
 			glm::mat4 projection = toGlm(g_ProjectionMatrici[l_Eye]);
+
+			//ovrTrackingState ts = ovrHmd_GetTrackingState(g_Hmd, 0.0f);
+			//if (ts.StatusFlags & (ovrStatus_PositionTracked)){}
 
 			// Translation due to positional tracking (DK2) and IPD...
 			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z));
