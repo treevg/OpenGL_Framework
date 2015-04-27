@@ -16,8 +16,7 @@
 using namespace std;
 using namespace glm;
 
-//TODO blur compositing?
-//TODO smooth normals
+//TODO instead of bigger pointsize use holefilling&reduce shader
 //TODO divide scene into patches for raytracing-> increase performance
 
 int main(int argc, char *argv[]) {
@@ -60,7 +59,7 @@ int main(int argc, char *argv[]) {
         ->texture("environmentTexture", TextureTools::loadTexture(RESOURCES_PATH "/equirectangular/park.jpg"))
         ->update("sphereVec[0]", sphereVec)
         ->update("colorSphere[0]", colorSphere)
-        ->update("iResolution", glm::vec3(getWidth(window), getHeight(window), 1));
+        ->update("resolution", glm::vec3(getWidth(window), getHeight(window), 1));
 
     // Diffuse Warping
     auto diffWarp = (new RenderPass(grid,
@@ -71,14 +70,6 @@ int main(int argc, char *argv[]) {
         ->texture("normalTexture", raytracePass->get("normal"))
         ->texture("diffuseTexture", raytracePass->get("diffuseColor"));
 
-    // Holefilling
-    auto holeFill = (new RenderPass(quadVAO,
-    	new ShaderProgram({"/Raytracing/raytrace.vert", "/RenderTechniques/hhfFill.frag"}),
-		getWidth(window), getHeight(window)))
-		->clear(1,0,0,0)
-		->texture("mipmapTexture", diffWarp->get("position"))
-		->update("resolution", vec2(getWidth(window), getHeight(window)))
-		->update("level", 0);
 
     // Reflective Warping
     auto refWarp = (new RenderPass(grid,
@@ -91,6 +82,15 @@ int main(int argc, char *argv[]) {
 		->texture("refPositionTexture", raytracePass->get("reflectivePosition"))
 		->texture("reflectiveColorTexture", raytracePass->get("reflectiveColor"))
 		->update("resolution", getResolution(window));
+
+    // Holefilling
+    auto holeFill = (new RenderPass(quadVAO,
+    	new ShaderProgram({"/Raytracing/raytrace.vert", "/RenderTechniques/hhfReduce.frag"}),
+		getWidth(window), getHeight(window)))
+		->clear(1,0,0,0)
+		->texture("mipmapTexture", refWarp->get("position"))
+		->update("resolution", vec2(getWidth(window), getHeight(window)))
+		->update("level", 0);
 
     // Smooth warpedNormals
     auto smoothNorm = (new RenderPass(quadVAO,
@@ -126,8 +126,7 @@ int main(int argc, char *argv[]) {
         ->texture("colorReflect", raytracePass->get("reflectiveColor"))
 		->texture("warpedDiffusePositionTexture", diffWarp->get("position"))
 		->texture("warpedNormalTexture", diffWarp->get("normal"))
-		->texture("reflectionPositionTexture", refWarp->get("position"))
-		->texture("temp", refWarp->get("uv"))
+		->texture("reflectionPositionTexture", holeFill->get("fragColor"))
         ->update("resolution", getResolution(window))
 		;
 
@@ -212,11 +211,8 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_R:
                  tonemapping->texture("tex", refWarp->get("uv"));
                  break;
-            case GLFW_KEY_O:
-            	gatherRefPass->texture("temp", refWarp->get("uv"));
-                 break;
-            case GLFW_KEY_P:
-            	gatherRefPass->texture("temp", diffWarp->get("uv"));
+            case GLFW_KEY_T:
+                 tonemapping->texture("tex", holeFill->get("fragColor"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -279,7 +275,6 @@ int main(int argc, char *argv[]) {
         ->clear(0, 0, 0, 0)
         ->update("view", view_old)
         ->update("projection", projection)
-        ->update("invViewProjection", invViewProjection_old)
         ->update("invView",invView_old)
         ->run();
 
@@ -297,14 +292,14 @@ int main(int argc, char *argv[]) {
 //		->clear(1,0,0,0)
 //		->run();
 
-        smoothNorm
-		->clear()
-        ->update("view", view)
-		->run();
+//        smoothNorm
+//		->clear()
+//        ->update("view", view)
+//		->run();
 
         refWarp
 		->clear()
-        ->update("altView", view)
+        ->update("view", view)
         ->update("projection", projection)
 		->run();
 
@@ -312,6 +307,7 @@ int main(int argc, char *argv[]) {
         gatherRefPass
         ->clear()
         ->update("test" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?0:1)
+        ->update("swap" , (glfwGetKey(window, GLFW_KEY_G) == GLFW_PRESS)?0:1)
         ->update("view", view)
         ->run();
 

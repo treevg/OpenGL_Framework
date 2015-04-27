@@ -6,7 +6,7 @@
 
 in vec4 gl_FragCoord;
 
-uniform vec3	iResolution; 	
+uniform vec3	resolution; 	
 uniform mat4	projection;
 uniform float 	zoom;
 uniform int		indirection;
@@ -14,7 +14,7 @@ uniform sampler2D environmentTexture;
 
 uniform mat4 	invView;
 uniform mat4 	view;
-uniform mat4	invViewProjection;
+//uniform mat4	invViewProjection;
 uniform mat3	normalMat;
 
 uniform vec4 	sphereVec[3];
@@ -28,7 +28,7 @@ in 		vec4	passPosition;
 out 	vec4	diffuseColor;
 out 	vec4 	diffusePosition;
 out 	vec3	normal;
-out		vec3	initialDirNotnorm;
+//out		vec3	initialDirNotnorm;
 
 
 //indirect
@@ -124,18 +124,15 @@ vec3 background(vec3 rd)
 
 int indirections = 1;
 
-vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / (iResolution.xy);
-vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
-vec3 initialPos=currentPos;
-
+//vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / (resolution.xy);
+//vec3 initialPos=currentPos;
 //vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.05+zoom, 0.0)).xyz);
+//vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.5, 0.0)).xyz);
 
-// vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.5, 0.0)).xyz);
-vec2 fragCoord = vec2(gl_FragCoord.xy / iResolution.xy) * 2 - 1;
-vec3 currentDir = normalize(inverse(mat3(projection) * mat3(view)) * vec3(fragCoord, 1));
+vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
+vec2 fragCoord = vec2(gl_FragCoord.xy / resolution.xy) * 2 - 1;
+vec3 currentDir = normalize(inverse(mat3(projection) * mat3(view)) * vec3(fragCoord, 1.0));
 
-
-vec3 initialDir = currentDir;
 
 //float lengthCurrentDirOffset = length(currentDirOffset);
 //float lengthUv = length(uv);
@@ -145,7 +142,7 @@ vec3 initialDir = currentDir;
 void main(void) { 
 
 	normal = vec3(0.0);
-	initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
+	//initialDirNotnorm = vec4(invViewProjection * vec4(uv, 0.05, 0.0)).xyz;
 	
 	float rayStrength = 1.0;
 
@@ -254,7 +251,7 @@ void main(void) {
 				newColor = colorSphere[hitSphere];
 			}
 			else{
-				newColor = vec4(0.4,0.4,1.0,0.5);
+				newColor = vec4(0.4, 0.4, 1.0, 0.5);
 			}
 
 			vec3  phongAmbient = vec3(0.1, 0.2, 0.2) * 0.4;
