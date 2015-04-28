@@ -7,7 +7,7 @@
 
 FollowObject::FollowObject(Camera* camera, float speed, mat4 modelMatrix, string sp) {
 
-   this->m_model = new Model(RESOURCES_PATH "/BUTT_M.3DS", modelMatrix, sp);
+   this->m_model = new Model(RESOURCES_PATH "/butterfly.obj", modelMatrix, sp);
    this->m_speed= speed;
   // this->m_currentPosition = vec3(camera->getPosition().x , camera->getPosition().y ,  camera->getPosition().z - 4);
     this->m_currentPosition = vec3(123.8 ,-4.5 ,  191.572);

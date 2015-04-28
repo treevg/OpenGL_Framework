@@ -8,6 +8,7 @@ class FrameBufferObject
 public:
 	FrameBufferObject();
 	FrameBufferObject(std::map<std::string, ShaderProgram::Info>* outputMap, int width, int height);
+	FrameBufferObject(std::map<std::string, ShaderProgram::Info>* outputMap, int width, int height, GLuint depthTexture);
 	void bind();
 	FrameBufferObject* clear(float r, float g, float b, float a);
 	FrameBufferObject* clear();

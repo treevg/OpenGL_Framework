@@ -310,9 +310,9 @@ void Game::setMatrix()
 	skyModel = translate(skyModel, vec3(-2.0, -12.0, -2.0));
 	skyModel =  scale(skyModel, vec3(15, 15, 15 ));
 
-	followMeModel = translate(followMeModel, vec3(128.8 , -4.5 ,  199.572));
-		followMeModel = glm::rotate(followMeModel, 90.0f, glm::vec3(1,1,0));
-followMeModel = scale(followMeModel, vec3(0.0005, 0.0005, 0.0005));
+	followMeModel = translate(followMeModel, vec3(126.8 , -4.5 ,  195.572));
+	followMeModel = glm::rotate(followMeModel, 80.0f, glm::vec3(0,1,0));
+  followMeModel = scale(followMeModel, vec3(0.06, 0.06, 0.06));
 	
 
 	modelTerra = translate(modelTerra, vec3(52.0, -6.0, 50.0));
@@ -492,9 +492,11 @@ followMeModel = scale(followMeModel, vec3(0.0005, 0.0005, 0.0005));
 	modelCart =  scale(modelCart, vec3(0.015, 0.015, 0.015));
 
 	modelPig = translate(modelPig, vec3(115.88, -6.0, 150.05));
+
 	modelPig =  scale(modelPig, vec3(0.3, 0.3, 0.3));
 
-  modelSmaug =  translate(modelSmaug, vec3(141.8, -3.0, 198.05));
+  modelSmaug =  translate(modelSmaug, vec3(152.48, 0.0, 99.08));
+  	modelSmaug = glm::rotate(modelSmaug, 0.45f, glm::vec3(1,0,0));
 
 
 
@@ -839,10 +841,9 @@ void  Game::renderSzene()
     
 		followMeModel = translate(mat4(1), movingPositions[i]);
 		cout << "moving to " << movingPositions[i].x << " " << movingPositions[i].z << endl;
-		followMeModel = glm::rotate(followMeModel, -90.0f, glm::vec3(1,0,0));
-		followMeModel = glm::rotate(followMeModel, 45.0f, glm::vec3(0,1,0));
-		followMeModel = scale(followMeModel, vec3(0.0005, 0.0005, 0.0005));
-	
+    followMeModel = glm::rotate(followMeModel, 80.0f, glm::vec3(0,1,0)); 
+		followMeModel = scale(followMeModel, vec3(0.06, 0.06, 0.06));
+	   cout << i << endl;
 	
 		i++;
 		
@@ -868,11 +869,11 @@ void  Game::renderSzene()
      	
      }
      lastPosition=currentPosition;
-      cout << "camera  LAST position " << lastPosition.x << " " << lastPosition.y << " " << lastPosition.z << endl;
+   //   cout << "camera  LAST position " << lastPosition.x << " " << lastPosition.y << " " << lastPosition.z << endl;
 
 	
 
-		cout << "camera position " << camera->getPosition().x << " " << camera->getPosition().y << " " << camera->getPosition().z << endl;
+		//cout << "camera position " << camera->getPosition().x << " " << camera->getPosition().y << " " << camera->getPosition().z << endl;
 
 		if(warpping)
 		{

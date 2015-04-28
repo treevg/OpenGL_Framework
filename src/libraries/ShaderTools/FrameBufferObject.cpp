@@ -45,6 +45,32 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
 }
 
+
+
+FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>* outputMap, int width, int height, GLuint depthTexture) {
+	int size = outputMap->size();
+
+	glGenFramebuffers(1, &frameBufferObjectHandle);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
+    
+    	glGenTextures(1, &depthTexture);
+	    glBindTexture(GL_TEXTURE_2D, depthTexture);
+	    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
+	     GLenum draw_bufs[] = { GL_NONE };
+	     glDrawBuffers (1, draw_bufs);
+
+	     glReadBuffer (GL_NONE);
+
+	// bind default framebuffer again
+	  glBindFramebuffer (GL_FRAMEBUFFER, 0);
+}
+
 void FrameBufferObject::bind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
 }
