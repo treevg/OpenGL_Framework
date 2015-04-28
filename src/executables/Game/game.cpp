@@ -311,7 +311,9 @@ void Game::setMatrix()
 	skyModel =  scale(skyModel, vec3(15, 15, 15 ));
 
 	followMeModel = translate(followMeModel, vec3(128.8 , -4.5 ,  199.572));
-	followMeModel = scale(followMeModel, vec3(0.4, 0.4, 0.4));
+		followMeModel = glm::rotate(followMeModel, 90.0f, glm::vec3(1,1,0));
+followMeModel = scale(followMeModel, vec3(0.0005, 0.0005, 0.0005));
+	
 
 	modelTerra = translate(modelTerra, vec3(52.0, -6.0, 50.0));
 	modelTerra =  scale(modelTerra, vec3(100, 200, 150));
@@ -531,7 +533,7 @@ void Game::init()
 	string demo = "demo";
 
 
-	followMe = new FollowObject(camera, 5, followMeModel,"suzane");
+	followMe = new FollowObject(camera, 5, followMeModel,modSP);
 	myModel = new Model(RESOURCES_PATH "/Tree.obj", modelTree, demo);
 	castle = new Model(RESOURCES_PATH "/castle01.obj",modelCastle, modSP);
 	chest = new Model(RESOURCES_PATH "/chest.obj", modelChest, modSP);
@@ -699,7 +701,7 @@ void Game::init()
 		trees = new RenderPassModel(meshes, model);
 		castlePass = new RenderPassModel(castleMeshes, model );
 		chestPass = new RenderPassModel(chestMeshes, model );
-		followMePass = new RenderPassModel(suzanneMeshes,suzanneSp);
+		followMePass = new RenderPassModel(suzanneMeshes,model);
 		windMillPass = new RenderPassModel(windMillMeshes, model );
 		vikingPass =  new RenderPassModel(vikingMeshes, suzanneSp );
 		skyBoxPass = new RenderPassModel(skyMeshes, demoSp);
@@ -837,7 +839,10 @@ void  Game::renderSzene()
     
 		followMeModel = translate(mat4(1), movingPositions[i]);
 		cout << "moving to " << movingPositions[i].x << " " << movingPositions[i].z << endl;
-		followMeModel = scale(followMeModel, vec3(0.4, 0.4, 0.4));
+		followMeModel = glm::rotate(followMeModel, -90.0f, glm::vec3(1,0,0));
+		followMeModel = glm::rotate(followMeModel, 45.0f, glm::vec3(0,1,0));
+		followMeModel = scale(followMeModel, vec3(0.0005, 0.0005, 0.0005));
+	
 	
 		i++;
 		
@@ -1619,7 +1624,7 @@ void  Game::renderSzene()
 int main(int argc, char *argv[])
 {
 
-	Game * g = new Game(true);
+	Game * g = new Game(false);
 
 	delete g;
 }
