@@ -24,6 +24,7 @@ bool warpping;
 double lasttime;
 vec3 lightPosition = vec3(150,150,150);
 float shinines = 32.0f;
+string path;
 
 
 
@@ -125,7 +126,6 @@ RenderPassModel*  skyBoxPass;
 RenderPass*  plane ;
 RenderPassModel* trees;
 RenderPass* diffWarp;
-RenderPass* diffWarpMuelle;
 RenderPassModel* castlePass;
 RenderPassModel* chestPass;
 RenderPassModel* housePass;
@@ -269,7 +269,6 @@ static void  lookAround()
 
 
 
-
 static void simulateLanetcy(int frameCount, glm::mat4 viewMat)
 {
 
@@ -287,8 +286,6 @@ static void simulateLanetcy(int frameCount, glm::mat4 viewMat)
 
 void Game::setMatrix()
 {
-
-
 
 	modelCastle= glm::translate(modelCastle, glm::vec3(50,castel_y, 120));
 	modelCastle = glm::rotate(modelCastle, -29.0f, glm::vec3(0,1,0));
@@ -312,6 +309,9 @@ void Game::setMatrix()
 
 	skyModel = translate(skyModel, vec3(-2.0, -12.0, -2.0));
 	skyModel =  scale(skyModel, vec3(15, 15, 15 ));
+
+	followMeModel = translate(followMeModel, vec3(128.8 , -4.5 ,  199.572));
+	followMeModel = scale(followMeModel, vec3(0.4, 0.4, 0.4));
 
 	modelTerra = translate(modelTerra, vec3(52.0, -6.0, 50.0));
 	modelTerra =  scale(modelTerra, vec3(100, 200, 150));
@@ -504,7 +504,6 @@ void Game::init()
 	window = generateWindow();
 	camera =  new Camera();
 
-	followMe = new FollowObject(camera, 5);
 	auto  quad = new Quad();
 
 	auto grid = new Grid(getWidth(window), getHeight(window));
@@ -513,8 +512,7 @@ void Game::init()
 	//Warping shader
 	auto warp = new ShaderProgram("/Warpping/warp.vert", "/Raytracing/warp.frag");
 
-	diffWarpMuelle = new RenderPass(grid, warp);
-
+// other shader
 	auto sp = new ShaderProgram("/Test_ShaderTools/test.vert", "/Test_ShaderTools/test.frag");
 	auto sp1 = new ShaderProgram("/Warpping/myTest.vert", "/Warpping/myTest.frag");
 	auto model = new ShaderProgram("/Warpping/model.vert", "/Warpping/model.frag");
@@ -533,6 +531,7 @@ void Game::init()
 	string demo = "demo";
 
 
+	followMe = new FollowObject(camera, 5, followMeModel,"suzane");
 	myModel = new Model(RESOURCES_PATH "/Tree.obj", modelTree, demo);
 	castle = new Model(RESOURCES_PATH "/castle01.obj",modelCastle, modSP);
 	chest = new Model(RESOURCES_PATH "/chest.obj", modelChest, modSP);
@@ -591,7 +590,8 @@ void Game::init()
 
 	collector = new RenderPassCollector(vaos, shaderPrograms, getWidth(window), getHeight(window));
 
-
+    /* get movement positions for suzanne*/
+	followMe->getPositionsFromFile(RESOURCES_PATH "/moving.txt");
 
 
 
@@ -756,18 +756,18 @@ Game::~Game()
 	delete pigModel;
 
 
-	delete   trees;
+	delete trees;
 	delete castlePass;
 	delete chestPass;
 	delete followMePass;
 	delete windMillPass;
-	delete  vikingPass;
+	delete vikingPass;
 	delete skyBoxPass;
 	delete terraPass;
-	delete  housePass;
-	delete  house2Pass;
+	delete housePass;
+	delete house2Pass;
 	delete house3Pass;
-	delete  lowPollyPass;
+	delete lowPollyPass;
 	delete  bushPass;
 	delete wellPass;
 	delete lowPollyTreesPass;
@@ -796,20 +796,24 @@ void  Game::renderSzene()
 	auto tonemapping = new RenderPass( new Quad(), new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag"));
 
 
- ofstream myfile ("/home/ivanna/example.txt");
+ ofstream myfile ("/home/ivanna/moving.txt");
  vec3 lastPosition = camera->getPosition();
+ vector<vec3> movingPositions = followMe->getM_positions();
+ int i = 0;
+ int j = 0;
+  int m;
+ if(warpping){
+ 	m=2;
+ }else{
+ 	m=3;
+ }
 
 	render(window,  [&] (float deltaTime)
 	{
 
 		double currentTime = glfwGetTime();
 
-		if(!targetReached)
-		{
-
-			targetReached = followMe->moveToTarget(currentChestPosition.x+1 , currentChestPosition.z-2 , deltaTime);
-
-		}
+		
 
 		lasttime = currentTime;
 
@@ -827,10 +831,22 @@ void  Game::renderSzene()
 
 		/*   MODEL FOR followObject   */
 
-		followMeModel = translate(followMeModel, followMe->getCurrentPosition());
+    if( j>15  &&  j%m==0  && i < movingPositions.size()){
+
+
+    
+		followMeModel = translate(mat4(1), movingPositions[i]);
+		cout << "moving to " << movingPositions[i].x << " " << movingPositions[i].z << endl;
 		followMeModel = scale(followMeModel, vec3(0.4, 0.4, 0.4));
+	
+		i++;
+		
+
+    }
+    j++;
 
 
+ 
 
 		lookAround();
 
@@ -842,12 +858,12 @@ void  Game::renderSzene()
      if(currentPosition.x!=lastPosition.x || currentPosition.z!=lastPosition.z ){
      	string str = std::to_string(currentPosition.x) + ";";
        str = str + std::to_string(currentPosition.z);
-      cout << "string "  << endl;
-     		myfile << str << endl; 
+   //   cout << "string "  << endl;
+     	myfile << str << endl; 
      	
      }
      lastPosition=currentPosition;
-       cout << "camera  LAST position " << lastPosition.x << " " << lastPosition.y << " " << lastPosition.z << endl;
+      cout << "camera  LAST position " << lastPosition.x << " " << lastPosition.y << " " << lastPosition.z << endl;
 
 	
 
@@ -855,7 +871,8 @@ void  Game::renderSzene()
 
 		if(warpping)
 		{
-
+    
+       collector->addVAOS(followMe->updateModelMatrix(followMeModel));
 
 			cout << "######## RENDER TO TEXTURE ###########" << endl;
 
@@ -919,7 +936,7 @@ void  Game::renderSzene()
 			->  update("uniformView", viewMat_old)
 			->  update("uniformProjection", projMat)
 			->  run();
-			cout << " drawing house" << endl;
+		
 
 			housePass
 			->  update("uniformModel", modelHouse1)
@@ -1105,7 +1122,6 @@ void  Game::renderSzene()
 			-> run();
 
 			vikingPass
-			//-> clear(0.2,0.3,0.4,1)
 			->  update("uniformModel", vikingModel2)
 			->  update("uniformView", viewMat_old)
 			->  update("uniformProjection", projMat)
@@ -1602,7 +1618,6 @@ void  Game::renderSzene()
 
 int main(int argc, char *argv[])
 {
-
 
 	Game * g = new Game(true);
 

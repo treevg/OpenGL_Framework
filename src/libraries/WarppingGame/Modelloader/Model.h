@@ -30,6 +30,7 @@ public:
      vector<MeshTexture> getTextures() const;
      mat4 getModelMatrix() const;
      vector<VertexArrayObject*> setModelMatrix(mat4 matrix);
+     vector<VertexArrayObject*> updateModelMatrix(mat4 matrix);
      
 
 private:

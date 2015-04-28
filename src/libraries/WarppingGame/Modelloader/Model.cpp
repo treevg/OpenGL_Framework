@@ -328,3 +328,17 @@ using namespace Assimp;
            return updatedMeshes;
        }
      
+
+      vector<VertexArrayObject*> Model::updateModelMatrix(mat4 matrix){
+
+        vector<VertexArrayObject*> updatedMeshes;
+
+        
+        for (std::vector<VertexArrayObject*>::iterator it =this->m_meshes.begin() ; it != this->m_meshes.end(); ++it){
+
+                 (*it)->setModelMatrix(matrix);
+
+        }
+             return this->m_meshes;
+
+      }

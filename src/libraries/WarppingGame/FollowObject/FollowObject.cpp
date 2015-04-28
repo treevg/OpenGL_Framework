@@ -5,12 +5,12 @@
 
 //TODO Bullet
 
-FollowObject::FollowObject(Camera* camera, float speed) {
+FollowObject::FollowObject(Camera* camera, float speed, mat4 modelMatrix, string sp) {
 
-   this->m_model = new Model(RESOURCES_PATH "/monkey2.obj", mat4(1), "followObject");
+   this->m_model = new Model(RESOURCES_PATH "/monkey2.obj", modelMatrix, sp);
    this->m_speed= speed;
-   this->m_currentPosition = vec3(camera->getPosition().x , camera->getPosition().y ,  camera->getPosition().z - 4);
-   
+  // this->m_currentPosition = vec3(camera->getPosition().x , camera->getPosition().y ,  camera->getPosition().z - 4);
+    this->m_currentPosition = vec3(123.8 ,-4.5 ,  191.572);
 
 }
 
@@ -31,22 +31,58 @@ delete this->m_model;
 
 }
 
+vector<vec3> FollowObject::getM_positions() const{
+
+  return this->m_positions;
+}
+
+
+
+void FollowObject::getPositionsFromFile(string path){
+
+       string line;
+       ifstream file (path);
+       size_t pos = 0;
+       string delimiter = ";";
+       std::string xPos;
+       std::string zPos;
+
+        if (file.is_open())
+  {
+      while ( getline (file,line) )
+    {
+
+     while ((pos = line.find(delimiter)) != std::string::npos) {
+          xPos = line.substr(0, pos);
+          zPos=line.erase(0, pos + delimiter.length());
+        }
+          double xposition = std::stod(xPos);
+          double zposition = std::stod(zPos);
+
+     //    cout <<"xPOS " <<  xposition << '\n';
+     //    cout <<"zPOS " <<  zposition << '\n';
+         vec3 step = vec3(xposition, -4.5, zposition);
+         this->m_positions.push_back(step);
+       
+    }
+       cout << "size of m_positions " << this->m_positions.size()<<endl;
+
+  }  else{
+       cout << "Unable to open file"; 
+  }
+
+
+
+}
+
+
+
 
 bool FollowObject::moveToTarget(float x, float z, float deltaTime) {
 
   bool targetReached = false;
 
-//check, if current x and z pos! >70 ! < -70
-
-//position += direction * speed * elapsed;
- vec3 targetZ = vec3(0, this->getCurrentPosition().y, z);
- vec3 targetX = vec3(x, this->getCurrentPosition().y, z);
-
-  cout << "differencre on Z" << abs(targetZ.z -this->m_currentPosition.z) << endl;
-  cout << "differencre on X  " << abs(targetX.x - this->m_currentPosition.x) << endl;
-
-
-  if(abs(targetZ.z - this->m_currentPosition.z) > 0.01 ){
+/*
 
 vec3 direction = normalize(targetZ - this->m_currentPosition);
 
@@ -76,7 +112,7 @@ cout << "current position X " << m_currentPosition.x << " " << m_currentPosition
     targetReached = true;
 
 }
-
+*/
 return targetReached;
   
 }
@@ -92,4 +128,6 @@ return false;
 
 
 
-
+vector<VertexArrayObject*> FollowObject::updateModelMatrix(mat4 matrix){
+  return this->m_model->updateModelMatrix(matrix);
+}
