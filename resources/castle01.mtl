@@ -1,0 +1,236 @@
+# 3ds Max Wavefront OBJ Exporter v0.94b - (c)2007 guruware
+# File Created: 25.06.2008 19:25:16
+
+newmtl dx_dx_est02
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka est9.jpg
+	map_Kd est9.jpg
+
+newmtl dx_dx_arc03
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka arc18.jpg
+	map_Kd arc18.jpg
+
+newmtl dx_dx_est01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka est10.jpg
+	map_Kd est10.jpg
+
+newmtl dx_dx_window_withstone01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka window_withstone2.jpg
+	map_Kd window_withstone2.jpg
+
+newmtl dx_dx_castle01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka castle.jpg
+	map_Kd castle.jpg
+
+newmtl dx_dx_cottage_roof01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 0.6275 0.6275 0.6275
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka cottage_roof.jpg
+	map_Kd cottage_roof.jpg
+
+newmtl dx_dx_epil01
+	Ns 39.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.2000 0.2000 0.2000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka epil1.jpg
+	map_Kd epil1.jpg
+
+newmtl dx_dx_epil1_b01
+	Ns 24.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.2100 0.2100 0.2100
+	Ke 0.0000 0.0000 0.0000
+	map_Ka epil1_b.jpg
+	map_Kd epil1_b.jpg
+
+newmtl dx_dx_arc01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka arc019.jpg
+	map_Kd arc019.jpg
+
+newmtl dx_dx_ear2_tilepattern_bmp01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka ear2_tilepattern_bmp.bmp
+	map_Kd ear2_tilepattern_bmp.bmp
+
+newmtl dx_dx_efl01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka efl2.jpg
+	map_Kd efl2.jpg
+
+newmtl dx_dx_arc02
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka arc14.jpg
+	map_Kd arc14.jpg
+
+newmtl dx_dx_ti_01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka ti_42.jpg
+	map_Kd ti_42.jpg
+
+newmtl dx_dx_flag01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka flag.jpg
+	map_Kd flag.jpg
+
+newmtl dx_dx_th_portugal_edit_lt01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka th_portugal_edit-lt.jpg
+	map_Kd th_portugal_edit-lt.jpg
+
+newmtl dx_dx_th_mc_door_01
+	Ns 0.0000
+	Ni 1.0000
+	d 1.0000
+	Tr 1.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka th_mc_door_20.jpg
+	map_Kd th_mc_door_20.jpg
+
+newmtl wire_192192192
+	Ns 32
+	d 1
+	Tr 1
+	Tf 1 1 1
+	illum 2
+	Ka 1.0000 1.0000 1.0000
+	Kd 0.7529 0.7529 0.7529
+	Ks 0.3500 0.3500 0.3500
