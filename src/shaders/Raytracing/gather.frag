@@ -5,10 +5,13 @@ uniform sampler2D uvReflect;
 uniform sampler2D colorReflect;
 uniform sampler2D warpedDiffusePositionTexture;
 uniform sampler2D warpedNormalTexture;
+uniform sampler2D normalTexture;
 uniform sampler2D reflectionPositionTexture;
+uniform sampler2D warpedReflectionPositionTexture;
 uniform sampler2D temp;
 uniform vec2 resolution; 
 uniform mat4 view;
+uniform mat4 view_old;
 
 uniform int test;
 out vec4 warpedColor;
@@ -17,6 +20,7 @@ vec3 eyePosition = (inverse(view) * vec4(0,0,0,1)).xyz;
 vec2 uv = gl_FragCoord.xy / resolution;
 vec3 warpedDiffusePosition = texture(warpedDiffusePositionTexture, uv).xyz;
 vec4 warpedNormal = texture(warpedNormalTexture,uv);
+vec4 normal = texture(normalTexture,uv);
 vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyePosition, normalize(warpedNormal.xyz)));
 
 vec4 g = vec4(0);
@@ -180,6 +184,8 @@ vec2 interpolateGuess(vec2 g1, vec2 g2) {
 		float g1Q = reflectionQuality(g1);
 		float g2Q = reflectionQuality(g2);		
 		float q = g1Q + g2Q;
+		if (g1Q < g2Q) return g1;
+		else return g2;
 		return (g1 * g2Q + g2 * g1Q) / q;
 	// }
 }
@@ -193,8 +199,8 @@ vec2 interpolateGuessPrimitively(vec2 g1, vec2 g2) {
 }
 
 vec4 qualityVisualization(vec2 g1, vec2 g2) {
-	float g1Q = 1.5708 - reflectionQuality(g1);
-	float g2Q = 1.5708 - reflectionQuality(g2);
+	float g1Q = reflectionQuality(g1);
+	float g2Q = reflectionQuality(g2);
 	return vec4(g1Q ,0, g2Q, 1);		
 }
 
@@ -231,6 +237,7 @@ vec2 gradientDescent(vec2 initialGuess) {
     return initialGuess;
 }
 
+
 void main() {
 
 	vec2 uvDiff = texture(uvDiffuse, uv).xy;
@@ -238,17 +245,51 @@ void main() {
 	vec2 uvVar = texture(temp, uv).xy;
 
 	if (true) {
+
+		// initial guess
+
+		vec3 reflectionPosition = texture(reflectionPositionTexture, uv).xyz;
+		vec3 warpedReflectionPosition = texture(warpedReflectionPositionTexture, uv).xyz;
+		vec3 v = normalize(reflectionPosition - warpedDiffusePosition);
+		vec3 w = normalize(warpedReflectionPosition - warpedDiffusePosition);
+		vec3 r = normalize(vec4(reflectionVector,1).xyz);
+		float g1Q = acos(clamp(dot(r, v), -1, 1));
+		float g2Q = acos(clamp(dot(r, w), -1, 1));
+		vec2 initialGuess = (uvRef * g2Q + uvDiff * g1Q) / (g1Q + g2Q);
+
+
 	//	if (length(uvRef) != 0) {
-		vec2 uvNew = interpolateGuess(uvDiff, uvRef);
+		// vec2 uvNew = interpolateGuess(uvDiff, uvRef);
 		//  vec2 uvNew = uvRef;
 		//uvNew = gradientDescent(uvNew);
-		warpedColor = texture(colorReflect, uvDiff);  
+		warpedColor = texture(colorReflect, initialGuess);  
+		// if(test==1)warpedColor = texture(colorReflect, uvDiff);  
+		// if(test==2)warpedColor = texture(colorReflect, uvRef);  
 		//warpedColor = vec4(reflectionQuality(uvDiff)) * 4;
 		// warpedColor = vec4(interpolateGuess(uvDiff, uvRef),1);
-		if(test==0) warpedColor = qualityVisualization(uvDiff, vec2(0));
-		} 
-		else {
-		warpedColor = vec4(0,0,0,0);
+		// if(test==1) warpedColor = qualityVisualization(uvDiff, vec2(0));
+		// if(test==2) warpedColor = qualityVisualization(uvRef, vec2(0));
+		// vec3 wRef = texture(reflectionPositionTexture, uvRef).xyz;
+		// vec3 wDiff = texture(reflectionPositionTexture, uvDiff).xyz;
+
+		// vec3 reflectionPosition = texture(reflectionPositionTexture, uv).xyz;
+		// vec3 warpedReflectionPosition = texture(warpedReflectionPositionTexture, uv).xyz;
+		// vec3 v = normalize(reflectionPosition - warpedDiffusePosition);
+		// vec3 w = normalize(warpedReflectionPosition - warpedDiffusePosition);
+		// vec3 r = normalize(vec4(reflectionVector,1).xyz);
+
+		// vec4 w1 = vec4(normalize(wRef - warpedDiffusePosition),1);
+		// vec4 w2 = vec4(normalize(wDiff - warpedDiffusePosition),1);
+		// warpedColor = vec4(reflectionVector,1);
+		// warpedColor = vec4(r,1);
+		if(test==1) warpedColor = vec4(acos(clamp(dot(r, v), -1, 1)));
+		if(test==2) warpedColor = vec4(acos(clamp(dot(r, w), -1, 1)));
+		if(test==1) warpedColor = vec4(initialGuess,0,0);
+		if(test==2) warpedColor = vec4(uvRef,0,0);
+		// if(test==2) warpedColor = abs(reference - w2) * 3;
+		// } 
+		// else {
+		// warpedColor = vec4(0,0,0,0);
 	}
 	//warpedColor = g;
 }

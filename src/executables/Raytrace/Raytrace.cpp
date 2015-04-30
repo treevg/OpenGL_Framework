@@ -68,6 +68,7 @@ int main(int argc, char *argv[]) {
 		getWidth(window), getHeight(window)))
         ->update("resolution", getResolution(window))
         ->texture("diffPositionTexture", raytracePass->get("diffusePosition"))
+        ->texture("reflectionPositionTexture", raytracePass->get("reflectivePosition"))
         ->texture("normalTexture", raytracePass->get("normal"))
         ->texture("diffuseTexture", raytracePass->get("diffuseColor"));
 
@@ -126,6 +127,8 @@ int main(int argc, char *argv[]) {
         ->texture("colorReflect", raytracePass->get("reflectiveColor"))
 		->texture("warpedDiffusePositionTexture", diffWarp->get("position"))
 		->texture("warpedNormalTexture", diffWarp->get("normal"))
+        ->texture("normalTexture", raytracePass->get("normal"))
+        ->texture("warpedReflectionPositionTexture", diffWarp->get("reflection"))
 		->texture("reflectionPositionTexture", refWarp->get("position"))
 		->texture("temp", refWarp->get("uv"))
         ->update("resolution", getResolution(window))
@@ -162,6 +165,7 @@ int main(int argc, char *argv[]) {
 		->texture("warpDiffColTexture",  raytracePass->get("diffuseColor"))
 		;
 
+    int mode = 0;
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             switch (key) {
@@ -196,14 +200,21 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", diffWarp->get("flow"));
                  break;
             case GLFW_KEY_SPACE:
+                mode = 0;
                  tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
                  break;
+            case GLFW_KEY_G:
+            	mode = 1;
+                 break;
+            case GLFW_KEY_H:
+            	mode = 2;
+                 break;
             case GLFW_KEY_Q:
-            	// gatherRefPass->texture("warpedNormalTexture", smoothNorm->get("fragColor"));
-                tonemapping->texture("tex", refWarp->get("splattedRefUV"));
+                // gatherRefPass->texture("warpedNormalTexture", smoothNorm->get("fragColor"));
+                tonemapping->texture("tex", diffWarp->get("reflection"));
                  break;
             case GLFW_KEY_W:
-            	// gatherRefPass->texture("warpedNormalTexture",  diffWarp->get("normal"));
+                // gatherRefPass->texture("warpedNormalTexture",  diffWarp->get("normal"));
                 tonemapping->texture("tex", refWarp->get("position"));
                  break;
             case GLFW_KEY_E:
@@ -213,10 +224,10 @@ int main(int argc, char *argv[]) {
                  tonemapping->texture("tex", refWarp->get("uv"));
                  break;
             case GLFW_KEY_O:
-            	gatherRefPass->texture("temp", refWarp->get("uv"));
+                gatherRefPass->texture("temp", refWarp->get("uv"));
                  break;
             case GLFW_KEY_P:
-            	gatherRefPass->texture("temp", diffWarp->get("uv"));
+                gatherRefPass->texture("temp", diffWarp->get("uv"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -311,8 +322,9 @@ int main(int argc, char *argv[]) {
 
         gatherRefPass
         ->clear()
-        ->update("test" , (glfwGetKey(window, GLFW_KEY_ENTER) == GLFW_PRESS)?0:1)
+        ->update("test" , mode)
         ->update("view", view)
+        ->update("view_old", view_old)
         ->run();
 
         compositing

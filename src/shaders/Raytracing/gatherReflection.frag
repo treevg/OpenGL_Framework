@@ -127,8 +127,8 @@ void main() {
            discard;
         } 
 
-        // warpedColor = vec4(texture(reflectionColorTexture, splattedReflectionUV).xyz,1);
-        warpedColor = vec4(gl_FragCoord.xy / resolution - splattedReflectionUV, 0, 1);
+        warpedColor = vec4(texture(reflectionColorTexture, splat).xyz,1);
+        // warpedColor = vec4(gl_FragCoord.xy / resolution - splattedReflectionUV, 0, 1);
 
 
  //        coord = gradientDescent(guess);
