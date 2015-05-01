@@ -126,7 +126,8 @@ int main(int argc, char *argv[]) {
         ->texture("colorReflect", raytracePass->get("reflectiveColor"))
 		->texture("warpedDiffusePositionTexture", diffWarp->get("position"))
 		->texture("warpedNormalTexture", diffWarp->get("normal"))
-		->texture("reflectionPositionTexture", holeFill->get("fragColor"))
+		->texture("reflectionPositionTexture", refWarp->get("position"))
+        ->texture("diffFlow", diffWarp->get("flow"))
         ->update("resolution", getResolution(window))
 		;
 
@@ -189,30 +190,25 @@ int main(int argc, char *argv[]) {
                 tonemapping->texture("tex", diffWarp->get("normal"));
                 break;
             case GLFW_KEY_9:
-                 tonemapping->texture("tex", diffWarp->get("uv"));
+                tonemapping->texture("tex", diffWarp->get("uv"));
                  break;
             case GLFW_KEY_0:
-                 tonemapping->texture("tex", diffWarp->get("flow"));
+                tonemapping->texture("tex", diffWarp->get("flow"));
                  break;
             case GLFW_KEY_SPACE:
-                 tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
-                 break;
-            case GLFW_KEY_Q:
-            	// gatherRefPass->texture("warpedNormalTexture", smoothNorm->get("fragColor"));
-                tonemapping->texture("tex", refWarp->get("splattedRefUV"));
+                tonemapping->texture("tex", gatherRefPass->get("warpedColor"));
                  break;
             case GLFW_KEY_W:
-            	// gatherRefPass->texture("warpedNormalTexture",  diffWarp->get("normal"));
                 tonemapping->texture("tex", refWarp->get("position"));
                  break;
             case GLFW_KEY_E:
-                 tonemapping->texture("tex", refWarp->get("refColor"));
+                tonemapping->texture("tex", refWarp->get("refColor"));
                  break;
             case GLFW_KEY_R:
-                 tonemapping->texture("tex", refWarp->get("uv"));
+                tonemapping->texture("tex", refWarp->get("uv"));
                  break;
             case GLFW_KEY_T:
-                 tonemapping->texture("tex", holeFill->get("fragColor"));
+                tonemapping->texture("tex", holeFill->get("fragColor"));
                  break;
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
@@ -240,7 +236,7 @@ int main(int argc, char *argv[]) {
     });
 
 
-    float rotX = 0.0f;
+    float rotX = -0.3f;
     float rotY = 0.0f;
     float rotSpeed = 0.15f;
 

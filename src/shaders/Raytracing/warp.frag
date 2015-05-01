@@ -8,7 +8,7 @@ uniform sampler2D normalTexture;
 uniform sampler2D diffPositionTexture;
 
 out vec4 position;
-out vec4 diffuse;
+out vec4 diffuse; //not necessary
 out vec4 normal; 
 out vec4 uv; 
 out vec4 flow;

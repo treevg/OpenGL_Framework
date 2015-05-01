@@ -2,18 +2,13 @@
 
 in vec2 pos;
 
-//uniform sampler2D outTexture;  
-
 uniform sampler2D reflectionPositionTexture; 
 uniform sampler2D diffusePositionTexture;  
 uniform sampler2D normalTexture;
 uniform mat4 view;
 uniform mat4 projection;
-uniform vec2 resolution;
 
 out vec2 passPosition;
-//out vec4 warpRefPos;
-out vec2 coordColor;
 
 void main() {
 	passPosition = pos;
@@ -27,8 +22,8 @@ void main() {
 	gl_Position = (projection * view * wPos) * vec4(1,1,0.999,1); //vec4(pos * 2 - 1, 0, 1);
 	
 	// coord color
-	coordColor = vec2(
-    float(float(pos.x) /resolution.x),
-    float(float(pos.y) / resolution.y));
+	//coordColor = vec2(
+    //float(float(pos.x) /resolution.x),
+    //float(float(pos.y) / resolution.y));
 
 }

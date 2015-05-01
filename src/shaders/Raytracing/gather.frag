@@ -6,6 +6,7 @@ uniform sampler2D colorReflect;
 uniform sampler2D warpedDiffusePositionTexture;
 uniform sampler2D warpedNormalTexture;
 uniform sampler2D reflectionPositionTexture;
+uniform sampler2D diffFlow;
 uniform vec2 resolution; 
 uniform mat4 view;
 
@@ -16,9 +17,10 @@ out vec4 warpedColor;
 vec3 eyePosition = (inverse(view) * vec4(0,0,0,1)).xyz;
 vec2 uv = gl_FragCoord.xy / resolution;
 vec3 warpedDiffusePosition = texture(warpedDiffusePositionTexture, uv).xyz;
-vec4 warpedNormal = texture(warpedNormalTexture,uv);
+vec4 warpedNormal = normalize(texture(warpedNormalTexture,uv));
 vec3 reflectionVector = normalize(reflect(warpedDiffusePosition - eyePosition, normalize(warpedNormal.xyz)));
 
+vec4 temp = vec4(0);
 
 //original
 float reflectionQuality(vec2 coord) {
@@ -26,6 +28,22 @@ float reflectionQuality(vec2 coord) {
     vec3 testReflectionVector = normalize(testReflectionPosition - warpedDiffusePosition);
     return acos(clamp(dot(reflectionVector, testReflectionVector), -1, 1));
 }
+
+vec2 interpolateAnd(vec2 uvDiff, vec2 uvRef){
+    vec3 testReflectionPositionDiff = texture(reflectionPositionTexture, uvDiff).xyz;
+	vec3 testReflectionVectorDiff = testReflectionPositionDiff - warpedDiffusePosition;
+	vec3 testReflectionPositionRef = texture(reflectionPositionTexture, uvRef).xyz;
+	vec3 testReflectionVectorRef = testReflectionPositionRef - warpedDiffusePosition;
+	
+	if(length(testReflectionVectorDiff)>5) {
+	return uvDiff;
+	}
+	else {
+	return uvRef;
+	}
+
+}
+
 
 float reflectionQuality3(vec2 coord) {
     vec3 testReflectionPosition = texture(reflectionPositionTexture, coord).xyz;
@@ -42,15 +60,36 @@ float reflectionQuality3(vec2 coord) {
 }
 
 float reflectionQuality2(vec2 coord) {
-	if(length(coord)==0.0) {
+	if(length(coord)==0.0) {return 0.0;}
+
+    vec3 testReflectionPosition = texture(reflectionPositionTexture, coord).xyz;
+	if(testReflectionPosition.x>0.9 ) {
+	//temp = vec4(0,0,1,0);
+	//return 1.0;
+	}
+	vec3 testReflectionVector = normalize(testReflectionPosition - warpedDiffusePosition);
+	float angle = acos(abs(dot( reflectionVector, testReflectionVector) / (length(reflectionVector) * length(testReflectionVector))));
+	angle = (dot( reflectionVector, testReflectionVector) +1) /2;
+
+
+	if(dot( reflectionVector, testReflectionVector)<0.1) {
+	//return 2.0;
+	//temp = vec4(0,0,1,0);
+	}
+	if(dot( reflectionVector, testReflectionVector)>0.96) {
+	//temp = vec4(1,0,0,0);
 	return 0.0;
 	}
-    vec3 testReflectionPosition = texture(reflectionPositionTexture, coord).xyz;
-    vec3 testReflectionVector = normalize(testReflectionPosition - warpedDiffusePosition);
-	float angle = (dot(reflectionVector, testReflectionVector)) / (length(reflectionVector) * length(testReflectionVector));
-
-	return 1.0-angle;
-	//return acos(angle) /2*3.1415;
+	
+	if(distance(warpedDiffusePosition, testReflectionPosition)>5.0) {
+		//temp = vec4(0,0,1,0);
+		return 3.0;
+	}
+	
+	//else{return 1.0;}
+	//return angle/2*3.1415;
+	return angle;
+	//return (dot( reflectionVector, testReflectionVector) +1) /2;
 }
 
 float reflectionQualityTester(vec2 coord) {
@@ -68,49 +107,7 @@ float reflectionQualityTester(vec2 coord) {
 //idee: mit "uv" direkt in refPosTex nachgucken
 
 
-// avoiding "black" uvs with original uv
-// problem: two interpoaltions...
-vec2 reflectionQualityVec_try2(vec2 coordDiff, vec2 coordRef) {
-	
-	float chanceRefCoord = 0.5;
-	float chanceDiffCoord = 0.5;
-
-	if(length(coordDiff) == 0){
-		chanceRefCoord = 0.6;
-		chanceDiffCoord = 0.0;
-	}
-	else if(length(coordRef) == 0){
-		chanceRefCoord = 0.0;
-		chanceDiffCoord = 0.7;
-	}
-    vec3 testReflectionPosition_diff = texture(reflectionPositionTexture, coordDiff).xyz;
-	vec3 testReflectionPosition_ref = texture(reflectionPositionTexture, coordRef).xyz;
-	vec3 testReflectionPosition_orig = texture(reflectionPositionTexture, uv).xyz;
-	
-    vec3 testReflectionVector_diff = normalize(testReflectionPosition_diff - warpedDiffusePosition);
-	vec3 testReflectionVector_ref = normalize(testReflectionPosition_ref - warpedDiffusePosition);
-	vec3 testReflectionVector_orig = normalize(testReflectionPosition_orig - warpedDiffusePosition);
-	
-	float angleDiff = acos(clamp(dot(reflectionVector, testReflectionVector_diff), -1, 1));
-	float angleRef = acos(clamp(dot(reflectionVector, testReflectionVector_ref), -1, 1));
-	float angleOrig = acos(clamp(dot(reflectionVector, testReflectionVector_orig), -1, 1));
-
-	float interpolateSum = angleDiff + angleRef;
-	vec2 interpolateUV = coordDiff * angleRef * chanceDiffCoord/interpolateSum + 
-						  coordRef * angleDiff * chanceRefCoord/interpolateSum;		
-						  
-	vec3 testReflectionPosition_inter = texture(reflectionPositionTexture, interpolateUV).xyz;
-	vec3 testReflectionVector_inter = normalize(testReflectionPosition_inter - warpedDiffusePosition);
-	
-	float angleInter = acos(clamp(dot(reflectionVector, testReflectionVector_inter), -1, 1));
-	interpolateSum += angleOrig;
-	
-	// not perfect
-	return interpolateUV * angleOrig/interpolateSum * chanceDiffCoord+chanceRefCoord + 
-		   testReflectionPosition_orig.xy * (1-chanceDiffCoord-chanceRefCoord) * angleInter/interpolateSum;
-}
-
-vec2 interpolateGuess(vec2 g1, vec2 g2) {
+vec2 interpolateGuess2(vec2 g1, vec2 g2) {
 	// if(test==0){
 	// 	vec2 refQuality = reflectionQualityVec_try2(g1, g2);
 	// 	float q = refQuality.x + refQuality.y;
@@ -134,6 +131,41 @@ vec2 interpolateGuess(vec2 g1, vec2 g2) {
 	// }
 }
 
+vec2 interpolateGuess(vec2 g1, vec2 g2) {
+	float g2Q;
+	float g1Q;
+	
+	g1Q = reflectionQuality2(g1); //Diff
+	if(g1Q==3.0) {
+		g1Q = 0.0;
+		g2Q = 1.0;
+		float q = g1Q + g2Q;
+		return (g2 * g1Q + g1 * g2Q) / q; 	
+	}
+	g2Q = reflectionQuality2(g2); //Ref
+	
+	if(g2Q==0.0) {
+	g1Q = 0.0;
+	g2Q = 1.0;
+	}
+	else {
+		g1Q = 1.0;
+		g2Q = 0.0;
+	}
+		float q = g1Q + g2Q;
+		return (g2 * g1Q + g1 * g2Q) / q; 
+	
+	if(g2Q==0.0) {
+	//	g1Q = 1.0;
+	}
+	
+	//g1Q = 0.0;
+	//g2Q = 1.0;
+	
+   
+
+}
+
 vec2 interpolateGuessPrimitively(vec2 g1, vec2 g2) {
 	if(reflectionQuality(g1) > reflectionQuality(g2)){
 		return g1;
@@ -149,7 +181,9 @@ vec4 qualityVisualization(vec2 g1, vec2 g2) {
 }
 
 vec4 qualityVisualization2(vec2 g1) {
+//	float g1Q = reflectionQualityTester(g1);
 	float g1Q = reflectionQuality2(g1);
+
 	return vec4(g1Q);		
 }
 
@@ -166,10 +200,10 @@ vec2 gradientDescent(vec2 initialGuess) {
 	bool undefined = false;
 
     for (int i = 0; i < maxGDSteps; i++) {
-        newQuality = reflectionQuality(initialGuess);
+        newQuality = reflectionQuality2(initialGuess);
 
-        g00 = reflectionQuality(initialGuess + vec2(eps.x, 0));
-        g01 = reflectionQuality(initialGuess + vec2(0, eps.y));
+        g00 = reflectionQuality2(initialGuess + vec2(eps.x, 0));
+        g01 = reflectionQuality2(initialGuess + vec2(0, eps.y));
         
         gradient = l * vec2(g00 - newQuality, g01 - newQuality) / (eps);
         initialGuess -= gradient;
@@ -188,14 +222,19 @@ void main() {
 
 	vec2 uvDiff = texture(uvDiffuse, uv).xy;
 	vec2 uvRef = texture(uvReflect, uv).xy;
+	vec2 flow = texture(diffFlow, uv).xy;
 
+	//vec2 uvGuess = interpolateGuessPrimitively(uvDiff, uvRef);
+	//vec2 uvGuess = interpolateGuess(uvDiff, uv/resolution + uvRef);
+	vec2 uvGuess = interpolateGuess(uvDiff, uvRef);
 
-	vec2 uvNew = interpolateGuess(uvDiff, uvRef);
-	uvNew = gradientDescent(uvNew);
+	//vec2 uvGuess = interpolateAnd(uvDiff, uvRef);
+
 	
-	//warpedColor = texture(colorReflect, uvRef);  
-	//vec2 uvNew = interpolateGuessPrimitively(uvDiff, uvRef);
-	warpedColor = texture(colorReflect, uvNew);  
+	//uvGuess = gradientDescent(uvGuess);
+	warpedColor = texture(colorReflect, uvGuess);  
+
+	warpedColor+=temp;
 
 	if(test==0) {
 		warpedColor = qualityVisualization2(uvRef);
