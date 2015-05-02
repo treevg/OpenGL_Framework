@@ -60,7 +60,11 @@ float reflectionQuality3(vec2 coord) {
 }
 
 float reflectionQuality2(vec2 coord) {
-	if(length(coord)==0.0) {return 0.0;}
+/**  return = 
+* 
+*
+**/
+	if(length(coord)==0.0) {return 4.0;}
 
     vec3 testReflectionPosition = texture(reflectionPositionTexture, coord).xyz;
 	if(testReflectionPosition.x>0.9 ) {
@@ -81,6 +85,10 @@ float reflectionQuality2(vec2 coord) {
 	return 0.0;
 	}
 	
+	if(distance(warpedDiffusePosition, testReflectionPosition)>5.0 && length(warpedDiffusePosition)==0.0) {
+		//temp = vec4(0,0,1,0);
+		//return 3.0;
+	}
 	if(distance(warpedDiffusePosition, testReflectionPosition)>5.0) {
 		//temp = vec4(0,0,1,0);
 		return 3.0;
@@ -88,8 +96,8 @@ float reflectionQuality2(vec2 coord) {
 	
 	//else{return 1.0;}
 	//return angle/2*3.1415;
+	
 	return angle;
-	//return (dot( reflectionVector, testReflectionVector) +1) /2;
 }
 
 float reflectionQualityTester(vec2 coord) {
@@ -144,21 +152,22 @@ vec2 interpolateGuess(vec2 g1, vec2 g2) {
 	}
 	g2Q = reflectionQuality2(g2); //Ref
 	
-	if(g2Q==0.0) {
-	g1Q = 0.0;
-	g2Q = 1.0;
+	if(g2Q == 0.0) {
+		g1Q = 0.0;
+		g2Q = 1.0;
+	}
+	else if(g2Q == 4.0) {
+	g2Q = 0.0;
+	g1Q = 1.0;
 	}
 	else {
 		g1Q = 1.0;
 		g2Q = 0.0;
 	}
-		float q = g1Q + g2Q;
-		return (g2 * g1Q + g1 * g2Q) / q; 
 	
-	if(g2Q==0.0) {
-	//	g1Q = 1.0;
-	}
-	
+	float q = g1Q + g2Q;
+	return (g1 * g1Q + g2 * g2Q) / q; 
+
 	//g1Q = 0.0;
 	//g2Q = 1.0;
 	
@@ -200,10 +209,10 @@ vec2 gradientDescent(vec2 initialGuess) {
 	bool undefined = false;
 
     for (int i = 0; i < maxGDSteps; i++) {
-        newQuality = reflectionQuality2(initialGuess);
+        newQuality = reflectionQuality(initialGuess);
 
-        g00 = reflectionQuality2(initialGuess + vec2(eps.x, 0));
-        g01 = reflectionQuality2(initialGuess + vec2(0, eps.y));
+        g00 = reflectionQuality(initialGuess + vec2(eps.x, 0));
+        g01 = reflectionQuality(initialGuess + vec2(0, eps.y));
         
         gradient = l * vec2(g00 - newQuality, g01 - newQuality) / (eps);
         initialGuess -= gradient;
@@ -231,7 +240,7 @@ void main() {
 	//vec2 uvGuess = interpolateAnd(uvDiff, uvRef);
 
 	
-	//uvGuess = gradientDescent(uvGuess);
+	uvGuess = gradientDescent(uvGuess);
 	warpedColor = texture(colorReflect, uvGuess);  
 
 	warpedColor+=temp;
