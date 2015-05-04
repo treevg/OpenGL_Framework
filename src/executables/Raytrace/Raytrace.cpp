@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
     int gradientDescentSteps = 20;
 
     // latency stuff
-    int latencyFrameNumber = 1000;
+    int latencyFrameNumber = 5;
     queue<mat4> latencyQueue;
 
     auto quadVAO = new Quad();
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
 
 
     //Load mesh: parameter is resources path
-   // auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
+    //auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
     auto ssbo2 = new ShaderStorageBuffer("/Objects/twoplanes.obj", false);
 
     // Raytracing

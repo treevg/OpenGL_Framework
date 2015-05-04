@@ -54,6 +54,9 @@ vec2 gradientDescent(vec2 initialGuess) {
         if (newQuality < bestQuality) {
             bestQuality = newQuality;
         }
+			//performance increase
+		if(bestQuality <= ensuredQualityThreshold) {
+			return outputCoord;}
     }
     if (bestQuality > ensuredQualityThreshold) {
         undefined = true; 
@@ -70,7 +73,8 @@ void main() {
 	float g1Q = reflectionQuality(uvRef);
 	float g2Q = reflectionQuality(uvDiff);
 
-	if (length(uvRef) < 0.1) {
+		//no black holes at the beginning
+	if (length(uvRef) < 0.1 || g1Q == g2Q) {
 		g1Q = 1;
 		g2Q = 0;
 	}
