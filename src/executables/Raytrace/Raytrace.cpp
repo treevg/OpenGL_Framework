@@ -41,8 +41,10 @@ int main(int argc, char *argv[]) {
     float factor = 0.5;
     float zoom = 0.0;
 
+    int gradientDescentSteps = 20;
+
     // latency stuff
-    int latencyFrameNumber = 10;
+    int latencyFrameNumber = 1000;
     queue<mat4> latencyQueue;
 
     auto quadVAO = new Quad();
@@ -127,11 +129,9 @@ int main(int argc, char *argv[]) {
         ->texture("colorReflect", raytracePass->get("reflectiveColor"))
 		->texture("warpedDiffusePositionTexture", diffWarp->get("position"))
 		->texture("warpedNormalTexture", diffWarp->get("normal"))
-        ->texture("normalTexture", raytracePass->get("normal"))
-        ->texture("warpedReflectionPositionTexture", diffWarp->get("reflection"))
-		->texture("reflectionPositionTexture", refWarp->get("position"))
-		->texture("temp", refWarp->get("uv"))
+		->texture("oldReflectionPositionTexture", raytracePass->get("reflectivePosition"))
         ->update("resolution", getResolution(window))
+        ->update("gradientDescentSteps", gradientDescentSteps+=1);
 		;
 
     auto tonemapping = (new RenderPass(
@@ -250,6 +250,14 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_Z:
                 tonemapping->texture("tex", compositing->get("fragColor"));
                 break;
+            case GLFW_KEY_C:
+                gatherRefPass->update("gradientDescentSteps", gradientDescentSteps-=1);
+                std::cout << "gradientDescentSteps " << gradientDescentSteps << std::endl;
+                break;
+            case GLFW_KEY_V:
+                gatherRefPass->update("gradientDescentSteps", gradientDescentSteps+=1);
+                std::cout << "gradientDescentSteps " << gradientDescentSteps << std::endl;
+                break;
             }
         }
     });
@@ -322,9 +330,7 @@ int main(int argc, char *argv[]) {
 
         gatherRefPass
         ->clear()
-        ->update("test" , mode)
         ->update("view", view)
-        ->update("view_old", view_old)
         ->run();
 
         compositing
