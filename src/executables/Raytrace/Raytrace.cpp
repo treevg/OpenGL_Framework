@@ -27,9 +27,8 @@ int main(int argc, char *argv[]) {
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
     vector<vec4> sphereVec;
-    sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.5));
-  //  sphereVec.push_back(glm::vec4(0.75, 0.5, 0.5, 0.5));
-    sphereVec.push_back(glm::vec4(-0.5, 0.5, 1.0, 0.3));
+    sphereVec.push_back(glm::vec4(0.0, 0.0, 0.0, 0.1));
+    sphereVec.push_back(glm::vec4(-0.5, 0.5, 1.0, 0.4));
 
     //needs to be same size as sphereVec
     vector<vec4> colorSphere;
@@ -44,7 +43,7 @@ int main(int argc, char *argv[]) {
     int gradientDescentSteps = 20;
 
     // latency stuff
-    int latencyFrameNumber = 5;
+    int latencyFrameNumber = 10000;
     queue<mat4> latencyQueue;
 
     auto quadVAO = new Quad();
@@ -52,17 +51,26 @@ int main(int argc, char *argv[]) {
 
 
     //Load mesh: parameter is resources path
-    //auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
-    auto ssbo2 = new ShaderStorageBuffer("/Objects/twoplanes.obj", false);
+    auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
+   // auto ssbo2 = new ShaderStorageBuffer("/Objects/twoplanes.obj", false);
+
+    // Normal Raytracing
+    auto raytracePassNormal = (new RenderPass(quadVAO,
+        new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytraceNormal.frag"}),
+        getWidth(window), getHeight(window)))
+        ->update("sphereVec[0]", sphereVec)
+        ->update("resolution", glm::vec3(getWidth(window), getHeight(window), 1));
 
     // Raytracing
     auto raytracePass = (new RenderPass(quadVAO,
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"}),
         getWidth(window), getHeight(window)))
         ->texture("environmentTexture", TextureTools::loadTexture(RESOURCES_PATH "/equirectangular/park.jpg"))
-        ->update("sphereVec[0]", sphereVec)
+        ->texture("normalTexture", raytracePassNormal->get("normal"))
+		->update("sphereVec[0]", sphereVec)
         ->update("colorSphere[0]", colorSphere)
-        ->update("iResolution", glm::vec3(getWidth(window), getHeight(window), 1));
+        ->update("resolution", glm::vec3(getWidth(window), getHeight(window), 1));
+
 
     // Diffuse Warping
     auto diffWarp = (new RenderPass(grid,
@@ -94,31 +102,6 @@ int main(int argc, char *argv[]) {
 		->texture("refPositionTexture", raytracePass->get("reflectivePosition"))
 		->texture("reflectiveColorTexture", raytracePass->get("reflectiveColor"))
 		->update("resolution", getResolution(window));
-
-    // Smooth warpedNormals
-    auto smoothNorm = (new RenderPass(quadVAO,
-        new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/normal.frag"}),
-		getWidth(window), getHeight(window)))
-        ->clear(0,0,0,0)
-        ->texture("tex", diffWarp->get("normal"))
-		->update("resolution",  getResolution(window))
-		->update("factor", factor)
-		;
-
-
-    // // Gather reflection
-    // auto gatherRefPass = (new RenderPass(quadVAO,
-    //     new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/gatherReflection.frag"}),
-    //     getWidth(window), getHeight(window)))
-    //     ->texture("reflectionColorTexture", refWarp->get("refColor"))
-    //     ->texture("reflectionPositionTexture", refWarp->get("position"))
-    //     ->texture("warpedDiffusePositionTexture", holeFill->get("fragColor"))
-    //     ->texture("splattedReflectionUVTexture", refWarp->get("uv"))
-    //     //->texture("warpedNormalTexture",  diffWarp->get("normal"))
-    //     ->texture("warpedNormalTexture",  smoothNorm->get("fragColor"))
-    //     ->update("resolution", getResolution(window))
-    //     ->update("maxGDSteps", 5)
-    //     ;
 
     // Gather reflection
     auto gatherRefPass = (new RenderPass(quadVAO,
@@ -223,6 +206,9 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_R:
                  tonemapping->texture("tex", refWarp->get("uv"));
                  break;
+            case GLFW_KEY_N:
+                 tonemapping->texture("tex", raytracePassNormal->get("normal"));
+                 break;
             case GLFW_KEY_O:
                 gatherRefPass->texture("temp", refWarp->get("uv"));
                  break;
@@ -232,12 +218,6 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_ESCAPE:
                 glfwSetWindowShouldClose(window, GL_TRUE);
                 break;
-            case GLFW_KEY_N:
-                smoothNorm->update("factor",factor+=0.1);
-                 break;
-            case GLFW_KEY_M:
-                smoothNorm->update("factor",factor-=0.1);
-                 break;
             case GLFW_KEY_A:
                 zoom+=0.3;
                  break;
@@ -251,11 +231,11 @@ int main(int argc, char *argv[]) {
                 tonemapping->texture("tex", compositing->get("fragColor"));
                 break;
             case GLFW_KEY_C:
-                gatherRefPass->update("gradientDescentSteps", gradientDescentSteps-=1);
+                gatherRefPass->update("gradientDescentSteps", gradientDescentSteps-=10);
                 std::cout << "gradientDescentSteps " << gradientDescentSteps << std::endl;
                 break;
             case GLFW_KEY_V:
-                gatherRefPass->update("gradientDescentSteps", gradientDescentSteps+=1);
+                gatherRefPass->update("gradientDescentSteps", gradientDescentSteps+=10);
                 std::cout << "gradientDescentSteps " << gradientDescentSteps << std::endl;
                 break;
             }
@@ -263,8 +243,8 @@ int main(int argc, char *argv[]) {
     });
 
 
-    float rotX = 0.0f;
-    float rotY = 0.0f;
+    float rotX = -0.3f;
+    float rotY = -0.6f;
     float rotSpeed = 0.15f;
 
     render(window, [&] (float deltaTime) {
@@ -302,6 +282,13 @@ int main(int argc, char *argv[]) {
         ->update("invView",invView_old)
         ->run();
 
+        raytracePassNormal
+        ->clear(0, 0, 0, 0)
+        ->update("view", view_old)
+        ->update("projection", projection)
+        ->update("invView",invView_old)
+        ->run();
+
         diffWarp
         ->clear()
         ->update("view", view)
@@ -312,21 +299,11 @@ int main(int argc, char *argv[]) {
 		->clear(1,0,0,0)
 		->run();
 
-//        tonemappingFlow
-//		->clear(1,0,0,0)
-//		->run();
-
-        smoothNorm
-		->clear()
-        ->update("view", view)
-		->run();
-
         refWarp
 		->clear()
         ->update("altView", view)
         ->update("projection", projection)
 		->run();
-
 
         gatherRefPass
         ->clear()

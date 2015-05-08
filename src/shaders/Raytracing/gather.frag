@@ -50,6 +50,10 @@ vec2 gradientDescent(vec2 initialGuess) {
         
         gradient = l * vec2(g00 - newQuality, g01 - newQuality) / (eps);
         outputCoord -= gradient;
+		
+			//dynamic steps
+		//l /= i/10.0;
+		// l *= clamp(mod(i,25),1.0, 0.00001);
 
         if (newQuality < bestQuality) {
             bestQuality = newQuality;
@@ -73,7 +77,7 @@ void main() {
 	float g1Q = reflectionQuality(uvRef);
 	float g2Q = reflectionQuality(uvDiff);
 
-		//no black holes at the beginning
+		//no black holes at the beginning   
 	if (length(uvRef) < 0.1 || g1Q == g2Q) {
 		g1Q = 1;
 		g2Q = 0;

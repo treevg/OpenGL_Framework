@@ -6,7 +6,7 @@
 
 in vec4 gl_FragCoord;
 
-uniform vec3	iResolution; 	
+uniform vec3	resolution; 	
 uniform mat4	projection;
 uniform float 	zoom;
 uniform int		indirection;
@@ -15,12 +15,11 @@ uniform sampler2D environmentTexture;
 uniform mat4 	invView;
 uniform mat4 	view;
 uniform mat4	invViewProjection;
-uniform mat3	normalMat;
 
 uniform vec4 	sphereVec[3];
-uniform vec3 	mesh[6];
 uniform vec4 	colorSphere[3];
 uniform vec3 	colorTriangle[3];
+uniform sampler2D normalTexture;
 
 in 		vec4	passPosition;
 
@@ -37,11 +36,11 @@ out 	vec4 	reflectivePosition;
 
 
 layout(std430, binding=11) buffer meshData{
-	vec4 pos[300];		//4200
+	vec4 pos[4200];		//4200
 } myMesh;
 
 layout(std430, binding=12) buffer meshNormal{
-	vec4 posNorm[300];  //4200
+	vec4 posNorm[4200];  //4200
 } myNormals;
 
 
@@ -122,25 +121,110 @@ vec3 background(vec3 rd)
 }
 
 
+
 int indirections = 1;
 
-vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / (iResolution.xy);
+vec2 uv = -1.0 + 2.0 * gl_FragCoord.xy / (resolution.xy);
 vec3 currentPos = (invView * vec4(0,0,0,1)).xyz;
 vec3 initialPos=currentPos;
-
-//vec3 currentDirOffset = normalize(currentPos + (invViewProjection * vec4(0, 0, 0.05+zoom, 0.0)).xyz);
-
-// vec3 currentDir = normalize((invViewProjection * vec4(uv, 0.5, 0.0)).xyz);
-vec2 fragCoord = vec2(gl_FragCoord.xy / iResolution.xy) * 2 - 1;
+vec2 fragCoord = vec2(gl_FragCoord.xy / resolution.xy) * 2 - 1;
 vec3 currentDir = normalize(inverse(mat3(projection) * mat3(view)) * vec3(fragCoord, 1));
 
 
 vec3 initialDir = currentDir;
 
-//float lengthCurrentDirOffset = length(currentDirOffset);
-//float lengthUv = length(uv);
-//float lengthExtraDepth = sqrt(lengthCurrentDirOffset*lengthCurrentDirOffset + lengthUv*lengthUv);
-//float extraDepth = abs(lengthCurrentDirOffset-lengthExtraDepth);
+vec4 adjustNormal(vec3 pos) {
+	float stepHorizontal = 1.0 / resolution.x;
+	float stepVertical = 1.0 / resolution.y;
+	
+	vec4 invViewVec = vec4(normalize(initialPos - pos),1);
+		//original normal
+	vec4 normal = normalize(texture(normalTexture, (uv + 1) / 2));
+
+
+	float w1 = 1.0;
+	float w2 = 1.0;
+	float w3 = 1.0;
+	float w4 = 1.0;
+	
+	vec4 nU = normalize(texture(normalTexture, (uv + 1) / 2 + vec2(0.0, stepVertical)));
+	vec4 nD = normalize(texture(normalTexture, (uv + 1) / 2 - vec2(0.0, stepVertical)));
+	vec4 nR = normalize(texture(normalTexture, (uv + 1) / 2 + vec2( stepHorizontal, 0.0)));
+	vec4 nL = normalize(texture(normalTexture, (uv + 1) / 2 - vec2(stepHorizontal, 0.0)));
+	
+	vec4 savenU = nU;
+	vec4 savenD = nD;
+	vec4 savenR = nR;
+	vec4 savenL = nL;
+	
+	if(length(normal-nU)<=0.0001 || length(normal-nD)<=0.0001 || length(normal-nL)<=0.0001 || length(normal-nR)<=0.0001) {
+			return vec4(normal);
+		}
+	
+	//int smooth = 2;	
+	for(int i=1; i<=20; i++) {
+		nU = texture(normalTexture, (uv + 1) / 2 + vec2(0.0, i * stepVertical));
+		if(length(nU)<0.001) {
+			w1 = 0.0;
+		}
+		if(length(savenU - nU) < 0.001) {
+			w1 = 0.0;
+		}
+		if(dot(normal, nU)<=0.1) {
+			w1 = 0.25;
+		}
+		
+		
+		nD = texture(normalTexture, (uv + 1) / 2 - vec2(0.0, i * stepVertical));
+		if(length(nD)<0.001) {
+			w2 = 0.0;
+		}
+		if(length(savenD - nD) < 0.001) {
+			w2 = 0.0;
+		}
+		if(dot(normal, nD)<=0.1) {
+			w2 = 0.25;
+		}
+		
+		
+		nR = texture(normalTexture, (uv + 1) / 2 + vec2(i * stepHorizontal, 0.0));
+		if(length(nR)<0.001) {
+			w3 = 0.0;
+		}
+		if(length(savenR - nR) < 0.001) {
+			w3 = 0.0;
+		}
+		if(dot(normal, nR)<=0.1) {
+			w3 = 0.25;
+		}
+		
+
+		nL = texture(normalTexture, (uv + 1) / 2 - vec2(i * stepHorizontal, 0.0));
+		if(length(nL)<0.001) {
+			w4 = 0.0;
+		}
+		if(length(savenL - nL) < 0.001) {
+			w4 = 0.0;
+		}
+		if(dot(normal, nL)<=0.1) {
+			w4 = 0.25;
+		}
+		
+		normal = normal + nU*w1 + nD*w2 + nL*w3 + nR*w4;
+		
+		savenU = nU;
+		savenD = nD;
+		savenR = nR;
+		savenL = nL;
+	
+		w1 = 1.0;
+		w2 = 1.0;
+		w3 = 1.0;
+		w4 = 1.0;
+	}
+	
+	return normalize(normal);
+}
 
 void main(void) { 
 
@@ -153,7 +237,7 @@ void main(void) {
 		currentDepth = 999999;
 		int hitSphere = -1;
 		int hitTriangle = -1;
-		currentNormal = vec3(0,0,0);
+	//	currentNormal = vec3(0,0,0);
 
 		//============================//
 		// get the closest hit object //
@@ -195,7 +279,8 @@ void main(void) {
 
 			// make new Ray
 			currentPos = currentPos + currentDir * currentDepth ;
-			currentNormal = normalize(currentPos - sphereVec[hitSphere].xyz);
+		//	currentNormal = normalize(currentPos - sphereVec[hitSphere].xyz);
+			currentNormal = adjustNormal(currentPos).xyz;
 			currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		}
 		
@@ -212,40 +297,11 @@ void main(void) {
 			currentPos = currentPos + currentDir * currentDepth;
 			mat3 a = mat3(vec3(myMesh.pos[hitTriangle].xyz), vec3(myMesh.pos[hitTriangle+1].xyz), vec3(myMesh.pos[hitTriangle+2].xyz));
 			vec3 x = inverse(a) * (currentPos);
-			currentNormal = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
+			//currentNormal = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
+			currentNormal =adjustNormal(currentPos).xyz;
 			currentDirNotnorm = reflect(normalize(currentDir), currentNormal);
 		 	currentDir = normalize(reflect(normalize(currentDir), currentNormal));
 		 }
-
-
-		//  if (hitTriangle == -1 && hitSphere == -1) {
-		// 	diffuseColor = vec4(background(currentDir),1);
-		// 	diffusePosition = vec4(currentDir,0);
-		// 	reflectiveColor = vec4(0,0,0,0);
-		// 	reflectivePosition = vec4(0,0,0,0);
-		// 	break;
-		// } else {
-		// 	float phongDiffuse;
-		// 	// compute interpolated normal for triangle
-		// 	if(hitTriangle >= 0){
-		// 		mat3 a = mat3(vec3(myMesh.pos[hitTriangle].xyz), vec3(myMesh.pos[hitTriangle+1].xyz), vec3(myMesh.pos[hitTriangle+2].xyz));
-		// 		vec3 x = inverse(a) * currentPos;
-		// 		vec3 nor = normalize((myNormals.posNorm[hitTriangle].xyz * x.x) + (myNormals.posNorm[hitTriangle+1].xyz * x.y) + (myNormals.posNorm[hitTriangle+2].xyz * x.z));
-		// 		phongDiffuse = max(dot(nor, light),0) * 0.3;
-		// 		normal = nor;
-		// 	}
-		// 	else{
-		// 		normal = currentNormal;
-		// 	}
-		// 	vec3  phongAmbient = vec3(0.0, 0.02, 0.01)*0.3;
-		// 	float phongDiffuse = max(dot(normal, light),0) * 0.3;
-		// 	diffuseColor = vec4(currentColor * phongDiffuse + phongAmbient,1);
-		// 	diffusePosition = vec4(vec3(currentPos),1);
-			
-		// 	//float temps = dot(currentDirNotnorm, initialDirNotnorm);
-		// 	vec3 depthVec = diffusePosition.xyz - initialPos;
-		// }
-		
 
 		if (hitTriangle >= 0 || hitSphere >= 0) {
 			vec4 newColor;
