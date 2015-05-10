@@ -139,7 +139,7 @@ vec4 adjustNormal(vec3 pos) {
 	
 	vec4 invViewVec = vec4(normalize(initialPos - pos),1);
 		//original normal
-	vec4 normal = normalize(texture(normalTexture, (uv + 1) / 2));
+	float sensitivity = 0.000001;
 
 
 	float w1 = 1.0;
@@ -157,73 +157,9 @@ vec4 adjustNormal(vec3 pos) {
 	vec4 savenR = nR;
 	vec4 savenL = nL;
 	
-	if(length(normal-nU)<=0.0001 || length(normal-nD)<=0.0001 || length(normal-nL)<=0.0001 || length(normal-nR)<=0.0001) {
-			return vec4(normal);
-		}
-	
-	//int smooth = 2;	
-	for(int i=1; i<=20; i++) {
-		nU = texture(normalTexture, (uv + 1) / 2 + vec2(0.0, i * stepVertical));
-		if(length(nU)<0.001) {
-			w1 = 0.0;
-		}
-		if(length(savenU - nU) < 0.001) {
-			w1 = 0.0;
-		}
-		if(dot(normal, nU)<=0.1) {
-			w1 = 0.25;
-		}
-		
-		
-		nD = texture(normalTexture, (uv + 1) / 2 - vec2(0.0, i * stepVertical));
-		if(length(nD)<0.001) {
-			w2 = 0.0;
-		}
-		if(length(savenD - nD) < 0.001) {
-			w2 = 0.0;
-		}
-		if(dot(normal, nD)<=0.1) {
-			w2 = 0.25;
-		}
-		
-		
-		nR = texture(normalTexture, (uv + 1) / 2 + vec2(i * stepHorizontal, 0.0));
-		if(length(nR)<0.001) {
-			w3 = 0.0;
-		}
-		if(length(savenR - nR) < 0.001) {
-			w3 = 0.0;
-		}
-		if(dot(normal, nR)<=0.1) {
-			w3 = 0.25;
-		}
-		
 
-		nL = texture(normalTexture, (uv + 1) / 2 - vec2(i * stepHorizontal, 0.0));
-		if(length(nL)<0.001) {
-			w4 = 0.0;
-		}
-		if(length(savenL - nL) < 0.001) {
-			w4 = 0.0;
-		}
-		if(dot(normal, nL)<=0.1) {
-			w4 = 0.25;
-		}
 		
-		normal = normal + nU*w1 + nD*w2 + nL*w3 + nR*w4;
-		
-		savenU = nU;
-		savenD = nD;
-		savenR = nR;
-		savenL = nL;
-	
-		w1 = 1.0;
-		w2 = 1.0;
-		w3 = 1.0;
-		w4 = 1.0;
 	}
-	
-	return normalize(normal);
 }
 
 void main(void) { 
