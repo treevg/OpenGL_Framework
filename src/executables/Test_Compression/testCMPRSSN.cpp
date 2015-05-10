@@ -5,6 +5,7 @@
 #include "Compression/TextureTools.h"
 #include "Compression/ComputeShaderTools.h"
 #include "Compression/ColorField.h"
+#include <fstream>
 #include <sstream>
 #include <glm/gtx/string_cast.hpp>
 
@@ -79,6 +80,8 @@ int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Mem
 float* data;																			//container for texture in CPU-Memory as plain array
 float* data2;
 
+int print = 0;
+
 vector<float> values;
 vector<int> counts;
 
@@ -88,11 +91,65 @@ double oldTime, newTime;
  *------------------------------------------------------function declaration--------------------------------------------------------------------------
  -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
+void writeFloatToFile(float* array, string fileName, int numValues){
+	ofstream outFile(fileName, ios::binary);
+	if(outFile.fail()){
+		cout<<"ERRORRRRRRRRRRRRRRRRRRRRRRRRRRR"<< endl;
+	}
+	outFile.write((char*) array, sizeof(float)*numValues);
+	outFile.close();
+
+}
+
+void writeIntToFile(int* array, string fileName, int numValues){
+	ofstream outFile(fileName, ios::binary);
+	if(outFile.fail()){
+		cout<<"ERRORRRRRRRRRRRRRRRRRRRRRRRRRRR"<< endl;
+	}
+	outFile.write((char*) array, sizeof(int)*numValues);
+	outFile.close();
+}
+
+int lengthOfFile(string fileName){
+	ifstream inFile(fileName, ios::binary);
+	inFile.seekg (0, inFile.end);
+	int length = inFile.tellg();
+	inFile.close();
+	return length;
+}
+
+void readFloatFromFile(string fileName, float* array){
+	ifstream inFile(fileName, ios::binary);
+	if(inFile.fail())
+		cout<<"Error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl;
+
+	 inFile.seekg (0, inFile.end);
+	 int length = inFile.tellg();
+	 inFile.seekg (0, inFile.beg);
+
+	inFile.read((char*) array, length);
+	inFile.close();
+}
+
+void readIntFromFile(string fileName, int* array){
+	ifstream inFile(fileName, ios::binary);
+	if(inFile.fail())
+		cout<<"Error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl;
+
+	 inFile.seekg (0, inFile.end);
+	 int length = inFile.tellg();
+	 inFile.seekg (0, inFile.beg);
+
+	inFile.read((char*) array, length);
+	inFile.close();
+}
+
 void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 	float colorOld = array[0];
 	float color;
 	int count = 1;
 	int countGlobal = 0;
+
 
 //	for(int i = 4; i < (tWidth * tHeight * 4) ; i+=12){
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
@@ -120,10 +177,71 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 
 	outValue->push_back(colorOld);
 	outCounts->push_back(count);
+
+	if(print == 10){
+//	writeFloatToFile(array, "original", tWidth*tHeight);
+
+		int countings[outCounts->size()];
+		float valuess[outValue->size()];
+
+		for(int i = 0; i < outCounts->size(); i++){
+			countings[i] = outCounts->at(i);
+			valuess[i] = outValue->at(i);
+		}
+
+		writeIntToFile(countings, "counts.dat", outCounts->size());
+		writeFloatToFile(valuess, "values.dat", outValue->size());
+	}
+
 //	cout<<"Count = "<< count <<"."<< "value = " << colorOld <<endl;
 //	cout<< "Array has : " << countGlobal << endl;
 
 }
+
+void doRLEDecode3(float* array){
+	int counts[lengthOfFile("counts.dat")/4];
+
+	readIntFromFile("counts.dat", counts);
+
+	float values[lengthOfFile("values.dat")/4];
+	readFloatFromFile("values.dat", values);
+
+	int i,j,k = 0;
+
+	int length = sizeof(counts)/sizeof(counts[0]);
+
+	for(i = 0 ; i < length ; i++){
+		for(j = 0; j < counts[i]; j ++){
+			array[k+j] = values[i];
+		}
+		k+=j;
+	}
+}
+
+
+//void doRLEDecode3(){
+//	int counts[lengthOfFile("counts.dat")/4];
+//
+//	readIntFromFile("counts.dat", counts);
+//
+//	cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!length of counts is: "<< sizeof(counts)/sizeof(counts[0]) << endl;
+//
+//	float values[lengthOfFile("values.dat")/4];
+//	readFloatFromFile("values.dat", values);
+//
+//	int i,j,k = 0;
+//
+//	int length = sizeof(counts)/sizeof(counts[0]);
+//
+//	for(i = 0 ; i < length ; i++){
+//		for(j = 0; j < counts[i]; j ++){
+//			array[k+j] = values[i];
+//		}
+//		k+=j;
+//	}
+//
+//
+//}
 
 void doRLEDecode3(vector<float>* value, vector<int>* counts, float* array){
 
@@ -308,6 +426,7 @@ int main(int argc, char *argv[]) {
     std::cout<<"width: "<< tWidth <<", height: " << tHeight << std::endl;
 
     data = (float*)malloc( sizeof(float) * tHeight * tWidth);
+    data2 = (float*)malloc( sizeof(float) * tHeight * tWidth);
     glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);														//this is where the swapping magic happens
 
     cout<<"array has: " << tHeight * tWidth << " entries, which makes a total of ..." << endl;
@@ -336,6 +455,7 @@ int main(int argc, char *argv[]) {
         cubeAngle = fmod((cubeAngle + rotationSpeed * delta), (pi<float>() * 2.0f));
         //glfwSetTime(0.0);
         cubeModel = translate(rotate(mat4(1.0f), degrees(cubeAngle), vec3(1.0f, 1.0f, 0.0f)), vec3(0.0f, 2.0f, -2.0f));
+        print++;
 
         pass
         -> clear(1, 1, 1, 0)
@@ -400,13 +520,14 @@ int main(int argc, char *argv[]) {
 
 	        doRLE2(data, val, coun);
 
-	        doRLEDecode3(val, coun, data);
+	        doRLEDecode3(data2);
+//	        doRLEDecode3(val, coun, data);
 
 	        values.clear();
 	        counts.clear();
 
              glBindTexture(GL_TEXTURE_2D, tex9Handle);
-             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data);
+             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data2);
              glBindTexture(GL_TEXTURE, 0);
 
 //        cout<< "time spent for run time encoding: " << thisTime - lastTime << endl;
