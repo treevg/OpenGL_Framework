@@ -136,10 +136,10 @@ vec3 initialDir = currentDir;
 vec4 adjustNormal(vec3 pos) {
 	float stepHorizontal = 1.0 / resolution.x;
 	float stepVertical = 1.0 / resolution.y;
-	
-	vec4 invViewVec = vec4(normalize(initialPos - pos),1);
-		//original normal
 	float sensitivity = 0.000001;
+	
+		//original normal
+	vec4 norm = normalize(texture(normalTexture, (uv + 1) / 2));
 
 
 	float w1 = 1.0;
@@ -157,9 +157,72 @@ vec4 adjustNormal(vec3 pos) {
 	vec4 savenR = nR;
 	vec4 savenL = nL;
 	
-
-		
+	if(length(norm-nU)<=0.0001 || length(norm-nD)<=0.0001 || length(norm-nL)<=0.0001 || length(norm-nR)<=0.0001) {
+		return vec4(norm);
 	}
+	else {
+		for(int i=1; i<=15; i++) {
+			nU = texture(normalTexture, (uv + 1) / 2 + vec2(0.0, i * stepVertical));
+			if(length(nU)<0.001) {
+				w1 = 0.0;
+			}
+			if(length(savenU - nU) < sensitivity) {
+				w1 = 0.0;
+			}
+			if(dot(norm, nU)<=0.1) {
+				w1 = 0.25;
+			}
+			
+			
+			nD = texture(normalTexture, (uv + 1) / 2 - vec2(0.0, i * stepVertical));
+			if(length(nD)<0.001) {
+				w2 = 0.0;
+			}
+			if(length(savenD - nD) < sensitivity) {
+				w2 = 0.0;
+			}
+			if(dot(norm, nD)<=0.1) {
+				w2 = 0.25;
+			}
+			
+			
+			nR = texture(normalTexture, (uv + 1) / 2 + vec2(i * stepHorizontal, 0.0));
+			if(length(nR)<0.001) {
+				w3 = 0.0;
+			}
+			if(length(savenR - nR) < sensitivity) {
+				w3 = 0.0;
+			}
+			if(dot(norm, nR)<=0.1) {
+				w3 = 0.25;
+			}
+			
+
+			nL = texture(normalTexture, (uv + 1) / 2 - vec2(i * stepHorizontal, 0.0));
+			if(length(nL)<0.001) {
+				w4 = 0.0;
+			}
+			if(length(savenL - nL) < sensitivity) { // || (norm.x - nL.x)<=0.0 || (norm.y - nL.y)<=0.0 || (norm.z - nL.z)<=0.0
+				w4 = 0.0;
+			}
+			if(dot(norm, nL)<=0.1) {
+				w4 = 0.25;
+			}
+			
+			norm = norm + nU*w1 + nD*w2 + nL*w3 + nR*w4;
+			
+			savenU = nU;
+			savenD = nD;
+			savenR = nR;
+			savenL = nL;
+		
+			w1 = 1.0;
+			w2 = 1.0;
+			w3 = 1.0;
+			w4 = 1.0;
+		}
+	}
+	return normalize(norm);
 }
 
 void main(void) { 
