@@ -1,6 +1,6 @@
 #version 430
 layout ( binding = 0, r16f ) readonly uniform image2D inImg1;
-layout ( binding = 2, r16f ) writeonly uniform image2D outImg;
+layout ( binding = 1, r16f ) writeonly uniform image2D outImg;
 
 layout (local_size_x = 64, local_size_y = 1) in;
 
@@ -22,13 +22,13 @@ void main() {
 	newIndex = int(mod(index.x, 64));
 	
 	ivec2 zigZagIndex;
-	zigZagIndex.x = orderTable[0][newIndex];
-	zigZagIndex.y = orderTable[1][newIndex];
+	zigZagIndex.x = orderTable[1][newIndex];
+	zigZagIndex.y = orderTable[0][newIndex];
 	
 	vec4 texel_color = imageLoad(inImg1, index);
 	
 	ivec2 finalIndex;
-	finalIndex.x = int(floor(index.x/64));
+	finalIndex.x = int(floor(index.x/64)) * 8 ;
 	finalIndex.y = index.y * 8;
 	
 	finalIndex += zigZagIndex;
