@@ -58,7 +58,7 @@ glm::mat4 projMat = glm::perspective(45.0f, float(width)/float(height), 0.1f, 10
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
-GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
+GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
 
 GLuint tex1Handle;
 GLuint tex2Handle;
@@ -172,19 +172,16 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 	float colorOld = array[0];
 	float color;
 	int count = 1;
-	int countGlobal = 0;
 
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
-//		countGlobal++;
 
 		color = array[i];
 
-		if(glm::abs(colorOld - color) >= 0.0001){
+		if(colorOld != color){
 			outValue->push_back(colorOld);
 			outCounts->push_back(count);
-			colorOld = color;
 
-//			cout<<"count: "<< count << endl;
+			colorOld = color;
 			count = 1;
 		}
 
@@ -192,7 +189,6 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 			count++;
 		}
 	}
-
 
 	outValue->push_back(colorOld);
 	outCounts->push_back(count);
@@ -215,9 +211,6 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 		free(valuess);
 		free(countings);
 	}
-
-//	cout<<"Count = "<< count <<"."<< "value = " << colorOld <<endl;
-//	cout<< "Array has : " << countGlobal << endl;
 
 }
 
