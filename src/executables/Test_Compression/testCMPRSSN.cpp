@@ -85,8 +85,8 @@ float* data2;
 
 int print = 0;
 
-vector<float> values;
-vector<int> counts;
+vector<short> values;
+vector<char> counts;
 
 double oldTime, newTime;
 
@@ -119,6 +119,15 @@ void writeCharToFile(char* array, string fileName, int numValues){
 		cout<<"ERRORRRRRRRRRRRRRRRRRRRRRRRRRRR"<< endl;
 	}
 	outFile.write((char*) array, sizeof(char)*numValues);
+	outFile.close();
+}
+
+void writeShortToFile(short* array, string fileName, int numValues){
+	ofstream outFile(fileName, ios::binary);
+	if(outFile.fail()){
+		cout<<"ERRORRRRRRRRRRRRRRRRRRRRRRRRRRR"<< endl;
+	}
+	outFile.write((char*) array, sizeof(short)*numValues);
 	outFile.close();
 }
 
@@ -169,17 +178,30 @@ void readCharFromFile(string fileName, char* array){
 	inFile.close();
 }
 
-void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
-	float colorOld = array[0];
-	float color;
-	int count = 1;
+void readShortFromFile(string fileName, short* array){
+	ifstream inFile(fileName, ios::binary);
+	if(inFile.fail())
+		cout<<"Error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl;
+
+	 inFile.seekg (0, inFile.end);
+	 int length = inFile.tellg();
+	 inFile.seekg (0, inFile.beg);
+
+	inFile.read((char*) array, length);
+	inFile.close();
+}
+
+void doRLE2(float *array, vector<short>* outValue, vector<char>* outCounts){
+	short colorOld = char(10000000000 * array[0]);
+	short color;
+	char count = 1;
 
 	float max, min;
 
 
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
 
-		color = array[i];
+		color = char(10000000000 * array[i]);
 
 		if(colorOld != color){
 			max = glm::max(glm::abs(colorOld), glm::abs(color));
@@ -206,8 +228,8 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 		cout<< outCounts->size() << endl;
 		char* countings;
 		countings = (char*)malloc(sizeof(char)* outCounts->size());
-		float* valuess;
-		valuess = (float*)malloc( sizeof(float) * outCounts->size());
+		short* valuess;
+		valuess = (short*)malloc( sizeof(short) * outCounts->size());
 
 		for(int i = 0; i < outCounts->size(); i++){
 			countings[i] = outCounts->at(i);
@@ -215,7 +237,7 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 		}
 
 		writeCharToFile(countings, "counts.dat", outCounts->size());
-		writeFloatToFile(valuess, "values.dat", outValue->size());
+		writeShortToFile(valuess, "values.dat", outValue->size());
 
 		free(valuess);
 		free(countings);
@@ -229,9 +251,9 @@ void doRLEDecode3(float* array){
 
 	readCharFromFile("counts.dat", counts);
 
-	float* values;
-	values = (float*)malloc( sizeof(float) * lengthOfFile("values.dat"));
-	readFloatFromFile("values.dat", values);
+	short* values;
+	values = (short*)malloc( sizeof(short) * lengthOfFile("values.dat"));
+	readShortFromFile("values.dat", values);
 
 	int i,j,k = 0;
 
@@ -239,7 +261,8 @@ void doRLEDecode3(float* array){
 
 	for(i = 0 ; i < length ; i++){
 		for(j = 0; j < counts[i]; j ++){
-			array[k+j] = values[i];
+			float val = values[i];
+			array[k+j] = float(val/10000000000);
 		}
 		k+=j;
 	}
@@ -546,13 +569,13 @@ int main(int argc, char *argv[]) {
 	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
 	        glBindTexture(GL_TEXTURE_2D, 0);
 
-	        vector<float>* val = &values;
-	        vector<int>* coun = &counts;
+	        vector<short>* val = &values;
+	        vector<char>* coun = &counts;
 
 	        doRLE2(data, val, coun);
 
-//	        doRLEDecode3(data2);
-	        doRLEDecode3(val, coun, data2);
+	        doRLEDecode3(data2);
+//	        doRLEDecode3(val, coun, data2);
 
 	        values.clear();
 	        counts.clear();
