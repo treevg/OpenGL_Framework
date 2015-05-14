@@ -192,7 +192,7 @@ void readShortFromFile(string fileName, short* array){
 }
 
 void doRLE2(float *array, vector<short>* outValue, vector<char>* outCounts){
-	short colorOld = char(10000000000 * array[0]);
+	short colorOld = char(1000000000 * array[0]);
 	short color;
 	char count = 1;
 
@@ -201,7 +201,7 @@ void doRLE2(float *array, vector<short>* outValue, vector<char>* outCounts){
 
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
 
-		color = char(10000000000 * array[i]);
+		color = char(1000000000 * array[i]);
 
 		if(colorOld != color){
 			max = glm::max(glm::abs(colorOld), glm::abs(color));
@@ -261,8 +261,9 @@ void doRLEDecode3(float* array){
 
 	for(i = 0 ; i < length ; i++){
 		for(j = 0; j < counts[i]; j ++){
-			float val = values[i];
-			array[k+j] = float(val/10000000000);
+			short  temp = values[i];
+			float val = temp;
+			array[k+j] = val/1000000000;
 		}
 		k+=j;
 	}
@@ -295,13 +296,14 @@ void doRLEDecode3(float* array){
 //
 //}
 
-void doRLEDecode3(vector<float>* value, vector<int>* counts, float* array){
+void doRLEDecode3(vector<short>* value, vector<char>* counts, float* array){
 
 	int i,j,k = 0;
 
 	for(i = 0 ; i < counts->size(); i++){
 		for(j = 0; j < counts->at(i); j ++){
-			array[k+j] = value->at(i);
+			float val = value->at(i);
+			array[k+j] = val/1000000000;
 		}
 		k+=j;
 	}
@@ -509,8 +511,8 @@ int main(int argc, char *argv[]) {
 //        -> update("uniformView", viewMat)
 //        -> update("uniformProjection", projMat)
 //        -> update("uniformModel", cubeModel)
-//        -> texture("tex", bambus)
-        -> texture("tex", lena)
+        -> texture("tex", bambus)
+//        -> texture("tex", lena)
 //        -> texture("tex", cube)
         -> run();
 
@@ -574,8 +576,8 @@ int main(int argc, char *argv[]) {
 
 	        doRLE2(data, val, coun);
 
-	        doRLEDecode3(data2);
-//	        doRLEDecode3(val, coun, data2);
+//	        doRLEDecode3(data2);
+	        doRLEDecode3(val, coun, data2);
 
 	        values.clear();
 	        counts.clear();
