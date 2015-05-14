@@ -57,7 +57,7 @@ using namespace glm;
 glm::mat4 projMat = glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
-GLuint cube = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
+GLuint cube = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture2.jpg");
 GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
 GLuint lena = TextureTools::loadTexture(RESOURCES_PATH "/jpg/lenna.png");
 
@@ -170,20 +170,26 @@ void readCharFromFile(string fileName, char* array){
 }
 
 void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
-	float colorOld = array[0]*10000000000;
+	float colorOld = array[0]*100000000;
 	float color;
 	int count = 1;
 
 	float max, min;
+	max = 1;
 
 
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
 
-		color = array[i]*10000000000;
+		color = array[i]*100000000;
 
 		if(colorOld != color){
-			max = glm::max(glm::abs(colorOld), glm::abs(color));
-			min = glm::min(glm::abs(colorOld), glm::abs(color));
+
+//			if (glm::abs(color)>max){
+//				max=color;
+//			}
+//			cout<<"test is "<< test << " || colorOld was "<< colorOld << endl;
+			colorOld = round(colorOld);
+//			cout<< colorOld<<endl;
 			outValue->push_back(colorOld);
 			outCounts->push_back(count);
 
@@ -240,7 +246,7 @@ void doRLEDecode3(float* array){
 	for(i = 0 ; i < length ; i++){
 		for(j = 0; j < counts[i]; j ++){
 			float test = values[i];
-			float test2 = test/10000000000;
+			float test2 = test/100000000;
 //			cout<<test2<<endl;
 			array[k+j] = test2;
 		}
@@ -619,9 +625,9 @@ int main(int argc, char *argv[]) {
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
-//        ->texture("tex2", pass->get("fragColor"))
+        ->texture("tex2", pass->get("fragColor"))
 //        ->texture("tex2", tex1Handle)
-        ->texture("tex2", texFinalHandle)
+//        ->texture("tex2", texFinalHandle)
         ->run();
     });
 }
