@@ -170,7 +170,7 @@ void readCharFromFile(string fileName, char* array){
 }
 
 void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
-	float colorOld = array[0];
+	float colorOld = array[0]*10000000000;
 	float color;
 	int count = 1;
 
@@ -179,7 +179,7 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
 
-		color = array[i];
+		color = array[i]*10000000000;
 
 		if(colorOld != color){
 			max = glm::max(glm::abs(colorOld), glm::abs(color));
@@ -196,8 +196,8 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 		}
 	}
 
-	cout<<"max is: "<< max<< endl;
-	cout<<"min is: "<< min<<endl;
+//	cout<<"max is: "<< max<< endl;
+//	cout<<"min is: "<< min<<endl;
 
 	outValue->push_back(colorOld);
 	outCounts->push_back(count);
@@ -239,7 +239,10 @@ void doRLEDecode3(float* array){
 
 	for(i = 0 ; i < length ; i++){
 		for(j = 0; j < counts[i]; j ++){
-			array[k+j] = values[i];
+			float test = values[i];
+			float test2 = test/10000000000;
+//			cout<<test2<<endl;
+			array[k+j] = test2;
 		}
 		k+=j;
 	}
@@ -551,8 +554,8 @@ int main(int argc, char *argv[]) {
 
 	        doRLE2(data, val, coun);
 
-//	        doRLEDecode3(data2);
-	        doRLEDecode3(val, coun, data2);
+	        doRLEDecode3(data2);
+//	        doRLEDecode3(val, coun, data2);
 
 	        values.clear();
 	        counts.clear();
