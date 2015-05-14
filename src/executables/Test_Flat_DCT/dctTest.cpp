@@ -149,7 +149,7 @@ int main(){
 //	cout<<("\nValues recovered by IDCT:");
 //	print_elements ( N, &f[0][0] );
 //	cout<<("\n");
-	float test = 0.001253;
-	short test2 = test*10000;
-	cout<< "hello world"<< test2 << endl;
+	float test = 76;
+	float result = test/10000000000;
+	cout<< "hello world"<< result << endl;
 }
