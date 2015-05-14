@@ -61,6 +61,9 @@ GLuint cube = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture2.jpg");
 GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
 GLuint lena = TextureTools::loadTexture(RESOURCES_PATH "/jpg/lenna.png");
 
+int precision = 7;
+int prec = glm::pow(10,precision);
+
 GLuint texYCbCrHandle;
 GLuint texAHandle;
 GLuint texCbCrHandle;
@@ -170,7 +173,7 @@ void readCharFromFile(string fileName, char* array){
 }
 
 void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
-	float colorOld = array[0]*100000000;
+	float colorOld = array[0]*prec;
 	float color;
 	int count = 1;
 
@@ -180,7 +183,7 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
 
-		color = array[i]*100000000;
+		color = array[i]*prec;
 
 		if(colorOld != color){
 
@@ -246,7 +249,7 @@ void doRLEDecode3(float* array){
 	for(i = 0 ; i < length ; i++){
 		for(j = 0; j < counts[i]; j ++){
 			float test = values[i];
-			float test2 = test/100000000;
+			float test2 = test/prec;
 //			cout<<test2<<endl;
 			array[k+j] = test2;
 		}
@@ -625,9 +628,9 @@ int main(int argc, char *argv[]) {
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
-        ->texture("tex2", pass->get("fragColor"))
+//        ->texture("tex2", pass->get("fragColor"))
 //        ->texture("tex2", tex1Handle)
-//        ->texture("tex2", texFinalHandle)
+        ->texture("tex2", texFinalHandle)
         ->run();
     });
 }
