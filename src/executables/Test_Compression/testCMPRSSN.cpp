@@ -16,10 +16,10 @@ using namespace glm;
  *------------------------------------------------------variable declaration--------------------------------------------------------------------------
  -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-auto pass = new RenderPass(new Cube(), sp, width, height);
-// auto sp = new ShaderProgram({"/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"});
-// auto pass = new RenderPass(new Quad(), sp, width, height);
+//auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+//auto pass = new RenderPass(new Cube(), sp, width, height);
+ auto sp = new ShaderProgram({"/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"});
+ auto pass = new RenderPass(new Quad(), sp, width, height);
 //auto pass = new RenderPass(new Cube(), sp);
 
 auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compositing.frag"});
@@ -59,6 +59,7 @@ mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint cube = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
 GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
+GLuint lena = TextureTools::loadTexture(RESOURCES_PATH "/jpg/lenna.png");
 
 GLuint texYCbCrHandle;
 GLuint texAHandle;
@@ -173,12 +174,16 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 	float color;
 	int count = 1;
 
+	float max, min;
+
 
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
 
 		color = array[i];
 
 		if(colorOld != color){
+			max = glm::max(glm::abs(colorOld), glm::abs(color));
+			min = glm::min(glm::abs(colorOld), glm::abs(color));
 			outValue->push_back(colorOld);
 			outCounts->push_back(count);
 
@@ -190,6 +195,9 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 			count++;
 		}
 	}
+
+	cout<<"max is: "<< max<< endl;
+	cout<<"min is: "<< min<<endl;
 
 	outValue->push_back(colorOld);
 	outCounts->push_back(count);
@@ -275,9 +283,9 @@ void doRLEDecode3(vector<float>* value, vector<int>* counts, float* array){
 		k+=j;
 	}
 
-	cout<<"values<float> size is: " << value->size()<< ", wich makes a total of: " << sizeof(float) * value->size() << endl;
-	cout<<"counts<int> size is: " << counts->size() << ", wich makes a total of: " << sizeof(short) * counts->size() << endl;
-	cout<<"total is: " << k << endl;
+//	cout<<"values<float> size is: " << value->size()<< ", wich makes a total of: " << sizeof(float) * value->size() << endl;
+//	cout<<"counts<int> size is: " << counts->size() << ", wich makes a total of: " << sizeof(short) * counts->size() << endl;
+//	cout<<"total is: " << k << endl;
 }
 
 double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
@@ -475,11 +483,12 @@ int main(int argc, char *argv[]) {
 
         pass
         -> clear(1, 1, 1, 0)
-        -> update("uniformView", viewMat)
-        -> update("uniformProjection", projMat)
-        -> update("uniformModel", cubeModel)
-//        -> texture("tex2", bambus)
-        -> texture("tex2", cube)
+//        -> update("uniformView", viewMat)
+//        -> update("uniformProjection", projMat)
+//        -> update("uniformModel", cubeModel)
+//        -> texture("tex", bambus)
+        -> texture("tex", lena)
+//        -> texture("tex", cube)
         -> run();
 
         RGBtoYCbCr->use();
@@ -503,7 +512,7 @@ int main(int argc, char *argv[]) {
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 //        split2Channels->use();
-//        glBindImageTexture(0, texYAHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture
+//        glBindImageTexture(0, texYAHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);				//INPUT texture
 //        glBindImageTexture(1, texYHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  (Y)Channel
 //        glBindImageTexture(2, texAHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture2  (A)Channel
 //        glDispatchCompute(int(width/8), int(height/8), 1);
