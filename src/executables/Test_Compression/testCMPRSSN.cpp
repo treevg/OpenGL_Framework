@@ -88,7 +88,7 @@ float* data2;
 
 int print = 0;
 
-vector<float> values;
+vector<short> values;
 vector<int> counts;
 
 double oldTime, newTime;
@@ -122,6 +122,15 @@ void writeCharToFile(char* array, string fileName, int numValues){
 		cout<<"ERRORRRRRRRRRRRRRRRRRRRRRRRRRRR"<< endl;
 	}
 	outFile.write((char*) array, sizeof(char)*numValues);
+	outFile.close();
+}
+
+void writeShortToFile(short* array, string fileName, int numValues){
+	ofstream outFile(fileName, ios::binary);
+	if(outFile.fail()){
+		cout<<"ERRORRRRRRRRRRRRRRRRRRRRRRRRRRR"<< endl;
+	}
+	outFile.write((char*) array, sizeof(short)*numValues);
 	outFile.close();
 }
 
@@ -172,8 +181,29 @@ void readCharFromFile(string fileName, char* array){
 	inFile.close();
 }
 
-void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
+void readShortFromFile(string fileName, short* array){
+	ifstream inFile(fileName, ios::binary);
+	if(inFile.fail())
+		cout<<"Error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl;
+
+	 inFile.seekg (0, inFile.end);
+	 int length = inFile.tellg();
+	 inFile.seekg (0, inFile.beg);
+
+	inFile.read((char*) array, length);
+	inFile.close();
+}
+
+void doRLE2(float *array, vector<short>* outValue, vector<int>* outCounts){
 	float colorOld = array[0]*prec;
+	colorOld = round(colorOld);
+	short colorO;
+		if(glm::abs(colorOld) >= 32766){
+			colorO = 32767;
+			colorO *= glm::sign(colorOld);
+		}
+		else
+			colorO = colorOld;
 	float color;
 	int count = 1;
 
@@ -184,19 +214,30 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
 
 		color = array[i]*prec;
+		color = round(color);
+		short col;
+			if(glm::abs(color)>= 32766){
+				col = 32767;
+				col*= glm::sign(color);
+			}
+			else
+				col = color;
+			if (glm::abs(col)>glm::abs(max) && col != 0){
+				max=color;
+			}
 
-		if(colorOld != color){
+//		if(colorOld != color){
+		if(col != colorO){
+//		cout<<"color is " << color<<endl;
 
-//			if (glm::abs(color)>max){
-//				max=color;
-//			}
 //			cout<<"test is "<< test << " || colorOld was "<< colorOld << endl;
-			colorOld = round(colorOld);
+//			colorOld = round(colorOld);
 //			cout<< colorOld<<endl;
-			outValue->push_back(colorOld);
+			outValue->push_back(colorO);
 			outCounts->push_back(count);
 
 			colorOld = color;
+			colorO = col;
 			count = 1;
 		}
 
@@ -205,18 +246,18 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 		}
 	}
 
-//	cout<<"max is: "<< max<< endl;
+	cout<<"max is: "<< max<< endl;
 //	cout<<"min is: "<< min<<endl;
 
-	outValue->push_back(colorOld);
+	outValue->push_back(colorO);
 	outCounts->push_back(count);
 
 	if(print == 5){
 		cout<< outCounts->size() << endl;
 		char* countings;
 		countings = (char*)malloc(sizeof(char)* outCounts->size());
-		float* valuess;
-		valuess = (float*)malloc( sizeof(float) * outCounts->size());
+		short* valuess;
+		valuess = (short*)malloc( sizeof(short) * outCounts->size());
 
 		for(int i = 0; i < outCounts->size(); i++){
 			countings[i] = outCounts->at(i);
@@ -224,7 +265,7 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 		}
 
 		writeCharToFile(countings, "counts.dat", outCounts->size());
-		writeFloatToFile(valuess, "values.dat", outValue->size());
+		writeShortToFile(valuess, "values.dat", outValue->size());
 
 		free(valuess);
 		free(countings);
@@ -238,9 +279,9 @@ void doRLEDecode3(float* array){
 
 	readCharFromFile("counts.dat", counts);
 
-	float* values;
-	values = (float*)malloc( sizeof(float) * lengthOfFile("values.dat"));
-	readFloatFromFile("values.dat", values);
+	short* values;
+	values = (short*)malloc( sizeof(short) * lengthOfFile("values.dat"));
+	readShortFromFile("values.dat", values);
 
 	int i,j,k = 0;
 
@@ -558,7 +599,7 @@ int main(int argc, char *argv[]) {
 	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
 	        glBindTexture(GL_TEXTURE_2D, 0);
 
-	        vector<float>* val = &values;
+	        vector<short>* val = &values;
 	        vector<int>* coun = &counts;
 
 	        doRLE2(data, val, coun);
