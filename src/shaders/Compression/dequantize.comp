@@ -20,7 +20,7 @@ void main() {
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 	
 	vec4 texel_color = imageLoad(inImg, index);
-	float scaling = 9.0;
+	float scaling = 20.0;
 	
 	ivec2 newIndex;
 	newIndex.x = int (mod(index.x, 8));

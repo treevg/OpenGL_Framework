@@ -571,18 +571,18 @@ int main(int argc, char *argv[]) {
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 
-        merge2Channels->use();
-	   glBindImageTexture(0, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
-        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
-        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
-        glDispatchCompute(int(width/8), int(height/8), 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//        merge2Channels->use();
+//	   glBindImageTexture(0, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+//        glBindImageTexture(1, tex2Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+//        glBindImageTexture(2, tex4Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);
+//        glDispatchCompute(int(width/8), int(height/8), 1);
+//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//	     mergeChannels->use();
-//	     glBindImageTexture(0, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
-//	     glBindImageTexture(1, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-//	     glDispatchCompute(int(width/8), int(height/8), 1);
-//	     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	     mergeChannels->use();
+	     glBindImageTexture(0, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+	     glBindImageTexture(1, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+	     glDispatchCompute(int(width/8), int(height/8), 1);
+	     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 
 
@@ -592,12 +592,12 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-        compressedYCbCrToRGB->use();
-        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
-        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
-        glBindImageTexture(2, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
-        glDispatchCompute(int(width/16), int(height/16), 1);
-        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//        compressedYCbCrToRGB->use();
+//        glBindImageTexture(0, tex3Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
+//        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
+//        glBindImageTexture(2, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
+//        glDispatchCompute(int(width/16), int(height/16), 1);
+//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
