@@ -21,7 +21,6 @@ void RenderPassModel::runOneMesh()  {
 
 void RenderPassModel::run(){
 
- // cout << " RENDERING MESH " << endl;
 	
       frameBufferObject->bind();
 
@@ -34,22 +33,19 @@ void RenderPassModel::run(){
 
       for (MeshTexture tex: this->meshes[i]->getTextures()){
         
-     //   cout <<  " ------  DEBUG: TEXTURE ID "  << tex.id << endl; 
-     
-    switch( tex.type  ) { 
+     switch( tex.type  ) { 
 
-  	case 'a': 
+  	   case 'a': 
 
-  	shaderProgram->textureModel("ambient_text", tex.id) ; 
+         	shaderProgram->textureModel("ambient_text", tex.id) ; 
 
-  	case 'd': 
+      	case 'd': 
 
-  	shaderProgram->textureModel("diffuse_text", tex.id) ; 
+     	    shaderProgram->textureModel("diffuse_text", tex.id) ; 
 
-    case 's': 
+        case 's': 
 
-    shaderProgram->textureModel("specular_text", tex.id)
-    ; 
+         shaderProgram->textureModel("specular_text", tex.id); 
 
       
 
@@ -57,6 +53,8 @@ void RenderPassModel::run(){
     	}
 
     } 
+
+   
       shaderProgram->update("Ka", meshes[i]->getMaterial().ka);
       shaderProgram->update("Kd", meshes[i]->getMaterial().kd);
       shaderProgram->update("Ks", meshes[i]->getMaterial().ks);
@@ -71,46 +69,6 @@ void RenderPassModel::run(){
 
 	
 }
-
-
-
-void RenderPassModel::runTerrain(GLuint id1, GLuint id2){
-
-  cout << " RENDERING MESH " << this->meshes.size() <<  endl;
-  
-      frameBufferObject->bind();
-
-
-  for (int i=0; i<this->meshes.size(); i++ ){
-  
-        shaderProgram->use();
-
-  
-
-    shaderProgram->texture("grass_text", id1) ; 
-
-    shaderProgram->texture("rock_text", id2) ; 
-
- 
-      
-
-    
-      
-
-
-    this->meshes[i]->draw();     
-    
-        
-  }
-
-   glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-  }
-
-
-
-
 
 
 

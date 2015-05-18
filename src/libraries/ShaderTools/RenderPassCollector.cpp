@@ -38,12 +38,7 @@ void RenderPassCollector::run() {
            	shaderProgramms[sp]->use();
 	      	  shaderProgramms[sp]->update("uniformModel", objects[i]->modelMatrix);
 	         
-       
-	   
 
-	      	    if(objects[i]->textureHandle!= -1){
-                    shaderProgramms[sp]->texture("diffuse_text", objects[i]->textureHandle);
-	      	    }
 
 	      	        if (this->objects[i]->getTextures().size() > 0) {
 
@@ -95,7 +90,7 @@ void RenderPassCollector::run() {
 	}
 
 	GLuint RenderPassCollector::get(std::string name) {
-		cout << "location of " << name  << " is " << frameBufferObject->get(name) << endl;
+	//	cout << "location of " << name  << " is " << frameBufferObject->get(name) << endl;
 	return frameBufferObject->get(name);
 }
 
@@ -125,9 +120,7 @@ RenderPassCollector* RenderPassCollector::setFrameBufferObject(FrameBufferObject
 
 
 RenderPassCollector*  RenderPassCollector::addVAOS(vector<VertexArrayObject*> moreObjects) {
-
-
-this->objects.insert(this->objects.end(),moreObjects.begin(), moreObjects.end());
+    this->objects.insert(this->objects.end(),moreObjects.begin(), moreObjects.end());
 return this;
 
 
@@ -135,9 +128,7 @@ return this;
 
 
 RenderPassCollector*  RenderPassCollector::addVertexArrayObject( VertexArrayObject* obj) {
-
-
-this->objects.push_back(obj);
+   this->objects.push_back(obj);
 return this;
 
 
@@ -147,8 +138,7 @@ return this;
    RenderPassCollector::~RenderPassCollector(){
 
           for(VertexArrayObject* v: this->objects){
-
-            delete v;
+               delete v;
           }
 
    }

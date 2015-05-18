@@ -3,9 +3,9 @@
 uniform sampler2D ambient_text;
 uniform sampler2D diffuse_text;
 uniform sampler2D specular_text;
+
 uniform vec3 lightPos; 
-uniform bool attenuatFactor;
-uniform vec3 viewPosition;
+
 uniform vec3 Ka;
 uniform vec3 Kd;
 uniform vec3 Ks;
@@ -14,9 +14,12 @@ uniform vec3 Ks;
 in vec4 passPosition;
 in vec2 passUV;
 in vec3 passNormal;
+in float visability;
 
 out vec4 fragColor;
 out vec4 fragPosition;
+
+
 
 
 void main() {
@@ -25,59 +28,27 @@ void main() {
  vec4 ambient_color = texture(ambient_text, passUV);
  vec4 diffuse_color = texture(diffuse_text, passUV); 
  vec4 specular_color = texture(specular_text, passUV);
-     
 
- float lightConstantAtt = 0.0f;
- float lightLinearAtt = 0.009f;
- float lightQuadraticAtt = 0.0032f;
+ vec3 ambient_light = vec3(0.79,0.8,0.74);
+ vec3 diffuse_light = vec3(0.5,0.5,0.5); 
 
-    vec3 lightDirection = normalize(lightPos - passPosition.xyz);
-    vec3 lightColor = vec3(1,1,1);
-    vec3 viewVector = normalize(viewPosition-passPosition.xyz)*0.1f;
-    vec3 norm = normalize(passNormal);
+//diffuse
 
-      //ambient shading
+ vec3 norm = normalize(passNormal);
+ vec3 lightDirection = normalize(lightPos - passPosition.xyz);
+ float diff = max(dot(norm, lightDirection), 0.0);
+ vec3 diffuseComponent =  diff * Kd * diffuse_light;
 
-        vec3 ambientComponent  = Ka * ambient_color.xyz;
+//ambient shading
 
-       /*         diffuse shading   */
+  vec3 ambientComponent  = Ka * ambient_light;
 
-      float diff = max(dot(norm, lightDirection), 0.0);
-      vec3 diffuseComponen =   Kd * diff * diffuse_color.xyz;
-    
-
-       /*             specular shading        */
-     vec3 reflectDirection = normalize(reflect(-lightDirection, norm));
-   //  float spec = (pow(max(dot(viewVector, reflectDirection), 0.0), shinines))*0.2f;
-     vec3 specularComponent =  Ks  * specular_color.xyz ;
-    
-
-
-      /* 		attenuation	      */
-   float dist = length(lightPos - passPosition.xyz);
-   float attenFactor = 1.0f / (lightConstantAtt + lightLinearAtt * dist + lightQuadraticAtt* (dist*dist));
-
-
-         if(attenuatFactor) {
-
-     ambientComponent *= attenFactor;
-     specularComponent *= attenFactor;
-     diffuseComponen  *= attenFactor;
-
-           }
-
-
-
-    fragColor = vec4(ambientComponent + specularComponent + diffuseComponen, 1.0f);
-    
-
-          if (ambient_color == 0){
+  fragColor = vec4(ambientComponent + diffuseComponent, 1.0f)*diffuse_color;
+   vec4 skycolor = vec4(0.2,0.2,0.2,1);
+  fragColor = mix(skycolor, fragColor, visability);
  
-              fragColor = vec4(1,0,0,1);
     
-                    }
-  
-    fragPosition = passPosition;
+fragPosition = passPosition;
    
 
 }

@@ -43,6 +43,8 @@ int main(int argc, char *argv[]) {
     float toneMax = 1.0;
 
     render(window, [&] (float deltaTime) {
+
+    std::cout<<deltaTime << std::endl;
         if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS) {
             toneMax = clamp(toneMax * pow(2.0f, deltaTime), toneMin, 10.0f);
             cout << "Tone max: " << toneMax << endl;

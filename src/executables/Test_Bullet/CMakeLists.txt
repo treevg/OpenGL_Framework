@@ -6,12 +6,14 @@ string(REPLACE " " "_" ProjectId ${ProjectId})
 project(${ProjectId})
 
 find_package(Bullet)
+find_package(Assimp)
 
 include_directories(
     ${OpenGL3_INCLUDE_PATH}
     ${GLEW_INCLUDE_PATH}
     ${GLFW3_INCLUDE_PATH}
     ${BULLET_INCLUDE_DIRS}
+    ${ASSIMP_INCLUDE_DIRS}
     ${GLM_INCLUDE_PATH}
     ${EXTERNAL_LIBRARY_PATHS}
     ${LIBRARIES_PATH}
@@ -31,6 +33,7 @@ target_link_libraries(
     ${ProjectId}
     ${ALL_LIBRARIES}
     ${BULLET_LIBRARIES}
+    ${ASSIMP_LIBRARIES}
     ${GLFW3_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${OpenGL3_LIBRARIES}

@@ -40,10 +40,12 @@ public:
     std::vector<MeshTexture> getTextures() const;
     Material getMaterial() const;
     void setModelMatrix(mat4 matrix);
+    mat4 getModelMatrix() const;
     vector<vec3> getVertices() const;
-     vector<vec3> getNormals() const;
-     vector<vec2> getTexCoords() const;
-     vector<GLuint> getIndices() const;
+    vector<float> getSacalarVertices() const;
+    vector<vec3> getNormals() const;
+    vector<vec2> getTexCoords() const;
+    vector<GLuint> getIndices() const;
  
 
      mat4 modelMatrix;

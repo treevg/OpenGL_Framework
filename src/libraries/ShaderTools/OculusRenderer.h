@@ -13,22 +13,26 @@
 #if !defined(__APPLE__)
 #include <GLFW/glfw3native.h>
 #endif
-#include <../Include/OVR.h>
-#include "../Src/Kernel/OVR_Math.h"
-#include <../Src/OVR_CAPI.h>
-#include <../Src/OVR_CAPI_GL.h>
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
+
+#include <OVR.h>
+#include <OVR_CAPI_0_5_0.h>
+#include <Extras/OVR_Math.h>
+#include <OVR_CAPI.h>
+#include <OVR_CAPI_GL.h>
+
+
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
+#include "WarppingGame/Camera/Camera.h"
 #include <functional>
 const bool l_MultiSampling = false;
 const bool l_Spin = false;
 int g_DistortionCaps = 0
                        | ovrDistortionCap_Vignette
-                       | ovrDistortionCap_Chromatic
                        | ovrDistortionCap_Overdrive
 // | ovrDistortionCap_TimeWarp // Turning this on gives ghosting???
                        ;
@@ -49,6 +53,8 @@ GLuint l_FBOId;
 GLuint l_DepthBufferId;
 // The texture we're going to render to...
 GLuint l_TextureId;
+Camera* my_camera = new Camera();
+
 static void ErrorCallback(int p_Error, const char* p_Description)
 {
 	fputs(p_Description, stderr);
@@ -66,16 +72,17 @@ static void KeyCallback(GLFWwindow* p_Window, int p_Key, int p_Scancode, int p_A
 			ovrHmd_RecenterPose(g_Hmd);
 			break;
 		case GLFW_KEY_UP:
-			g_CameraPosition.z += 0.1f;
+		
+			g_CameraPosition.z += 0.2f;
 			break;
 		case GLFW_KEY_DOWN:
-			g_CameraPosition.z -= 0.1f;
+			g_CameraPosition.z -= 0.2f;
 			break;
 		case GLFW_KEY_LEFT:
-			g_CameraPosition.x += 0.1f;
+			g_CameraPosition.x += 0.2f;
 			break;
 		case GLFW_KEY_RIGHT:
-			g_CameraPosition.x -= 0.1f;
+			g_CameraPosition.x -= 0.2f;
 			break;
 		}
 // Remove HSW on every key...
@@ -150,11 +157,11 @@ glm::mat4 toGlm(const ovrPosef & op)
 }
 void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection, glm::mat4 view)> loop)
 {
-	float lastTime = 0.0;
+	double lastTime = 0.0;
 	unsigned int l_FrameIndex = 0;
 	while (!glfwWindowShouldClose(window))
 	{
-		float currentTime = glfwGetTime();
+		double currentTime = glfwGetTime();
 // Begin the frame...
 		ovrHmd_BeginFrame(g_Hmd, l_FrameIndex);
 // Get eye poses for both the left and the right eye. g_EyePoses contains all Rift information: orientation, positional tracking and
@@ -173,6 +180,13 @@ void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection,
 			    g_EyeTextures[l_Eye].Header.RenderViewport.Size.w,
 			    g_EyeTextures[l_Eye].Header.RenderViewport.Size.h
 			);
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			my_camera->moveWithKey(window, 6*(currentTime - lastTime));
+			my_camera->rotateWithMouse(window, 1280, 720);
+
+			glm::mat4 gl_look_at_view = my_camera->looksAt();
+
+
 			OVR::Quatf l_Orientation = OVR::Quatf(g_EyePoses[l_Eye].Orientation);
 			OVR::Matrix4f l_ModelViewMatrix = OVR::Matrix4f(l_Orientation.Inverted());
 			glm::mat4 view = toGlm(l_ModelViewMatrix);
@@ -180,7 +194,8 @@ void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection,
 // Translation due to positional tracking (DK2) and IPD...
 			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z));
 // Move the world forward a bit to show the scene in front of us...
-			view = glm::translate(view, glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z));
+		//	view = glm::translate(view, glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z));
+			view = view*gl_look_at_view;
 			loop(currentTime - lastTime, projection, view);
 		}
 // Back to the default framebuffer...
@@ -389,7 +404,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720)
 	g_EyeOffsets[ovrEye_Right] = g_EyeRenderDesc[ovrEye_Right].HmdToEyeViewOffset;
 // Initial camera position...
 	g_CameraPosition.x = 0.0f;
-	g_CameraPosition.y = 0.0f;
+	g_CameraPosition.y = 2.5f;
 	g_CameraPosition.z = 0.0f;
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetWindowSizeCallback(window, WindowSizeCallback);

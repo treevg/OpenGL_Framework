@@ -18,7 +18,7 @@ class RenderPassModel: public RenderPassBase
 
 	void run();
 	void runOneMesh();
-	void runTerrain(GLuint id1, GLuint id2);
+
 
 
 		template <class T>

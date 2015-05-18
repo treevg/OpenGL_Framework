@@ -3,6 +3,7 @@
 
 in vec4 passPosition;
 in vec2 passTextureCoordinate;
+in float visability;
 
 uniform sampler2D diffuse_text;
 uniform vec3 Ka;
@@ -27,11 +28,8 @@ void main() {
 
      fragColor = temporColor;
   
-     if (fragColor == 0){
-
-     fragColor = vec4 (0,1,1,0);
-     
-     }
+      vec4 skycolor = vec4(0.2,0.2,0.2,1);
+      fragColor = mix(skycolor, fragColor, visability);
 
 
    

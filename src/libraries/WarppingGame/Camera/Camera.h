@@ -1,6 +1,7 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
+#define GLM_FORCE_RADIANS 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <GL/glew.h>
@@ -27,6 +28,7 @@ void strafeCamera(float speed);
 void rotatePoint(float x, float y, float z, vec3 center);
 void rotate(float angle, vec3 rotationVector);
 void rotateWithMouse(GLFWwindow* window, const int  width, const int height);
+void moveWithKey(GLFWwindow* window,float speed,bool);
 void moveWithKey(GLFWwindow* window,float speed);
 
 /* getters and setters */
@@ -52,6 +54,8 @@ glm::vec3 c_position;
 glm::vec3 c_view;
 glm::vec3 c_upVector;
 glm::vec3 c_strafeVector;
+float c_zAngle;
+float c_yAngle;
 float c_speed;
    
 

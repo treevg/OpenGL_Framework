@@ -1,15 +1,13 @@
 #include <stdexcept>
 #include <fstream>
 #include <stdlib.h>
-#include <boost/lexical_cast.hpp>
+
 #include "ObjModelLoader.h"
 
-using boost::lexical_cast;
 
 //TODO -> change loadObj() to bool loadObj
 //TODO ->  store particular meshes into map/vector
-
-template< typename T >
+/* template< typename T >
 T parseLine(const string& line, char* delim)  
 {
           T t;
@@ -162,7 +160,7 @@ void ObjModelLoader::loadMesh(const string& path) {
                 cout<<" 1:  " <<vert_array[1];
                 cout<<" 2:  " << vert_array[2]; */
 
-                  Face f = {vert_array[1], vert_array[2], vert_array[0]};
+      /*            Face f = {vert_array[1], vert_array[2], vert_array[0]};
                   this->faces.push_back(f);
 
                }
@@ -171,7 +169,7 @@ void ObjModelLoader::loadMesh(const string& path) {
            
 
          }
-
+*/
 
 
     void ObjModelLoader::printVectors(){

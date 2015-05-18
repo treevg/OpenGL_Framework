@@ -199,7 +199,7 @@ std::map<string,ShaderProgram*> shaderPrograms;
 
 
 std::queue<glm::mat4> latencyQueue;
-int latencyFrameCount = 6;
+int latencyFrameCount = 18;
 
 GLuint textureHandle;
 
@@ -250,10 +250,10 @@ static void quit()
 
 /*input from keybord */
 
-static void  moveWithKeybord()
+static void  moveWithKeybord(bool h)
 {
 
-	camera->moveWithKey(window, speed);
+	camera->moveWithKey(window, speed,h);
 	quit();
 
 }
@@ -312,7 +312,7 @@ void Game::setMatrix()
 
 	followMeModel = translate(followMeModel, vec3(126.8 , -4.5 ,  195.572));
 	followMeModel = glm::rotate(followMeModel, 80.0f, glm::vec3(0,1,0));
-  followMeModel = scale(followMeModel, vec3(0.06, 0.06, 0.06));
+    followMeModel = scale(followMeModel, vec3(0.06, 0.06, 0.06));
 	
 
 	modelTerra = translate(modelTerra, vec3(52.0, -6.0, 50.0));
@@ -454,8 +454,8 @@ void Game::setMatrix()
 	modelPolyTrees3 = translate(modelPolyTrees3, vec3(57.49, -5.0, 188.73));
 	modelPolyTrees3 =  scale(modelPolyTrees3, vec3(0.001, 0.001, 0.001));
 
-		modelPolyTrees4 = translate(modelPolyTrees4, vec3(148.49, -5.0, 223.73));
-	modelPolyTrees4 =  scale(modelPolyTrees4, vec3(0.001, 0.001, 0.001));
+	modelPolyTrees4 = translate(modelPolyTrees4, vec3(148.49, -5.0, 223.73));
+	modelPolyTrees4 = scale(modelPolyTrees4, vec3(0.001, 0.001, 0.001));
 
 	modelGrass1 = translate(modelGrass1, vec3(145.49, -6.0, 195.73));
 	//    modelGrass1 =  scale(modelGrass1, vec3(0.001, 0.001, 0.001));
@@ -495,7 +495,7 @@ void Game::setMatrix()
 
 	modelPig =  scale(modelPig, vec3(0.3, 0.3, 0.3));
 
-  modelSmaug =  translate(modelSmaug, vec3(152.48, 0.0, 99.08));
+    modelSmaug =  translate(modelSmaug, vec3(152.48, 0.0, 99.08));
   	modelSmaug = glm::rotate(modelSmaug, 0.45f, glm::vec3(1,0,0));
 
 
@@ -816,7 +816,7 @@ void  Game::renderSzene()
 	{
 
 		double currentTime = glfwGetTime();
-
+     cout << deltaTime << endl;
 		
 
 		lasttime = currentTime;
@@ -830,7 +830,7 @@ void  Game::renderSzene()
 		simulateLanetcy (latencyFrameCount, viewMat);
 
 		//use this matrix for simulating latency
-		glm::mat4 viewMat_old = latencyQueue.front();
+		glm::mat4 viewMat_old = viewMat; // latencyQueue.front();
 
 
 		/*   MODEL FOR followObject   */
@@ -840,10 +840,10 @@ void  Game::renderSzene()
 
     
 		followMeModel = translate(mat4(1), movingPositions[i]);
-		cout << "moving to " << movingPositions[i].x << " " << movingPositions[i].z << endl;
+	//	cout << "moving to " << movingPositions[i].x << " " << movingPositions[i].z << endl;
     followMeModel = glm::rotate(followMeModel, 80.0f, glm::vec3(0,1,0)); 
 		followMeModel = scale(followMeModel, vec3(0.06, 0.06, 0.06));
-	   cout << i << endl;
+	  // cout << i << endl;
 	
 		i++;
 		
@@ -856,19 +856,20 @@ void  Game::renderSzene()
 
 		lookAround();
 
-		moveWithKeybord();
+		moveWithKeybord(true);
 
    
     vec3 currentPosition = camera->getPosition();
 
-     if(currentPosition.x!=lastPosition.x || currentPosition.z!=lastPosition.z ){
+  /*   if(currentPosition.x!=lastPosition.x || currentPosition.z!=lastPosition.z ){
      	string str = std::to_string(currentPosition.x) + ";";
        str = str + std::to_string(currentPosition.z);
    //   cout << "string "  << endl;
-     	myfile << str << endl; 
+        	myfile << str << endl; 
      	
      }
-     lastPosition=currentPosition;
+     */
+   //  lastPosition=currentPosition;
    //   cout << "camera  LAST position " << lastPosition.x << " " << lastPosition.y << " " << lastPosition.z << endl;
 
 	
@@ -880,7 +881,6 @@ void  Game::renderSzene()
     
        collector->addVAOS(followMe->updateModelMatrix(followMeModel));
 
-			cout << "######## RENDER TO TEXTURE ###########" << endl;
 
 			collector
 			->  clear (0, 0, 0, 0)
@@ -928,20 +928,20 @@ void  Game::renderSzene()
 			->  run();
 
 
-			castlePass
-			->  update("uniformModel", modelCastle)
-			->  update("uniformView", viewMat_old)
-			->  update("uniformProjection", projMat)
-			->  update("lightPos", lightPosition)
-			->  update ("viewPosition", camera->getPosition())
-			->  update("attenuatFactor", false)
-			->  run();
+			// castlePass
+			// ->  update("uniformModel", modelCastle)
+			// ->  update("uniformView", viewMat_old)
+			// ->  update("uniformProjection", projMat)
+			// ->  update("lightPos", lightPosition)
+			// ->  update ("viewPosition", camera->getPosition())
+			// ->  update("attenuatFactor", false)
+			// ->  run();
 
-			terraPass
-			->  update("uniformModel", modelTerra)
-			->  update("uniformView", viewMat_old)
-			->  update("uniformProjection", projMat)
-			->  run();
+			// terraPass
+			// ->  update("uniformModel", modelTerra)
+			// ->  update("uniformView", viewMat_old)
+			// ->  update("uniformProjection", projMat)
+			// ->  run();
 		
 
 			housePass
@@ -1602,15 +1602,15 @@ void  Game::renderSzene()
 			        ->  update("attenuatFactor", false)
 			        ->  run();
 
-		smaugPass
-		         ->  update("uniformModel", modelSmaug)
-			        ->  update("uniformView", viewMat_old)
-			        ->  update("uniformProjection", projMat)
-			        ->  update ("viewPosition", camera->getPosition())
-			        ->  update("lightPos", lightPosition)
-			        ->  update("shinines", shinines)
-			        ->  update("attenuatFactor", false)
-			        ->  run();
+		// smaugPass
+		//          ->  update("uniformModel", modelSmaug)
+		// 	        ->  update("uniformView", viewMat_old)
+		// 	        ->  update("uniformProjection", projMat)
+		// 	        ->  update ("viewPosition", camera->getPosition())
+		// 	        ->  update("lightPos", lightPosition)
+		// 	        ->  update("shinines", shinines)
+		// 	        ->  update("attenuatFactor", false)
+		// 	        ->  run();
 
 
 		}

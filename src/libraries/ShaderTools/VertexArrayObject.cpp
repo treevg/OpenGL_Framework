@@ -48,3 +48,25 @@ VertexArrayObject* VertexArrayObject::setMode(GLenum mode) {
 
     }
  
+
+ mat4 VertexArrayObject::getModelMatrix() const{
+
+   return this->modelMatrix;
+ }
+
+
+   vector<float> VertexArrayObject::getSacalarVertices() const{
+
+     vector<float> scalarVerticies;
+
+     for(vec3 vertex: this->m_vertices){
+
+        scalarVerticies.push_back(vertex.x);
+        scalarVerticies.push_back(vertex.y);
+        scalarVerticies.push_back(vertex.z);
+
+     }
+
+     return scalarVerticies;
+
+   }

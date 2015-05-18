@@ -5,7 +5,7 @@
 #include <string>
 #include <stdio.h>
 #include <iostream>
-#include <boost/algorithm/string.hpp>
+
 #include "ModelLoader.h"
 
 
