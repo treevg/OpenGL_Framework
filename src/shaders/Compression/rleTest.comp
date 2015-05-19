@@ -1,0 +1,17 @@
+#version 430
+layout ( binding = 0, r32f ) readonly uniform image2D inImg;
+
+layout (local_size_x = 1, local_size_y=1, local_size_z=1) in;
+
+
+void main() {
+	
+	float[64] temp;
+	
+	ivec2 index = ivec2 (gl_GlobalInvocationID.x*8, gl_GlobalInvocationID.y);
+	
+	for(int i = 0; i<64; i++){
+		temp[i] = imageLoad(inImg, ivec2(index.x + i, index.y)).x / 8.0;
+	}
+	
+}
