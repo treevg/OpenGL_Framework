@@ -66,24 +66,5 @@ void main() {
     imageStore(outImg, ivec2(index.x, index.y + 5), vec4(tmp2 - tmp5, 0, 0, 0));
     imageStore(outImg, ivec2(index.x, index.y + 4), vec4(tmp3 + tmp4, 0, 0, 0));
     imageStore(outImg, ivec2(index.x, index.y + 3), vec4(tmp3 - tmp4, 0, 0, 0));
-
-    // imageStore(outImg, ivec2(index.x + 0, index.y), vec4(tmp0, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 7, index.y), vec4(tmp1, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 1, index.y), vec4(tmp2, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 6, index.y), vec4(tmp3, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 2, index.y), vec4(tmp4, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 5, index.y), vec4(tmp5, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 4, index.y), vec4(tmp6, 0, 0, 0));
-    // imageStore(outImg, ivec2(index.x + 3, index.y), vec4(tmp7, 0, 0, 0));
-
-//    output0[0] = tmp0 + tmp7;		// wsptr[DCTSIZE*0]
-//    output1[3] = tmp0 - tmp7;		// wsptr[DCTSIZE*7]
-//    output0[1] = tmp1 + tmp6;		// wsptr[DCTSIZE*1]
-//    output1[2] = tmp1 - tmp6;		// wsptr[DCTSIZE*6]
-//    output0[2] = tmp2 + tmp5;		// wsptr[DCTSIZE*2]
-//    output1[1] = tmp2 - tmp5;		// wsptr[DCTSIZE*5]
-//    output1[0] = tmp3 + tmp4;		// wsptr[DCTSIZE*4]
-//    output0[3] = tmp3 - tmp4;		// wsptr[DCTSIZE*3]
-//	
 	
 }

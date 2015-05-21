@@ -20,7 +20,7 @@ void main() {
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 //	float barrier = 0.0000000596500;
 	float barrier = 0.02;
-	float scaling = 20.0;
+	float scaling = 1.0;
 	
 	vec4 texel_color = imageLoad(inImg, index);
 	
