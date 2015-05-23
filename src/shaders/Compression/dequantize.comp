@@ -20,26 +20,12 @@ void main() {
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 	
 	vec4 texel_color = imageLoad(inImg, index);
-	float scaling = 1.0;
+	float scaling = 10.0;
 	
 	ivec2 newIndex;
 	newIndex.x = int (mod(index.x, 8));
 	newIndex.y = int (mod(index.y, 8));
 	
 	imageStore(outImg, index, vec4(texel_color.r * scaling * qTable[newIndex.x][newIndex.y], 0, 0, 0));
-	
-//	ivec2 newIndex;
-//	newIndex.x = int(floor(index.x/8) * 4) + int(mod(index.x, 8));
-//	newIndex.y = int(floor(index.y/8) * 4) + int(mod(index.y, 8));
-//	
-//	vec4 texel_color = imageLoad(inImg, newIndex);
-//	
-//	if((mod(index.x, 8) > 3) || (mod(index.y, 8) > 3)){
-//		imageStore(outImg, index, vec4(0, 0, 0, 0));
-//	}
-//	
-//	else{
-//		imageStore(outImg, index, vec4(texel_color.r, 0, 0, 0));
-//	}
 	
 }

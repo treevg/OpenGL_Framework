@@ -31,9 +31,9 @@ auto YCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/YCbCrToRGB.
 auto compressCbCr = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressCbCr.comp");
 auto compressedYCbCrToRGB = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/compressedYCbCrToRGB.comp");
 auto dct = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct.comp");
-auto dct2 = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct2.comp");
-auto dct3 = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct3.comp");
-auto pseudoQuantize = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/quantize.comp");
+auto horizontalDCT = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct2.comp");
+auto verticalDCT = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dct3.comp");
+auto quantize = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/quantize.comp");
 auto pseudoDequantize = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/dequantize.comp");
 auto idct2 = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/idct2.comp");
 auto idct3 = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/idct3.comp");
@@ -41,7 +41,7 @@ auto splitChannels = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/splitCha
 auto split2Channels = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/split2Channels.comp");
 auto mergeChannels = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/mergeChannels.comp");
 auto merge2Channels = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/merge2Channels.comp");
-auto fZigZag = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/fZigZag.comp");
+auto forwardZigZag = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/fZigZag.comp");
 auto rZigZag = new ShaderProgram(GL_COMPUTE_SHADER, "/Compression/rZigZag.comp");
 
 float cubeAngle = 0.0f;
@@ -59,16 +59,18 @@ mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
 GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
 GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
-GLuint lena = TextureTools::loadTexture(RESOURCES_PATH "/jpg/lena.png");
+GLuint flower = TextureTools::loadTexture(RESOURCES_PATH "/jpg/flower.jpg");
+GLuint frog = TextureTools::loadTexture(RESOURCES_PATH "/jpg/frog.jpg");
+GLuint cat = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cat.jpg");
 
 GLuint texYCbCrHandle;
 GLuint tex2Handle;
 GLuint texCbCrHandle;
 GLuint tex4Handle;
-GLuint tex5Handle;
+GLuint texYHandle;
 GLuint tex52Handle;
-GLuint tex6Handle;
-GLuint tex7Handle;
+GLuint texHDCTHandle;
+GLuint texRLEHandle;
 GLuint tex8Handle;
 GLuint tex9Handle;
 GLuint texQuantHandle;
@@ -171,24 +173,19 @@ void readCharFromFile(string fileName, char* array){
 	inFile.close();
 }
 
-void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
+void runlengthEncoding(float *array, vector<float>* outValue, vector<int>* outCounts){
 	float colorOld = array[0];
 	float color;
 	int count = 1;
 
-
 	for(int i = 1; i < (tWidth * tHeight) ; i++){
-
 		color = array[i];
-
 		if(colorOld != color){
 			outValue->push_back(colorOld);
 			outCounts->push_back(count);
-
 			colorOld = color;
 			count = 1;
 		}
-
 		else{
 			count++;
 		}
@@ -197,28 +194,28 @@ void doRLE2(float *array, vector<float>* outValue, vector<int>* outCounts){
 	outValue->push_back(colorOld);
 	outCounts->push_back(count);
 
-	if(print == 5){
-		cout<< outCounts->size() << endl;
-		char* countings;
-		countings = (char*)malloc(sizeof(char)* outCounts->size());
-		float* valuess;
-		valuess = (float*)malloc( sizeof(float) * outCounts->size());
-
-		for(int i = 0; i < outCounts->size(); i++){
-			countings[i] = outCounts->at(i);
-			valuess[i] = outValue->at(i);
-		}
-
-		writeCharToFile(countings, "counts.dat", outCounts->size());
-		writeFloatToFile(valuess, "values.dat", outValue->size());
-
-		free(valuess);
-		free(countings);
-	}
+//	if(print == 5){
+//		cout<< outCounts->size() << endl;
+//		char* countings;
+//		countings = (char*)malloc(sizeof(char)* outCounts->size());
+//		float* valuess;
+//		valuess = (float*)malloc( sizeof(float) * outCounts->size());
+//
+//		for(int i = 0; i < outCounts->size(); i++){
+//			countings[i] = outCounts->at(i);
+//			valuess[i] = outValue->at(i);
+//		}
+//
+//		writeCharToFile(countings, "counts.dat", outCounts->size());
+//		writeFloatToFile(valuess, "values.dat", outValue->size());
+//
+//		free(valuess);
+//		free(countings);
+//	}
 
 }
 
-void doRLEDecode3(float* array){
+void rleDecodeFromFile(float* array){
 	char* counts;
 	counts = (char*)malloc(sizeof(char) * lengthOfFile("counts.dat"));
 
@@ -267,7 +264,7 @@ void doRLEDecode3(float* array){
 //
 //}
 
-void doRLEDecode3(vector<float>* value, vector<int>* counts, float* array){
+void rleDecodeFromVec(vector<float>* value, vector<int>* counts, float* array){
 
 	int i,j,k = 0;
 
@@ -278,9 +275,9 @@ void doRLEDecode3(vector<float>* value, vector<int>* counts, float* array){
 		k+=j;
 	}
 
-	cout<<"values<float> size is: " << value->size()<< ", wich makes a total of: " << sizeof(float) * value->size() << endl;
-	cout<<"counts<int> size is: " << counts->size() << ", wich makes a total of: " << sizeof(short) * counts->size() << endl;
-	cout<<"total is: " << k << endl;
+//	cout<<"values<float> size is: " << value->size()<< ", wich makes a total of: " << sizeof(float) * value->size() << endl;
+//	cout<<"counts<int> size is: " << counts->size() << ", wich makes a total of: " << sizeof(short) * counts->size() << endl;
+//	cout<<"total is: " << k << endl;
 }
 
 double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
@@ -365,13 +362,13 @@ int main(int argc, char *argv[]) {
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT3, GL_TEXTURE_2D, tex4Handle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT3);
 
-    glGenTextures(1, &tex5Handle);
+    glGenTextures(1, &texYHandle);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex5Handle);
+    glBindTexture(GL_TEXTURE_2D, texYHandle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, tex5Handle, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT4, GL_TEXTURE_2D, texYHandle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT4);
 
     glGenTextures(1, &tex52Handle);
@@ -381,18 +378,18 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
 
-    glGenTextures(1, &tex6Handle);
+    glGenTextures(1, &texHDCTHandle);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex6Handle);
+    glBindTexture(GL_TEXTURE_2D, texHDCTHandle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, tex6Handle, 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, texHDCTHandle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT5);
 
-    glGenTextures(1, &tex7Handle);
+    glGenTextures(1, &texRLEHandle);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex7Handle);
+    glBindTexture(GL_TEXTURE_2D, texRLEHandle);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R16F, width/8*64, height/8, 0, GL_RED, GL_FLOAT, NULL);
@@ -443,7 +440,7 @@ int main(int argc, char *argv[]) {
     glClearBufferfv(GL_COLOR, 0, clearColor);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    glBindTexture(GL_TEXTURE_2D, tex7Handle);																	//prepare swapping Texture between Memories
+    glBindTexture(GL_TEXTURE_2D, texRLEHandle);																	//prepare swapping Texture between Memories
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
     std::cout<<"width: "<< tWidth <<", height: " << tHeight << std::endl;
@@ -483,7 +480,7 @@ int main(int argc, char *argv[]) {
 //        -> update("uniformProjection", projMat)
 //        -> update("uniformModel", cubeModel)
 //        -> texture("tex", bambus)
-        -> texture("tex", bambus)
+        -> texture("tex", cat)
         -> run();
 
         RGBtoYCbCr->use();
@@ -495,77 +492,77 @@ int main(int argc, char *argv[]) {
         compressCbCr->use();
         glBindImageTexture(0, texYCbCrHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
         glBindImageTexture(1, texCbCrHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-        glBindImageTexture(2, tex5Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture2  Brightness-Channel (Y) and Depth-Channel/transperancy (A)
+        glBindImageTexture(2, texYHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture2  Brightness-Channel (Y) and Depth-Channel/transperancy (A)
         glBindImageTexture(3, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//	        dct2->use();
-//	        glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-//	        glBindImageTexture(1, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//	        glDispatchCompute(int(width/8), height, 1);
-//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	        horizontalDCT->use();
+	        glBindImageTexture(0, texYHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+	        glBindImageTexture(1, texHDCTHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width/8), height, 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	        verticalDCT->use();
+	        glBindImageTexture(0, texHDCTHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+	        glBindImageTexture(1, texYHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(width, int(height/8), 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	        quantize->use();
+	        glBindImageTexture(0, texYHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+	        glBindImageTexture(1, texQuantHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width/8), int(height/8), 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	        forwardZigZag->use();
+	        glBindImageTexture(0, texQuantHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
+	        glBindImageTexture(1, texRLEHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width/8), int(height/8), 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	        glBindTexture(GL_TEXTURE_2D, texRLEHandle);
+	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
+	        glBindTexture(GL_TEXTURE_2D, 0);
+
+	        vector<float>* val = &values;
+	        vector<int>* coun = &counts;
+
+	        runlengthEncoding(data, val, coun);
+
+//	        rleDecodeFromFile(data2);
+	        rleDecodeFromVec(val, coun, data2);
 //
-//	        dct3->use();
-//	        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-//	        glBindImageTexture(1, tex5Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//	        glDispatchCompute(width, int(height/8), 1);
-//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-//
-//	        pseudoQuantize->use();
-//	        glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-//	        glBindImageTexture(1, texQuantHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//	        glDispatchCompute(int(width/8), int(height/8), 1);
-//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-//
-//	        fZigZag->use();
-//	        glBindImageTexture(0, texQuantHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
-//	        glBindImageTexture(1, tex7Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//	        glDispatchCompute(int(width/8), int(height/8), 1);
-//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-//
-//	        glBindTexture(GL_TEXTURE_2D, tex7Handle);
-//	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
-//	        glBindTexture(GL_TEXTURE_2D, 0);
-//
-//	        vector<float>* val = &values;
-//	        vector<int>* coun = &counts;
-//
-//	        doRLE2(data, val, coun);
-//
-//	        doRLEDecode3(data2);
-////	        doRLEDecode3(val, coun, data2);
-//
-//	        values.clear();
-//	        counts.clear();
-//
-//             glBindTexture(GL_TEXTURE_2D, tex9Handle);
-//             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data2);
-//             glBindTexture(GL_TEXTURE, 0);
-//
-//	        rZigZag->use();
-//	        glBindImageTexture(0, tex9Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
-//	        glBindImageTexture(1, texQuant2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//	        glDispatchCompute(int(width*8/64), int(height/8), 1);
-//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-//
-//	        pseudoDequantize->use();
-//	        glBindImageTexture(0, texQuant2Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
-//	        glBindImageTexture(1, tex52Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//	        glDispatchCompute(int(width/8), int(height/8), 1);
-//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-//
-//	        idct2->use();
-//	        glBindImageTexture(0, tex52Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-//	        glBindImageTexture(1, tex6Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//	        glDispatchCompute(int(width/8), height, 1);
-//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-//
-//	        idct3->use();
-//	        glBindImageTexture(0, tex6Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-//	        glBindImageTexture(1, tex8Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
-//	        glDispatchCompute(width, int(height/8), 1);
-//	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+	        values.clear();
+	        counts.clear();
+
+             glBindTexture(GL_TEXTURE_2D, tex9Handle);
+             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data2);
+             glBindTexture(GL_TEXTURE, 0);
+
+	        rZigZag->use();
+	        glBindImageTexture(0, tex9Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
+	        glBindImageTexture(1, texQuant2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width*8/64), int(height/8), 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	        pseudoDequantize->use();
+	        glBindImageTexture(0, texQuant2Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
+	        glBindImageTexture(1, tex52Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width/8), int(height/8), 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	        idct2->use();
+	        glBindImageTexture(0, tex52Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+	        glBindImageTexture(1, texHDCTHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(int(width/8), height, 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+	        idct3->use();
+	        glBindImageTexture(0, texHDCTHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+	        glBindImageTexture(1, tex8Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glDispatchCompute(width, int(height/8), 1);
+	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 //
 //
 //        merge2Channels->use();
@@ -576,7 +573,7 @@ int main(int argc, char *argv[]) {
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	     mergeChannels->use();
-	     glBindImageTexture(0, tex5Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+	     glBindImageTexture(0, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
 	     glBindImageTexture(1, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 	     glDispatchCompute(int(width/8), int(height/8), 1);
 	     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);

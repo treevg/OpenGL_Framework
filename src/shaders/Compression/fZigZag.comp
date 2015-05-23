@@ -18,12 +18,12 @@ void main() {
 
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 	
-	ivec2 newIndex;
-	newIndex.x = int (mod(index.x, 8));
-	newIndex.y = int (mod(index.y, 8));
+	ivec2 orderIndex;
+	orderIndex.x = int (mod(index.x, 8));
+	orderIndex.y = int (mod(index.y, 8));
 	
 	ivec2 zigZagIndex;
-	zigZagIndex.x = int(floor(index.x/8) * 64 ) + orderTable[newIndex.x][newIndex.y];
+	zigZagIndex.x = int(floor(index.x/8) * 64 ) + orderTable[orderIndex.x][orderIndex.y];
 	zigZagIndex.y = int(floor(index.y/8));
 	
 	vec4 texel_color = imageLoad(inImg1, index) ;
