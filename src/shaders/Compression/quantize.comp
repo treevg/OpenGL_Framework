@@ -19,7 +19,7 @@ void main() {
 
 	ivec2 index = ivec2 (gl_GlobalInvocationID.xy);
 	float barrier = 0.02;
-	float scaling = 10.0;
+	float scaling = 20.0;
 	
 	ivec2 newIndex;
 	newIndex.x = int (mod(index.x, 8));
