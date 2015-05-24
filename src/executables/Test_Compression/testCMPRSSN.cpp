@@ -70,6 +70,7 @@ GLuint tex4Handle;
 GLuint texYHandle;
 GLuint tex52Handle;
 GLuint texHDCTHandle;
+GLuint texVDCTHandle;
 GLuint texRLEHandle;
 GLuint tex8Handle;
 GLuint tex9Handle;
@@ -194,24 +195,24 @@ void runlengthEncoding(float *array, vector<float>* outValue, vector<int>* outCo
 	outValue->push_back(colorOld);
 	outCounts->push_back(count);
 
-//	if(print == 5){
-//		cout<< outCounts->size() << endl;
-//		char* countings;
-//		countings = (char*)malloc(sizeof(char)* outCounts->size());
-//		float* valuess;
-//		valuess = (float*)malloc( sizeof(float) * outCounts->size());
-//
-//		for(int i = 0; i < outCounts->size(); i++){
-//			countings[i] = outCounts->at(i);
-//			valuess[i] = outValue->at(i);
-//		}
-//
-//		writeCharToFile(countings, "counts.dat", outCounts->size());
-//		writeFloatToFile(valuess, "values.dat", outValue->size());
-//
-//		free(valuess);
-//		free(countings);
-//	}
+	if(print == 5){
+		cout<< outCounts->size() << endl;
+		char* countings;
+		countings = (char*)malloc(sizeof(char)* outCounts->size());
+		float* valuess;
+		valuess = (float*)malloc( sizeof(float) * outCounts->size());
+
+		for(int i = 0; i < outCounts->size(); i++){
+			countings[i] = outCounts->at(i);
+			valuess[i] = outValue->at(i);
+		}
+
+		writeCharToFile(countings, "counts.dat", outCounts->size());
+		writeFloatToFile(valuess, "values.dat", outValue->size());
+
+		free(valuess);
+		free(countings);
+	}
 
 }
 
@@ -318,6 +319,26 @@ double calculateFPS(double interval = 1.0 , std::string title = "NONE"){
 	return fps;
 }
 
+float calculateMSE(float* origin, float* reconstructed){
+	float mse = 0.0;
+	float ori , rec;
+
+	for(int i = 1; i < (tWidth * tHeight) ; i++){
+		ori = origin [i] * 255;
+		rec = reconstructed[i] * 255;
+		mse += glm::pow(ori - rec, 2);
+
+	}
+//	return mse;
+	return mse / (tWidth * tHeight);
+}
+
+float calculatePSNR(float* origin, float* reconstructed){
+	float psnr;
+	psnr = 10 * log10f(glm::pow(255, 2) / calculateMSE(origin, reconstructed));
+	return psnr;
+}
+
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------
  *------------------------------------------------------end of declaration--------------------------------------------------------------------------
  -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -385,6 +406,15 @@ int main(int argc, char *argv[]) {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, texHDCTHandle, 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT5);
+
+    glGenTextures(1, &texVDCTHandle);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texVDCTHandle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT5, GL_TEXTURE_2D, texVDCTHandle, 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT5);
 
     glGenTextures(1, &texRLEHandle);
@@ -480,7 +510,9 @@ int main(int argc, char *argv[]) {
 //        -> update("uniformProjection", projMat)
 //        -> update("uniformModel", cubeModel)
 //        -> texture("tex", bambus)
-        -> texture("tex", cat)
+        -> texture("tex", flower)
+//        -> texture("tex", frog)
+//        -> texture("tex", cat)
         -> run();
 
         RGBtoYCbCr->use();
@@ -505,12 +537,12 @@ int main(int argc, char *argv[]) {
 
 	        verticalDCT->use();
 	        glBindImageTexture(0, texHDCTHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
-	        glBindImageTexture(1, texYHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
+	        glBindImageTexture(1, texVDCTHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(width, int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	        quantize->use();
-	        glBindImageTexture(0, texYHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
+	        glBindImageTexture(0, texVDCTHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
 	        glBindImageTexture(1, texQuantHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(int(width/8), int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
@@ -578,6 +610,14 @@ int main(int argc, char *argv[]) {
 	     glDispatchCompute(int(width/8), int(height/8), 1);
 	     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+	        glBindTexture(GL_TEXTURE_2D, texYHandle);
+	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
+	        glBindTexture(GL_TEXTURE_2D, tex8Handle);
+	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data2);
+	        glBindTexture(GL_TEXTURE_2D, 0);
+
+	        cout <<"MSE is : "<< calculateMSE(data, data2)<<"; " << endl;
+	        cout <<"PSNR is: "<< calculatePSNR(data, data2)<<" dB" << endl;
 
 
 //        YCbCrToRGB->use();
