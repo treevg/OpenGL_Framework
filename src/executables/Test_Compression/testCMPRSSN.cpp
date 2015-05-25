@@ -62,6 +62,8 @@ GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
 GLuint flower = TextureTools::loadTexture(RESOURCES_PATH "/jpg/flower.jpg");
 GLuint frog = TextureTools::loadTexture(RESOURCES_PATH "/jpg/frog.jpg");
 GLuint cat = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cat.jpg");
+GLuint lena = TextureTools::loadTexture(RESOURCES_PATH "/jpg/lena.jpg");
+GLuint witcher = TextureTools::loadTexture(RESOURCES_PATH "/jpg/witcher.jpg");
 
 GLuint texYCbCrHandle;
 GLuint tex2Handle;
@@ -88,12 +90,15 @@ int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Mem
 float* data;																			//container for texture in CPU-Memory as plain array
 float* data2;
 
+float sizeOfOrigin, sizeOfReconstructed;
+
 int print = 0;
 
 vector<float> values;
-vector<int> counts;
+vector<unsigned char> counts;
 
-double oldTime, newTime;
+double oldTime, newTime, thisTime, thatTime, totalTime;
+int timeCount = 0;
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------
  *------------------------------------------------------function declaration--------------------------------------------------------------------------
@@ -124,6 +129,15 @@ void writeCharToFile(char* array, string fileName, int numValues){
 		cout<<"ERRORRRRRRRRRRRRRRRRRRRRRRRRRRR"<< endl;
 	}
 	outFile.write((char*) array, sizeof(char)*numValues);
+	outFile.close();
+}
+
+void writeUCharToFile(char* array, string fileName, int numValues){
+	ofstream outFile(fileName, ios::binary);
+	if(outFile.fail()){
+		cout<<"ERRORRRRRRRRRRRRRRRRRRRRRRRRRRR"<< endl;
+	}
+	outFile.write((char*) array, sizeof(unsigned char)*numValues);
 	outFile.close();
 }
 
@@ -174,7 +188,20 @@ void readCharFromFile(string fileName, char* array){
 	inFile.close();
 }
 
-void runlengthEncoding(float *array, vector<float>* outValue, vector<int>* outCounts){
+void readUCharFromFile(string fileName, unsigned char* array){
+	ifstream inFile(fileName, ios::binary);
+	if(inFile.fail())
+		cout<<"Error!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<< endl;
+
+	 inFile.seekg (0, inFile.end);
+	 int length = inFile.tellg();
+	 inFile.seekg (0, inFile.beg);
+
+	inFile.read((char*) array, length);
+	inFile.close();
+}
+
+void runlengthEncoding(float *array, vector<float>* outValue, vector<unsigned char>* outCounts){
 	float colorOld = array[0];
 	float color;
 	int count = 1;
@@ -195,8 +222,11 @@ void runlengthEncoding(float *array, vector<float>* outValue, vector<int>* outCo
 	outValue->push_back(colorOld);
 	outCounts->push_back(count);
 
-	if(print == 5){
-		cout<< outCounts->size() << endl;
+	if(print == 1){
+		sizeOfReconstructed = (sizeof(float)*outCounts->size() + sizeof(char)*outCounts->size())/1024;
+		cout<< "new size is: "<<sizeOfReconstructed <<" KB" << endl;
+		cout<< "compression ratio is: " << 100/(sizeOfOrigin / sizeOfReconstructed)<<" %" << endl;
+		cout<< "Bitrate is: "<< (double)((double)(sizeof(float)*outCounts->size()*8 + sizeof(char)*outCounts->size()*8) / (double)(tWidth*tHeight)) << endl;
 		char* countings;
 		countings = (char*)malloc(sizeof(char)* outCounts->size());
 		float* valuess;
@@ -207,7 +237,7 @@ void runlengthEncoding(float *array, vector<float>* outValue, vector<int>* outCo
 			valuess[i] = outValue->at(i);
 		}
 
-		writeCharToFile(countings, "counts.dat", outCounts->size());
+		writeUCharToFile(countings, "counts.dat", outCounts->size());
 		writeFloatToFile(valuess, "values.dat", outValue->size());
 
 		free(valuess);
@@ -217,10 +247,12 @@ void runlengthEncoding(float *array, vector<float>* outValue, vector<int>* outCo
 }
 
 void rleDecodeFromFile(float* array){
-	char* counts;
-	counts = (char*)malloc(sizeof(char) * lengthOfFile("counts.dat"));
+	unsigned char* counts;
+	counts = (unsigned char*)malloc(sizeof(char) * lengthOfFile("counts.dat"));
+//	int* counts;
+//	counts = (int*)malloc(sizeof(int) * lengthOfFile("counts.dat"));
 
-	readCharFromFile("counts.dat", counts);
+	readUCharFromFile("counts.dat", counts);
 
 	float* values;
 	values = (float*)malloc( sizeof(float) * lengthOfFile("values.dat"));
@@ -239,31 +271,6 @@ void rleDecodeFromFile(float* array){
 	free(counts);
 	free(values);
 }
-
-
-//void doRLEDecode3(){
-//	int counts[lengthOfFile("counts.dat")/4];
-//
-//	readIntFromFile("counts.dat", counts);
-//
-//	cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!length of counts is: "<< sizeof(counts)/sizeof(counts[0]) << endl;
-//
-//	float values[lengthOfFile("values.dat")/4];
-//	readFloatFromFile("values.dat", values);
-//
-//	int i,j,k = 0;
-//
-//	int length = sizeof(counts)/sizeof(counts[0]);
-//
-//	for(i = 0 ; i < length ; i++){
-//		for(j = 0; j < counts[i]; j ++){
-//			array[k+j] = values[i];
-//		}
-//		k+=j;
-//	}
-//
-//
-//}
 
 void rleDecodeFromVec(vector<float>* value, vector<int>* counts, float* array){
 
@@ -338,6 +345,7 @@ float calculatePSNR(float* origin, float* reconstructed){
 	psnr = 10 * log10f(glm::pow(255, 2) / calculateMSE(origin, reconstructed));
 	return psnr;
 }
+
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------------------------------
  *------------------------------------------------------end of declaration--------------------------------------------------------------------------
@@ -473,7 +481,8 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, texRLEHandle);																	//prepare swapping Texture between Memories
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH, &tWidth);
     glGetTexLevelParameteriv(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT, &tHeight);
-    std::cout<<"width: "<< tWidth <<", height: " << tHeight << std::endl;
+    sizeOfOrigin = (tWidth*tHeight* sizeof(float))/1024;
+    std::cout<<"Original width: "<< tWidth <<", height: " << tHeight << " || wich makes a total of: "<< sizeOfOrigin <<" KB" << std::endl;
 
     data = (float*)malloc( sizeof(float) * tHeight * tWidth);
     data2 = (float*)malloc( sizeof(float) * tHeight * tWidth);
@@ -510,17 +519,33 @@ int main(int argc, char *argv[]) {
 //        -> update("uniformProjection", projMat)
 //        -> update("uniformModel", cubeModel)
 //        -> texture("tex", bambus)
-        -> texture("tex", flower)
+//        -> texture("tex", flower)
 //        -> texture("tex", frog)
 //        -> texture("tex", cat)
+        -> texture("tex", lena)
+//        -> texture("tex", witcher)
         -> run();
 
+        timeCount++;
+        glFlush();
+        thisTime = glfwGetTime();
         RGBtoYCbCr->use();
         glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);		//INPUT texture
         glBindImageTexture(1, texYCbCrHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+        glFlush();
+        thatTime = glfwGetTime();
+        if(timeCount <=100){
+     	   totalTime += thatTime-thisTime;
+        }
+        if(timeCount == 101){
+     	   totalTime = totalTime/timeCount;
+     	   cout<<"executionTime for RGBtoYCBCR is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+        }
 
+//        glFlush();
+//        thisTime = glfwGetTime();
         compressCbCr->use();
         glBindImageTexture(0, texYCbCrHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);					//INPUT texture
         glBindImageTexture(1, texCbCrHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RG32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
@@ -528,73 +553,221 @@ int main(int argc, char *argv[]) {
         glBindImageTexture(3, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//        glFlush();
+//        thatTime = glfwGetTime();
+//        if(timeCount <=100){
+//     	   totalTime += thatTime-thisTime;
+//        }
+//        if(timeCount == 101){
+//     	   totalTime = totalTime/timeCount;
+//     	   cout<<"executionTime for ColorCompression is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//        }
 
+//        glFlush();
+//        thisTime = glfwGetTime();
 	        horizontalDCT->use();
 	        glBindImageTexture(0, texYHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
 	        glBindImageTexture(1, texHDCTHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(int(width/8), height, 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//	   glFlush();
+//	   thatTime = glfwGetTime();
+//	   if(timeCount <=100){
+//	        totalTime += thatTime-thisTime;
+//	   }
+//	   if(timeCount == 101){
+//	    	   totalTime = totalTime/timeCount;
+//	    	   cout<<"executionTime for HDCT is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//	   }
 
+//        glFlush();
+//        thisTime = glfwGetTime();
 	        verticalDCT->use();
 	        glBindImageTexture(0, texHDCTHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
 	        glBindImageTexture(1, texVDCTHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(width, int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for VDCT is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//		   }
+
+//	        glFlush();
+//	        thisTime = glfwGetTime();
 	        quantize->use();
 	        glBindImageTexture(0, texVDCTHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
 	        glBindImageTexture(1, texQuantHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(int(width/8), int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for quantization is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//		   }
+
+//	        glFlush();
+//	        thisTime = glfwGetTime();
 	        forwardZigZag->use();
 	        glBindImageTexture(0, texQuantHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
 	        glBindImageTexture(1, texRLEHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(int(width/8), int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for zigZag is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//		   }
 
+//	        glFlush();
+//	        thisTime = glfwGetTime();
 	        glBindTexture(GL_TEXTURE_2D, texRLEHandle);
 	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
 	        glBindTexture(GL_TEXTURE_2D, 0);
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for textureswap is: "<< (totalTime)*1000 <<"milli seconds" << endl;
+//		   }
 
+//	        glFlush();
+//	        thisTime = glfwGetTime();
 	        vector<float>* val = &values;
-	        vector<int>* coun = &counts;
+	        vector<unsigned char>* coun = &counts;
 
 	        runlengthEncoding(data, val, coun);
 
-//	        rleDecodeFromFile(data2);
-	        rleDecodeFromVec(val, coun, data2);
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for rle is: "<< (totalTime)*1000 <<"milli seconds" << endl;
+//		   }
+
+//	        glFlush();
+//	        thisTime = glfwGetTime();
+	        rleDecodeFromFile(data2);
+
+//	        rleDecodeFromVec(val, coun, data2);
 //
 	        values.clear();
 	        counts.clear();
 
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for rld is: "<< (totalTime)*1000 <<"milli seconds" << endl;
+//		   }
+
+
+//	        glFlush();
+//	        thisTime = glfwGetTime();
              glBindTexture(GL_TEXTURE_2D, tex9Handle);
              glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data2);
              glBindTexture(GL_TEXTURE, 0);
 
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for backswap is: "<< (totalTime)*1000 <<"milli seconds" << endl;
+//		   }
+
+//	        glFlush();
+//	        thisTime = glfwGetTime();
 	        rZigZag->use();
 	        glBindImageTexture(0, tex9Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
 	        glBindImageTexture(1, texQuant2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R16F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(int(width*8/64), int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for backswap is: "<< (totalTime)*1000 <<"milli seconds" << endl;
+//		   }
 
+//	        glFlush();
+//	        thisTime = glfwGetTime();
 	        pseudoDequantize->use();
 	        glBindImageTexture(0, texQuant2Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R16F);					//INPUT texture
 	        glBindImageTexture(1, tex52Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(int(width/8), int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for dequantization is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//		   }
 
+//	        glFlush();
+//	        thisTime = glfwGetTime();
 	        idct2->use();
 	        glBindImageTexture(0, tex52Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
 	        glBindImageTexture(1, texHDCTHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(int(width/8), height, 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for iVDCT is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//		   }
 
+//	        glFlush();
+//	        thisTime = glfwGetTime();
 	        idct3->use();
 	        glBindImageTexture(0, texHDCTHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture
 	        glBindImageTexture(1, tex8Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);					//OUTPUT texture1  Chroma-Channels (Cb, Cr)
 	        glDispatchCompute(width, int(height/8), 1);
 	        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//		   glFlush();
+//		   thatTime = glfwGetTime();
+//		   if(timeCount <=100){
+//		        totalTime += thatTime-thisTime;
+//		   }
+//		   if(timeCount == 101){
+//		    	   totalTime = totalTime/timeCount;
+//		    	   cout<<"executionTime for iHDCT is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//		   }
 //
 //
 //        merge2Channels->use();
@@ -610,6 +783,7 @@ int main(int argc, char *argv[]) {
 	     glDispatchCompute(int(width/8), int(height/8), 1);
 	     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
+	        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
 	        glBindTexture(GL_TEXTURE_2D, texYHandle);
 	        glGetTexImage(GL_TEXTURE_2D, 0, GL_RED, GL_FLOAT, data);
 	        glBindTexture(GL_TEXTURE_2D, tex8Handle);
@@ -618,6 +792,7 @@ int main(int argc, char *argv[]) {
 
 	        cout <<"MSE is : "<< calculateMSE(data, data2)<<"; " << endl;
 	        cout <<"PSNR is: "<< calculatePSNR(data, data2)<<" dB" << endl;
+	        }
 
 
 //        YCbCrToRGB->use();
