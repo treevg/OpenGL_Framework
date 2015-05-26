@@ -16,10 +16,10 @@ using namespace glm;
  *------------------------------------------------------variable declaration--------------------------------------------------------------------------
  -------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-//auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
-//auto pass = new RenderPass(new Cube(), sp, width, height);
- auto sp = new ShaderProgram({"/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"});
- auto pass = new RenderPass(new Quad(), sp, width, height);
+auto sp = new ShaderProgram({"/Compression/test1.vert", "/Compression/test1.frag"});
+auto pass = new RenderPass(new Cube(), sp, width, height);
+// auto sp = new ShaderProgram({"/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"});
+// auto pass = new RenderPass(new Quad(), sp, width, height);
 //auto pass = new RenderPass(new Cube(), sp);
 
 auto compositingSP = new ShaderProgram({"/Compression/pass.vert", "/Compression/compositing.frag"});
@@ -57,7 +57,7 @@ using namespace glm;
 glm::mat4 projMat = glm::perspective(45.0f, float(width)/float(height), 0.1f, 100.0f);
 mat4 cubeModel = translate(mat4(1.0f), vec3(0.0f, 1.0f, 0.0f));
 
-GLuint textureHandle = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
+GLuint cube = TextureTools::loadTexture(RESOURCES_PATH "/jpg/cubeTexture.jpg");
 GLuint bambus = TextureTools::loadTexture(RESOURCES_PATH "/jpg/bambus.jpg");
 GLuint flower = TextureTools::loadTexture(RESOURCES_PATH "/jpg/flower.jpg");
 GLuint frog = TextureTools::loadTexture(RESOURCES_PATH "/jpg/frog.jpg");
@@ -89,6 +89,7 @@ vector<float> pixelColor(4);																//container for color of texture at 
 int tWidth, tHeight;																	//stub for dimensions of texture in CPU-Memory
 float* data;																			//container for texture in CPU-Memory as plain array
 float* data2;
+float* data3;
 
 float sizeOfOrigin, sizeOfReconstructed;
 
@@ -222,11 +223,11 @@ void runlengthEncoding(float *array, vector<float>* outValue, vector<unsigned ch
 	outValue->push_back(colorOld);
 	outCounts->push_back(count);
 
-	if(print == 1){
-		sizeOfReconstructed = (sizeof(float)*outCounts->size() + sizeof(char)*outCounts->size())/1024;
-		cout<< "new size is: "<<sizeOfReconstructed <<" KB" << endl;
-		cout<< "compression ratio is: " << 100/(sizeOfOrigin / sizeOfReconstructed)<<" %" << endl;
-		cout<< "Bitrate is: "<< (double)((double)(sizeof(float)*outCounts->size()*8 + sizeof(char)*outCounts->size()*8) / (double)(tWidth*tHeight)) << endl;
+	if(print == 5){
+//		sizeOfReconstructed = (sizeof(float)*outCounts->size() + sizeof(char)*outCounts->size())/1024;
+//		cout<< "new size is: "<<sizeOfReconstructed <<" KB" << endl;
+//		cout<< "compression ratio is: " << 100/(sizeOfOrigin / sizeOfReconstructed)<<" %" << endl;
+//		cout<< "Bitrate is: "<< (double)((double)(sizeof(float)*outCounts->size()*8 + sizeof(char)*outCounts->size()*8) / (double)(tWidth*tHeight)) << endl;
 		char* countings;
 		countings = (char*)malloc(sizeof(char)* outCounts->size());
 		float* valuess;
@@ -236,9 +237,10 @@ void runlengthEncoding(float *array, vector<float>* outValue, vector<unsigned ch
 			countings[i] = outCounts->at(i);
 			valuess[i] = outValue->at(i);
 		}
-
-		writeUCharToFile(countings, "counts.dat", outCounts->size());
-		writeFloatToFile(valuess, "values.dat", outValue->size());
+		string filenameC = "counts" + to_string(print) + ".dat";
+		string filenameV = "values" + to_string(print) + ".dat";
+		writeUCharToFile(countings, filenameC, outCounts->size());
+		writeFloatToFile(valuess, filenameV, outValue->size());
 
 		free(valuess);
 		free(countings);
@@ -247,20 +249,25 @@ void runlengthEncoding(float *array, vector<float>* outValue, vector<unsigned ch
 }
 
 void rleDecodeFromFile(float* array){
+	string filenameC = "counts" + to_string(print) + ".dat";
+	string filenameV = "values" + to_string(print) + ".dat";
+
 	unsigned char* counts;
-	counts = (unsigned char*)malloc(sizeof(char) * lengthOfFile("counts.dat"));
+	counts = (unsigned char*)malloc(sizeof(char) * lengthOfFile(filenameC));
+
 //	int* counts;
 //	counts = (int*)malloc(sizeof(int) * lengthOfFile("counts.dat"));
 
-	readUCharFromFile("counts.dat", counts);
+
+	readUCharFromFile(filenameC, counts);
 
 	float* values;
-	values = (float*)malloc( sizeof(float) * lengthOfFile("values.dat"));
-	readFloatFromFile("values.dat", values);
+	values = (float*)malloc( sizeof(float) * lengthOfFile(filenameV));
+	readFloatFromFile(filenameV, values);
 
 	int i,j,k = 0;
 
-	int length = lengthOfFile("counts.dat");
+	int length = lengthOfFile(filenameC);
 
 	for(i = 0 ; i < length ; i++){
 		for(j = 0; j < counts[i]; j ++){
@@ -272,7 +279,7 @@ void rleDecodeFromFile(float* array){
 	free(values);
 }
 
-void rleDecodeFromVec(vector<float>* value, vector<int>* counts, float* array){
+void rleDecodeFromVec(vector<float>* value, vector<unsigned char>* counts, float* array){
 
 	int i,j,k = 0;
 
@@ -485,6 +492,8 @@ int main(int argc, char *argv[]) {
     std::cout<<"Original width: "<< tWidth <<", height: " << tHeight << " || wich makes a total of: "<< sizeOfOrigin <<" KB" << std::endl;
 
     data = (float*)malloc( sizeof(float) * tHeight * tWidth);
+    data3 = (float*)malloc( sizeof(float) * tHeight * tWidth);
+
     data2 = (float*)malloc( sizeof(float) * tHeight * tWidth);
 
     glBindTexture(GL_TEXTURE_2D, 0);																			//end preparation --> image is swapped and stored in "data"
@@ -515,34 +524,35 @@ int main(int argc, char *argv[]) {
 
         pass
         -> clear(1, 1, 1, 0)
-//        -> update("uniformView", viewMat)
-//        -> update("uniformProjection", projMat)
-//        -> update("uniformModel", cubeModel)
+        -> update("uniformView", viewMat)
+        -> update("uniformProjection", projMat)
+        -> update("uniformModel", cubeModel)
 //        -> texture("tex", bambus)
 //        -> texture("tex", flower)
 //        -> texture("tex", frog)
 //        -> texture("tex", cat)
-        -> texture("tex", lena)
+//        -> texture("tex", lena)
 //        -> texture("tex", witcher)
+        ->texture("tex", cube)
         -> run();
 
         timeCount++;
-        glFlush();
-        thisTime = glfwGetTime();
+//        glFlush();
+//        thisTime = glfwGetTime();
         RGBtoYCbCr->use();
         glBindImageTexture(0, pass->get("fragColor"), 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);		//INPUT texture
         glBindImageTexture(1, texYCbCrHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-        glFlush();
-        thatTime = glfwGetTime();
-        if(timeCount <=100){
-     	   totalTime += thatTime-thisTime;
-        }
-        if(timeCount == 101){
-     	   totalTime = totalTime/timeCount;
-     	   cout<<"executionTime for RGBtoYCBCR is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
-        }
+//        glFlush();
+//        thatTime = glfwGetTime();
+//        if(timeCount <=100){
+//     	   totalTime += thatTime-thisTime;
+//        }
+//        if(timeCount == 101){
+//     	   totalTime = totalTime/timeCount;
+//     	   cout<<"executionTime for RGBtoYCBCR is: "<< (totalTime)*1000000 <<"micro seconds" << endl;
+//        }
 
 //        glFlush();
 //        thisTime = glfwGetTime();
@@ -553,6 +563,15 @@ int main(int argc, char *argv[]) {
         glBindImageTexture(3, tex2Handle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
         glDispatchCompute(int(width/16), int(height/16), 1);
         glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+
+//        glBindTexture(GL_TEXTURE_2D, texCbCrHandle);
+//        glGetTexImage(GL_TEXTURE_2D, 0, GL_RG32F, GL_FLOAT, data3);
+//        glBindTexture(GL_TEXTURE_2D, 0);
+//
+//		string filenameV = "colors" + to_string(print) + ".dat";
+//		writeFloatToFile(data3, filenameV, tHeight * tWidth);
+
 //        glFlush();
 //        thatTime = glfwGetTime();
 //        if(timeCount <=100){
@@ -665,24 +684,24 @@ int main(int argc, char *argv[]) {
 //		    	   cout<<"executionTime for rle is: "<< (totalTime)*1000 <<"milli seconds" << endl;
 //		   }
 
-//	        glFlush();
-//	        thisTime = glfwGetTime();
-	        rleDecodeFromFile(data2);
-
-//	        rleDecodeFromVec(val, coun, data2);
+	        glFlush();
+	        thisTime = glfwGetTime();
+//	        rleDecodeFromFile(data2);
 //
+	        rleDecodeFromVec(val, coun, data2);
+////
 	        values.clear();
 	        counts.clear();
-
-//		   glFlush();
-//		   thatTime = glfwGetTime();
-//		   if(timeCount <=100){
-//		        totalTime += thatTime-thisTime;
-//		   }
-//		   if(timeCount == 101){
-//		    	   totalTime = totalTime/timeCount;
-//		    	   cout<<"executionTime for rld is: "<< (totalTime)*1000 <<"milli seconds" << endl;
-//		   }
+//
+		   glFlush();
+		   thatTime = glfwGetTime();
+		   if(timeCount <=100){
+		        totalTime += thatTime-thisTime;
+		   }
+		   if(timeCount == 101){
+		    	   totalTime = totalTime/timeCount;
+		    	   cout<<"executionTime for rld is: "<< (totalTime)*1000 <<"milli seconds" << endl;
+		   }
 
 
 //	        glFlush();
@@ -777,11 +796,11 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(int(width/8), int(height/8), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-	     mergeChannels->use();
-	     glBindImageTexture(0, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
-	     glBindImageTexture(1, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-	     glDispatchCompute(int(width/8), int(height/8), 1);
-	     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//	     mergeChannels->use();
+//	     glBindImageTexture(0, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+//	     glBindImageTexture(1, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+//	     glDispatchCompute(int(width/8), int(height/8), 1);
+//	     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
 	        if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
 	        glBindTexture(GL_TEXTURE_2D, texYHandle);
@@ -801,12 +820,21 @@ int main(int argc, char *argv[]) {
 //        glDispatchCompute(int(width/16), int(height/16), 1);
 //        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
-//        compressedYCbCrToRGB->use();
-//        glBindImageTexture(0, texCbCrHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
-//        glBindImageTexture(1, tex4Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
-//        glBindImageTexture(2, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
-//        glDispatchCompute(int(width/16), int(height/16), 1);
-//        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+//		string filenameV = "colors" + to_string(print) + ".dat";
+//		readFloatFromFile(filenameV, data3);
+//
+//
+//             glBindTexture(GL_TEXTURE_2D, texCbCrHandle);
+//             glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, tWidth, tHeight, GL_RED, GL_FLOAT, data3);
+//             glBindTexture(GL_TEXTURE, 0);
+
+
+        compressedYCbCrToRGB->use();
+        glBindImageTexture(0, texCbCrHandle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RG32F);					//INPUT texture1  Chroma-Channels (Cb, Cr)
+        glBindImageTexture(1, tex8Handle, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);					//INPUT texture2  Brightness-Channel (Y) and Depth-Channel (A)
+        glBindImageTexture(2, texFinalHandle, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);				//OUTPUT texture RGBA
+        glDispatchCompute(int(width/16), int(height/16), 1);
+        glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 
         pass2																			//show on a plane
         ->clear(1, 1, 1, 0)
