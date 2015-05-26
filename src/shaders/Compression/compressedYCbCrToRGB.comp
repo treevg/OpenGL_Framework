@@ -1,6 +1,6 @@
 #version 430
 layout ( binding = 0, rg32f ) readonly uniform image2D inImgCbCr;
-layout ( binding = 1, rg32f ) readonly uniform image2D inImgYA;
+layout ( binding = 1, r32f ) readonly uniform image2D inImgYA;
 layout ( binding = 2, rgba32f ) writeonly uniform image2D outImageRGBA;
 
 layout (local_size_x = 16, local_size_y = 16) in;
@@ -11,7 +11,7 @@ void main() {
 	vec2 texYA = vec2(imageLoad(inImgYA, index));
 	vec2 texCbCr = vec2(imageLoad(inImgCbCr, ivec2(index.x / 2, index.y)));
 	
-	vec4 texel_color = vec4(texYA.r, texCbCr.rg, texYA.g);
+	vec4 texel_color = vec4(texYA.r, texCbCr.rg, 1);
 	
 	float r = texel_color.r + (1.402f * ( texel_color.b - 0.5f));
 	

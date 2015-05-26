@@ -8,8 +8,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-static const int width = 512;
-static const int height = 512;
+static const int width = 1280;
+static const int height = 720;
 static GLFWwindow *window;
 
 class DefaultRenderLoop
