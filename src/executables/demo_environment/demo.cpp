@@ -12,6 +12,7 @@ int main(int argc, char *argv[]) {
 
     float rotX = 0.0f;
     float rotY = 0.0f;
+    float distance = 40.0;
     float turn = 0;
     float speed = 1.0f;
 
@@ -40,8 +41,9 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) (rotY + deltaTime > 6.283)? rotY += deltaTime - 6.283 : rotY += deltaTime;
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) (rotX - deltaTime < 0)? rotX -= deltaTime + 6.283 : rotX -= deltaTime;
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) (rotX + deltaTime > 6.283)? rotX += deltaTime - 6.283 : rotX += deltaTime;
-
-        mat4 view = translate(mat4(1), vec3(0,-7,-40)) * eulerAngleXY(-rotX, -rotY);
+        if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) distance += deltaTime * 10;
+        if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS) distance = glm::max(distance - deltaTime * 10, 0.0f);
+        mat4 view = translate(mat4(1), vec3(0,-7,-distance)) * eulerAngleXY(-rotX, -rotY);
 
         sky
             ->clear()
