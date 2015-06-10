@@ -11,6 +11,12 @@ float r(float size) {
     return size * 2 * static_cast <float> (rand()) / static_cast <float> (RAND_MAX) - size;
 }
 
+float r2(float size) {
+    return size * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+}
+
+int num_balls = 2000;
+
 int main(int argc, char *argv[]) {
     GLFWwindow* window = generateWindow();
 
@@ -23,7 +29,7 @@ int main(int argc, char *argv[]) {
     
     RenderPass* renderBalls = new RenderPass(
         new Quad(),
-        new ShaderProgram("/3DObject/billboard.vert", "/3DObject/billboardBall.frag"),
+        new ShaderProgram("/Impostor/impostorSpheres.vert", "/Impostor/impostorSpheres.frag"),
         getWidth(window),
         getHeight(window));
     renderBalls->texture("tex", renderBalls->get("fragColor"));
@@ -33,16 +39,14 @@ int main(int argc, char *argv[]) {
         new Quad(),
         new ShaderProgram("/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"));
     output->texture("tex", renderBalls->get("fragColor"));
-    output->update("minRange", 0.0);
-    output->update("maxRange", 0.2);
 
     std::vector<vec4> balls;
-    for (int i = 0; i < 1000; i++)
+    for (int i = 0; i < num_balls; i++)
         balls.push_back(vec4(r(15),r(15),r(15),5 + r(2)));
 
     glDisable(GL_DEPTH_TEST);
     render(window, [&] (float deltaTime) {
-        rotY += deltaTime * 0.1;
+        //rotY += deltaTime * 0.1;
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) (rotY - deltaTime < 0)? rotY -= deltaTime + 6.283 : rotY -= deltaTime;
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) (rotY + deltaTime > 6.283)? rotY += deltaTime - 6.283 : rotY += deltaTime;
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) (rotX - deltaTime < 0)? rotX -= deltaTime + 6.283 : rotX -= deltaTime;
@@ -55,6 +59,7 @@ int main(int argc, char *argv[]) {
         mat4 view = translate(mat4(1), vec3(0,0,-distance)) * eulerAngleXY(-rotX, -rotY);
 
         renderBalls->clear(0,0,0,999);
+
         for(vec4 b : balls) {
             renderBalls->update("view", view);
             renderBalls->update("position", vec3(b.x, b.y, b.z));

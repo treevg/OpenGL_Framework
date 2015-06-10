@@ -18,7 +18,7 @@ find_package(GLFW3 REQUIRED)
 find_package(GLM REQUIRED)
 if("${CMAKE_SYSTEM}" MATCHES "Linux")
 	find_package(X11)
-	set(ALL_LIBRARIES ${ALL_LIBRARIES} ${X11_LIBRARIES} Xrandr Xxf86vm Xi pthread)
+        set(ALL_LIBRARIES ${ALL_LIBRARIES} ${X11_LIBRARIES} Xcursor Xinerama Xrandr Xxf86vm Xi pthread)
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)

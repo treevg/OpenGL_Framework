@@ -6,7 +6,9 @@
 class Quad : public VertexArrayObject {
 public:
 	Quad();
-	void draw();
+    void draw();
+    void drawInstanced(int countInstances);
+    void prepareInstancedDrawing();
 };
 
 #endif // QUAD_H

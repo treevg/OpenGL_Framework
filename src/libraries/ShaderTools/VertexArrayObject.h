@@ -16,9 +16,9 @@
 class VertexArrayObject {
 public:
 	VertexArrayObject* setMode(GLenum mode);
-	virtual void draw() = 0;
+    virtual void draw() = 0;
 protected:
-	GLuint vertexArrayObjectHandle;
+    GLuint vertexArrayObjectHandle;
 	GLenum mode;
 };
 
