@@ -9,21 +9,22 @@ out vec4 fragColor;
 
 #define PI = 3.1415926535897932384626433832795;
 #define PIh = PI/2;
-uniform sampler2D tex;
 uniform mat4 projection;
 uniform mat4 view;
+layout(rgba16f) uniform image2D tex;
 
 uniform vec3 lightSrc = vec3(100,100,100);
 
 void main() {
-    vec4 texel = texelFetch(tex, ivec2(gl_FragCoord), 0);
     if (length(texCoord) > 1) discard;
+    ivec2 coords = ivec2(gl_FragCoord);
 
     float depthOffset = (sin(acos(length(texCoord.xy))));
     float scaledDepthOffset = depthOffset * size / 2;
     float modifiedDepth = depth - scaledDepthOffset;
 
-    if (modifiedDepth < texel.w){
+    float currentDepth = imageLoad(tex, coords).w;
+    if (modifiedDepth <= currentDepth ){
         vec4 normal = vec4(texCoord.xy, depthOffset,0);
         vec3 N = normalize(normal.xyz);
 
@@ -35,7 +36,8 @@ void main() {
         Idiff = clamp(Idiff, 0.0, 1.0);
 
         fragColor = vec4(Idiff, modifiedDepth);
+        imageStore(tex, coords, vec4(Idiff.xyz, modifiedDepth));
     }
     else
-        fragColor = texel;
+        discard;
 }

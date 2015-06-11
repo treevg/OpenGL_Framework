@@ -25,19 +25,23 @@ int main(int argc, char *argv[]) {
     float scale = 1.0;
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
+
+    auto texture = new Texture(getWidth(window), getHeight(window));
+    //auto texture = new Texture(RESOURCES_PATH "/equirectangular/plaza.png");
     
     RenderPass* renderBalls = new RenderPass(
                 new ImpostorSpheres(),
-                new ShaderProgram("/Impostor/impostorSpheres_Instanced.vert", "/Impostor/impostorSpheres_Instanced.frag"),
+                new ShaderProgram("/Impostor/impostorSpheres_Instanced.vert", "/Impostor/impostorSpheres_Instanced.frag")/*,
                 getWidth(window),
-                getHeight(window));
-    renderBalls->texture("tex", renderBalls->get("fragColor"));
+                getHeight(window)*/);
+    renderBalls->texture("tex", texture->getHandle());
     renderBalls->update("projection", projection);
 
-    RenderPass* output = new RenderPass(
-                new Quad(),
-                new ShaderProgram("/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"));
-    output->texture("tex", renderBalls->get("fragColor"));
+//    RenderPass* output = new RenderPass(
+//                new Quad(),
+//                new ShaderProgram("/Filters/fullscreen.vert", "/Filters/toneMapperLinear.frag"));
+//    output->texture("tex", renderBalls->get("fragColor"));
+
 
     glDisable(GL_DEPTH_TEST);
     render(window, [&] (float deltaTime) {
@@ -55,10 +59,13 @@ int main(int argc, char *argv[]) {
         renderBalls->clear(0,0,0,999);
         renderBalls->update("scale", vec2(scale));
         renderBalls->update("view", view);
+        texture->clear();
         renderBalls->run();
 
-        output->clear();
-        output->run();
+        //printf("%f, ", deltaTime);
+
+//        output->clear();
+//        output->run();
     });
 }
 
