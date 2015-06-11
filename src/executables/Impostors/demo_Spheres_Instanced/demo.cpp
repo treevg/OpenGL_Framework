@@ -2,6 +2,7 @@
 #include "ShaderTools/Renderer.h"
 #include "ShaderTools/RenderPass.h"
 #include "AssetTools/Texture.h"
+#include "AssetTools/CustomZBuffer.h"
 #include "AssetTools/Mesh.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/ImpostorSpheres.h"
@@ -26,7 +27,7 @@ int main(int argc, char *argv[]) {
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
 
-    auto texture = new Texture(getWidth(window), getHeight(window));
+    auto texture = new CustomZBuffer(getWidth(window), getHeight(window));
     //auto texture = new Texture(RESOURCES_PATH "/equirectangular/plaza.png");
     
     RenderPass* renderBalls = new RenderPass(
@@ -61,6 +62,7 @@ int main(int argc, char *argv[]) {
         renderBalls->update("view", view);
         texture->clear();
         renderBalls->run();
+
 
         //printf("%f, ", deltaTime);
 

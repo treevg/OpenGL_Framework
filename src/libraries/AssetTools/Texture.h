@@ -11,21 +11,14 @@
 class Texture
 {
 public:
-	Texture(std::string path);
-    Texture(int w, int h);
+    Texture(std::string path);
 	~Texture();
-	GLuint getHandle();
-    void clear();
-    GLuint genTexture(int w, int h);
+    GLuint getHandle();
 
 	static GLuint load(std::string path);
 
 protected:
-	GLuint textureHandle;
-    int w;
-    int h;
-    int byteCount;
-    unsigned char* pixels;
+    GLuint textureHandle;
 };
 
 static bool devILInitialized = false;
