@@ -6,13 +6,19 @@
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Sphere.h"
 #include "PointCloud.h"
-#include "TextButton.h"
 #include "LeapMotionHandler.h"
 #include "KinectHandler.h"
 #include <typeinfo>
 
 using namespace std;
 using namespace glm;
+
+float leftRight = 0.0f;
+
+float upDown = 0.0f;
+float nearFar = 5.0f;
+
+
 
 int main(int argc, char *argv[]) {
 
@@ -40,42 +46,41 @@ int main(int argc, char *argv[]) {
 
 	GLfloat *colorData;
 	GLfloat *positionData;
+	//tex = (float*)malloc(depthWidth * depthHeight * 3 * sizeof(float)); // fuer Texturausgabe
 
 
 
 	//transform due to head mounted Leap Motion
 	float tz = -0.08f;
 	glm::mat4 oculusToLeap(-1.0f, 0.0, 0.0, 0.0,
-							0.0, 0.0, -1.0f, 0.0,
-							0.0, -1.0f, 0.0, tz,
-							0.0, 0.0, 0.0, 1.0);
+		0.0, 0.0, -1.0f, 0.0,
+		0.0, -1.0f, 0.0, tz,
+		0.0, 0.0, 0.0, 1.0);
 
 	//transform from millimeter to meter
-	glm::mat4 normalizeMat(	0.001f, 0.0, 0.0, 0.0,
-							0.0, 0.001f, 0.0, 0.0,
-							0.0, 0.0, 0.001f, 0.0,
-							0.0, 0.0, 0.0, 1.0);
+	glm::mat4 normalizeMat(0.001f, 0.0, 0.0, 0.0,
+		0.0, 0.001f, 0.0, 0.0,
+		0.0, 0.0, 0.001f, 0.0,
+		0.0, 0.0, 0.0, 1.0);
 
 
 	
-	Cube* cube = new Cube(vec3(1.0f, 1.0f, -7.0f), 1.0f);
+	Cube* cube = new Cube(vec3(2.0f, 2.0f, -10.0f), 1.0f);
 	std::vector<std::string> attachShaders = { "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" };
 	RenderPass* cubePass = new RenderPass(
 		cube,
 		new ShaderProgram(attachShaders));
-
-	// Textured Button Test Object
-	std::vector<std::string> attachTextureShaders = { "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" };
-	TextButton* texButton = new TextButton(vec3(2.0f, 2.0f, -4.0f), 1.0f, "Bits");
-	RenderPass* texButtonPass = new RenderPass(
-		texButton,
-		new ShaderProgram(attachTextureShaders)
-		);
 	
 	Sphere* sphere = new Sphere(10.0f);
 	RenderPass* spherePass = new RenderPass(
 		sphere,
 		new ShaderProgram(attachShaders));
+	
+	//std::vector<std::string> textureShaders = { "/Test_Telepresence/fullscreen.vert", "/Test_Telepresence/simpleTexture.frag" };
+	//Quad* quad = new Quad();
+	//RenderPass* texturePass = new RenderPass(
+	//	quad,
+	//	new ShaderProgram(textureShaders));
 
 	PointCloud* pointCloud = new PointCloud();
 	std::vector<std::string> attachMinimalShaders = { "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" };
@@ -84,14 +89,9 @@ int main(int argc, char *argv[]) {
 		new ShaderProgram(attachMinimalShaders));
 
 
-
-	// initialize texture button test object
 	
-	texButtonPass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
-
 	cubePass
-		->update("diffuseColor", vec3(0.0, 1.0, 0.0))
+		->update("diffuseColor", vec3(1.0, 0.0, 0.0))
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
 	spherePass
@@ -103,51 +103,64 @@ int main(int argc, char *argv[]) {
 	colorData = new float[depthWidth * depthHeight * 3];
 	positionData = new float[depthWidth * depthHeight * 3];
 
-vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
-	glEnable(GL_TEXTURE_2D);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 
 	int count = 0;
 	render(window, [&](float deltaTime, glm::mat4 projection, glm::mat4 view) {
 		//cout << count++ << " " << deltaTime << endl;
+
 		glfwGetWindowSize(window, &width, &height);
+
+		// clear screen
+		//glClearColor(0.95, 0.95, 0.95, 1.0);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		cubePass
 			->update("lightPosition", lightPos)
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
-		texButtonPass
-			//->update("lightPosition", lightPos)
-			//->clear(0, 0, 0, 0)
-			->texture("tex", texButton->getTextureHandle())
-			->update("projectionMatrix", projection)
-			->update("viewMatrix", view);
 		spherePass
 			->update("lightPosition", lightPos)
-			->update("diffuseColor", vec3(0.2f, 0.2f, 0.2f))
+			->update("diffuseColor", vec3(1.0, 0.0, 0.0))
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
 		pointCloudPass
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
+		//texturePass
+		//	->update("resolution", getResolution(window));
+		
+		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
+
 		kinectHandler.update(positionData, colorData);
 		pointCloud->updatePointCloud(positionData, colorData);
+		
+		////bind the texture
+		//glBindTexture(GL_TEXTURE_2D, texture);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, colorData);
+
+		////texture settings
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		//glBindTexture(GL_TEXTURE_2D, 0);
+
+
+
 		vector<Bone> bones = leapHandler.getBoneList(controller);
 		//InteractionBox box = controller.frame().interactionBox();
 
-		//cubePass
-		//	->update("modelMatrix", modelMatrixGoal)
-		//	->run();
-		texButtonPass
+		//draw Goal
+		cubePass
 			->update("modelMatrix", mat4(1.0f))
 			->run();
 
 
 
 		//transform world coordinates into Oculus coordinates (for attached Leap Motion)
-		//ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
-		ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, 0.0f).HeadPose.ThePose;
+		ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
 		glm::mat4 M_trans = toGlm(OVR::Matrix4f::Translation(headPose.Position));
 		glm::mat4 M_rot = toGlm(OVR::Matrix4f(headPose.Orientation));
 
@@ -199,79 +212,91 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 
 
 
-			// TODO: DIRECTION FUER DEN INTERSECTION TEST MUSS IRGENDWIE AUCH DURCH DIE "PIPELINE" GEJAGT WERDEN?!?!?!
 
-			//compute direction and translation for pointing bone
-			vec4 eins = vec4(leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), 1.0f);
-			vec4 zwei = vec4(leapHandler.convertLeapVecToGlm(bones[5].prevJoint()), 1.0f);
-			
-			vec4 directionTest = normalize(eins - zwei);
-			vec3 directionTest2(directionTest.x, directionTest.y, directionTest.z);
-						
-			mat4 boneTestRot = leapHandler.convertLeapMatToGlm(bones[7].basis());
-			mat4 boneTest = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()));
-			mat4 finalDirMatTest = boneTest; // * boneTestRot;
 
-			mat4 boneOrigin = M_trans * M_rot * oculusToLeap * normalizeMat * finalDirMatTest;
+			////compute direction and translation for pointing bone
+			//vec3 eins = leapHandler.convertLeapVecToGlm(bones[7].nextJoint());
+			//vec3 zwei = leapHandler.convertLeapVecToGlm(bones[5].prevJoint());
+			//vec3 directionTest = normalize(eins - zwei);
+			//
+			//
+			//
+			//mat4 boneTestRot = leapHandler.convertLeapMatToGlm(bones[7].basis());
+			//mat4 boneTest = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()));
+			//mat4 finalDirMatTest = boneTest; // *boneTestRot;
 
-			vec4 boneOrigin2 = M_trans * M_rot * oculusToLeap * normalizeMat * vec4(leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), 1.0);
+			//mat4 boneOrigin = M_trans * M_rot * oculusToLeap * normalizeMat * finalDirMatTest;
 
-			//show pointing direction 
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 5.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 15.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 25.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 35.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 45.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 55.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 65.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 75.0f))
-				->run();
-			
+			////show pointing direction 
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 5.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 15.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 25.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 35.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 45.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 55.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 65.0f))
+			//	->run();
+			//spherePass
+			//	->update("modelMatrix", translate(boneOrigin, directionTest * 75.0f))
+			//	->run();
 
 
 
-			eins = M_trans * M_rot * oculusToLeap * normalizeMat * eins;
-			zwei = M_trans * M_rot * oculusToLeap * normalizeMat * zwei;
-			vec4 drei = eins - zwei;
 
-			vec3 vier = normalize(vec3(drei.x, drei.y, drei.z));
 
-			//check for intersection
-			if (bones.size() != 0){
-				bool a = leapHandler.checkForIntersection(cube->getVertices(), vec3(boneOrigin2.x, boneOrigin2.y, boneOrigin2.z), vier);
-				//cout << "X: "<< directionTest1.x << ", Y: " << directionTest1.y << ", Z: " << directionTest1.z << endl;
 
-				if (a == true){
-					//cout << "Getroffen" << endl;
-					cubePass
-						->update("diffuseColor", vec3(0.0, 1.0, 0.0))
-						->run();
-				}
-				else{
-					//cout << "Nicht getroffen" << endl;
-					cubePass
-						->update("diffuseColor", vec3(1.0, 0.0, 0.0))
-						->run();
-				}
-			}
+
+
+
+
+
+			////check for intersection
+			//if (bones.size() != 0){
+			//	bool a = leapHandler.checkForIntersection(cube->getVertices(), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), directionTest);
+			//	//cout << "X: "<< directionTest1.x << ", Y: " << directionTest1.y << ", Z: " << directionTest1.z << endl;
+
+			//	if (a == true){
+			//		//cout << "Getroffen" << endl;
+			//		cubePass
+			//			->update("diffuseColor", vec3(0.0, 1.0, 0.0))
+			//			->run();
+			//	}
+			//	else{
+			//		//cout << "Nicht getroffen" << endl;
+			//		cubePass
+			//			->update("diffuseColor", vec3(1.0, 0.0, 0.0))
+			//			->run();
+			//	}
+			//}
 		}
 
+
+
+		//texturePass
+		//	->clear(0.0, 0.0, 0.0, 1.0)
+		//	->texture("tex", texture)
+		//	//->texture("tex", TextureTools::loadTexture("D:/FP14/FP14_OpenGL_Framework/resources/bambus.jpg"))
+		//	->run();
+
+		//delete(tex);
+
+
+
 		pointCloudPass
+			//->clear(1.0, 1.0, 1.0, 1.0)
 			->run();
 		 
 		//pointCloud->deleteBuffers(); // Brauchen wir nicht mehr?! Siehe PointCloud.cpp

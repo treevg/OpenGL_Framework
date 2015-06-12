@@ -20,8 +20,6 @@
 #include "glm\glm.hpp"
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
-#include "ShaderTools/VertexArrayObjects/Quad.h"
-#include "ShaderTools/VertexArrayObjects/Cube.h"
 #include <functional>
 
 const bool l_MultiSampling = false;
@@ -134,7 +132,7 @@ glm::mat4 toGlm(const ovrMatrix4f & om) {
 	return glm::transpose(glm::make_mat4(&om.M[0][0]));
 }
 
-glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 0.01f, float farPlane = 10000.0f) {
+glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 0.1f, float farPlane = 10000.0f) {
 	return toGlm(ovrMatrix4f_Projection(fovport, nearPlane, farPlane, true));
 }
 
@@ -197,10 +195,14 @@ void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection,
 			glm::mat4 view = toGlm(l_ModelViewMatrix);
 			glm::mat4 projection = toGlm(g_ProjectionMatrici[l_Eye]);
 
+			//ovrTrackingState ts = ovrHmd_GetTrackingState(g_Hmd, 0.0f);
+			//if (ts.StatusFlags & (ovrStatus_PositionTracked)){}
+
 			// Translation due to positional tracking (DK2) and IPD...
-			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x * 5.0f, -g_EyePoses[l_Eye].Position.y * 5.0f, -g_EyePoses[l_Eye].Position.z * 5.0f));
+			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z));
 			// Move the world forward a bit to show the scene in front of us...
 			view = glm::translate(view, glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z));
+
 
 
 			loop(currentTime - lastTime, projection, view);
@@ -452,8 +454,8 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	}
 
 	// Projection matrici for each eye will not change at runtime, we can set them here...
-	g_ProjectionMatrici[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.3f, 10000.0f, true);
-	g_ProjectionMatrici[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.3f, 10000.0f, true);
+	g_ProjectionMatrici[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.1f, 10000.0f, true);
+	g_ProjectionMatrici[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.1f, 10000.0f, true);
 
 	// IPD offset values will not change at runtime, we can set them here...
 	g_EyeOffsets[ovrEye_Left] = g_EyeRenderDesc[ovrEye_Left].HmdToEyeViewOffset;
@@ -462,7 +464,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	// Initial camera position...
 	g_CameraPosition.x = 0.0f;
 	g_CameraPosition.y = 0.0f;
-	g_CameraPosition.z = -2.0f;
+	g_CameraPosition.z = 0.0f;
 
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetWindowSizeCallback(window, WindowSizeCallback);
