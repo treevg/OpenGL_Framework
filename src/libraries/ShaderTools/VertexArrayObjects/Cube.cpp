@@ -111,14 +111,14 @@ Cube::Cube() {
 }
 
 Cube::Cube(glm::vec3 position, float size) {
+	printf("Constructing CUBULUS!");
 	mode = GL_TRIANGLES;
 
 	glGenVertexArrays(1, &vertexArrayObjectHandle);
 	glBindVertexArray(vertexArrayObjectHandle);
 
-	GLuint vertexBufferHandles[2];
-	glGenBuffers(2, vertexBufferHandles);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);
+	GLuint vertexBufferHandles[3];
+	glGenBuffers(3, vertexBufferHandles);
 
 	float positions[] = {
 		// Front face
@@ -144,6 +144,7 @@ Cube::Cube(glm::vec3 position, float size) {
 	for (int v = 0; v < sizeof(positions); v += 3)
 		vertices.push_back(glm::vec3(positions[v], positions[v + 1], positions[v + 2]));
 
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(positions), positions, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
@@ -172,6 +173,35 @@ Cube::Cube(glm::vec3 position, float size) {
 	glBufferData(GL_ARRAY_BUFFER, sizeof(normals), normals, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);
+
+
+
+	GLfloat uvCoordinates[] = {
+		// Front face
+		0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		// Right face
+		0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		// Back face
+		0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		// Left face
+		0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		// Bottom face
+		0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+		// Top face
+		0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[2]);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(uvCoordinates), uvCoordinates, GL_STATIC_DRAW);
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(2);
+
+	printf("Finished Constructing CUBULUS!");
 }
 
 void Cube::draw() {
