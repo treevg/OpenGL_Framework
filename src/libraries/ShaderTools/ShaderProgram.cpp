@@ -416,9 +416,9 @@ void ShaderProgram::printShaderProgramInfoLog() {
     }
 }
 
-void ShaderProgram::mapShaderProperties(GLenum interface, std::map<std::string, Info>* map) {
+void ShaderProgram::mapShaderProperties(GLenum interf, std::map<std::string, Info>* map) {
 	GLint numAttrib = 0;
-	glGetProgramInterfaceiv(shaderProgramHandle, interface, GL_ACTIVE_RESOURCES, &numAttrib);
+	glGetProgramInterfaceiv(shaderProgramHandle, interf, GL_ACTIVE_RESOURCES, &numAttrib);
 
 
 	std::vector<GLenum> properties;
@@ -429,7 +429,7 @@ void ShaderProgram::mapShaderProperties(GLenum interface, std::map<std::string, 
 	std::vector<GLint> values(properties.size());
 	for(int attrib = 0; attrib < numAttrib; ++attrib)
 	{
-		glGetProgramResourceiv(shaderProgramHandle, interface, attrib, properties.size(),
+		glGetProgramResourceiv(shaderProgramHandle, interf, attrib, properties.size(),
 		&properties[0], values.size(), NULL, &values[0]);
 		
 		Info info;
@@ -438,7 +438,7 @@ void ShaderProgram::mapShaderProperties(GLenum interface, std::map<std::string, 
 
 		std::vector<GLchar> nameData(256);
 		nameData.resize(properties[0]); //The length of the name.
-		glGetProgramResourceName(shaderProgramHandle, interface, attrib, nameData.size(), NULL, &nameData[0]);
+		glGetProgramResourceName(shaderProgramHandle, interf, attrib, nameData.size(), NULL, &nameData[0]);
 		std::string name = std::string((char*)&nameData[0], nameData.size() - 1);
 		name = std::string(name.c_str());
 		(*map)[name] = info;

@@ -24,15 +24,3 @@ void Quad::draw() {
     glBindVertexArray(vertexArrayObjectHandle);
     glDrawArrays(mode, 0, 4);
 }
-
-void Quad::drawInstanced(int countInstances) {
-    glBindVertexArray(vertexArrayObjectHandle);
-    glDrawArraysInstanced(mode, 0, 4, countInstances);
-}
-
-void Quad::prepareInstancedDrawing() {
-    /* testweise implementierung ... */
-
-}
-
-

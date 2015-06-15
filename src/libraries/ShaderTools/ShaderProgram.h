@@ -20,7 +20,6 @@
 #include <string.h>
 #include <vector>
 #include <fstream>
-#define GLM_FORCE_RADIANS
 #include <glm/ext.hpp>
 #include <map>
 
@@ -303,7 +302,7 @@ protected:
 	 *        to the console
 	 */
 	void printShaderProgramInfoLog();
-	void mapShaderProperties(GLenum interface, std::map<std::string, Info>* map);
+	void mapShaderProperties(GLenum interf, std::map<std::string, Info>* map);
 	void printInfo(std::map<std::string, Info>* map);
 	std::string getTypeString(GLenum type);
 };

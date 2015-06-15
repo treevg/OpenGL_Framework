@@ -1,10 +1,11 @@
 include_directories(
-	${ASSIMP_INCLUDE_DIRS}
+	${GLEW_INCLUDE_DIR}
 )
 
 link_libraries(
-	${ASSIMP_LIBRARIES}
+	${GLEW_LIBRARIES}
 )
 
 add_definitions(
+	-DGLEW_STATIC
 )

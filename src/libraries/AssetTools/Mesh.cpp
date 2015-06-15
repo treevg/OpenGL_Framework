@@ -102,7 +102,7 @@ void Mesh::dumpSceneToVAO(const aiScene *scene) {
 	glEnableVertexAttribArray (2);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[3]);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * count * sizeof(GLuint), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(GLuint), indices, GL_STATIC_DRAW);
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray (3);
 

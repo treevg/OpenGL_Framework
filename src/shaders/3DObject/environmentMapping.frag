@@ -9,7 +9,7 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 
-in vec4 passNormal;
+in vec3 passNormal;
 
 out vec4 fragColor;
 

@@ -9,16 +9,15 @@
 #include <string.h>
 #include <vector>
 #include <fstream>
-#define GLM_FORCE_RADIANS
 #include <glm/ext.hpp>
 #include <map>
 
 class VertexArrayObject {
 public:
 	VertexArrayObject* setMode(GLenum mode);
-    virtual void draw() = 0;
+	virtual void draw() = 0;
 protected:
-    GLuint vertexArrayObjectHandle;
+	GLuint vertexArrayObjectHandle;
 	GLenum mode;
 };
 

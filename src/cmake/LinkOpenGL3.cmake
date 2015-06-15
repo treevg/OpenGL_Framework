@@ -1,9 +1,9 @@
 include_directories(
-	${ASSIMP_INCLUDE_DIRS}
+	${OpenGL3_INCLUDE_DIR}
 )
 
 link_libraries(
-	${ASSIMP_LIBRARIES}
+	${OpenGL3_LIBRARIES}
 )
 
 add_definitions(

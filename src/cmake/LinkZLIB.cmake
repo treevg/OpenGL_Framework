@@ -1,9 +1,9 @@
 include_directories(
-	${ASSIMP_INCLUDE_DIRS}
+	${ZLIB_INCLUDE_DIR}
 )
 
 link_libraries(
-	${ASSIMP_LIBRARIES}
+	${ZLIB_LIBRARIES}
 )
 
 add_definitions(

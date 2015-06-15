@@ -1,12 +1,11 @@
 #include "Texture.h"
-#include <vector>
 
 Texture::Texture(std::string path) {
 
 	textureHandle = load(path);
 }
 
-Texture::~Texture(){
+Texture::~Texture() {
 
 }
 
