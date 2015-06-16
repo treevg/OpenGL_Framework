@@ -1,2 +1,4 @@
 # ignoring build-directories
 /build
+*~
+/src-build
