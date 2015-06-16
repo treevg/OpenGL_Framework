@@ -16,7 +16,7 @@ link_dependency(OpenGL3)
 link_dependency(GLEW)
 link_dependency(GLFW3)
 link_dependency(GLM)
-link_dependency(DEVIL)
+link_dependency(DevIL)
 link_dependency(ASSIMP)
 link_dependency(ZLIB)
 

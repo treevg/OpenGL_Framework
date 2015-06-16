@@ -1,11 +1,11 @@
 include(FindPackageHandleStandardArgs)
 
 find_path(GLFW3_INCLUDE_DIR GLFW/glfw3.h
-  PATH_SUFFIXES include
+  PATH_SUFFIXES include GLFW
 )
 
 find_library(GLFW3_LIBRARIES
-  NAMES glfw3
+  NAMES glfw3 glfw
   PATH_SUFFIXES lib
 )
 
