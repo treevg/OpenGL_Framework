@@ -26,10 +26,10 @@ ImpostorSpheres::ImpostorSpheres() {
 
     // instance stuff..
     // Fill arrays with colors and positions for balls
-    GLfloat instance_colors[num_balls*4];
-    GLfloat instance_positions[num_balls*4];
+    GLfloat instance_colors[1000000];
+    GLfloat instance_positions[1000000];
 
-    for (int i = 0; i < num_balls*4; i+=4) {
+    for (int i = 0; i < 1000000; i+=4) {
         instance_colors[i] = r_pos(1.0);
         instance_colors[i+1] = r_pos(1.0);
         instance_colors[i+2] = r_pos(1.0);
@@ -73,7 +73,7 @@ ImpostorSpheres::ImpostorSpheres() {
 }
 
 void ImpostorSpheres::draw() {
-    this->drawInstanced(num_balls);
+    this->drawInstanced(250000);
     //glBindVertexArray(vertexArrayObjectHandle);
     //glDrawArrays(mode, 0, 4);
 }

@@ -117,8 +117,9 @@ void InstancedMeshExample::dumpSceneToVAO(const aiScene *scene) {
     // instance stuff..
     // Fill arrays with colors and positions for balls
     int num_balls = 100000;
-    GLfloat instance_colors[num_balls*4];
-    GLfloat instance_positions[num_balls*4];
+    GLfloat instance_colors[400000];
+    GLfloat instance_positions[400000];
+
 
     for (int i = 0; i < num_balls*4; i+=4) {
         instance_colors[i] = r_pos(1.0);
@@ -160,6 +161,9 @@ void InstancedMeshExample::dumpSceneToVAO(const aiScene *scene) {
 	delete normals;
 	delete uvs;
 	delete indices;
+
+    //free(instance_colors);
+    //free(instance_positions);
 }
 
 InstancedMeshExample::~InstancedMeshExample() {
