@@ -22,10 +22,10 @@ out vec4 passColor;
 void main(){
     passUVCoord = uvCoordAttribute;
 
-    vec4 modelPos = positionAttribute  * scale;
+    vec4 modelPos = positionAttribute  * scale * instance_positionAttribute.w;
     passWorldPosition = modelPos + instance_positionAttribute;
-    passPosition = view * vec4(instance_positionAttribute.xyz, 1)
-            + modelPos;
+    passPosition = view * vec4(instance_positionAttribute.xyz, 1) + modelPos;
+
     passWorldNormal = ( transpose( inverse( model ) ) * normalAttribute).xyz;
     passNormal = ( transpose( inverse( view * model ) ) * normalAttribute ).xyz;
 

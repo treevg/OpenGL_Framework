@@ -2,7 +2,6 @@
 #include "ShaderTools/Renderer.h"
 #include "ShaderTools/RenderPass.h"
 #include "AssetTools/Texture.h"
-#include "AssetTools/CustomZBuffer.h"
 #include "AssetTools/InstancedMeshExample.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/ImpostorSpheres.h"

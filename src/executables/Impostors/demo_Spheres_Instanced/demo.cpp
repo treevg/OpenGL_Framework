@@ -2,7 +2,6 @@
 #include "ShaderTools/Renderer.h"
 #include "ShaderTools/RenderPass.h"
 #include "AssetTools/Texture.h"
-#include "AssetTools/CustomZBuffer.h"
 #include "AssetTools/Mesh.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/ImpostorSpheres.h"
@@ -26,19 +25,12 @@ int main(int argc, char *argv[]) {
     float scale = 1.0;
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
-
-    auto texture = new CustomZBuffer(getWidth(window), getHeight(window));
-    //auto texture = new Texture(RESOURCES_PATH "/equirectangular/plaza.png");
     
     RenderPass* renderBalls = new RenderPass(
                 new ImpostorSpheres(),
-                new ShaderProgram("/Impostor/impostorSpheres_Instanced.vert", "/Impostor/impostorSpheres_Instanced.frag")/*,
-                getWidth(window),
-                getHeight(window)*/);
-    //renderBalls->texture("tex", texture->getHandle());
+                new ShaderProgram("/Impostor/impostorSpheres_Instanced.vert", "/Impostor/impostorSpheres_Instanced.frag"));
     renderBalls->update("projection", projection);
 
-    //glDisable(GL_DEPTH_TEST);
     glEnable(GL_DEPTH_TEST);
     render(window, [&] (float deltaTime) {
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) (rotY - deltaTime < 0)? rotY -= deltaTime + 6.283 : rotY -= deltaTime;
@@ -56,8 +48,8 @@ int main(int argc, char *argv[]) {
         renderBalls->clearDepth();
         renderBalls->update("scale", vec2(scale));
         renderBalls->update("view", view);
-        texture->clear();
         renderBalls->run();
+        printf("%f, ", deltaTime);
     });
 }
 

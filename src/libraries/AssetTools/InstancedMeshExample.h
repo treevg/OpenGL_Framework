@@ -22,6 +22,8 @@ public:
 	void draw();
 
     GLuint getHandle();
+
+    int num_balls;
 	
 private:
 	void dumpSceneToVAO(const aiScene *scene);

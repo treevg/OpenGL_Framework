@@ -9,7 +9,9 @@ float r_pos(float size) {
     return size * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
-InstancedMeshExample::InstancedMeshExample(std::string path, int aiPostProcessSteps) {
+InstancedMeshExample::InstancedMeshExample(std::string path, int aiPostProcessSteps):
+    num_balls(100000)
+{
 	mode = GL_TRIANGLES;
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile( path, aiPostProcessSteps);
@@ -22,7 +24,9 @@ InstancedMeshExample::InstancedMeshExample(std::string path, int aiPostProcessSt
 	}
 }
 
-InstancedMeshExample::InstancedMeshExample(std::string path) {
+InstancedMeshExample::InstancedMeshExample(std::string path):
+    num_balls(100000)
+ {
 	mode = GL_TRIANGLES;
 	Assimp::Importer importer;
 	const aiScene* scene = importer.ReadFile( path, 
@@ -113,13 +117,9 @@ void InstancedMeshExample::dumpSceneToVAO(const aiScene *scene) {
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray (3);
 
-    //////////////////////////////////////////
-    // instance stuff..
-    // Fill arrays with colors and positions for balls
-    int num_balls = 100000;
-    GLfloat instance_colors[400000];
-    GLfloat instance_positions[400000];
-
+    // instance stuff...
+    GLfloat instance_colors[num_balls*4];
+    GLfloat instance_positions[num_balls*4];
 
     for (int i = 0; i < num_balls*4; i+=4) {
         instance_colors[i] = r_pos(1.0);
@@ -130,8 +130,9 @@ void InstancedMeshExample::dumpSceneToVAO(const aiScene *scene) {
         instance_positions[i] = r(30);
         instance_positions[i+1] = r(30);
         instance_positions[i+2] = r(30);
-        instance_positions[i+3] = abs(1 + r(0.4));
+        instance_positions[i+3] = abs(1 + r(0.4)) / 2.0f;
     }
+
     glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(instance_colors),
                  instance_colors, GL_STATIC_DRAW);
@@ -144,26 +145,16 @@ void InstancedMeshExample::dumpSceneToVAO(const aiScene *scene) {
     glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray (5);
 
-//    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, 0, NULL);
-//    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)sizeof(instance_colors));
-
-//    glEnableVertexAttribArray(3);
-//    glEnableVertexAttribArray(4);
-
     glVertexAttribDivisor(4,1);
     glVertexAttribDivisor(5,1);
-    ////////////////////////////////////////////////////////////////////////
 
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 
 	delete positions;
 	delete normals;
 	delete uvs;
-	delete indices;
-
-    //free(instance_colors);
-    //free(instance_positions);
+    delete indices;
 }
 
 InstancedMeshExample::~InstancedMeshExample() {
@@ -172,8 +163,7 @@ InstancedMeshExample::~InstancedMeshExample() {
 
 void InstancedMeshExample::draw() {
     glBindVertexArray(vertexArrayObjectHandle);
-    //glDrawElements(mode, count, GL_UNSIGNED_INT, NULL);
-    glDrawElementsInstanced(mode, count, GL_UNSIGNED_INT, NULL, 100000);
+    glDrawElementsInstanced(mode, count, GL_UNSIGNED_INT, NULL, num_balls);
 	glBindVertexArray(0);
 }	
 

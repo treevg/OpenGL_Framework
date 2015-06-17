@@ -8,6 +8,7 @@ public:
     ImpostorSpheres();
     void draw();
     void drawInstanced(int countInstances);
+    int num_balls;
 };
 
 #endif // ImpostorSpheres_H

@@ -8,7 +8,8 @@ float r_pos(float size) {
     return size * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
-ImpostorSpheres::ImpostorSpheres() {
+ImpostorSpheres::ImpostorSpheres():
+num_balls(1000000){
     mode = GL_TRIANGLE_STRIP;
 
     glGenVertexArrays(1, &vertexArrayObjectHandle);
@@ -24,12 +25,10 @@ ImpostorSpheres::ImpostorSpheres() {
         1.0f, 1.0f
     };
 
-    // instance stuff..
-    // Fill arrays with colors and positions for balls
-    GLfloat instance_colors[1000000];
-    GLfloat instance_positions[1000000];
+    GLfloat* instance_colors = new GLfloat[num_balls*4];
+    GLfloat* instance_positions = new GLfloat[num_balls*4];
 
-    for (int i = 0; i < 1000000; i+=4) {
+    for (int i = 0; i < num_balls*4; i+=4) {
         instance_colors[i] = r_pos(1.0);
         instance_colors[i+1] = r_pos(1.0);
         instance_colors[i+2] = r_pos(1.0);
@@ -43,21 +42,20 @@ ImpostorSpheres::ImpostorSpheres() {
 
     glBufferData(GL_ARRAY_BUFFER,
                  sizeof(positions) +
-                 sizeof(instance_colors) +
-                 sizeof(instance_positions), NULL, GL_STATIC_DRAW);
+                 sizeof(GLfloat) * num_balls * 4 +
+                 sizeof(GLfloat) * num_balls * 4, NULL, GL_STATIC_DRAW);
 
     GLuint offset = 0;
-
     glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(positions), positions);
     offset += sizeof(positions);
-    glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(instance_colors), instance_colors);
-    offset += sizeof(instance_colors);
-    glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(instance_positions), instance_positions);
-    offset += sizeof(instance_positions);
+    glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(GLfloat) * num_balls * 4, instance_colors);
+    offset += sizeof(GLfloat) * num_balls * 4;
+    glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(GLfloat) * num_balls * 4, instance_positions);
+    offset += sizeof(GLfloat) * num_balls * 4;
 
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, NULL);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)sizeof(positions));
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(sizeof(positions) + sizeof(instance_colors)));
+    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*)(sizeof(positions) + sizeof(GLfloat) * num_balls * 4));
 
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
@@ -67,15 +65,12 @@ ImpostorSpheres::ImpostorSpheres() {
     glVertexAttribDivisor(1,1);
     glVertexAttribDivisor(2,1);
 
-//    glVertexAttribBinding(0,0);
-//    glVertexAttribBinding(1,0);
-//    glVertexAttribBinding(2,0);
+    delete instance_colors;
+    delete instance_positions;
 }
 
 void ImpostorSpheres::draw() {
-    this->drawInstanced(250000);
-    //glBindVertexArray(vertexArrayObjectHandle);
-    //glDrawArrays(mode, 0, 4);
+    this->drawInstanced(num_balls);
 }
 
 void ImpostorSpheres::drawInstanced(int countInstances) {
