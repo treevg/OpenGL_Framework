@@ -49,7 +49,6 @@ int main(int argc, char *argv[]) {
         renderBalls->update("scale", vec2(scale));
         renderBalls->update("view", view);
         renderBalls->run();
-        printf("%f, ", deltaTime);
     });
 }
 

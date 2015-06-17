@@ -117,31 +117,30 @@ void InstancedMeshExample::dumpSceneToVAO(const aiScene *scene) {
 	glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray (3);
 
-    // instance stuff...
-    GLfloat instance_colors[num_balls*4];
-    GLfloat instance_positions[num_balls*4];
+    std::vector<GLfloat> instance_colors;
+    std::vector<GLfloat> instance_positions;
 
-    for (int i = 0; i < num_balls*4; i+=4) {
-        instance_colors[i] = r_pos(1.0);
-        instance_colors[i+1] = r_pos(1.0);
-        instance_colors[i+2] = r_pos(1.0);
-        instance_colors[i+3] = 1;
+        for (int i = 0; i < num_balls*4; i+=4) {
+            instance_colors.push_back(r_pos(1.0));
+            instance_colors.push_back(r_pos(1.0));
+            instance_colors.push_back(r_pos(1.0));
+            instance_colors.push_back(1);
 
-        instance_positions[i] = r(30);
-        instance_positions[i+1] = r(30);
-        instance_positions[i+2] = r(30);
-        instance_positions[i+3] = abs(1 + r(0.4)) / 2.0f;
-    }
+            instance_positions.push_back(r(30));
+            instance_positions.push_back(r(30));
+            instance_positions.push_back(r(30));
+            instance_positions.push_back(abs(1 + r(0.4)) / 2.0f);
+        }
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo[4]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(instance_colors),
-                 instance_colors, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * instance_colors.size(),
+                 &instance_colors[0], GL_STATIC_DRAW);
     glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray (4);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo[5]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(instance_positions),
-                 instance_positions, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * instance_positions.size(),
+                 &instance_positions[0], GL_STATIC_DRAW);
     glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, 0, NULL);
     glEnableVertexAttribArray (5);
 
