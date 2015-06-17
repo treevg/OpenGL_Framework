@@ -17,7 +17,7 @@ uniform vec2 scale;
 void main() {
     // model size is found at instance_positionAttribute.w,
     // resize it according to input
-    size = instance_positionAttribute.w * scale;
+    size = instance_positionAttribute.w * scale.x;
 
     // expected input vertices (positionAttribute) are a quad defined by [-1..1]²
     // position defines the center of the impostor geometry
