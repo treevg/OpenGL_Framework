@@ -4,7 +4,7 @@ in vec2 texCoord;
 in float depth;
 in vec4 eye_pos;
 in float size;
-in vec4 color;
+in vec4 passColor;
 out vec4 fragColor;
 
 #define PI = 3.1415926535897932384626433832795;
@@ -31,7 +31,7 @@ void main() {
     vec3 light_eyePos = vec3(view * vec4(lightSrc, 1)).xyz;
     vec3 L = normalize(vec3(light_eyePos - corrected_pos.xyz));
 
-    vec3 Idiff = color.xyz * max(dot(N,L), 0.0);
+    vec3 Idiff = passColor.xyz * max(dot(N,L), 0.0);
     Idiff = clamp(Idiff, 0.0, 1.0);
 
     fragColor = vec4(Idiff, 1);

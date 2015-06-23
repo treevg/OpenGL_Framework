@@ -8,11 +8,16 @@ out vec2 texCoord;
 out float depth;
 out vec4 eye_pos;
 out float size;
-out vec4 color;
+
+out vec4 passColor;
+out vec3 passWorldNormal;
+out vec4 passWorldPosition;
 
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec2 scale;
+//uniform vec3 xyzOffset;
+uniform float elapsedTime;
 
 void main() {
     // model size is found at instance_positionAttribute.w,
@@ -24,6 +29,14 @@ void main() {
     eye_pos = view * vec4(instance_positionAttribute.xyz, 1) +
             positionAttribute * vec4(size/2, size/2, 1, 1);
 
+    // apply offset
+    int groupID = gl_InstanceID % 62;
+    eye_pos = eye_pos + vec4(sin(elapsedTime + groupID * 10),cos((elapsedTime + groupID * 10)/2),sin((elapsedTime + groupID * 10)/3),0);
+
+    // for phong lighting shader
+    passWorldPosition = eye_pos;
+    passWorldNormal = vec3(0,0,1);
+
     // fragment coordinates [-1..1]² are required in the fragment shader
     texCoord = positionAttribute.xy;
 
@@ -33,5 +46,5 @@ void main() {
     gl_Position = projection *  eye_pos;
 
     // color has to be transferred to the fragment shader
-    color = colorAttribute;
+    passColor = colorAttribute;
 }

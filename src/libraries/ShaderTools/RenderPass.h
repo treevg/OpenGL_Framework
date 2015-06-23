@@ -17,8 +17,8 @@
 
 class RenderPass
 {
-	public:
-		RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
+    public:
+        RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
 		RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
 		RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 

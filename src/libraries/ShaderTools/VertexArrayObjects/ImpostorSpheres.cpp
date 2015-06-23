@@ -37,7 +37,7 @@ num_balls(1000000){
             instance_positions.push_back(r_equ(30));
             instance_positions.push_back(r_equ(30));
             instance_positions.push_back(r_equ(30));
-            instance_positions.push_back(abs(1 + r_equ(0.4)));
+            instance_positions.push_back(1 + r_equ(0.5));
         }
 
     glBufferData(GL_ARRAY_BUFFER,

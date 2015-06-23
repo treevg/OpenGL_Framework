@@ -31,7 +31,7 @@ void RenderPass::autoGenerateFrameBufferObject(int width, int height) {
 }
 
 RenderPass* RenderPass::texture(std::string name, GLuint textureHandle) {
-	shaderProgram->texture(name, textureHandle);
+    shaderProgram->texture(name, textureHandle);
 	return this;
 }
 
