@@ -13,9 +13,7 @@
 #if !defined(__APPLE__)
 #include <GLFW/glfw3native.h>
 #endif
-#include <../Include/OVR.h>
-#include "../Src/Kernel/OVR_Math.h" 
-#include <../Src/OVR_CAPI.h>
+#include <OVR.h>
 #include <../Src/OVR_CAPI_GL.h>
 #include "glm\glm.hpp"
 #include "ShaderTools/RenderPass.h"
