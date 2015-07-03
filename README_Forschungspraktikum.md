@@ -8,4 +8,9 @@
 Installiere das GTK Framework und setze die Variable GTK_ROOT auf das root Verzeichnis
 von GTK.
 
-`Bsp: C:\gtk`
+GTK All in One Bundle:
+http://www.gtk.org/download/win32.php
+
+`Bsp: GTK_ROOT = C:\gtk`
+
+### Oculus V2
