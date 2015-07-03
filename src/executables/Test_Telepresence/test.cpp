@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
 	// Textured Button Test Object
 	std::vector<std::string> attachTextureShaders = { "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" };
-	TextPane* texButton = new TextPane(vec3(2.0f, 2.0f, -4.0f), 2.0f, 1.0f, "SAHEN");
+	TextPane* texButton = new TextPane(vec3(2.0f, 2.0f, -4.0f), 2.0f, 1.0f, "Herzlich Willkommen");
 	RenderPass* texButtonPass = new RenderPass(
 		texButton,
 		new ShaderProgram(attachTextureShaders)
