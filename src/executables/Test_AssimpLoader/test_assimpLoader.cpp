@@ -1,4 +1,5 @@
 #include "ShaderTools/Renderer.h"
+//#include "ShaderTools/OculusRenderer.h"
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
@@ -9,13 +10,13 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <Compression/NewRenderLoop.h>
 #include <ShaderTools/DefaultRenderLoop.h>
-#include <caca_conio.h>
+//#include <caca_conio.h>
 
 using namespace std;
 using namespace glm;
 
 int main(int argc, char *argv[]) {
-    GLFWwindow* window = generateWindow(800, 600);
+    GLFWwindow* window = generateWindow(800,600);
 
     AssimpLoader* scene = new AssimpLoader();
     scene->loadFile(RESOURCES_PATH "/obj/cornell-box.obj")
@@ -25,8 +26,8 @@ int main(int argc, char *argv[]) {
     auto shaderProgram = new ShaderProgram({"/AssimpLoader/minimal.vert", "/AssimpLoader/minimal.frag"});
 
     glm::mat4 view       = glm::lookAt(glm::vec3(0, 1.5, -2.5), glm::vec3(0, 1, 0), glm::vec3(0, 1, 0));
-    double aspectRatio   = getWidth(window)/(double)getHeight(window);
-    glm::mat4 projection = glm::perspective(45.0, aspectRatio, 0.1, 100.0);
+    float aspectRatio   = getWidth(window)/getHeight(window);
+	glm:mat4 projection = glm::perspective(45.0f, aspectRatio, 0.1f, 100.0f);
 
     auto pass = new RenderPass(
         _meshes->at(0),

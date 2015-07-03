@@ -5,6 +5,7 @@
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Sphere.h"
+#include "AssimpLoader/AssimpLoader.h"
 #include "Room.h"
 #include "PointCloud.h"
 #include "TextButton.h"
@@ -37,6 +38,13 @@ int main(int argc, char *argv[]) {
 	KinectHandler kinectHandler;
 	kinectHandler.initializeDefaultSensor();
 
+	//load Model
+	AssimpLoader* scene = new AssimpLoader();
+	scene->loadFile(RESOURCES_PATH "/obj/cornell-box.obj")
+		->printLog();
+
+	std::vector<Mesh*>* _meshes = scene->getMeshList();
+
 	GLfloat *colorData;
 	GLfloat *positionData;
 
@@ -53,9 +61,8 @@ int main(int argc, char *argv[]) {
 							0.0, 0.0, 0.001f, 0.0,
 							0.0, 0.0, 0.0, 1.0);
 
-
-
 	Cube* cube = new Cube(vec3(1.0f, 1.0f, -7.0f), 1.0f);
+
 	std::vector<std::string> attachShaders = { "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" };
 	RenderPass* cubePass = new RenderPass(
 		cube,
@@ -74,11 +81,11 @@ int main(int argc, char *argv[]) {
 		sphere,
 		new ShaderProgram(attachShaders));
 
-	Room* room = new Room();
+	//auto assimpShaders = new ShaderProgram({ "/AssimpLoader/minimal.vert", "/AssimpLoader/minimal.frag" });
+	
 	RenderPass* roomPass = new RenderPass(
-		room,
+		_meshes->at(0),
 		new ShaderProgram(attachShaders));
-
 
 	PointCloud* pointCloud = new PointCloud();
 	std::vector<std::string> attachMinimalShaders = { "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" };
@@ -86,9 +93,7 @@ int main(int argc, char *argv[]) {
 		pointCloud,
 		new ShaderProgram(attachMinimalShaders));
 
-
-	// initialize texture button test object
-	
+	// initialize texture button test object	
 	texButtonPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
@@ -279,6 +284,21 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 		//pointCloudPass
 			//->clear(1.0, 1.0, 1.0, 1.0)
 			//->run();
+
+		//assimpShaders->update("view", view);
+		//assimpShaders->update("projection", projection);
+
+		for (unsigned int m = 1; m < _meshes->size(); ++m)
+		{
+			//glm::mat4 model = glm::rotate(scene->getModelMatrix(m), rotateY, glm::vec3(0, 1, 0));
+			//assimpShaders->update("model", model);
+			//assimpShaders->update("materialColor", scene->getMaterialColor(_meshes->at(m)->getMaterialIndex()));
+			_meshes->at(m)->draw();
+		}
+
+		//glm::mat4 model = glm::rotate(scene->getModelMatrix(0), rotateY, glm::vec3(0, 1, 0));
+		//assimpShaders->update("model", model);
+		//assimpShaders->update("materialColor", scene->getMaterialColor(_meshes->at(0)->getMaterialIndex()));
 
 		roomPass
 			->run();
