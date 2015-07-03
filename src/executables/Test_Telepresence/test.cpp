@@ -7,6 +7,7 @@
 #include "ShaderTools/VertexArrayObjects/Sphere.h"
 #include "PointCloud.h"
 #include "TextButton.h"
+#include "TextPane.h"
 #include "LeapMotionHandler.h"
 #include "KinectHandler.h"
 #include <typeinfo>
@@ -66,7 +67,7 @@ int main(int argc, char *argv[]) {
 
 	// Textured Button Test Object
 	std::vector<std::string> attachTextureShaders = { "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" };
-	TextButton* texButton = new TextButton(vec3(2.0f, 2.0f, -4.0f), 1.0f, "Bits");
+	TextPane* texButton = new TextPane(vec3(2.0f, 2.0f, -4.0f), 2.0f, 1.0f, "SAHEN");
 	RenderPass* texButtonPass = new RenderPass(
 		texButton,
 		new ShaderProgram(attachTextureShaders)

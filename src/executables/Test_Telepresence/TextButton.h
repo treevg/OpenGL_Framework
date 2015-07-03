@@ -1,22 +1,23 @@
 #include <stdio.h>
 #include <string>
 #include "ShaderTools\VertexArrayObjects\Cube.h"
-#include "TextTexture.h"
 #include "cairo\cairo.h"
 #include "gtk\gtk.h"
 
-//typedef int* COLOR;
+class TextTexture;
 
-class TextButton : public Cube, TextTexture 
+class TextButton : public Cube
 {
 public: 
 	TextButton( glm::vec3 position, float size, std::string title );
+	~TextButton();
 
 	GLuint getTextureHandle();
 
 private:
-	GLuint m_textureId;
+	TextTexture* m_textTexture;
+	//GLuint m_textureId;
 
-	cairo_t* createCairoContext(int width, int height, int channels, cairo_surface_t** surf, unsigned char** buffer);
-	int drawText(int x, int y, int width, int height, const char *string, GdkRGBA& textColor, GdkRGBA& background);
+	//cairo_t* createCairoContext(int width, int height, int channels, cairo_surface_t** surf, unsigned char** buffer);
+	//int drawText(int x, int y, int width, int height, const char *string, GdkRGBA& textColor, GdkRGBA& background);
 };
