@@ -375,7 +375,7 @@ void KinectHandler::update(GLfloat *positionData, GLfloat *colorData)
 																byte body = bodyIndexBuffer[depthIndex];
 
 																// Check whether this pixel belong to a human
-																if (body != 0xff){
+																if (true/*body != 0xff*/){
 
 																	CameraSpacePoint cameraPoint = cameraPoints[depthIndex];
 																	// retrieve the depth to color mapping for the current depth pixel

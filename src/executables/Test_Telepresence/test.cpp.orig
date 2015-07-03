@@ -73,12 +73,20 @@ int main(int argc, char *argv[]) {
 	RenderPass* spherePass = new RenderPass(
 		sphere,
 		new ShaderProgram(attachShaders));
+<<<<<<< Updated upstream
+=======
 
 	Room* room = new Room();
 	RenderPass* roomPass = new RenderPass(
 		room,
 		new ShaderProgram(attachShaders));
 
+	//std::vector<std::string> textureShaders = { "/Test_Telepresence/fullscreen.vert", "/Test_Telepresence/simpleTexture.frag" };
+	//Quad* quad = new Quad();
+	//RenderPass* texturePass = new RenderPass(
+	//	quad,
+	//	new ShaderProgram(textureShaders));
+>>>>>>> Stashed changes
 
 	PointCloud* pointCloud = new PointCloud();
 	std::vector<std::string> attachMinimalShaders = { "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" };
@@ -86,8 +94,12 @@ int main(int argc, char *argv[]) {
 		pointCloud,
 		new ShaderProgram(attachMinimalShaders));
 
+<<<<<<< Updated upstream
+
 
 	// initialize texture button test object
+=======
+>>>>>>> Stashed changes
 	
 	texButtonPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
@@ -136,19 +148,53 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 		pointCloudPass
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
-		roomPass
-			->update("projectionMatrix", projection)
-			->update("viewMatrix", view);
-
+<<<<<<< Updated upstream
 		kinectHandler.update(positionData, colorData);
 		pointCloud->updatePointCloud(positionData, colorData);
 		vector<Bone> bones = leapHandler.getBoneList(controller);
 		//InteractionBox box = controller.frame().interactionBox();
 
-
+		//cubePass
+		//	->update("modelMatrix", modelMatrixGoal)
+		//	->run();
 		texButtonPass
 			->update("modelMatrix", mat4(1.0f))
 			->run();
+
+
+=======
+		roomPass
+			->update("projectionMatrix", projection)
+			->update("viewMatrix", view);
+
+		//texturePass
+		//	->update("resolution", getResolution(window));
+		
+		//tex = new float[depthWidth * depthHeight * 3 * sizeof(float)];
+
+		kinectHandler.update(positionData, colorData);
+		pointCloud->updatePointCloud(positionData, colorData);
+		
+		////bind the texture
+		//glBindTexture(GL_TEXTURE_2D, texture);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, colorData);
+
+		////texture settings
+		//glGenerateMipmap(GL_TEXTURE_2D);
+		//glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, true);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+		//glBindTexture(GL_TEXTURE_2D, 0);
+
+		vector<Bone> bones = leapHandler.getBoneList(controller);
+		//InteractionBox box = controller.frame().interactionBox();
+
+		//draw Goal
+		//cubePass
+			//->update("modelMatrix", mat4(1.0f))
+			//->run();
+>>>>>>> Stashed changes
 
 		//transform world coordinates into Oculus coordinates (for attached Leap Motion)
 		//ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
@@ -267,7 +313,9 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 			}
 		}
 
-
+<<<<<<< Updated upstream
+		pointCloudPass
+=======
 		//texturePass
 		//	->clear(0.0, 0.0, 0.0, 1.0)
 		//	->texture("tex", texture)
@@ -281,6 +329,7 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 			//->run();
 
 		roomPass
+>>>>>>> Stashed changes
 			->run();
 		 
 		//pointCloud->deleteBuffers(); // Brauchen wir nicht mehr?! Siehe PointCloud.cpp
