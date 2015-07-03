@@ -14,6 +14,7 @@ include_directories(
 	${GTK3_INCLUDE_DIRS}
     ${EXTERNAL_LIBRARY_PATHS}
     ${LIBRARIES_PATH}
+    ${ASSIMP_INCLUDE_PATH}
 )
 
 file(GLOB_RECURSE SOURCES *.cpp)
@@ -33,4 +34,5 @@ target_link_libraries(
     ${GLEW_LIBRARIES}
     ${OpenGL3_LIBRARIES}
 	${GTK3_LIBRARIES}
+    ${ASSIMP_LIBRARY}
 )
