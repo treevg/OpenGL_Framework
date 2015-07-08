@@ -43,6 +43,14 @@ int main(int argc, char *argv[]) {
     renderBalls->setShaderProgram(&spRenderImpostor);
     renderBalls->update("projection", projection);
 
+    mat4 projectionInv = inverse(projection);
+
+    auto SSAO = (new RenderPass(
+        new Quad(),
+        new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag")))
+            ->texture("tex", renderBalls->get("fragColor"))
+            ->update("projectionInv", projectionInv);
+
     bool animate = false;
     float lastTime = 0;
     float elapsedTime = 0;
@@ -54,8 +62,8 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) (rotY + deltaTime > 6.283)? rotY += deltaTime - 6.283 : rotY += deltaTime;
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) (rotX - deltaTime < 0)? rotX -= deltaTime + 6.283 : rotX -= deltaTime;
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) (rotX + deltaTime > 6.283)? rotX += deltaTime - 6.283 : rotX += deltaTime;
-        if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) distance += deltaTime * 10;
-        if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS) distance = max(distance - deltaTime * 10, 0.0f);
+        if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) distance += deltaTime * 3;
+        if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS) distance = max(distance - deltaTime * 3, 0.0f);
         if (glfwGetKey(window, GLFW_KEY_PERIOD) == GLFW_PRESS) scale += deltaTime;
         if (glfwGetKey(window, GLFW_KEY_COMMA) == GLFW_PRESS) scale = glm::max(scale - deltaTime, 0.01f);
         if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) renderBalls->setShaderProgram(&spRenderImpostor);

@@ -16,7 +16,6 @@ out vec4 passWorldPosition;
 uniform mat4 view;
 uniform mat4 projection;
 uniform vec2 scale;
-//uniform vec3 xyzOffset;
 uniform float elapsedTime;
 
 void main() {
@@ -43,7 +42,7 @@ void main() {
     // depth for manual depth buffer
     depth = -eye_pos.z;
 
-    gl_Position = projection *  eye_pos;
+    gl_Position = projection * eye_pos;
 
     // color has to be transferred to the fragment shader
     passColor = colorAttribute;
