@@ -208,7 +208,7 @@ public:
 	 * 
 	 * @return The shader program
 	 */
-	ShaderProgram* update(std::string name, std::vector<glm::vec4> vector);
+    ShaderProgram* update(std::string name, std::vector<glm::vec4> vector);
 	
 	/**
 	 * @brief Logs all active bound uniforms to the console

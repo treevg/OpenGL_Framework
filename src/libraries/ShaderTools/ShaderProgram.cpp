@@ -431,6 +431,9 @@ void ShaderProgram::mapShaderProperties(GLenum interf, std::map<std::string, Inf
 	{
 		glGetProgramResourceiv(shaderProgramHandle, interf, attrib, properties.size(),
 		&properties[0], values.size(), NULL, &values[0]);
+
+        if (values[3] == -1) //invalid uniform name
+            continue;
 		
 		Info info;
 		info.type = values[1];

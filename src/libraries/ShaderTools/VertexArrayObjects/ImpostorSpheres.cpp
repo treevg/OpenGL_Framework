@@ -8,8 +8,8 @@ float r_pos(float size) {
     return size * static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 }
 
-ImpostorSpheres::ImpostorSpheres():
-num_balls(1000000){
+void ImpostorSpheres::init(bool generateRandom)
+{
     mode = GL_TRIANGLE_STRIP;
 
     glGenVertexArrays(1, &vertexArrayObjectHandle);
@@ -28,6 +28,10 @@ num_balls(1000000){
     std::vector<GLfloat> instance_colors;
     std::vector<GLfloat> instance_positions;
 
+    instance_colors.clear();
+    instance_positions.clear();
+
+    if (generateRandom)
         for (int i = 0; i < num_balls*4; i+=4) {
             instance_colors.push_back(r_pos(1.0));
             instance_colors.push_back(r_pos(1.0));
@@ -39,6 +43,11 @@ num_balls(1000000){
             instance_positions.push_back(r_equ(30));
             instance_positions.push_back(1 + r_equ(0.5));
         }
+    else
+    {
+        instance_colors = m_instance_colors;
+        instance_positions = m_instance_positions;
+    }
 
     glBufferData(GL_ARRAY_BUFFER,
                  sizeof(positions) +
@@ -64,6 +73,36 @@ num_balls(1000000){
     glVertexAttribDivisor(0,0);
     glVertexAttribDivisor(1,1);
     glVertexAttribDivisor(2,1);
+}
+
+ImpostorSpheres::ImpostorSpheres( std::vector<GLfloat> instance_colors, std::vector<GLfloat> instance_positions ):
+    m_generateRandom(false)
+{
+    // both vectors have to have the sime size
+    if (instance_colors.size() != instance_positions.size())
+    {
+        std::cerr << " instance color and instance positions size does not match" << std::endl;
+        return;
+    }
+    // 4 entries per instance
+    num_balls = instance_colors.size() / 4;
+    m_instance_colors = instance_colors;
+    m_instance_positions = instance_positions;
+    this->init(m_generateRandom);
+}
+
+ImpostorSpheres::ImpostorSpheres( int n ):
+    m_generateRandom(true)
+{
+    num_balls = n;
+    this->init(m_generateRandom);
+}
+
+ImpostorSpheres::ImpostorSpheres():
+    num_balls(1000000),
+    m_generateRandom(true)
+{
+    this->init(m_generateRandom);
 }
 
 void ImpostorSpheres::draw() {

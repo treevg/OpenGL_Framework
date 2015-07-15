@@ -24,6 +24,9 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 	    glFramebufferTexture2D(GL_FRAMEBUFFER, currentAttachment, GL_TEXTURE_2D, handle, 0);
 
     	textureMap[e.first] = handle;
+//        std::string gl_FragDepth = "gl_FragDepth";
+//        if (gl_FragDepth.compare(e.first) == 0)
+//            return;
 	    drawBufferHandles[e.second.location] = currentAttachment;
     }
 

@@ -23,14 +23,20 @@ void main() {
     // resize it according to input
     size = instance_positionAttribute.w * scale.x;
 
+    // apply offset
+    int groupID = gl_InstanceID % 62;
+    vec4 mod_instance_positionAttribute = instance_positionAttribute;
+    mod_instance_positionAttribute = mod_instance_positionAttribute
+            + vec4(sin(elapsedTime + groupID * 10),cos((elapsedTime + groupID * 10)/2),sin((elapsedTime + groupID * 10)/3),0);
+
     // expected input vertices (positionAttribute) are a quad defined by [-1..1]²
     // position defines the center of the impostor geometry
-    eye_pos = view * vec4(instance_positionAttribute.xyz, 1) +
+    eye_pos = view * vec4(mod_instance_positionAttribute.xyz, 1) +
             positionAttribute * vec4(size/2, size/2, 1, 1);
 
     // apply offset
-    int groupID = gl_InstanceID % 62;
-    eye_pos = eye_pos + vec4(sin(elapsedTime + groupID * 10),cos((elapsedTime + groupID * 10)/2),sin((elapsedTime + groupID * 10)/3),0);
+    //int groupID = gl_InstanceID % 62;
+    //eye_pos = eye_pos + vec4(sin(elapsedTime + groupID * 10),cos((elapsedTime + groupID * 10)/2),sin((elapsedTime + groupID * 10)/3),0);
 
     // for phong lighting shader
     passWorldPosition = eye_pos;
