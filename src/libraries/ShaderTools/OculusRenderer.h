@@ -59,7 +59,9 @@ static void ErrorCallback(int p_Error, const char* p_Description)
 
 static void KeyCallback(GLFWwindow* p_Window, int p_Key, int p_Scancode, int p_Action, int p_Mods)
 {
-	if (p_Action == GLFW_PRESS)
+	//printf("Press Action: %d", p_Action);
+
+	if (p_Action == GLFW_PRESS || p_Action == GLFW_REPEAT)
 	{
 		switch (p_Key)
 		{
@@ -79,6 +81,18 @@ static void KeyCallback(GLFWwindow* p_Window, int p_Key, int p_Scancode, int p_A
 			g_CameraPosition.x += 0.1f;
 			break;
 		case GLFW_KEY_RIGHT:
+			g_CameraPosition.x -= 0.1f;
+			break;
+		case GLFW_KEY_W:
+			g_CameraPosition.y -= 0.1f;
+			break;
+		case GLFW_KEY_S:
+			g_CameraPosition.y += 0.1f;
+			break;
+		case GLFW_KEY_A:
+			g_CameraPosition.x += 0.1f;
+			break;
+		case GLFW_KEY_D:
 			g_CameraPosition.x -= 0.1f;
 			break;
 		}
