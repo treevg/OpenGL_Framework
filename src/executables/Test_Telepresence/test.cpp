@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
 
 	//load Model
 	AssimpLoader* scene = new AssimpLoader();
-	scene->loadFile(RESOURCES_PATH "/obj/cornell-box.obj")
+	scene->loadFile(RESOURCES_PATH "/obj/room.obj")
 		->printLog();
 
 	std::vector<Mesh*>* _meshes = scene->getMeshList();
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
 
 	auto phongShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	auto minimalShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
-	auto assimpShaders = new ShaderProgram({ "/AssimpLoader/minimal.vert", "/AssimpLoader/minimal.frag" });
+	auto assimpShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
 
 	RenderPass* cubePass = new RenderPass(
 		cube,
@@ -115,11 +115,11 @@ int main(int argc, char *argv[]) {
 
 	roomPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
-
+	
 	colorData = new float[depthWidth * depthHeight * 3];
 	positionData = new float[depthWidth * depthHeight * 3];
 
-vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
+vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 	glEnable(GL_TEXTURE_2D);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -148,8 +148,8 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
 		roomPass
-			->update("projection", projection)
-			->update("view", view);
+			->update("projectionMatrix", projection)
+			->update("viewMatrix", view);
 
 		kinectHandler.update(positionData, colorData);
 		pointCloud->updatePointCloud(positionData, colorData);
@@ -157,15 +157,14 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 		//InteractionBox box = controller.frame().interactionBox();
 
 
-		texButtonPass
-			->update("modelMatrix", mat4(1.0f))
-			->run();
 
 		//transform world coordinates into Oculus coordinates (for attached Leap Motion)
 		//ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
 		ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, 0.0f).HeadPose.ThePose;
 		glm::mat4 M_trans = toGlm(OVR::Matrix4f::Translation(headPose.Position));
 		glm::mat4 M_rot = toGlm(OVR::Matrix4f(headPose.Orientation));
+
+
 
 		//draw Bones
 		if (bones.size() != 0){
@@ -278,6 +277,9 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 			}
 		}
 
+		texButtonPass
+			->update("modelMatrix", mat4(1.0f))
+			->run();
 
 		//texturePass
 		//	->clear(0.0, 0.0, 0.0, 1.0)
@@ -287,28 +289,30 @@ vec3 lightPos = vec3(2.0f, 2.0f, 2.0f);
 
 		//delete(tex);
 
-		//pointCloudPass
-			//->clear(1.0, 1.0, 1.0, 1.0)
-			//->run();
+		pointCloudPass
+			->run();
 
-		//assimpShaders->update("view", view);
-		//assimpShaders->update("projection", projection);
 
-		for (unsigned int m = 1; m < _meshes->size(); ++m)
+		for (unsigned int m = 0; m < _meshes->size(); ++m)
 		{
 			glm::mat4 model = glm::rotate(scene->getModelMatrix(m), 0.0f, glm::vec3(0, 1, 0));
 			assimpShaders->update("model", model);
 			assimpShaders->update("materialColor", scene->getMaterialColor(_meshes->at(m)->getMaterialIndex()));
+			roomPass->getFrameBufferObject()->bind();
+			roomPass->getShaderProgram()->use();
 			_meshes->at(m)->draw();
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		glm::mat4 model = glm::rotate(scene->getModelMatrix(0), 0.0f, glm::vec3(0, 1, 0));
-		assimpShaders->update("model", model);
-		assimpShaders->update("materialColor", scene->getMaterialColor(_meshes->at(0)->getMaterialIndex()));
+		//glm::mat4 model = glm::rotate(scene->getModelMatrix(0), 0.0f, glm::vec3(0, 1, 0));
+		//assimpShaders->update("model", model);
+		//assimpShaders->update("materialColor", scene->getMaterialColor(_meshes->at(0)->getMaterialIndex()));
 
-		roomPass
-			->run();
+		////brauchen wir nicht?? wird in der for-schleife durch draw geregelt?
+		//roomPass
+		//	->run();
 		 
+
 		//pointCloud->deleteBuffers(); // Brauchen wir nicht mehr?! Siehe PointCloud.cpp
 	}); 
 	
