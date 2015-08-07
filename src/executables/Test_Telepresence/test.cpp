@@ -141,8 +141,11 @@ int main(int argc, char *argv[]) {
 		cubePass
 			->update("modelMatrix", mat4(1.0f))
 			->run();
+
+		glm::vec3 cameraPosition(view[0][3], view[1][3], view[2][3]);
+
 		texButtonPass
-			->update("modelMatrix", mat4(1.0f)) // modelMatrixGoal
+			->update("modelMatrix", texButton->getToCenterModelMatrix(cameraPosition))
 			->run();
 
 
