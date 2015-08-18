@@ -20,6 +20,7 @@ void LeapMotionHandler::updateLeap(){
 		}
 
 	}
+	detectGestures();
 }
 
 vector<Bone> LeapMotionHandler::getBoneList() {	
@@ -51,18 +52,10 @@ vector<Bone> LeapMotionHandler::getBoneList() {
 	return boneList;
 }
 
-bool LeapMotionHandler::isPinched(){
-	// Get the most recent frame and report some basic information
-	bool pinched = false;
-	const Frame frame = leapController.frame();
-	HandList hands = frame.hands();
-	for (HandList::const_iterator h = hands.begin(); h != hands.end(); ++h){
-		const Hand hand = *h;
-		if (hand.isLeft())
-			if (hand.pinchStrength() >= 0.8f)
-				pinched = true;
-	}
-	return pinched;
+void LeapMotionHandler::detectGestures(){
+	if (leftHand.pinchStrength() >= 0.7)
+		leftHandPinched = true;
+	else leftHandPinched = false;
 }
 
 bool LeapMotionHandler::checkForIntersection(std::vector<glm::vec3> vertices, glm::vec3 O, glm::vec3 D){

@@ -223,21 +223,21 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 
 			// TODO: DIRECTION FUER DEN INTERSECTION TEST MUSS IRGENDWIE AUCH DURCH DIE "PIPELINE" GEJAGT WERDEN?!?!?!
 
-			
-			//compute rotation and translation of Leap Motion Bones
-			mat4 palmRotationMat = leapHandler.convertLeapMatToGlm(leapHandler.rightHand.basis());
-			mat4 palmTranslateMat = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(leapHandler.rightHand.palmPosition()));
-			mat4 palmLeapWorldCoordinates = palmTranslateMat * palmRotationMat;
+			if (leapHandler.leftHandPinched){
+				//compute rotation and translation of Leap Motion Bones
+				mat4 palmRotationMat = leapHandler.convertLeapMatToGlm(leapHandler.rightHand.basis());
+				mat4 palmTranslateMat = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(leapHandler.rightHand.palmPosition()));
+				mat4 palmLeapWorldCoordinates = palmTranslateMat * palmRotationMat;
 
-			//Pipeline for transforming Leap Motion bones
-			mat4 palmFinalMat = M_trans * M_rot * oculusToLeap * normalizeMat * palmLeapWorldCoordinates;
+				//Pipeline for transforming Leap Motion bones
+				mat4 palmFinalMat = M_trans * M_rot * oculusToLeap * normalizeMat * palmLeapWorldCoordinates;
 
-			//draw Bone 
-			directionPass
-				->update("modelMatrix", translate(scale(palmFinalMat, vec3(1.0, 100.0, 1.0)),vec3(0.0, -3.0, 0.0)))
+				//draw Bone 
+				directionPass
+					->update("modelMatrix", translate(scale(palmFinalMat, vec3(1.0, 100.0, 1.0)), vec3(0.0, -3.0, 0.0)))
 
-				->run();
-
+					->run();
+			}
 
 			//compute direction and translation for pointing bone
 			vec4 eins = vec4(leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), 1.0f);

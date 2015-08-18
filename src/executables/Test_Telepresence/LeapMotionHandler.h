@@ -13,12 +13,14 @@ public:
 	Hand leftHand;
 	Hand rightHand;
 	vector<Bone> boneList;
+	bool leftHandPinched = false;
 
 	void LeapMotionHandler::updateLeap();
 	void LeapMotionHandler::checkForIntersectionGesture();	
+	void LeapMotionHandler::detectGestures();
 	vector<Bone> LeapMotionHandler::getBoneList();
 	bool checkForIntersection(std::vector<glm::vec3> vertices, glm::vec3 O, glm::vec3 D);//, float* out);
-	bool LeapMotionHandler::isPinched();
+
 
 	glm::vec3 convertLeapVecToGlm(Leap::Vector leapVector);
 	glm::mat4 convertLeapMatToGlm(Leap::Matrix leapMatrix);
