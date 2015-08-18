@@ -30,11 +30,10 @@ int main(int argc, char *argv[]) {
 
 	// Create a sample listener and controller
 	LeapMotionHandler leapHandler;
-	Controller controller;
 
-	// Leap Constraint
-	if (argc > 1 && strcmp(argv[1], "--bg") == 0)
-		controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+	//// Leap Constraint
+	//if (argc > 1 && strcmp(argv[1], "--bg") == 0)
+	//	controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
 
 	// Initialize Kinect
 	KinectHandler kinectHandler;
@@ -64,6 +63,8 @@ int main(int argc, char *argv[]) {
 							0.0, 0.0, 0.0, 1.0);
 
 	Cube* cube = new Cube(vec3(1.0f, 1.0f, -7.0f), 1.0f);
+
+	Cube* directionCube = new Cube(vec3(1.0f, 1.0f, 1.0f), 2.0f);
 
 	//std::vector<std::string> attachShaders = { "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" };
 	//std::vector<std::string> attachMinimalShaders = { "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" };
@@ -99,6 +100,10 @@ int main(int argc, char *argv[]) {
 		pointCloud,
 		minimalShaders);
 
+	RenderPass* directionPass = new RenderPass(
+		directionCube,
+		phongShaders);
+
 	// initialize texture button test object	
 	texButtonPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
@@ -114,6 +119,9 @@ int main(int argc, char *argv[]) {
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
 	roomPass
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+
+	directionPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	
 	colorData = new float[depthWidth * depthHeight * 3];
@@ -150,21 +158,26 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 		roomPass
 			->update("projectionMatrix", projection)
 			->update("viewMatrix", view);
+		directionPass
+			->update("lightPosition", lightPos)
+			->update("projectionMatrix", projection)
+			->update("viewMatrix", view);
+
 
 		kinectHandler.update(positionData, colorData);
 		pointCloud->updatePointCloud(positionData, colorData);
-		vector<Bone> bones = leapHandler.getBoneList(controller);
+
+		//get latest Leap Data
+		leapHandler.updateLeap();
+
+		vector<Bone> bones = leapHandler.getBoneList();
 		//InteractionBox box = controller.frame().interactionBox();
-
-
 
 		//transform world coordinates into Oculus coordinates (for attached Leap Motion)
 		//ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
 		ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, 0.0f).HeadPose.ThePose;
 		glm::mat4 M_trans = toGlm(OVR::Matrix4f::Translation(headPose.Position));
 		glm::mat4 M_rot = toGlm(OVR::Matrix4f(headPose.Orientation));
-
-
 
 		//draw Bones
 		if (bones.size() != 0){
@@ -209,6 +222,22 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 			}
 
 			// TODO: DIRECTION FUER DEN INTERSECTION TEST MUSS IRGENDWIE AUCH DURCH DIE "PIPELINE" GEJAGT WERDEN?!?!?!
+
+			
+			//compute rotation and translation of Leap Motion Bones
+			mat4 palmRotationMat = leapHandler.convertLeapMatToGlm(leapHandler.rightHand.basis());
+			mat4 palmTranslateMat = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(leapHandler.rightHand.palmPosition()));
+			mat4 palmLeapWorldCoordinates = palmTranslateMat * palmRotationMat;
+
+			//Pipeline for transforming Leap Motion bones
+			mat4 palmFinalMat = M_trans * M_rot * oculusToLeap * normalizeMat * palmLeapWorldCoordinates;
+
+			//draw Bone 
+			directionPass
+				->update("modelMatrix", translate(scale(palmFinalMat, vec3(1.0, 100.0, 1.0)),vec3(0.0, -3.0, 0.0)))
+
+				->run();
+
 
 			//compute direction and translation for pointing bone
 			vec4 eins = vec4(leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), 1.0f);
@@ -314,6 +343,7 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 		 
 
 		//pointCloud->deleteBuffers(); // Brauchen wir nicht mehr?! Siehe PointCloud.cpp
+
 	}); 
 	
 	return 0;
