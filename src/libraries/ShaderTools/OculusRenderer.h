@@ -175,7 +175,7 @@ void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection,
 	unsigned int l_FrameIndex = 0;
 
 	while (!glfwWindowShouldClose(window)){
-		float currentTime = glfwGetTime();
+		double currentTime = glfwGetTime();
 
 		// Begin the frame...
 		ovrHmd_BeginFrame(g_Hmd, l_FrameIndex);

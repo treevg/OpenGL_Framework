@@ -11,7 +11,7 @@ PointCloud::PointCloud() {
 
 void PointCloud::draw() {
 	glBindVertexArray(vertexArrayObjectHandle);
-	glPointSize(2.0f);
+	glPointSize(3.0f);
 	glDrawArrays(mode, 0, 512 * 424);
 }
 
