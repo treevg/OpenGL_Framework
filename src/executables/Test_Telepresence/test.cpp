@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
 	static const int depthWidth = 512;
 	static const int depthHeight = 424;
-	
+
 	int width = 720;
 	int height = 720;
 
@@ -31,9 +31,9 @@ int main(int argc, char *argv[]) {
 	// Create a sample listener and controller
 	LeapMotionHandler leapHandler;
 
-	//// Leap Constraint
-	//if (argc > 1 && strcmp(argv[1], "--bg") == 0)
-	//	controller.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
+	// Leap Constraint
+	if (argc > 1 && strcmp(argv[1], "--bg") == 0)
+		leapHandler.leapController.setPolicy(Leap::Controller::POLICY_BACKGROUND_FRAMES);
 
 	// Initialize Kinect
 	KinectHandler kinectHandler;
@@ -52,15 +52,15 @@ int main(int argc, char *argv[]) {
 	//transform due to head mounted Leap Motion
 	float tz = -0.08f;
 	glm::mat4 oculusToLeap(-1.0f, 0.0, 0.0, 0.0,
-							0.0, 0.0, -1.0f, 0.0,
-							0.0, -1.0f, 0.0, tz,
-							0.0, 0.0, 0.0, 1.0);
+		0.0, 0.0, -1.0f, 0.0,
+		0.0, -1.0f, 0.0, tz,
+		0.0, 0.0, 0.0, 1.0);
 
 	//transform from millimeter to meter
-	glm::mat4 normalizeMat(	0.001f, 0.0, 0.0, 0.0,
-							0.0, 0.001f, 0.0, 0.0,
-							0.0, 0.0, 0.001f, 0.0,
-							0.0, 0.0, 0.0, 1.0);
+	glm::mat4 normalizeMat(0.001f, 0.0, 0.0, 0.0,
+		0.0, 0.001f, 0.0, 0.0,
+		0.0, 0.0, 0.001f, 0.0,
+		0.0, 0.0, 0.0, 1.0);
 
 	Cube* cube = new Cube(vec3(1.0f, 1.0f, -7.0f), 1.0f);
 
@@ -84,12 +84,12 @@ int main(int argc, char *argv[]) {
 		texButton,
 		new ShaderProgram(attachTextureShaders)
 		);
-	
+
 	Sphere* sphere = new Sphere(10.0f);
 	RenderPass* spherePass = new RenderPass(
 		sphere,
 		phongShaders);
-	
+
 	RenderPass* roomPass = new RenderPass(
 		_meshes->at(0),
 		assimpShaders);
@@ -123,11 +123,11 @@ int main(int argc, char *argv[]) {
 
 	directionPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
-	
+
 	colorData = new float[depthWidth * depthHeight * 3];
 	positionData = new float[depthWidth * depthHeight * 3];
 
-vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
+	vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 	glEnable(GL_TEXTURE_2D);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -190,7 +190,7 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 
 				//Pipeline for transforming Leap Motion bones
 				mat4 finalMat = M_trans * M_rot * oculusToLeap * normalizeMat * leapWorldCoordinates;
-				
+
 				//draw Bone 
 				spherePass
 					->update("modelMatrix", finalMat)
@@ -207,7 +207,7 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 			spherePass
 				->update("modelMatrix", finalMatHack)
 				->run();
-			
+
 			//additional hand bone 2nd hand
 			if (bones.size() > 20){
 				mat4 rotationMatSecondHand = leapHandler.convertLeapMatToGlm(bones[36].basis());
@@ -242,10 +242,10 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 			//compute direction and translation for pointing bone
 			vec4 eins = vec4(leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), 1.0f);
 			vec4 zwei = vec4(leapHandler.convertLeapVecToGlm(bones[5].prevJoint()), 1.0f);
-			
+
 			vec4 directionTest = normalize(eins - zwei);
 			vec3 directionTest2(directionTest.x, directionTest.y, directionTest.z);
-						
+
 			mat4 boneTestRot = leapHandler.convertLeapMatToGlm(bones[7].basis());
 			mat4 boneTest = translate(mat4(1.0f), leapHandler.convertLeapVecToGlm(bones[7].nextJoint()));
 			mat4 finalDirMatTest = boneTest; // * boneTestRot;
@@ -254,32 +254,6 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 
 			vec4 boneOrigin2 = M_trans * M_rot * oculusToLeap * normalizeMat * vec4(leapHandler.convertLeapVecToGlm(bones[7].nextJoint()), 1.0);
 
-			//show pointing direction 
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 5.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 15.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 25.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 35.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 45.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 55.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 65.0f))
-				->run();
-			spherePass
-				->update("modelMatrix", translate(boneOrigin, directionTest2 * 75.0f))
-				->run();
-			
 			eins = M_trans * M_rot * oculusToLeap * normalizeMat * eins;
 			zwei = M_trans * M_rot * oculusToLeap * normalizeMat * zwei;
 			vec4 drei = eins - zwei;
@@ -321,7 +295,6 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 		pointCloudPass
 			->run();
 
-
 		for (unsigned int m = 0; m < _meshes->size(); ++m)
 		{
 			glm::mat4 model = glm::rotate(scene->getModelMatrix(m), 0.0f, glm::vec3(0, 1, 0));
@@ -333,18 +306,8 @@ vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		//glm::mat4 model = glm::rotate(scene->getModelMatrix(0), 0.0f, glm::vec3(0, 1, 0));
-		//assimpShaders->update("model", model);
-		//assimpShaders->update("materialColor", scene->getMaterialColor(_meshes->at(0)->getMaterialIndex()));
+	}
+	);
 
-		////brauchen wir nicht?? wird in der for-schleife durch draw geregelt?
-		//roomPass
-		//	->run();
-		 
-
-		//pointCloud->deleteBuffers(); // Brauchen wir nicht mehr?! Siehe PointCloud.cpp
-
-	}); 
-	
 	return 0;
 }
