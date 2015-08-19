@@ -212,10 +212,9 @@ void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection,
 
 			// Translation due to positional tracking (DK2) and IPD...
 			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z));
+			
 			// Move the world forward a bit to show the scene in front of us...
 			view = glm::translate(view, glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z));
-
-
 
 			loop(currentTime - lastTime, projection, view);
 

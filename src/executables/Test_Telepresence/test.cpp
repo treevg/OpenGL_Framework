@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
 
 	// Textured Button Test Object
 	std::vector<std::string> attachTextureShaders = { "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" };
-	TextPane* texButton = new TextPane(vec3(2.0f, 2.0f, -4.0f), 2.0f, 1.0f, "Herzlich Willkommen");
+	TextPane* texButton = new TextPane(vec3(3.0f, .0f, -7.0f), 2.0f, 1.0f, "Herzlich Willkommen");
 	RenderPass* texButtonPass = new RenderPass(
 		texButton,
 		new ShaderProgram(attachTextureShaders)
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
 		directionCube,
 		phongShaders);
 
-	// initialize texture button test object	
+	// initialize texture button test object
 	texButtonPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 
@@ -127,7 +127,9 @@ int main(int argc, char *argv[]) {
 	colorData = new float[depthWidth * depthHeight * 3];
 	positionData = new float[depthWidth * depthHeight * 3];
 
-	vec3 lightPos = vec3(0.0f, 0.0f, 0.0f);
+	vec3 lightPos = vec3(2.0f, 10.0f, 2.0f);
+
+	// OPENGL STATES
 	glEnable(GL_TEXTURE_2D);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -169,6 +171,15 @@ int main(int argc, char *argv[]) {
 
 		//get latest Leap Data
 		leapHandler.updateLeap();
+		cubePass
+			->update("modelMatrix", mat4(1.0f))
+			->run();
+
+		glm::vec3 cameraPosition(view[3][0], view[3][1], view[3][2]);
+
+		texButtonPass
+			->update("modelMatrix", texButton->getBillboardModelMatrix(cameraPosition))
+			->run();
 
 		vector<Bone> bones = leapHandler.getBoneList();
 		//InteractionBox box = controller.frame().interactionBox();
@@ -308,6 +319,5 @@ int main(int argc, char *argv[]) {
 
 	}
 	);
-
 	return 0;
 }
