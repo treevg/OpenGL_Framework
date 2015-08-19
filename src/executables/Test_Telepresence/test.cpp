@@ -18,6 +18,15 @@
 using namespace std;
 using namespace glm;
 
+glm::vec3 extractCameraPos(const mat4 & a_modelView)
+{
+	mat3 rotMat(a_modelView);
+	vec3 d(a_modelView[3]);
+
+	vec3 retVec = -d * rotMat;
+	return retVec;
+}
+
 int main(int argc, char *argv[]) {
 
 	static const int depthWidth = 512;
@@ -80,10 +89,7 @@ int main(int argc, char *argv[]) {
 	// Textured Button Test Object
 	std::vector<std::string> attachTextureShaders = { "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" };
 	TextPane* texButton = new TextPane(vec3(3.0f, .0f, -7.0f), 2.0f, 1.0f, "Herzlich Willkommen");
-	RenderPass* texButtonPass = new RenderPass(
-		texButton,
-		new ShaderProgram(attachTextureShaders)
-		);
+	RenderPass* texButtonPass = new RenderPass( texButton, new ShaderProgram(attachTextureShaders) );
 
 	Sphere* sphere = new Sphere(10.0f);
 	RenderPass* spherePass = new RenderPass(
@@ -175,7 +181,8 @@ int main(int argc, char *argv[]) {
 			->update("modelMatrix", mat4(1.0f))
 			->run();
 
-		glm::vec3 cameraPosition(view[3][0], view[3][1], view[3][2]);
+		//glm::vec3 cameraPosition(view[3][0], view[3][1], view[3][2]);
+		glm::vec3 cameraPosition = extractCameraPos(view);
 
 		texButtonPass
 			->update("modelMatrix", texButton->getBillboardModelMatrix(cameraPosition))

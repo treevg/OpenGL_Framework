@@ -11,10 +11,8 @@ uniform mat4 projectionMatrix;
 out vec3 passColor;
 out vec2 passUv;
 
-void main(){
-	mat4 modelViewMatrix = viewMatrix * modelMatrix;
-	
-	gl_Position = projectionMatrix * modelViewMatrix * positionAttribute; 
+void main(){	
+	gl_Position = projectionMatrix * viewMatrix * modelMatrix * positionAttribute; 
   
 	passUv = uvAttribute;
 }

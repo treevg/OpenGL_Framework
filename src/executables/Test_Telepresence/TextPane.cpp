@@ -59,17 +59,20 @@ glm::mat4 TextPane::getBillboardModelMatrix(glm::vec3 cameraPosition)
 		return modelMatrix;
 	}
 
-	glm::vec3 upVec = glm::cross(objLookat, objToCamera);
+	objToCamera = glm::normalize(objToCamera);
+
+	glm::vec3 upVec = glm::normalize(glm::cross(objLookat, objToCamera));
 	float dot = glm::dot(objToCamera, objLookat);
 
 	glm::mat4 rotation(1.0f);
 	if ((dot < 0.99990) && (dot > -0.9999))
 	{
-		glm::rotate(glm::acos(dot), upVec );
+		rotation = glm::rotate(glm::acos(dot), upVec);
 	}
 	rotation[3][0] = m_center[0];
 	rotation[3][1] = m_center[1];
 	rotation[3][2] = m_center[2];
+
 	return rotation;
 }
 
