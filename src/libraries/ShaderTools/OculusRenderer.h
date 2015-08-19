@@ -13,15 +13,11 @@
 #if !defined(__APPLE__)
 #include <GLFW/glfw3native.h>
 #endif
-#include <../Include/OVR.h>
-#include "../Src/Kernel/OVR_Math.h" 
-#include <../Src/OVR_CAPI.h>
+#include <OVR.h>
 #include <../Src/OVR_CAPI_GL.h>
 #include "glm\glm.hpp"
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
-#include "ShaderTools/VertexArrayObjects/Quad.h"
-#include "ShaderTools/VertexArrayObjects/Cube.h"
 #include <functional>
 
 const bool l_MultiSampling = false;
@@ -63,7 +59,9 @@ static void ErrorCallback(int p_Error, const char* p_Description)
 
 static void KeyCallback(GLFWwindow* p_Window, int p_Key, int p_Scancode, int p_Action, int p_Mods)
 {
-	if (p_Action == GLFW_PRESS)
+	//printf("Press Action: %d", p_Action);
+
+	if (p_Action == GLFW_PRESS || p_Action == GLFW_REPEAT)
 	{
 		switch (p_Key)
 		{
@@ -83,6 +81,18 @@ static void KeyCallback(GLFWwindow* p_Window, int p_Key, int p_Scancode, int p_A
 			g_CameraPosition.x += 0.1f;
 			break;
 		case GLFW_KEY_RIGHT:
+			g_CameraPosition.x -= 0.1f;
+			break;
+		case GLFW_KEY_W:
+			g_CameraPosition.y -= 0.1f;
+			break;
+		case GLFW_KEY_S:
+			g_CameraPosition.y += 0.1f;
+			break;
+		case GLFW_KEY_A:
+			g_CameraPosition.x += 0.1f;
+			break;
+		case GLFW_KEY_D:
 			g_CameraPosition.x -= 0.1f;
 			break;
 		}
@@ -134,7 +144,7 @@ glm::mat4 toGlm(const ovrMatrix4f & om) {
 	return glm::transpose(glm::make_mat4(&om.M[0][0]));
 }
 
-glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 0.01f, float farPlane = 10000.0f) {
+glm::mat4 toGlm(const ovrFovPort & fovport, float nearPlane = 0.1f, float farPlane = 10000.0f) {
 	return toGlm(ovrMatrix4f_Projection(fovport, nearPlane, farPlane, true));
 }
 
@@ -165,7 +175,7 @@ void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection,
 	unsigned int l_FrameIndex = 0;
 
 	while (!glfwWindowShouldClose(window)){
-		float currentTime = glfwGetTime();
+		double currentTime = glfwGetTime();
 
 		// Begin the frame...
 		ovrHmd_BeginFrame(g_Hmd, l_FrameIndex);
@@ -197,11 +207,14 @@ void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection,
 			glm::mat4 view = toGlm(l_ModelViewMatrix);
 			glm::mat4 projection = toGlm(g_ProjectionMatrici[l_Eye]);
 
+			//ovrTrackingState ts = ovrHmd_GetTrackingState(g_Hmd, 0.0f);
+			//if (ts.StatusFlags & (ovrStatus_PositionTracked)){}
+
 			// Translation due to positional tracking (DK2) and IPD...
-			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x * 5.0f, -g_EyePoses[l_Eye].Position.y * 5.0f, -g_EyePoses[l_Eye].Position.z * 5.0f));
+			view = glm::translate(view, glm::vec3(-g_EyePoses[l_Eye].Position.x, -g_EyePoses[l_Eye].Position.y, -g_EyePoses[l_Eye].Position.z));
+			
 			// Move the world forward a bit to show the scene in front of us...
 			view = glm::translate(view, glm::vec3(g_CameraPosition.x, g_CameraPosition.y, g_CameraPosition.z));
-
 
 			loop(currentTime - lastTime, projection, view);
 
@@ -452,8 +465,8 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	}
 
 	// Projection matrici for each eye will not change at runtime, we can set them here...
-	g_ProjectionMatrici[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.3f, 10000.0f, true);
-	g_ProjectionMatrici[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.3f, 10000.0f, true);
+	g_ProjectionMatrici[ovrEye_Left] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Left].Fov, 0.1f, 10000.0f, true);
+	g_ProjectionMatrici[ovrEye_Right] = ovrMatrix4f_Projection(g_EyeRenderDesc[ovrEye_Right].Fov, 0.1f, 10000.0f, true);
 
 	// IPD offset values will not change at runtime, we can set them here...
 	g_EyeOffsets[ovrEye_Left] = g_EyeRenderDesc[ovrEye_Left].HmdToEyeViewOffset;
@@ -462,7 +475,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	// Initial camera position...
 	g_CameraPosition.x = 0.0f;
 	g_CameraPosition.y = 0.0f;
-	g_CameraPosition.z = -2.0f;
+	g_CameraPosition.z = 0.0f;
 
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetWindowSizeCallback(window, WindowSizeCallback);
@@ -474,4 +487,137 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	glEnable(GL_DEPTH_TEST);
 
 	return window;
+}
+
+/**
+* @brief Registers a keyboard button callback function
+* @details Pass a function pointer to your keyboard button callback function
+*          and it will be registered with the given window. The keyboard
+*          function gets called, when a button of the keyboard gets pressed.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setKeyCallback(GLFWwindow* window, std::function<void(int, int, int, int)> func) {
+	static std::function<void(int, int, int, int)> func_bounce = func;
+	glfwSetKeyCallback(window, [](GLFWwindow* w, int k, int s, int a, int m) {
+		func_bounce(k, s, a, m);
+	});
+}
+
+/**
+* @brief Registers a mouse button callback function
+* @details Pass a function pointer to your mouse button callback function
+*          and it will be registered with the given window. The mouse button
+*          function gets called, when a button of the mouse gets pressed.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setMouseButtonCallback(GLFWwindow* window, std::function<void(int, int, int)> func) {
+	static std::function<void(int, int, int)> func_bounce = func;
+	glfwSetMouseButtonCallback(window, [](GLFWwindow* w, int b, int a, int m) {
+		func_bounce(b, a, m);
+	});
+}
+
+/**
+* @brief Registers a character callback function
+* @details Pass a function pointer to your character callback function and it
+*          will be registered with the given window. The character function
+*          gets called, when a single unicode character is input.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setCharCallback(GLFWwindow* window, std::function<void(unsigned int)> func) {
+	static std::function<void(unsigned int)> func_bounce = func;
+	glfwSetCharCallback(window, [](GLFWwindow* w, unsigned int c) {
+		func_bounce(c);
+	});
+}
+
+/**
+* @brief Registers a cursor position callback function
+* @details Pass a function pointer to your cursor position callback function
+*          and it will be registered with the given window. The cursor position
+*          function gets called, when the cursor gets moved on an active
+*          window.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setCursorPosCallback(GLFWwindow* window, std::function<void(double, double)> func) {
+	static std::function<void(double, double)> func_bounce = func;
+	glfwSetCursorPosCallback(window, [](GLFWwindow* w, double x, double y) {
+		func_bounce(x, y);
+	});
+}
+
+/**
+* @brief Registers a scroll callback function
+* @details Pass a function pointer to your scroll callback function and it will
+*          be registered with the given window. The scroll function gets called
+*          when the mouse scroll wheel is used on an active window.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setScrollCallback(GLFWwindow* window, std::function<void(double, double)> func) {
+	static std::function<void(double, double)> func_bounce = func;
+	glfwSetScrollCallback(window, [](GLFWwindow* w, double x, double y) {
+		func_bounce(x, y);
+	});
+}
+
+/**
+* @brief Registers a cursor enter callback function
+* @details Pass a function pointer to your cursor enter callback function and
+*          it will be registered with the given window. The cursor enter
+*          function gets called when entering the window area with the mouse.
+*
+* @param window The window to register the callback to
+* @param func The function pointer of the callback function to register
+*/
+void setCursorEnterCallback(GLFWwindow* window, std::function<void(int)> func) {
+	static std::function<void(int)> func_bounce = func;
+	glfwSetCursorEnterCallback(window, [](GLFWwindow* w, int e) {
+		func_bounce(e);
+	});
+}
+
+/**
+* @brief Returns the windows width
+*
+* @param window Window to get the width of
+* @return The width of the given window
+*/
+int getWidth(GLFWwindow* window) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	return w;
+}
+
+/**
+* @brief Returns the windows height
+*
+* @param window Window to get the height of
+* @return The height of the given window
+*/
+int getHeight(GLFWwindow* window) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	return h;
+}
+
+/**
+* @brief Returns the windows aspect ratio
+*
+* @param window Window to get the ratio of
+* @return The ratio of the given window
+*/
+float getRatio(GLFWwindow* window) {
+	int w, h;
+	glfwGetFramebufferSize(window, &w, &h);
+	return float(w) / float(h);
 }

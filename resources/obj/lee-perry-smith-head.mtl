@@ -1,0 +1,13 @@
+# Blender MTL File: 'head.blend'
+# Material Count: 1
+
+newmtl defaultMat
+Ns 1.960784
+Ka 0.000000 0.000000 0.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.000050 0.000050 0.000050
+Ni 1.000000
+d 1.000000
+illum 2
+map_Kd /mnt/FC32C08132C0427E/3D Models/obj/head/lambertian.jpg
+map_Bump /-bm 0.001 bump-lowRes.png

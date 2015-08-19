@@ -11,8 +11,10 @@ include_directories(
     ${GLEW_INCLUDE_PATH}
     ${GLFW3_INCLUDE_PATH}
     ${GLM_INCLUDE_PATH}
+	${GTK3_INCLUDE_DIRS}
     ${EXTERNAL_LIBRARY_PATHS}
     ${LIBRARIES_PATH}
+    ${ASSIMP_INCLUDE_PATH}
 )
 
 file(GLOB_RECURSE SOURCES *.cpp)
@@ -31,4 +33,6 @@ target_link_libraries(
     ${GLFW3_LIBRARIES}
     ${GLEW_LIBRARIES}
     ${OpenGL3_LIBRARIES}
+	${GTK3_LIBRARIES}
+    ${ASSIMP_LIBRARY}
 )
