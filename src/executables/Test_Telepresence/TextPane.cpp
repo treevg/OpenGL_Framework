@@ -12,7 +12,7 @@ TextPane::TextPane(glm::vec3 position, float width, float height, std::string ti
 	GdkRGBA color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GdkRGBA background = { 0.5f, 0.5f, 0.0f, 0.0f };
 
-	m_center = position;
+	m_center = glm::vec3(position);
 	
 	m_textTexture = new TextTexture(256, 256, title.c_str(), color, background);
 	createGeometry(width, height);
@@ -34,7 +34,7 @@ glm::vec3 TextPane::getCenter()
 	return m_center;
 }
 
-glm::mat4 TextPane::getToCenterModelMatrix()
+glm::mat4 TextPane::getBillboardModelMatrix()
 {
 	glm::mat4 modelMatrix(1.0f);
 	modelMatrix[0][3] = m_center[0];
@@ -43,15 +43,23 @@ glm::mat4 TextPane::getToCenterModelMatrix()
 	return modelMatrix;
 }
 
-glm::mat4 TextPane::getToCenterModelMatrix(glm::vec3 cameraPosition)
+glm::mat4 TextPane::getBillboardModelMatrix(glm::vec3 cameraPosition)
 {
-	glm::vec3 start(0.0f, 0.0f, 1.0f);
-	glm::vec3 dest(m_center-cameraPosition);
+	glm::vec3 start(0.0f, 0.0f, -1.0f);
+	glm::vec3 dest( cameraPosition + m_center );
+	if (dest == glm::vec3(0.0f))
+	{
+		glm::mat4 modelMatrix = glm::mat4(1.0f);
+		modelMatrix[0][3] = m_center[0];
+		modelMatrix[1][3] = m_center[1];
+		modelMatrix[2][3] = m_center[2];
+		return modelMatrix;
+	}
 	glm::quat rotation = rotationBetweenVectors( start, dest );
 	glm::mat4 modelMatrix = glm::toMat4(rotation);
-	modelMatrix[0][3] = m_center[0];
-	modelMatrix[1][3] = m_center[1];
-	modelMatrix[2][3] = m_center[2];
+	modelMatrix[3][0] = m_center[0];
+	modelMatrix[3][1] = m_center[1];
+	modelMatrix[3][2] = m_center[2];
 	return modelMatrix;
 }
 

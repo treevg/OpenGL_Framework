@@ -18,8 +18,8 @@ public:
 	GLuint getTextureHandle();
 
 	glm::vec3 getCenter();
-	glm::mat4 getToCenterModelMatrix();
-	glm::mat4 getToCenterModelMatrix(glm::vec3 cameraPosition);
+	glm::mat4 getBillboardModelMatrix();
+	glm::mat4 getBillboardModelMatrix(glm::vec3 cameraPosition);
 
 private:
 	TextTexture* m_textTexture;
