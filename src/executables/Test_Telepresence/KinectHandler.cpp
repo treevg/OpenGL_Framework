@@ -1,8 +1,8 @@
 #include "KinectHandler.h"
 #include <typeinfo>
+#include "stdafx.h"
 
 using namespace std;
-using namespace glm;
 
 
 KinectHandler::KinectHandler() :
@@ -23,7 +23,6 @@ depthBuffer(NULL),
 colorBuffer(NULL),
 bodyIndexBuffer(NULL)
 {
-
 }
 
 
@@ -66,7 +65,7 @@ HRESULT KinectHandler::initializeDefaultSensor()
 
 
 // Main processing function
-void KinectHandler::update(GLfloat *data)
+void KinectHandler::updateKinect(GLfloat *data)
 {
 	IMultiSourceFrame* pMultiFrame = NULL;
 	HRESULT hr = multiSourceFrameReader->AcquireLatestFrame(&pMultiFrame);
@@ -219,8 +218,11 @@ void KinectHandler::update(GLfloat *data)
 
 
 // Main processing function
-void KinectHandler::update(GLfloat *positionData, GLfloat *colorData)
+void KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 {
+	//m_colorData = new float[depthWidth * depthHeight * 3];
+	//m_positionData = new float[depthWidth * depthHeight * 3];
+
 	IMultiSourceFrame* pMultiFrame = NULL;
 	HRESULT hr = multiSourceFrameReader->AcquireLatestFrame(&pMultiFrame);
 
@@ -428,6 +430,7 @@ void KinectHandler::update(GLfloat *positionData, GLfloat *colorData)
 		}//dephtframereference
 	}//multiframe
 }
+
 
 void KinectHandler::clearBuffer(GLfloat *buffer, int size){
 	for (int i = 0; i < size; i++)

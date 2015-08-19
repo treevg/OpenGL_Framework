@@ -170,7 +170,7 @@ glm::mat4 toGlm(const ovrPosef & op) {
 	return translation * orientation;
 }
 
-void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection, glm::mat4 view)> loop){
+inline void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection, glm::mat4 view)> loop){
 	float lastTime = 0.0;
 	unsigned int l_FrameIndex = 0;
 

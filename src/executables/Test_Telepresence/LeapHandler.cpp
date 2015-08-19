@@ -1,4 +1,4 @@
-#include "LeapMotionHandler.h"
+#include "LeapHandler.h"
 
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
 const std::string boneNames[] = { "Metacarpal", "Proximal", "Middle", "Distal" };
@@ -6,7 +6,7 @@ const std::string stateNames[] = { "STATE_INVALID", "STATE_START", "STATE_UPDATE
 
 
 
-void LeapMotionHandler::updateLeap(){
+void LeapHandler::updateLeap(){
 
 	const Frame frame = leapController.frame();
 	handList = frame.hands();
@@ -23,7 +23,7 @@ void LeapMotionHandler::updateLeap(){
 	detectGestures();
 }
 
-vector<Bone> LeapMotionHandler::getBoneList() {	
+vector<Bone> LeapHandler::getBoneList() {	
 	boneList.clear();
 
 	for (HandList::const_iterator hl = handList.begin(); hl != handList.end(); ++hl) {
@@ -52,13 +52,13 @@ vector<Bone> LeapMotionHandler::getBoneList() {
 	return boneList;
 }
 
-void LeapMotionHandler::detectGestures(){
+void LeapHandler::detectGestures(){
 	if (leftHand.pinchStrength() >= 0.7)
 		leftHandPinched = true;
 	else leftHandPinched = false;
 }
 
-bool LeapMotionHandler::checkForIntersection(std::vector<glm::vec3> vertices, glm::vec3 O, glm::vec3 D){
+bool LeapHandler::checkForIntersection(std::vector<glm::vec3> vertices, glm::vec3 O, glm::vec3 D){
 	glm::vec3 V1, V2, V3; 
 
 	glm::vec3 e1, e2;  //Edge1, Edge2
@@ -117,11 +117,11 @@ bool LeapMotionHandler::checkForIntersection(std::vector<glm::vec3> vertices, gl
 	return intersection;
 }
 
-glm::vec3 LeapMotionHandler::convertLeapVecToGlm(Leap::Vector leapVector){
+glm::vec3 LeapHandler::convertLeapVecToGlm(Leap::Vector leapVector){
 	return glm::vec3(leapVector.x, leapVector.y, leapVector.z);
 }
 
-glm::mat4 LeapMotionHandler::convertLeapMatToGlm(Leap::Matrix leapMatrix){
+glm::mat4 LeapHandler::convertLeapMatToGlm(Leap::Matrix leapMatrix){
 	return	glm::mat4(
 		glm::vec4(leapMatrix.xBasis.x, leapMatrix.xBasis.y, leapMatrix.xBasis.z, 0),
 		glm::vec4(leapMatrix.yBasis.x, leapMatrix.yBasis.y, leapMatrix.yBasis.z, 0),
