@@ -1,3 +1,4 @@
+#define GLM_FORCE_RADIANS
 #include "TextPane.h"
 #include "TextTexture.h"
 #include <glm/gtc/quaternion.hpp>
@@ -45,9 +46,11 @@ glm::mat4 TextPane::getBillboardModelMatrix()
 
 glm::mat4 TextPane::getBillboardModelMatrix(glm::vec3 cameraPosition)
 {
-	glm::vec3 start(0.0f, 0.0f, -1.0f);
-	glm::vec3 dest( cameraPosition + m_center );
-	if (dest == glm::vec3(0.0f))
+	//TODO check signing
+	glm::vec3 objLookat(0.0f, 0.0f, 1.0f);
+	glm::vec3 objToCamera( cameraPosition - m_center);
+	objToCamera.y = 0;
+	if (objToCamera == glm::vec3(0.0f))
 	{
 		glm::mat4 modelMatrix = glm::mat4(1.0f);
 		modelMatrix[0][3] = m_center[0];
@@ -55,12 +58,19 @@ glm::mat4 TextPane::getBillboardModelMatrix(glm::vec3 cameraPosition)
 		modelMatrix[2][3] = m_center[2];
 		return modelMatrix;
 	}
-	glm::quat rotation = rotationBetweenVectors( start, dest );
-	glm::mat4 modelMatrix = glm::toMat4(rotation);
-	modelMatrix[3][0] = m_center[0];
-	modelMatrix[3][1] = m_center[1];
-	modelMatrix[3][2] = m_center[2];
-	return modelMatrix;
+
+	glm::vec3 upVec = glm::cross(objLookat, objToCamera);
+	float dot = glm::dot(objToCamera, objLookat);
+
+	glm::mat4 rotation(1.0f);
+	if ((dot < 0.99990) && (dot > -0.9999))
+	{
+		glm::rotate(glm::acos(dot), upVec );
+	}
+	rotation[3][0] = m_center[0];
+	rotation[3][1] = m_center[1];
+	rotation[3][2] = m_center[2];
+	return rotation;
 }
 
 glm::quat TextPane::rotationBetweenVectors(glm::vec3 start, glm::vec3 dest)

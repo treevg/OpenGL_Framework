@@ -291,10 +291,6 @@ int main(int argc, char *argv[]) {
 			}
 		}
 
-		texButtonPass
-			->update("modelMatrix", mat4(1.0f))
-			->run();
-
 		//texturePass
 		//	->clear(0.0, 0.0, 0.0, 1.0)
 		//	->texture("tex", texture)
