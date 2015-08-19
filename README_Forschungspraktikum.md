@@ -4,6 +4,10 @@
 
 ## Dependencies:
 
+###ASSIMP
+Binaries laden und Umgebungsvariable ASSIMP_ROOT zu ".../assimp/" setzen
+http://sourceforge.net/projects/assimp/files/assimp-3.1/
+
 ### GTK
 Installiere das GTK Framework und setze die Variable GTK_ROOT auf das root Verzeichnis
 von GTK.
