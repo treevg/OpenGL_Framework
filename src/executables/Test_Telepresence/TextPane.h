@@ -1,8 +1,6 @@
-#include <stdio.h>
+#define GLM_FORCE_RADIANS
 #include <string>
 #include "ShaderTools\VertexArrayObject.h"
-#include "cairo\cairo.h"
-#include "gtk\gtk.h"
 
 class TextTexture;
 

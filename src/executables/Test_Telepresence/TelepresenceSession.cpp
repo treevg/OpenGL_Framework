@@ -71,47 +71,6 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	renderTestCube();
 }
 
-void TelepresenceSession::renderRoom()
-{
-	//m_roomPass->run();
-	for (unsigned int m = 0; m < m_assimpLoader->getMeshList()->size(); ++m)
-	{
-		glm::mat4 model = glm::rotate(m_assimpLoader->getModelMatrix(m), 0.0f, glm::vec3(0, 1, 0));
-		m_minimalMatShaders->update("model", model);
-		m_minimalMatShaders->update("materialColor", m_assimpLoader->getMaterialColor(m_assimpLoader->getMeshList()->at(m)->getMaterialIndex()));
-		m_roomPass->getFrameBufferObject()->bind();
-		m_roomPass->getShaderProgram()->use();
-		m_assimpLoader->getMeshList()->at(m)->draw();
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	}
-}
-
-void TelepresenceSession::renderPointCloud()
-{
-	m_pointCloud->updatePointCloud();
-	m_pointCloudPass->run();
-}
-
-void TelepresenceSession::renderLeap()
-{
-	m_leapHandler->updateLeap();
-	leapChaosFunc();
-}
-
-void TelepresenceSession::renderBillboards( glm::vec3 cameraPosition)
-{
-	glm::mat4 met = m_textPane->getBillboardModelMatrix(cameraPosition);
-	m_billboardPass
-		->update("modelMatrix", met )
-		->texture("tex", m_textPane->getTextureHandle())
-		->run();
-
-}
-
-void TelepresenceSession::renderTestCube()
-{
-	m_cubePass->run();
-}
 
 void TelepresenceSession::generateOculusWindow()
 {
@@ -135,10 +94,10 @@ void TelepresenceSession::initShaderPrograms()
 
 void TelepresenceSession::initRenderPasses()
 {
-	Cube* testCube = new Cube(glm::vec3(1.0f, 1.0f, -7.0f), 1.0f);
-	Cube* directionCube = new Cube(glm::vec3(1.0f, 1.0f, 1.0f), 2.0f);
+	Cube* testCube = new Cube(glm::vec3(1.0f, 0.0f, -4.0f), .5f);
+	Cube* directionCube = new Cube(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
 	Sphere* sphere = new Sphere(10.0f);
-	m_textPane = new TextPane(glm::vec3(3.0f, .0f, -7.0f), 2.0f, 1.0f, "Herzlich Willkommen");
+	m_textPane = new TextPane(glm::vec3(-2.0f, 0.0f, -3.0f), 2.0f, 1.0f, "Herzlich Willkommen");
 
 	m_cubePass = new RenderPass(testCube, m_phongShaders);
 	m_billboardPass = new RenderPass(m_textPane, m_textureShaders);
@@ -150,14 +109,12 @@ void TelepresenceSession::initRenderPasses()
 	glm::vec3 lightPos = glm::vec3(2.0f, 10.0f, 2.0f);
 
 	m_cubePass
-		->update("diffuseColor", glm::vec3(0.0, 1.0, 0.0))
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_billboardPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_handPass
 		->update("lightPosition", lightPos)
-		->update("diffuseColor", glm::vec3(0.2f, 0.2f, 0.2f))
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_roomPass
 		->update("lightPosition", lightPos)
@@ -219,6 +176,53 @@ glm::vec3 TelepresenceSession::extractCameraPosition(glm::mat4 viewMatrix)
 	return -direction * rotMat;
 }
 
+void TelepresenceSession::renderRoom()
+{
+	//m_roomPass->run();
+	for (unsigned int m = 0; m < m_assimpLoader->getMeshList()->size(); ++m)
+	{
+		glm::mat4 model = glm::rotate(m_assimpLoader->getModelMatrix(m), 0.0f, glm::vec3(0, 1, 0));
+		m_minimalMatShaders->update("model", model);
+		m_minimalMatShaders->update("materialColor", m_assimpLoader->getMaterialColor(m_assimpLoader->getMeshList()->at(m)->getMaterialIndex()));
+		m_roomPass->getFrameBufferObject()->bind();
+		m_roomPass->getShaderProgram()->use();
+		m_assimpLoader->getMeshList()->at(m)->draw();
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+}
+
+void TelepresenceSession::renderPointCloud()
+{
+	m_pointCloud->updatePointCloud();
+	m_pointCloudPass->run();
+}
+
+void TelepresenceSession::renderTestCube()
+{
+	m_cubePass
+		->update("diffuseColor", glm::vec3(.0, 1.0, .0))
+		->update("modelMatrix", glm::mat4(1.0f))
+		->run();
+}
+
+void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
+{
+	glm::mat4 met = m_textPane->getBillboardModelMatrix(cameraPosition);
+	m_billboardPass
+		->update("modelMatrix", met)
+		->texture("tex", m_textPane->getTextureHandle())
+		->run();
+
+}
+
+void TelepresenceSession::renderLeap()
+{
+	m_leapHandler->updateLeap();
+	m_handPass
+		->update("diffuseColor", glm::vec3(0.2f, 0.2f, 0.2f));
+	leapChaosFunc();
+}
+
 void TelepresenceSession::leapChaosFunc()
 {
 	vector<Bone> bones = m_leapHandler->getBoneList();
@@ -230,6 +234,8 @@ void TelepresenceSession::leapChaosFunc()
 	glm::mat4 M_trans = toGlm(OVR::Matrix4f::Translation(headPose.Position));
 	glm::mat4 M_rot = toGlm(OVR::Matrix4f(headPose.Orientation));
 
+	glm::mat4 leapToOculusPipeline = M_trans * M_rot * oculusToLeap * normalizeMat;
+
 	//draw Bones
 	if (bones.size() != 0){
 		for (int i = 0; i < bones.size(); i++)
@@ -240,7 +246,7 @@ void TelepresenceSession::leapChaosFunc()
 			glm::mat4 leapWorldCoordinates = translateMat * rotationMat;
 
 			//Pipeline for transforming Leap Motion bones
-			glm::mat4 finalMat = M_trans * M_rot * oculusToLeap * normalizeMat * leapWorldCoordinates;
+			glm::mat4 finalMat = leapToOculusPipeline * leapWorldCoordinates;
 
 			//draw Bone 
 			m_handPass
@@ -253,7 +259,7 @@ void TelepresenceSession::leapChaosFunc()
 		glm::mat4 translateMatFirstHand = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(bones[16].prevJoint()));
 		glm::mat4 finalMatFirstHand = translateMatFirstHand * rotationMatFirstHand;
 
-		glm::mat4 finalMatHack = M_trans * M_rot * oculusToLeap * normalizeMat * finalMatFirstHand;
+		glm::mat4 finalMatHack = leapToOculusPipeline * finalMatFirstHand;
 
 		m_handPass
 			->update("modelMatrix", finalMatHack)
@@ -265,7 +271,7 @@ void TelepresenceSession::leapChaosFunc()
 			glm::mat4 translateMatSecondHand = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(bones[36].prevJoint()));
 			glm::mat4 finalMatSecondHand = translateMatSecondHand * rotationMatSecondHand;
 
-			glm::mat4 finalMatHack2 = M_trans * M_rot * oculusToLeap * normalizeMat * finalMatSecondHand;
+			glm::mat4 finalMatHack2 = leapToOculusPipeline * finalMatSecondHand;
 
 			m_handPass
 				->update("modelMatrix", finalMatHack2)
@@ -281,7 +287,7 @@ void TelepresenceSession::leapChaosFunc()
 			glm::mat4 palmLeapWorldCoordinates = palmTranslateMat * palmRotationMat;
 
 			//Pipeline for transforming Leap Motion bones
-			glm::mat4 palmFinalMat = M_trans * M_rot * oculusToLeap * normalizeMat * palmLeapWorldCoordinates;
+			glm::mat4 palmFinalMat = leapToOculusPipeline * palmLeapWorldCoordinates;
 
 			//draw Bone 
 			m_directionPass
@@ -301,9 +307,9 @@ void TelepresenceSession::leapChaosFunc()
 		glm::mat4 boneTest = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(bones[7].nextJoint()));
 		glm::mat4 finalDirMatTest = boneTest; // * boneTestRot;
 
-		glm::mat4 boneOrigin = M_trans * M_rot * oculusToLeap * normalizeMat * finalDirMatTest;
+		glm::mat4 boneOrigin = leapToOculusPipeline* finalDirMatTest;
 
-		glm::vec4 boneOrigin2 = M_trans * M_rot * oculusToLeap * normalizeMat * glm::vec4(m_leapHandler->convertLeapVecToGlm(bones[7].nextJoint()), 1.0);
+		glm::vec4 boneOrigin2 = leapToOculusPipeline * glm::vec4(m_leapHandler->convertLeapVecToGlm(bones[7].nextJoint()), 1.0);
 
 		eins = M_trans * M_rot * oculusToLeap * normalizeMat * eins;
 		zwei = M_trans * M_rot * oculusToLeap * normalizeMat * zwei;
