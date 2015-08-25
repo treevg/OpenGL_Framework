@@ -137,7 +137,7 @@ int main(int argc, char *argv[]) {
 		
 		////bind the texture
 		//glBindTexture(GL_TEXTURE_2D, texture);
-		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, colorData);
+		//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, depthWidth, depthHeight, 0, GL_RGB, GL_FLOAT, m_colorData);
 
 		////texture settings
 		//glGenerateMipmap(GL_TEXTURE_2D);

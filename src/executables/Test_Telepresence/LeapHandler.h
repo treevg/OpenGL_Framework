@@ -6,7 +6,7 @@
 using namespace Leap;
 using namespace std;
 
-class LeapMotionHandler{
+class LeapHandler{
 public:
 	Controller leapController;
 	HandList handList;
@@ -15,10 +15,10 @@ public:
 	vector<Bone> boneList;
 	bool leftHandPinched = false;
 
-	void LeapMotionHandler::updateLeap();
-	void LeapMotionHandler::checkForIntersectionGesture();	
-	void LeapMotionHandler::detectGestures();
-	vector<Bone> LeapMotionHandler::getBoneList();
+	void LeapHandler::updateLeap();
+	void LeapHandler::checkForIntersectionGesture();	
+	void LeapHandler::detectGestures();
+	vector<Bone> LeapHandler::getBoneList();
 	bool checkForIntersection(std::vector<glm::vec3> vertices, glm::vec3 O, glm::vec3 D);//, float* out);
 
 

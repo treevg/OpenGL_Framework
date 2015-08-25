@@ -6,7 +6,7 @@
 using namespace Leap;
 using namespace std;
 
-class LeapMotionHandler{
+class LeapHandler{
 public:
 	vector<Bone> getBoneList(const Controller& controller);
 	bool checkForIntersection(std::vector<glm::vec3> vertices, glm::vec3 O, glm::vec3 D);//, float* out);

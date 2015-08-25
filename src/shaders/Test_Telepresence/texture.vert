@@ -8,7 +8,6 @@ uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
-out vec3 passColor;
 out vec2 passUv;
 
 void main(){	

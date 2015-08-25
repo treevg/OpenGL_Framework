@@ -1,12 +1,15 @@
 #include "PointCloud.h"
 
-PointCloud::PointCloud() {
+PointCloud::PointCloud(const KinectHandler* kinectHandler)
+{
 	mode = GL_POINTS;
 
 	glGenVertexArrays(1, &vertexArrayObjectHandle);
 	glBindVertexArray(vertexArrayObjectHandle);
 
 	glGenBuffers(2, vertexBufferHandles);
+
+	m_kinectHandler = kinectHandler;
 }
 
 void PointCloud::draw() {

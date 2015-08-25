@@ -1,11 +1,7 @@
 #include <iostream>
-#include <string.h>
-#include "glm\glm.hpp"
 #include "Kinect.h"
 #include <windows.h>
-#include "stdafx.h"
 #include "GL\glew.h"
-#include <vector>
 
 using namespace std;
 
@@ -17,11 +13,11 @@ public:
 	// Initializes the default Kinect sensor
 	HRESULT	initializeDefaultSensor();	
 
-	/// Main processing function
-	void update(GLfloat *data);
-	void update(GLfloat *positionData, GLfloat *colorData);
+	// Main processing function
+	void updateKinect(GLfloat *data);
+	void updateKinect( GLfloat* colorData, GLfloat* positionData );
 
-	void clearBuffer(GLfloat *buffer, int size); 
+	void clearBuffer(GLfloat *buffer, int size);
 
 private:
 	IKinectSensor* kinectSensor;

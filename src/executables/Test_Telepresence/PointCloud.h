@@ -1,17 +1,20 @@
-#ifndef POINTCLOUD_H
-#define POINTCLOUD_H
-
+#pragma once
 #include "../../libraries/ShaderTools/VertexArrayObject.h"
+
+class KinectHandler;
 
 class PointCloud : public VertexArrayObject {
 public:
-	PointCloud();
+	PointCloud( KinectHandler* kinectHandler);
 	void draw();
-	void updatePointCloud(GLfloat *positionData, GLfloat *colorData);
+	void updatePointCloud();
 	void deleteBuffers();
 
 private:
+	static const int depthWidth = 512;
+	static const int depthHeight = 424;
+	GLfloat* m_colorData = new float[depthWidth * depthHeight * 3];
+	GLfloat* m_positionData = new float[depthWidth * depthHeight * 3];
+	KinectHandler* m_kinectHandler;
 	GLuint vertexBufferHandles[2];
 };
-
-#endif // POINTCLOUD_H

@@ -2,7 +2,7 @@
 #include "ShaderTools/RenderPass.h"
 #include "Compression/TextureTools.h"
 #include "ShaderTools/VertexArrayObjects/Sphere.h"
-#include "LeapMotionHandler.h"
+#include "LeapHandler.h"
 #include <typeinfo>
 
 using namespace std;
@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
 	GLFWwindow* window = generateWindow(width, height, 100, 100);
 
 	// Create a sample listener and controller
-	LeapMotionHandler leapHandler;
+	LeapHandler leapHandler;
 	Controller controller;
 
 	// Leap Constraint
