@@ -2,8 +2,6 @@
 #include "TextPane.h"
 #include "TextTexture.h"
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/norm.hpp>
 
 
@@ -67,7 +65,8 @@ glm::mat4 TextPane::getBillboardModelMatrix(glm::vec3 cameraPosition)
 	glm::mat4 rotation(1.0f);
 	if ((dot < 0.99990) && (dot > -0.9999))
 	{
-		rotation = glm::rotate(glm::acos(dot), upVec);
+		float angle = glm::degrees(glm::acos(dot));
+		rotation = glm::rotate(angle, upVec);
 	}
 	rotation[3][0] = m_center[0];
 	rotation[3][1] = m_center[1];

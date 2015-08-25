@@ -1,6 +1,5 @@
 #include "TelepresenceSession.h"
 #include "ShaderTools/OculusRenderer.h"
-#include "ShaderTools/VertexArrayObjects/Quad.h"
 #include "ShaderTools/VertexArrayObjects/Cube.h"
 #include "ShaderTools/VertexArrayObjects/Sphere.h"
 #include "LeapHandler.h"
