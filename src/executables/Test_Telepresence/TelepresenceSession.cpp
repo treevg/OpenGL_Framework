@@ -65,12 +65,11 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 
 	glm::vec3 cameraPosition = extractCameraPosition(view);
 
+	renderBillboards(cameraPosition);
 	renderRoom();
 	renderLeap();
 	renderPointCloud();
-	renderBillboards(cameraPosition);
 	renderTestCube();
-
 }
 
 void TelepresenceSession::renderRoom()
@@ -102,8 +101,9 @@ void TelepresenceSession::renderLeap()
 
 void TelepresenceSession::renderBillboards( glm::vec3 cameraPosition)
 {
+	glm::mat4 met = m_textPane->getBillboardModelMatrix(cameraPosition);
 	m_billboardPass
-		->update("modelMatrix", m_textPane->getBillboardModelMatrix(cameraPosition))
+		->update("modelMatrix", met )
 		->texture("tex", m_textPane->getTextureHandle())
 		->run();
 
@@ -155,7 +155,6 @@ void TelepresenceSession::initRenderPasses()
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_billboardPass
-		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_handPass
 		->update("lightPosition", lightPos)
@@ -220,7 +219,6 @@ glm::vec3 TelepresenceSession::extractCameraPosition(glm::mat4 viewMatrix)
 	glm::vec3 direction(viewMatrix[3]);
 	return -direction * rotMat;
 }
-
 
 void TelepresenceSession::leapChaosFunc()
 {
