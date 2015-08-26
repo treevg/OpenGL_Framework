@@ -4,11 +4,12 @@ const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" 
 const std::string boneNames[] = { "Metacarpal", "Proximal", "Middle", "Distal" };
 const std::string stateNames[] = { "STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END" };
 
-
+using namespace Leap;
 
 void LeapHandler::updateLeap(){
 
 	const Frame frame = leapController.frame();
+
 	handList = frame.hands();
 	for (HandList::const_iterator h = handList.begin(); h != handList.end(); ++h){
 		const Hand hand = *h;
@@ -23,22 +24,17 @@ void LeapHandler::updateLeap(){
 	detectGestures();
 }
 
-vector<Bone> LeapHandler::getBoneList() {	
-	boneList.clear();
+std::vector<Bone> LeapHandler::getBones() const
+{	
+	std::vector<Leap::Bone> boneList;
 
-	for (HandList::const_iterator hl = handList.begin(); hl != handList.end(); ++hl) {
-		// Get the first hand
-		const Hand hand = *hl;
-	
-		// Get the Arm bone
-		Arm arm = hand.arm();
-
+	for (auto hand : leapController.frame().hands())
+	{
 		// Get fingers
 		const FingerList fingers = hand.fingers();
 
-		for (FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); ++fl) {
-			const Finger finger = *fl;
-
+		for ( auto finger : fingers)
+		{
 			// Get finger bones
 			for (int b = 0; b < 4; ++b) {
 				Bone::Type boneType = static_cast<Bone::Type>(b);
@@ -127,4 +123,29 @@ glm::mat4 LeapHandler::convertLeapMatToGlm(Leap::Matrix leapMatrix){
 		glm::vec4(leapMatrix.yBasis.x, leapMatrix.yBasis.y, leapMatrix.yBasis.z, 0),
 		glm::vec4(leapMatrix.zBasis.x, leapMatrix.zBasis.y, leapMatrix.zBasis.z, 0),
 		glm::vec4(0, 0, 0, 1));
+}
+
+std::vector<Leap::Vector> LeapHandler::getJoints() const
+{
+	std::vector< Leap::Vector> joints;
+	std::vector< Leap::Bone > bones = getBones();
+	for ( auto bone : bones )
+	{
+		if (bone.type() == Leap::Bone::TYPE_METACARPAL)
+		{
+			joints.push_back(bone.prevJoint());
+		}
+		joints.push_back( bone.nextJoint() );
+	}
+	return joints;
+}
+
+std::vector<Leap::Vector> LeapHandler::getPalmPositions() const
+{
+	std::vector<Leap::Vector> palmPositions;
+	for (auto hand : leapController.frame().hands())
+	{
+		palmPositions.push_back(hand.palmPosition());
+	}
+	return palmPositions;
 }

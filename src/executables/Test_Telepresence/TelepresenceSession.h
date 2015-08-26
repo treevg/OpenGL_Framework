@@ -1,4 +1,5 @@
 #include <glm/gtc/matrix_transform.hpp>
+#include <Leap.h>
 
 class LeapHandler;
 class GLFWwindow;
@@ -51,8 +52,6 @@ private:
 	void renderBillboards(glm::vec3 cameraPosition);
 	void renderTestCube();
 
-	void leapChaosFunc();
-
 	void generateOculusWindow();
 	void initOpenGL();
 	void initShaderPrograms();
@@ -62,5 +61,8 @@ private:
 	void updateProjectionMatrices(glm::mat4 projection);
 	void updateViewMatrices(glm::mat4 view);
 
-	glm::vec3 extractCameraPosition(glm::mat4 viewMatrix);
+	glm::vec3 extractCameraPosition(glm::mat4 viewMatrix) const;
+	glm::mat4 getLeapToOculusTransformationMatrix() const;
+	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Vector &position) const;
+	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Matrix &basis, const Leap::Vector &position) const;
 };
