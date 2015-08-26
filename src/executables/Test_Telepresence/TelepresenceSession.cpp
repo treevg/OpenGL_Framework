@@ -67,7 +67,7 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	renderBillboards(cameraPosition);
 	renderRoom();
 	renderLeap();
-	//renderPointCloud();
+	renderPointCloud();
 	renderTestCube();
 }
 
