@@ -71,7 +71,6 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	renderTestCube();
 }
 
-
 void TelepresenceSession::generateOculusWindow()
 {
 	m_window = generateWindow();
@@ -117,10 +116,8 @@ void TelepresenceSession::initRenderPasses()
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_roomPass
-		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_pointCloudPass
-		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_directionPass
 		->update("lightPosition", lightPos)
@@ -169,7 +166,7 @@ void TelepresenceSession::updateViewMatrices(glm::mat4 view)
 		->update("viewMatrix", view);
 }
 
-glm::vec3 TelepresenceSession::extractCameraPosition(glm::mat4 viewMatrix)
+glm::vec3 TelepresenceSession::extractCameraPosition(glm::mat4 viewMatrix) const
 {
 	glm::mat3 rotMat(viewMatrix);
 	glm::vec3 direction(viewMatrix[3]);
@@ -218,122 +215,52 @@ void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
 void TelepresenceSession::renderLeap()
 {
 	m_leapHandler->updateLeap();
+	glm::mat4 leapToOculusTransformation = getLeapToOculusTransformationMatrix();
+
 	m_handPass
 		->update("diffuseColor", glm::vec3(0.2f, 0.2f, 0.2f));
-	leapChaosFunc();
+
+	for (auto joint : m_leapHandler->getJoints())
+	{
+		glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(joint);
+		glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
+		m_handPass
+			->update("modelMatrix", modelMatrix)
+			->run();
+	}
+	for ( auto palmPosition : m_leapHandler->getPalmPositions())
+	{
+		glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(palmPosition);
+		glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
+		m_handPass
+			->update("modelMatrix", modelMatrix)
+			->run();
+	}
 }
 
-void TelepresenceSession::leapChaosFunc()
+glm::mat4 TelepresenceSession::getLeapToOculusTransformationMatrix() const
 {
-	vector<Bone> bones = m_leapHandler->getBoneList();
-	//InteractionBox box = controller.frame().interactionBox();
-
 	//transform world coordinates into Oculus coordinates (for attached Leap Motion)
-	//ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, ovr_GetTimeInSeconds()).HeadPose.ThePose;
 	ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, 0.0f).HeadPose.ThePose;
-	glm::mat4 M_trans = toGlm(OVR::Matrix4f::Translation(headPose.Position));
-	glm::mat4 M_rot = toGlm(OVR::Matrix4f(headPose.Orientation));
+	glm::mat4 headTranslation = toGlm(OVR::Matrix4f::Translation(headPose.Position));
+	glm::mat4 headRotation = toGlm(OVR::Matrix4f(headPose.Orientation));
+	glm::mat4 leapToOculusPipeline = headTranslation * headRotation * oculusToLeap * normalizeMat;
+	return leapToOculusPipeline;
+}
 
-	glm::mat4 leapToOculusPipeline = M_trans * M_rot * oculusToLeap * normalizeMat;
+glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Vector &position) const
+{
+	glm::mat4 leapWorldCoordinates = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(position));
+	return leapWorldCoordinates;
+}
 
-	//draw Bones
-	if (bones.size() != 0){
-		for (int i = 0; i < bones.size(); i++)
-		{
-			//compute rotation and translation of Leap Motion Bones
-			glm::mat4 rotationMat = m_leapHandler->convertLeapMatToGlm(bones[i].basis());
-			glm::mat4 translateMat = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(bones[i].nextJoint()));
-			glm::mat4 leapWorldCoordinates = translateMat * rotationMat;
 
-			//Pipeline for transforming Leap Motion bones
-			glm::mat4 finalMat = leapToOculusPipeline * leapWorldCoordinates;
+glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Matrix &basis, const Leap::Vector &position) const
+{
+	//compute rotation and translation of Leap Motion Bones
+	glm::mat4 rotationMat = m_leapHandler->convertLeapMatToGlm(basis);
+	glm::mat4 leapWorldCoordinates = glm::translate(rotationMat, m_leapHandler->convertLeapVecToGlm(position));
 
-			//draw Bone 
-			m_handPass
-				->update("modelMatrix", finalMat)
-				->run();
-		}
-
-		//additional hand bone 1st hand
-		glm::mat4 rotationMatFirstHand = m_leapHandler->convertLeapMatToGlm(bones[16].basis());
-		glm::mat4 translateMatFirstHand = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(bones[16].prevJoint()));
-		glm::mat4 finalMatFirstHand = translateMatFirstHand * rotationMatFirstHand;
-
-		glm::mat4 finalMatHack = leapToOculusPipeline * finalMatFirstHand;
-
-		m_handPass
-			->update("modelMatrix", finalMatHack)
-			->run();
-
-		//additional hand bone 2nd hand
-		if (bones.size() > 20){
-			glm::mat4 rotationMatSecondHand = m_leapHandler->convertLeapMatToGlm(bones[36].basis());
-			glm::mat4 translateMatSecondHand = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(bones[36].prevJoint()));
-			glm::mat4 finalMatSecondHand = translateMatSecondHand * rotationMatSecondHand;
-
-			glm::mat4 finalMatHack2 = leapToOculusPipeline * finalMatSecondHand;
-
-			m_handPass
-				->update("modelMatrix", finalMatHack2)
-				->run();
-		}
-
-		// TODO: DIRECTION FUER DEN INTERSECTION TEST MUSS IRGENDWIE AUCH DURCH DIE "PIPELINE" GEJAGT WERDEN?!?!?!
-
-		if (m_leapHandler->leftHandPinched){
-			//compute rotation and translation of Leap Motion Bones
-			glm::mat4 palmRotationMat = m_leapHandler->convertLeapMatToGlm(m_leapHandler->rightHand.basis());
-			glm::mat4 palmTranslateMat = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(m_leapHandler->rightHand.palmPosition()));
-			glm::mat4 palmLeapWorldCoordinates = palmTranslateMat * palmRotationMat;
-
-			//Pipeline for transforming Leap Motion bones
-			glm::mat4 palmFinalMat = leapToOculusPipeline * palmLeapWorldCoordinates;
-
-			//draw Bone 
-			m_directionPass
-				->update("modelMatrix", glm::translate(glm::scale(palmFinalMat, glm::vec3(1.0, 100.0, 1.0)), glm::vec3(0.0, -3.0, 0.0)))
-
-				->run();
-		}
-
-		//compute direction and translation for pointing bone
-		glm::vec4 eins = glm::vec4(m_leapHandler->convertLeapVecToGlm(bones[7].nextJoint()), 1.0f);
-		glm::vec4 zwei = glm::vec4(m_leapHandler->convertLeapVecToGlm(bones[5].prevJoint()), 1.0f);
-
-		glm::vec4 directionTest = glm::normalize(eins - zwei);
-		glm::vec3 directionTest2(directionTest.x, directionTest.y, directionTest.z);
-
-		glm::mat4 boneTestRot = m_leapHandler->convertLeapMatToGlm(bones[7].basis());
-		glm::mat4 boneTest = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(bones[7].nextJoint()));
-		glm::mat4 finalDirMatTest = boneTest; // * boneTestRot;
-
-		glm::mat4 boneOrigin = leapToOculusPipeline* finalDirMatTest;
-
-		glm::vec4 boneOrigin2 = leapToOculusPipeline * glm::vec4(m_leapHandler->convertLeapVecToGlm(bones[7].nextJoint()), 1.0);
-
-		eins = M_trans * M_rot * oculusToLeap * normalizeMat * eins;
-		zwei = M_trans * M_rot * oculusToLeap * normalizeMat * zwei;
-		glm::vec4 drei = eins - zwei;
-
-		glm::vec3 vier = glm::normalize(glm::vec3(drei.x, drei.y, drei.z));
-
-		//check for intersection
-		//if (bones.size() != 0){
-		//	bool a = m_leapHandler->checkForIntersection(cube->getVertices(), glm::vec3(boneOrigin2.x, boneOrigin2.y, boneOrigin2.z), vier);
-		//	//cout << "X: "<< directionTest1.x << ", Y: " << directionTest1.y << ", Z: " << directionTest1.z << endl;
-
-		//	if (a == true){
-		//		//cout << "Getroffen" << endl;
-		//		cubePass
-		//			->update("diffuseColor", glm::vec3(0.0, 1.0, 0.0))
-		//			->run();
-		//	}
-		//	else{
-		//		//cout << "Nicht getroffen" << endl;
-		//		cubePass
-		//			->update("diffuseColor", glm::vec3(1.0, 0.0, 0.0))
-		//			->run();
-		//	}
-		//}
-	}
+	//Pipeline for transforming Leap Motion bones
+	return leapWorldCoordinates;
 }
