@@ -64,8 +64,8 @@ glm::mat4 TextPane::getBillboardModelMatrix(glm::vec3 cameraPosition)
 	glm::mat4 rotation(1.0f);
 	if ((dot < 0.99990) && (dot > -0.9999))
 	{
-		//float angle = glm::degrees(glm::acos(dot));
-		float angle = glm::acos(dot);
+		float angle = glm::degrees(glm::acos(dot));
+		//float angle = glm::acos(dot);
 		rotation = glm::rotate(angle, upVec);
 	}
 	rotation[3][0] = m_center[0];
