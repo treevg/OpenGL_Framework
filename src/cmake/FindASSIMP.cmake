@@ -20,7 +20,7 @@ set(ASSIMP_SEARCH_PATHS
 		$ENV{PROGRAMFILES}
 )
 
-find_path(ASSIMP_INCLUDE_DIR
+find_path(ASSIMP_INCLUDE_PATH
 				NAMES 
 					assimp/version.h
 				PATHS

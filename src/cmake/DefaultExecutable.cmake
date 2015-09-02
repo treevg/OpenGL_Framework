@@ -13,6 +13,7 @@ include_directories(
 	${GTK3_INCLUDE_DIRS}
     ${EXTERNAL_LIBRARY_PATHS}
     ${LIBRARIES_PATH}
+	${ASSIMP_INCLUDE_PATH}
 )
 
 file(GLOB_RECURSE SOURCES *.cpp)

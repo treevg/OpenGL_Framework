@@ -79,8 +79,8 @@ http://assimp.sourceforge.net/main_downloads.html
 
 http://sourceforge.net/projects/assimp/files/assimp-3.0/assimp-sdk-3.0-setup.exe/download
 
-SDK Setup herunterladen und Umgebungsvariable ASSIMP_ROOT zu ".../assimp/" setzen
-`Bsp: ASSIMP_ROOT = C:\Assimp`
+SDK Setup herunterladen und Umgebungsvariable ASSIMP_ROOT setzen
+`Bsp: ASSIMP_ROOT = C:\assimp`
 
 ** Hinweis: Unter Windows muss die Datei `C:\Assimp\bin\x86\Assimp32.dll` in  `C:\Windows\SysWOW64` kopiert werden, damit der Assimp Loader funktioniert. **
 
