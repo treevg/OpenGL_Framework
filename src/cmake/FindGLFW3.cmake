@@ -31,6 +31,9 @@ ELSEIF (MSVC)
             ${GLFW3_ROOT_ENV}/lib
 			 ${GLFW3_ROOT_ENV}/lib-msvc100
 			 ${GLFW3_ROOT_ENV}/lib-msvc110
+			 ${GLFW3_ROOT_ENV}/lib-vc2010
+			 ${GLFW3_ROOT_ENV}/lib-vc2012
+			 ${GLFW3_ROOT_ENV}/lib-vc2013
 			)
 
 ELSEIF(APPLE)

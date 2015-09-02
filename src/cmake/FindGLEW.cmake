@@ -16,7 +16,7 @@ IF (WIN32)
 
     FIND_LIBRARY( GLEW_LIBRARY
         NAMES glew32s.lib
-        PATHS ${OpenGL_ROOT_ENV}/lib
+        PATHS ${OpenGL_ROOT_ENV}/lib ${OpenGL_ROOT_ENV}/lib/Release/Win32
     )
     
 
