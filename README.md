@@ -1,75 +1,137 @@
-# OpenGL_Framework
+# Forschungspraktikum 2014: Telepresenz
 
-**For English version see `README.en.md`**
+** Hinweis: **
+Das Projekt ist aktuell nur properitär für Windows entwickelt!
+Der Grund dafür ist, dass wir das Kinect SDK Verwenden für das Windows 8 benötigt wird.
+Wer kein Windows System hat, kann statt dem Kinect SDK das LibFreenect Framework ausprobieren.
 
-## Erste Schritte
-Dieses Repository ist mit `git Versioniert. Wer git noch nicht kennt, sollte zuerst die Grundlagen lernen. Eine gute Anlaufstelle dafür ist z.B. [Pro git](http://git-scm.com/book/de/v1).
+LibFreenect: https://github.com/OpenKinect/libfreenect
 
-**TL;DR:**
-* git-Grundlagen können und verstehen :)
+## Dependencies:
+
+** Hardware die für Projekt verwendet wurde: **
+1. Oculus Rift DK2
+2. Kinect V2
+3. LeapMotion V1
+
+** Runtimes/Libraries/Frameworks die verwendet werden: **
+1. Oculus Runtime
+2. Oculus SDK
+3. Leap Motion SDK
+4. Kinect V2 SDK
+5. GTK Framework
+6. Assimp
+7. GLM
+8. GLFW
+9. GLEW
+7. CMake
+
+### Details zum Setup:
+
+#### Oculus Runtime
+https://developer.oculus.com/downloads/pc/0.7.0.0-beta/Oculus_Runtime_for_Windows/
+
+#### Oculus SDK
+https://developer.oculus.com/downloads/pc/0.7.0.0-beta/Oculus_SDK_for_Windows/
+
+Systemumgebungsvariable anlegen:
+`Bsp: OCULUSSDK_ROOT = C:\Program Files (x86)\OculusSDK`
+
+#### Leap Motion Installer & SDK
+https://developer.leapmotion.com/downloads
+
+Systemumgebungsvariable anlegen:
+`Bsp: LEAPSDK_ROOT = C:\LeapSDK`
+
+#### Kinect V2 SDK
+https://www.microsoft.com/en-us/download/details.aspx?id=44561
+
+#### GTK
+http://www.gtk.org/download/win32.php
+
+GTK All in One Bundle (32 bit):
+http://win32builder.gnome.org/gtk+-bundle_3.6.4-20130921_win32.zip
+
+Readme lesen!
+
+1. .zip Datei in einen Ordner kopieren (z.B. C:\gtk)
+2. Die System-Variable GTK_ROOT erstellen und auf das root Verzeichnis
+von GTK setzen:
+`Bsp: GTK_ROOT = C:\gtk`
+3. Das Bin Verzeichnis an das Ende der Path Systemumgebungsvariablen anfügen:
+Path: `.....;C:\gtk\bin` oder `.....;%GTK_ROOT%\bin`
+
+In Kommandozeile (Eingabeaufforderung Windows):
+1. `pkg-config --cflags gtk+-3.0`
+Wenn eine Ausgabe erscheint weiter machen mit:
+2. Pango vorbereiten:
+`pango-querymodules > c:\gtk\etc\pango\pango.modules`
+3. GDK-Pixbuf einrichten:
+`gdk-pixbuf-query-loaders > c:\gtk\lib\gdk-pixbuf-2.0\2.10.0\loaders.cache`
+4. GTK+-IMModules
+`gtk-query-immodules-3.0 > c:\gtk\lib\gtk-3.0\3.0.0\immodules.cache`
+5. Ausprobieren ob GTK funktioniert:
+`gtk3-demo`
 
 
----
+#### ASSIMP 3.0
+http://assimp.sourceforge.net/main_downloads.html
 
-## Installation
-**OpenGL_Framework** wird mit dem CMake Build-System erzeugt. CMake funktioniert Cross-Plattform, also auf jedem System und lässt dem Entwickler Freiraum, wie er Sourcecode schreiben und verändern will (z.B. in welcher IDE,wo 3rd-Party-Libraries auf seinem System liegen, …). Dazu müsst ihr erst CMake installieren, falls ihr das noch nicht habt: [www.cmake.org/](http://www.cmake.org/).
+http://sourceforge.net/projects/assimp/files/assimp-3.0/assimp-sdk-3.0-setup.exe/download
 
+SDK Setup herunterladen und Umgebungsvariable ASSIMP_ROOT setzen
+`Bsp: ASSIMP_ROOT = C:\assimp`
 
-1. **Repository auf eigenen Rechner clonen**
+** Hinweis: Unter Windows muss die Datei `C:\Assimp\bin\x86\Assimp32.dll` in  `C:\Windows\SysWOW64` kopiert werden, damit der Assimp Loader funktioniert. **
 
-    `git clone https://github.com/treevg/OpenGL_Framework.git`
-    Oder mittels [GUI Client](http://git-scm.com/download/gui/linux)
+#### GLM
+**Hinweis: Version < 0.9.6 benutzen, da ab hier Radians/Degree Angaben in Funktionen getauscht wurden **
+https://github.com/g-truc/glm/releases/download/0.9.5.4/glm-0.9.5.4.zip
 
-2. **Build-Verzeichnis erstellen**
+Systemumgebungsvariable anlegen:
+`Bsp: GLM_ROOT = C:\glm`
 
-    Auf eurem Rechner einen Ordner erstellen (z.b. `build-vs2012` für Visual Studio 2012 oder einfach nur `build`), indem mit CMake dann Projektfiles erstellt werden, die mit einer IDE (z.B. Visual Studio) geöffnet werden können. Der Ordnerpfad ist prinzipiell egal, meist wird dieser aber im Repository erstellt und dann **nicht mit gepusht!**
+#### GLFW
+http://www.glfw.org/
 
-3. **CMake auführen**
+https://github.com/glfw/glfw/releases/download/3.1.1/glfw-3.1.1.bin.WIN32.zip
 
-    Aus diesem Build-Ordner Cmake ausführen: `cmake ../src` oder mittels [CMake GUI](http://www.cmake.org/runningcmake/)
+Systemumgebungsvariable anlegen:
+`Bsp: GLFW3_ROOT = C:\glfw-3.1.1`
 
-4. **Projektfiles verwenden**
+#### GLEW
+http://glew.sourceforge.net/
 
-    CMake erzeugt in eurem Build-Verzeichnis Projektfiles für z.B. Visual Studio, die ihr dann öffnen und die Projekte kompilieren könnt.
+Mit Binaries für Windows downloaden:
+https://sourceforge.net/projects/glew/files/glew/1.13.0/glew-1.13.0-win32.zip/download
 
-**TL;DR:**
-```
-1. git clone https://github.com/treevg/OpenGL_Framework.git
-2. mkdir build
-3. cd build && cmake ../src
-4. make
-```
+Systemumgebungsvariable anlegen:
+`Bsp: OpenGL_ROOT = C:\glew-1.13.0`
 
-### Dokumentation generieren
-Falls ihr euch eine Dokumentation über alle vorhandenen Klassen und Methoden erzeugen wollt, dann könnt ihr das tun, indem ihr bei CMake angebt, dass diese mit erstellt werden soll. Entweder über `cmake ../src -DBUILD_DOCUMENTATION=true` oder in der GUI unter *Ungrouped Entries* einen Haken setzen bei **BUILD_DOCUMENTATION**. Danach kann mit `make Docs` die Dokumentation erzeugt werden. Diese landet dann im Ordner `Documentation/html/` und kann mit einem Browser eurer Wahl geöffnet werden (einfach die `index.html` öffnen)
+** Wichtig: glcorearb.h Datei fehlt hier, deshalb muss sie nachträglich heruntergeladen und in `C:/glew-1.13.0/include/GL` kopiert werden. **
+https://www.opengl.org/registry/api/GL/glcorearb.h
 
-**TL;DR:**
-```
-1. cmake ../src -DBUILD_DOCUMENTATION=true
-2. make Docs
-3. $BROWSER Documentation/html/index.html
-```
+#### DevIL
+http://sourceforge.net/projects/openil/files/DevIL%20Windows%20SDK/1.7.8/DevIL-SDK-x86-1.7.8.zip/download
 
----
+Systemumgebungsvariable anlegen:
+`Bsp: DEVIL_ROOT = C:\DevIL`
 
-## Struktur
+#### CMake
+http://www.cmake.org/download/
 
-- `resources` Enthält alle Datein, die kein Programmcode sind (z.b. Texturen, Modelle)
-    - `└` Pro Dateiendung gibt es einen Unterordner (z.b. `jpg` für JPEG-Bilder oder `obj` für Object-Modelle)
-- `src` Enthällt alle Dateien, die zum Sourcecode zählen
-    - `└ cmake` Enthällt CMake Module, die z.B. 3rd-Party-Bibliotheken suchen
-    - `└ executable` Enthällt Code von allen ausführbaren Programmen
-    - `└ libraries` Enthällt Code von Bibliotheken
-    - `└ shaders` Enthällt Shader-Code
+Für Windows:
+http://www.cmake.org/files/v3.3/cmake-3.3.1-win32-x86.exe
 
----
-
-## OpenGL Debugging Tools
-
-OpenGL Porgrammierung kann frustrierend werden und Debugging kann sich als echt schwierig erweisen. Es gibt allerdings mittlerweile ein paar sinnvolle Tools, die einem z.B. pro Frame Texturen, Buffer, Uniforms etc. ausgeben und visuell anzeigen. Hier die bekanntesten:
-
-* [apitrace](https://github.com/apitrace/apitrace)
-* [vogl](https://github.com/ValveSoftware/vogl)
-* [gDebugger](http://www.gremedy.com/)
-* [AMD CodeXL](http://developer.amd.com/tools-and-sdks/opencl-zone/codexl/)
-* [Nvidia Nsight](http://www.nvidia.com/object/nsight.html)
+### Projekt Starten in Visual Studio 2013
+1. CMake Starten
+2. Projekt Ordner angeben:
+`Where is the source code: ...` z.B.: `D:/Projekte/FP14/src´
+3. Ziel Ordner in den das Binary Projekt gebuildet wird:
+** Hinweis: Ordner nicht unter Source Ordner legen, da er sonst in github als neuer Commit gelistet wird. Im Build Ordner sollten allerdings nie Dateien geändert werden, bzw. sollte der Ordner nicht in github erscheinen! **
+`Where o build the binaries: ` z.B.: `D:/Projekte/FP14_build` also ** nicht: ** `D:/Projekte/FP14/build´
+4. Button `Configure` klicken und Entwicklungsumgebung (IDE) auswählen. In unserem Beispiel: `Visual Studio 12 2013` mit Option `Use default native compilers`
+5. `Generate` klicken.
+6. In Build Ordner gehen (Bspw.: `D:/Projekte/FP14/build´) und Solution Datei starten (.sln).
+7. Solution builden und Startprojekt auf `Test_Telepresence` setzen.
+8. Projekt Starten
