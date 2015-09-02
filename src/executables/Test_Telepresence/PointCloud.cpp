@@ -25,15 +25,11 @@ void PointCloud::updatePointCloud(){
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);
 	glBufferData(GL_ARRAY_BUFFER, depthWidth * depthHeight * 3 * sizeof(float), m_positionData, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(4);
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[1]);
 	glBufferData(GL_ARRAY_BUFFER, depthWidth * depthHeight * 3 * sizeof(float), m_colorData, GL_DYNAMIC_DRAW);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
-	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+	glEnableVertexAttribArray(5);
 }
-
-//void PointCloud::deleteBuffers(){
-//	glDeleteBuffers(2, vertexBufferHandles);
-//}

@@ -8,7 +8,6 @@ public:
 	PointCloud( KinectHandler* kinectHandler);
 	void draw();
 	void updatePointCloud();
-	void deleteBuffers();
 
 private:
 	static const int depthWidth = 512;

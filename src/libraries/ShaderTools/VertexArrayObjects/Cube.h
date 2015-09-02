@@ -12,6 +12,7 @@ public:
 
 private:
 	std::vector<glm::vec3> vertices;
+	int m_vertexCount;
 };
 
 #endif // CUBE_H

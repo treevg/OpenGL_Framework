@@ -64,11 +64,13 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 
 	glm::vec3 cameraPosition = extractCameraPosition(view);
 
+	m_pointCloud->updatePointCloud();
 	renderBillboards(cameraPosition);
 	renderRoom();
-	renderLeap();
-	//renderPointCloud();
 	renderTestCube();
+	renderLeap();
+	renderPointCloud();
+
 }
 
 void TelepresenceSession::generateOculusWindow()
@@ -85,10 +87,16 @@ void TelepresenceSession::initOpenGL()
 
 void TelepresenceSession::initShaderPrograms()
 {
-	m_phongShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
-	m_minimalShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
-	m_minimalMatShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
-	m_textureShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	//m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
+	//m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
+	//m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
+	//m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	m_cubeShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
+	m_directionShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
+	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
+	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
+	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
+	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 }
 
 void TelepresenceSession::initRenderPasses()
@@ -98,12 +106,12 @@ void TelepresenceSession::initRenderPasses()
 	Sphere* sphere = new Sphere(10.0f);
 	m_textPane = new TextPane(glm::vec3(-2.0f, 0.0f, -3.0f), 2.0f, 1.0f, "Herzlich Willkommen");
 
-	m_cubePass = new RenderPass(testCube, m_phongShaders);
-	m_billboardPass = new RenderPass(m_textPane, m_textureShaders);
-	m_handPass = new RenderPass( sphere, m_phongShaders);
-	m_roomPass = new RenderPass( m_assimpLoader->getMeshList()->at(0), m_minimalMatShaders);
-	m_pointCloudPass = new RenderPass(m_pointCloud, m_minimalShaders);
-	m_directionPass = new RenderPass( directionCube, m_phongShaders);
+	m_cubePass = new RenderPass(testCube, m_cubeShaders);
+	m_billboardPass = new RenderPass(m_textPane, m_billboardShaders);
+	m_handPass = new RenderPass( sphere, m_handShaders);
+	m_roomPass = new RenderPass( m_assimpLoader->getMeshList()->at(0), m_roomShaders);
+	m_pointCloudPass = new RenderPass(m_pointCloud, m_pointCloudShaders);
+	m_directionPass = new RenderPass( directionCube, m_directionShaders);
 
 	glm::vec3 lightPos = glm::vec3(2.0f, 10.0f, 2.0f);
 
@@ -179,8 +187,8 @@ void TelepresenceSession::renderRoom()
 	for (unsigned int m = 0; m < m_assimpLoader->getMeshList()->size(); ++m)
 	{
 		glm::mat4 model = glm::rotate(m_assimpLoader->getModelMatrix(m), 0.0f, glm::vec3(0, 1, 0));
-		m_minimalMatShaders->update("model", model);
-		m_minimalMatShaders->update("materialColor", m_assimpLoader->getMaterialColor(m_assimpLoader->getMeshList()->at(m)->getMaterialIndex()));
+		m_roomShaders->update("model", model);
+		m_roomShaders->update("materialColor", m_assimpLoader->getMaterialColor(m_assimpLoader->getMeshList()->at(m)->getMaterialIndex()));
 		m_roomPass->getFrameBufferObject()->bind();
 		m_roomPass->getShaderProgram()->use();
 		m_assimpLoader->getMeshList()->at(m)->draw();
@@ -190,7 +198,7 @@ void TelepresenceSession::renderRoom()
 
 void TelepresenceSession::renderPointCloud()
 {
-	m_pointCloud->updatePointCloud();
+	//m_pointCloud->updatePointCloud();
 	m_pointCloudPass->run();
 }
 

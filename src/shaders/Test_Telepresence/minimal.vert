@@ -1,7 +1,7 @@
 #version 430
  
-layout(location = 0) in vec3 positionAttribute;
-layout(location = 1) in vec3 colorAttribute;
+layout(location = 4) in vec3 positionAttribute;
+layout(location = 5) in vec3 colorAttribute;
 
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;

@@ -28,10 +28,12 @@ private:
 	AssimpLoader* m_assimpLoader;
 	KinectHandler* m_kinectHandler;
 
-	ShaderProgram* m_phongShaders;
-	ShaderProgram* m_minimalShaders;
-	ShaderProgram* m_minimalMatShaders;
-	ShaderProgram* m_textureShaders;
+	ShaderProgram* m_handShaders;
+	ShaderProgram* m_directionShaders;
+	ShaderProgram* m_cubeShaders;
+	ShaderProgram* m_pointCloudShaders;
+	ShaderProgram* m_roomShaders;
+	ShaderProgram* m_billboardShaders;
 
 	//TODO do not save this as member
 	TextPane* m_textPane;

@@ -84,21 +84,20 @@ void Sphere::create(glm::vec3 center, float radius, int resolution)
 		for (i = 0; i < resolution; i++)
 		{
 			// 1. Triangle
-			m_index.push_back(offset + i);
-			m_index.push_back(offset + i + resolution + 1);
-			m_index.push_back(offset + i + resolution + 1 + 1);
+			m_indices.push_back(offset + i);
+			m_indices.push_back(offset + i + resolution + 1);
+			m_indices.push_back(offset + i + resolution + 1 + 1);
 
 			// 2. Triangle
-			m_index.push_back(offset + i + resolution + 1 + 1);
-			m_index.push_back(offset + i + 1);
-			m_index.push_back(offset + i);
+			m_indices.push_back(offset + i + resolution + 1 + 1);
+			m_indices.push_back(offset + i + 1);
+			m_indices.push_back(offset + i);
 		}
 		offset += resolution + 1;
 	}
-	m_indices = m_index.size();
-
+	
 	m_points = m_vertices.size();
-	m_indices = m_index.size();
+	m_vertexCount = m_indices.size();
 
 
 
@@ -121,10 +120,10 @@ void Sphere::create(glm::vec3 center, float radius, int resolution)
 	// Generate a buffer for the indices as well 
 	glGenBuffers(1, &m_indexlist);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexlist);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices * sizeof(unsigned int), &m_index[0], GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_vertexCount * sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW);
 }
 
 void Sphere::draw() {
 	glBindVertexArray(vertexArrayObjectHandle);
-	glDrawElements(GL_TRIANGLES, m_indices, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, m_vertexCount, GL_UNSIGNED_INT, nullptr);
 }

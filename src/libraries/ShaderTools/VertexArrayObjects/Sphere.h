@@ -35,9 +35,9 @@ private:
 	GLuint m_indexlist;
 
 	int m_points;
-	int m_indices;
+	int m_vertexCount;
 
 	std::vector<glm::vec3> m_vertices; // vertice positions
 	std::vector<glm::vec3> m_normals; // normals
-	std::vector<unsigned int> m_index; //index map
+	std::vector<unsigned int> m_indices; //index map
 };

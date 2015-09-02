@@ -2,7 +2,6 @@
 
 Cube::Cube() {
 	const float size = 0.5;
-	mode = GL_TRIANGLES;
 
     glGenVertexArrays(1, &vertexArrayObjectHandle);
     glBindVertexArray(vertexArrayObjectHandle);
@@ -112,7 +111,6 @@ Cube::Cube() {
 
 Cube::Cube(glm::vec3 position, float size) {
 	printf("Constructing CUBULUS!");
-	mode = GL_TRIANGLES;
 
 	glGenVertexArrays(1, &vertexArrayObjectHandle);
 	glBindVertexArray(vertexArrayObjectHandle);
@@ -184,6 +182,8 @@ Cube::Cube(glm::vec3 position, float size) {
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
+	m_vertexCount = vertices.size();
+
 	GLfloat normals[] = {
 		// Front face
 		0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
@@ -241,7 +241,7 @@ Cube::Cube(glm::vec3 position, float size) {
 
 void Cube::draw() {
     glBindVertexArray(vertexArrayObjectHandle);
-    glDrawArrays(mode, 0, 12*3);
+	glDrawArrays(GL_TRIANGLES, 0, 12 * 3);
 }
 
 std::vector<glm::vec3> Cube::getVertices(){
