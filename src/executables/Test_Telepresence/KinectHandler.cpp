@@ -218,7 +218,7 @@ void KinectHandler::updateKinect(GLfloat *data)
 
 
 // Main processing function
-void KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
+bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 {
 	//m_colorData = new float[depthWidth * depthHeight * 3];
 	//m_positionData = new float[depthWidth * depthHeight * 3];
@@ -239,6 +239,14 @@ void KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 
 		// ------------------------------ Get Depth Data ------------------------------ //
 		hr = pMultiFrame->get_DepthFrameReference(&depthReference);
+		TIMESPAN currentTimeStamp;
+		depthReference->get_RelativeTime(&currentTimeStamp);
+		if ( m_latestTimeStamp == currentTimeStamp )
+		{
+			return false;
+		}
+		m_latestTimeStamp = currentTimeStamp;
+
 		depthFrame = nullptr;
 
 		if (SUCCEEDED(hr))
@@ -429,6 +437,7 @@ void KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 			}//dephtframe
 		}//dephtframereference
 	}//multiframe
+	return true;
 }
 
 

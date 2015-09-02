@@ -15,7 +15,7 @@ public:
 
 	// Main processing function
 	void updateKinect(GLfloat *data);
-	void updateKinect( GLfloat* colorData, GLfloat* positionData );
+	bool updateKinect( GLfloat* colorData, GLfloat* positionData );
 
 	void clearBuffer(GLfloat *buffer, int size);
 
@@ -42,4 +42,6 @@ private:
 	RGBQUAD* colorBuffer;
 	// To Reserve Body Index Frame Buffer
 	byte* bodyIndexBuffer;
+
+	TIMESPAN m_latestTimeStamp = 0;
 };
