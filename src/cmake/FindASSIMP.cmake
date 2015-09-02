@@ -34,6 +34,7 @@ find_library(ASSIMP_LIBRARY
 						assimp
 					PATHS 
 						${ASSIMP_SEARCH_PATHS}
+						${ASSIMP_ROOT}/lib/x86
 					PATH_SUFFIXES
 						lib32 lib64 bin32 bin64
 					)
