@@ -1,6 +1,7 @@
 # Forschungspraktikum 2014: Telepresenz
 
 ** Hinweis: **
+
 Das Projekt ist aktuell nur properitär für Windows entwickelt!
 Der Grund dafür ist, dass wir das Kinect SDK Verwenden für das Windows 8 benötigt wird.
 Wer kein Windows System hat, kann statt dem Kinect SDK das LibFreenect Framework ausprobieren.
@@ -88,7 +89,9 @@ SDK Setup herunterladen und Umgebungsvariable ASSIMP_ROOT setzen
 ** Hinweis: Unter Windows muss die Datei `C:\Assimp\bin\x86\Assimp32.dll` in  `C:\Windows\SysWOW64` kopiert werden, damit der Assimp Loader funktioniert. **
 
 #### GLM
+
 **Hinweis: Version < 0.9.6 benutzen, da ab hier Radians/Degree Angaben in Funktionen getauscht wurden **
+
 https://github.com/g-truc/glm/releases/download/0.9.5.4/glm-0.9.5.4.zip
 
 Systemumgebungsvariable anlegen:
@@ -112,6 +115,7 @@ Systemumgebungsvariable anlegen:
 `Bsp: OpenGL_ROOT = C:\glew-1.13.0`
 
 ** Wichtig: glcorearb.h Datei fehlt hier, deshalb muss sie nachträglich heruntergeladen und in `C:/glew-1.13.0/include/GL` kopiert werden. **
+
 https://www.opengl.org/registry/api/GL/glcorearb.h
 
 #### DevIL
@@ -131,7 +135,9 @@ http://www.cmake.org/files/v3.3/cmake-3.3.1-win32-x86.exe
 2. Projekt Ordner angeben:
 `Where is the source code: ...` z.B.: `D:/Projekte/FP14/src´
 3. Ziel Ordner in den das Binary Projekt gebuildet wird:
+
 ** Hinweis: Ordner nicht unter Source Ordner legen, da er sonst in github als neuer Commit gelistet wird. Im Build Ordner sollten allerdings nie Dateien geändert werden, bzw. sollte der Ordner nicht in github erscheinen! **
+
 `Where o build the binaries: ` z.B.: `D:/Projekte/FP14_build` also ** nicht: ** `D:/Projekte/FP14/build´
 4. Button `Configure` klicken und Entwicklungsumgebung (IDE) auswählen. In unserem Beispiel: `Visual Studio 12 2013` mit Option `Use default native compilers`
 5. `Generate` klicken.
