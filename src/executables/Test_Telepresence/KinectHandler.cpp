@@ -26,7 +26,6 @@ bodyIndexBuffer(NULL)
 }
 
 
-
 HRESULT KinectHandler::initializeDefaultSensor()
 {
 	// returns S_OK on success, otherwise failure code
@@ -61,7 +60,6 @@ HRESULT KinectHandler::initializeDefaultSensor()
 
 	return hr;
 }
-
 
 
 // Main processing function
@@ -214,7 +212,6 @@ void KinectHandler::updateKinect(GLfloat *data)
 
 	}  // multiframe
 }
-
 
 
 // Main processing function
