@@ -10,11 +10,13 @@ LibFreenect: https://github.com/OpenKinect/libfreenect
 ## Dependencies:
 
 ** Hardware die für Projekt verwendet wurde: **
+
 1. Oculus Rift DK2
 2. Kinect V2
 3. LeapMotion V1
 
 ** Runtimes/Libraries/Frameworks die verwendet werden: **
+
 1. Oculus Runtime
 2. Oculus SDK
 3. Leap Motion SDK
@@ -62,6 +64,7 @@ von GTK setzen:
 Path: `.....;C:\gtk\bin` oder `.....;%GTK_ROOT%\bin`
 
 In Kommandozeile (Eingabeaufforderung Windows):
+
 1. `pkg-config --cflags gtk+-3.0`
 Wenn eine Ausgabe erscheint weiter machen mit:
 2. Pango vorbereiten:
