@@ -133,7 +133,7 @@ http://www.cmake.org/files/v3.3/cmake-3.3.1-win32-x86.exe
 ### Projekt Starten in Visual Studio 2013
 1. CMake Starten
 2. Projekt Ordner angeben:
-`Where is the source code: ...` z.B.: `D:/Projekte/FP14/src´
+`Where is the source code: ...` z.B.: `D:/Projekte/FP14/src`
 3. Ziel Ordner in den das Binary Projekt gebuildet wird:
 
 ** Hinweis: Ordner nicht unter Source Ordner legen, da er sonst in github als neuer Commit gelistet wird. Im Build Ordner sollten allerdings nie Dateien geändert werden, bzw. sollte der Ordner nicht in github erscheinen! **
