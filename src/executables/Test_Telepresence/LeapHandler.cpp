@@ -6,22 +6,37 @@ const std::string stateNames[] = { "STATE_INVALID", "STATE_START", "STATE_UPDATE
 
 using namespace Leap;
 
-void LeapHandler::updateLeap(){
 
+Leap::Hand LeapHandler::getRightHand()
+{
 	const Frame frame = leapController.frame();
-
 	handList = frame.hands();
+	Leap::Hand rightHand = *new Leap::Hand();
+
 	for (HandList::const_iterator h = handList.begin(); h != handList.end(); ++h){
-		const Hand hand = *h;
+		Leap::Hand hand = *h;
+		if (hand.isRight()){
+			rightHand = hand;
+		}
+	}
+
+	return rightHand;
+}
+
+Leap::Hand LeapHandler::getLeftHand()
+{
+	const Frame frame = leapController.frame();
+	handList = frame.hands();
+	Leap::Hand leftHand = *new Leap::Hand();
+
+	for (HandList::const_iterator h = handList.begin(); h != handList.end(); ++h){
+		Leap::Hand hand = *h;
 		if (hand.isLeft()){
 			leftHand = hand;
 		}
-		else{
-			rightHand = hand;
-		}
-
 	}
-	detectGestures();
+
+	return leftHand;
 }
 
 std::vector<Bone> LeapHandler::getBones() const
@@ -48,10 +63,10 @@ std::vector<Bone> LeapHandler::getBones() const
 	return boneList;
 }
 
-void LeapHandler::detectGestures(){
-	if (leftHand.pinchStrength() >= 0.7)
-		leftHandPinched = true;
-	else leftHandPinched = false;
+bool LeapHandler::isPinched(Leap::Hand hand){
+	if (hand.pinchStrength() >= 0.7)
+		return true;
+	return false;
 }
 
 bool LeapHandler::checkForIntersection(std::vector<glm::vec3> vertices, glm::vec3 O, glm::vec3 D){

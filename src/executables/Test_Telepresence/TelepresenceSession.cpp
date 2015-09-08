@@ -69,7 +69,7 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	renderRoom();
 	renderTestCube();
 	renderLeap();
-	renderPointCloud();
+	//renderPointCloud();
 
 }
 
@@ -102,7 +102,7 @@ void TelepresenceSession::initShaderPrograms()
 void TelepresenceSession::initRenderPasses()
 {
 	Cube* testCube = new Cube(glm::vec3(1.0f, 0.0f, -4.0f), .5f);
-	Cube* directionCube = new Cube(glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
+	Cube* directionCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
 	Sphere* sphere = new Sphere(10.0f);
 	m_textPane = new TextPane(glm::vec3(-2.0f, 0.0f, -3.0f), 2.0f, 1.0f, "Herzlich Willkommen");
 
@@ -222,27 +222,42 @@ void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
 
 void TelepresenceSession::renderLeap()
 {
-	m_leapHandler->updateLeap();
-	glm::mat4 leapToOculusTransformation = getLeapToOculusTransformationMatrix();
+	Leap::Hand leftHand = m_leapHandler->getLeftHand();
+	Leap::Hand rightHand = m_leapHandler->getRightHand();
 
-	m_handPass
-		->update("diffuseColor", glm::vec3(0.2f, 0.2f, 0.2f));
+	if (leftHand.isValid() || rightHand.isValid()){
+		glm::mat4 leapToOculusTransformation = getLeapToOculusTransformationMatrix();
 
-	for (auto joint : m_leapHandler->getJoints())
-	{
-		glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(joint);
-		glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
 		m_handPass
-			->update("modelMatrix", modelMatrix)
-			->run();
-	}
-	for ( auto palmPosition : m_leapHandler->getPalmPositions())
-	{
-		glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(palmPosition);
-		glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
-		m_handPass
-			->update("modelMatrix", modelMatrix)
-			->run();
+			->update("diffuseColor", glm::vec3(0.2f, 0.2f, 0.2f));
+
+		for (auto joint : m_leapHandler->getJoints())
+		{
+			glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(joint);
+			glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
+			m_handPass
+				->update("modelMatrix", modelMatrix)
+				->run();
+		}
+		for ( auto palmPosition : m_leapHandler->getPalmPositions())
+		{
+			glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(palmPosition);
+			glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
+			m_handPass
+				->update("modelMatrix", modelMatrix)
+				->run();
+		}
+		//render directionCube on rightHand if leftHand isPinched
+		if (leftHand.isValid() && rightHand.isValid() && m_leapHandler->isPinched(leftHand)){
+			Leap::Vector rightHandPalmPosition = rightHand.palmPosition();
+			Leap::Matrix rightHandBasis = rightHand.basis();
+
+			glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(rightHandBasis, rightHandPalmPosition);
+			glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
+			m_directionPass
+				->update("modelMatrix", glm::translate(glm::scale(modelMatrix, glm::vec3(1.0, 100.0, 1.0)), glm::vec3(0.0, -2.0, 0.0)))
+				->run();
+		}
 	}
 }
 
@@ -262,13 +277,12 @@ glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Vector &
 	return leapWorldCoordinates;
 }
 
-
 glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Matrix &basis, const Leap::Vector &position) const
 {
 	//compute rotation and translation of Leap Motion Bones
 	glm::mat4 rotationMat = m_leapHandler->convertLeapMatToGlm(basis);
-	glm::mat4 leapWorldCoordinates = glm::translate(rotationMat, m_leapHandler->convertLeapVecToGlm(position));
-
+	glm::mat4 leapWorldCoordinates = glm::translate(glm::mat4(1.0f), m_leapHandler->convertLeapVecToGlm(position));
+	leapWorldCoordinates = leapWorldCoordinates * rotationMat;
 	//Pipeline for transforming Leap Motion bones
 	return leapWorldCoordinates;
 }
