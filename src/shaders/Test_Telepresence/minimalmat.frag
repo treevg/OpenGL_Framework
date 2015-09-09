@@ -12,8 +12,9 @@ uniform mat4 model;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 materialColor;
+uniform vec3 lightPosition;
 
-vec3 lightPosition = vec3(viewMatrix * vec4(0, 2, 8, 1));
+//vec3 lightPosition = vec3(viewMatrix * vec4(0, 2, 8, 1));
 float intensity = 1.0;
 const float PI = 3.141519;
 

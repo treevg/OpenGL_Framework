@@ -124,6 +124,7 @@ void TelepresenceSession::initRenderPasses()
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_roomPass
+		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_pointCloudPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
