@@ -50,7 +50,7 @@ private:
 
 	void renderRoom();
 	void renderPointCloud();
-	void renderLeap();
+	void renderLeap(glm::vec3 cameraPosition);
 	void renderBillboards(glm::vec3 cameraPosition);
 	void renderTestCube();
 
@@ -64,7 +64,7 @@ private:
 	void updateViewMatrices(glm::mat4 view);
 
 	glm::vec3 extractCameraPosition(glm::mat4 viewMatrix) const;
-	glm::mat4 getLeapToOculusTransformationMatrix() const;
+	glm::mat4 getLeapToOculusTransformationMatrix(glm::vec3 cameraPosition) const;
 	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Vector &position) const;
 	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Matrix &basis, const Leap::Vector &position) const;
 };

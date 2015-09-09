@@ -68,8 +68,8 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	renderBillboards(cameraPosition);
 	renderRoom();
 	renderTestCube();
-	renderLeap();
-	//renderPointCloud();
+	renderLeap(cameraPosition);
+	renderPointCloud();
 
 }
 
@@ -220,13 +220,13 @@ void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
 
 }
 
-void TelepresenceSession::renderLeap()
+void TelepresenceSession::renderLeap(glm::vec3 cameraPosition)
 {
 	Leap::Hand leftHand = m_leapHandler->getLeftHand();
 	Leap::Hand rightHand = m_leapHandler->getRightHand();
 
 	if (leftHand.isValid() || rightHand.isValid()){
-		glm::mat4 leapToOculusTransformation = getLeapToOculusTransformationMatrix();
+		glm::mat4 leapToOculusTransformation = getLeapToOculusTransformationMatrix(cameraPosition);
 
 		m_handPass
 			->update("diffuseColor", glm::vec3(0.2f, 0.2f, 0.2f));
@@ -261,13 +261,14 @@ void TelepresenceSession::renderLeap()
 	}
 }
 
-glm::mat4 TelepresenceSession::getLeapToOculusTransformationMatrix() const
+glm::mat4 TelepresenceSession::getLeapToOculusTransformationMatrix(glm::vec3 cameraPosition) const
 {
 	//transform world coordinates into Oculus coordinates (for attached Leap Motion)
 	ovrPosef headPose = ovrHmd_GetTrackingState(g_Hmd, 0.0f).HeadPose.ThePose;
-	glm::mat4 headTranslation = toGlm(OVR::Matrix4f::Translation(headPose.Position));
+	//glm::mat4 headTranslation = toGlm(OVR::Matrix4f::Translation(headPose.Position));	
 	glm::mat4 headRotation = toGlm(OVR::Matrix4f(headPose.Orientation));
-	glm::mat4 leapToOculusPipeline = headTranslation * headRotation * oculusToLeap * normalizeMat;
+	glm::mat4 cameraTranslation = glm::translate(glm::mat4(1.0f), cameraPosition);
+	glm::mat4 leapToOculusPipeline = cameraTranslation * headRotation * oculusToLeap * normalizeMat;
 	return leapToOculusPipeline;
 }
 
