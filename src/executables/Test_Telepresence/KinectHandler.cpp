@@ -338,7 +338,7 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 
 											retrieveColorPoints(colorData, positionData, hr, depthWidth, depthHeight, colorWidth, colorHeight);
 
-											retrieveBoneData( pMultiFrame );
+											//retrieveBoneData( pMultiFrame );
 
 											//converted color
 											delete[] bodyIndexBuffer;
@@ -367,24 +367,19 @@ void KinectHandler::retrieveBoneData(IMultiSourceFrame* multiSourceFrame)
 	bodyFrame = nullptr;
 	if (SUCCEEDED(hr))
 	{
-		bodies.clear();
 		hr = bodyFrameReference->AcquireFrame(&bodyFrame);
 
-		IBodyFrameSource* source(NULL);
-		bodyFrame->get_BodyFrameSource(&source);
-		INT32 bodyCount;
-		source->get_BodyCount(&bodyCount);
-		IBody* bodiesTemp;
-		hr = bodyFrame->GetAndRefreshBodyData(bodyCount, &bodiesTemp);
-		for (int i = 0; i < bodyCount; ++i )
+		IBody* bodies[BODY_COUNT] = {0};
+		hr = bodyFrame->GetAndRefreshBodyData(BODY_COUNT, bodies);
+		if( SUCCEEDED( hr ) )
 		{
-			boolean isTracked;
-			if (bodies[i].get_IsTracked(&isTracked))
-			{
-				bodies.push_back(bodiesTemp[i]);
-			}
+
 		}
-		delete[] bodiesTemp;
+
+		for (int i = 0; i < BODY_COUNT; ++i)
+		{
+			SafeRelease( bodies[i]);
+		}
 	}
 }
 
@@ -393,7 +388,7 @@ void KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction )
 	for (auto it = bodies.begin(); it != bodies.end(); ++it)
 	{
 		Joint* joints;
-		it->GetJoints()
+		it->GetJoints();
 	}
 }
 

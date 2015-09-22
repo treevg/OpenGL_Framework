@@ -33,7 +33,6 @@ private:
 	IColorFrame* colorFrame;
 	IBodyIndexFrame* bodyIndexFrame;
 	IBodyFrame* bodyFrame;
-	vector<IBody> bodies;
 	IDepthFrameReference* depthReference;
 	IColorFrameReference* colorReference;
 	IBodyFrameReference* bodyFrameReference;
