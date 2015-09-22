@@ -385,11 +385,7 @@ void KinectHandler::retrieveBoneData(IMultiSourceFrame* multiSourceFrame)
 
 void KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction )
 {
-	for (auto it = bodies.begin(); it != bodies.end(); ++it)
-	{
-		Joint* joints;
-		it->GetJoints();
-	}
+
 }
 
 void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionData, HRESULT& hr, int depthWidth, int depthHeight, int colorWidth, int colorHeight)
