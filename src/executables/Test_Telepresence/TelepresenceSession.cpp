@@ -43,7 +43,7 @@ void TelepresenceSession::init()
 	m_leapHandler = new LeapHandler();
 	m_kinectHandler->initializeDefaultSensor();
 	m_pointCloud = new PointCloud( m_kinectHandler);
-	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room.obj")
+	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room_tris.obj")
 		->printLog();
 	initShaderPrograms();
 	initRenderPasses();
@@ -66,7 +66,7 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 
 	m_pointCloud->updatePointCloud();
 	renderBillboards(cameraPosition);
-	renderRoom();
+	renderRoom(cameraPosition);
 	renderTestCube();
 	renderLeap(cameraPosition);
 	renderPointCloud();
@@ -95,7 +95,7 @@ void TelepresenceSession::initShaderPrograms()
 	m_directionShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
-	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
+	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 }
 
@@ -113,7 +113,7 @@ void TelepresenceSession::initRenderPasses()
 	m_pointCloudPass = new RenderPass(m_pointCloud, m_pointCloudShaders);
 	m_directionPass = new RenderPass( directionCube, m_directionShaders);
 
-	glm::vec3 lightPos = glm::vec3(2.0f, 10.0f, 2.0f);
+	glm::vec3 lightPos = glm::vec3(0.0f, 4.0f, 2.0f);
 
 	m_cubePass
 		->update("lightPosition", lightPos)
@@ -182,18 +182,62 @@ glm::vec3 TelepresenceSession::extractCameraPosition(glm::mat4 viewMatrix) const
 	return -direction * rotMat;
 }
 
-void TelepresenceSession::renderRoom()
+void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 {
+	int intersected = 0;
+	glm::mat4 leapToOculusTransformation = getLeapToOculusTransformationMatrix(cameraPosition);
+
+
+	Leap::Hand leftHand = m_leapHandler->getLeftHand();
+	Leap::Hand rightHand = m_leapHandler->getRightHand();
+
 	//m_roomPass->run();
 	for (unsigned int m = 0; m < m_assimpLoader->getMeshList()->size(); ++m)
 	{
-		glm::mat4 model = glm::rotate(m_assimpLoader->getModelMatrix(m), 0.0f, glm::vec3(0, 1, 0));
-		m_roomShaders->update("model", model);
-		m_roomShaders->update("materialColor", m_assimpLoader->getMaterialColor(m_assimpLoader->getMeshList()->at(m)->getMaterialIndex()));
+		Mesh* mesh = m_assimpLoader->getMeshList()->at(m);
+		glm::mat4 modelMatrix = glm::rotate(m_assimpLoader->getModelMatrix(m), 0.0f, glm::vec3(0, 1, 0));
+		m_roomShaders->update("modelMatrix", modelMatrix);
+		m_roomShaders->update("diffuseColor", m_assimpLoader->getMaterialColor(m_assimpLoader->getMeshList()->at(m)->getMaterialIndex()));
 		m_roomPass->getFrameBufferObject()->bind();
 		m_roomPass->getShaderProgram()->use();
 		m_assimpLoader->getMeshList()->at(m)->draw();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		if (leftHand.isValid() && rightHand.isValid() && m_leapHandler->isPinched(leftHand))
+		{
+			vector<glm::vec3> ray;
+			vector<glm::vec3> triangle;
+			glm::vec3 intersectionPoint;
+
+			glm::vec4 rayDirection = glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmNormal()),0);
+			glm::mat4 leapWorldMatrixStart = getLeapWorldCoordinateMatrix(rightHand.palmPosition());
+			glm::mat4 leapWorldMatrixDirection = getLeapWorldCoordinateMatrix(rightHand.palmNormal());
+
+			glm::mat4 modelMatrixRay = leapToOculusTransformation * leapWorldMatrixStart;
+			glm::mat4 modelMatrixRayDirection = leapToOculusTransformation * leapWorldMatrixDirection;
+			glm::vec4 rayStart = modelMatrixRay * glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmPosition()),0);
+			rayDirection = modelMatrixRayDirection * rayDirection;
+			ray.push_back(glm::vec3(rayStart.x,rayStart.y,rayStart.z));
+			ray.push_back(glm::vec3(rayDirection.x, rayDirection.y, rayDirection.z));
+
+			std::vector<GLfloat>* vertices = mesh->getVertexList();
+			std::vector<GLint>* indices = mesh->getIndexList();
+
+			for (int i = 0; i < indices->size(); i++)
+			{       
+					if (i > 0 && i % 3 == 0)
+					{						
+						intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint);
+						triangle.clear();
+						if (intersected != 0)	
+							printf("INTERSECTION: %d \n", intersected);
+					}
+					int index = (indices->at(i) *3);
+					glm::vec3 vertex = glm::vec3(vertices->at(index), vertices->at(index + 1), vertices->at(index + 2));
+					triangle.push_back(vertex);
+				
+			}
+		}
 	}
 }
 
@@ -287,4 +331,65 @@ glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Matrix &
 	leapWorldCoordinates = leapWorldCoordinates * rotationMat;
 	//Pipeline for transforming Leap Motion bones
 	return leapWorldCoordinates;
+}
+
+// intersect3D_RayTriangle(): find the 3D intersection of a ray with a triangle
+//    Input:  a ray R, and a triangle T
+//    Output: *I = intersection point (when it exists)
+//    Return: -1 = triangle is degenerate (a segment or point)
+//             0 =  disjoint (no intersect)
+//             1 =  intersect in unique point I1
+//             2 =  are in the same plane
+int TelepresenceSession::intersectionRayTriangle(std::vector<glm::vec3> ray, std::vector<glm::vec3> triangle, glm::vec3* intersectionPoint)
+{
+	glm::vec3    u, v, n;              // triangle vectors
+	glm::vec3    dir, w0, w;           // ray vectors
+	float     r, a, b;              // params to calc ray-plane intersect
+
+	// get triangle edge vectors and plane normal
+	u = triangle.at(1) - triangle.at(0);
+	v = triangle.at(2) - triangle.at(0);
+	n = glm::cross(u, v);              // cross product
+	n = glm::normalize(n);
+	if (n == glm::vec3(0))             // triangle is degenerate
+		return -1;                  // do not deal with this case
+
+	dir = ray.at(1);              // ray direction vector
+	w0 = ray.at(0) - triangle.at(0);
+	a = -glm::dot(n, w0);
+	b = glm::dot(n, dir);
+	if (fabs(b) < 0.00000001) {     // ray is  parallel to triangle plane
+		if (a == 0)                 // ray lies in triangle plane
+			return 2;
+		else return 0;              // ray disjoint from plane
+	}
+
+	// get intersect point of ray with triangle plane
+	r = a / b;
+	if (r < 0.0)                    // ray goes away from triangle
+		return 0;                   // => no intersect
+	// for a segment, also test if (r > 1.0) => no intersect
+
+	*intersectionPoint = ray.at(0) + r * dir;            // intersect point of ray and plane
+
+	// is intersectionPoint inside triangle?
+	float    uu, uv, vv, wu, wv, D;
+	uu = glm::dot(u, u);
+	uv = glm::dot(u, v);
+	vv = glm::dot(v, v);
+	w = *intersectionPoint - triangle.at(0);
+	wu = glm::dot(w, u);
+	wv = glm::dot(w, v);
+	D = uv * uv - uu * vv;
+
+	// get and test parametric coords
+	float s, t;
+	s = (uv * wv - vv * wu) / D;
+	if (s < 0.0 || s > 1.0)         // intersectionPoint is outside triangle
+		return 0;
+	t = (uv * wu - uu * wv) / D;
+	if (t < 0.0 || (s + t) > 1.0)  // intersectionPoint is outside triangle
+		return 0;
+
+	return 1;                       // intersectionPoint is in triangle
 }

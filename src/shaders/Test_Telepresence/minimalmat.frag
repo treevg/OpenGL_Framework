@@ -8,7 +8,7 @@ in vec3 passColor;
 
 out vec4 fragColor;
 
-uniform mat4 model;
+uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 uniform vec3 materialColor;

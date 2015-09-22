@@ -48,7 +48,7 @@ private:
 
 	void renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view);
 
-	void renderRoom();
+	void renderRoom(glm::vec3 cameraPosition);
 	void renderPointCloud();
 	void renderLeap(glm::vec3 cameraPosition);
 	void renderBillboards(glm::vec3 cameraPosition);
@@ -67,4 +67,6 @@ private:
 	glm::mat4 getLeapToOculusTransformationMatrix(glm::vec3 cameraPosition) const;
 	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Vector &position) const;
 	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Matrix &basis, const Leap::Vector &position) const;
+
+	int intersectionRayTriangle(std::vector<glm::vec3> ray, std::vector<glm::vec3> triangle, glm::vec3* intersectionPoint);
 };

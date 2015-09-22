@@ -6,6 +6,9 @@ Mesh::Mesh(std::vector<GLfloat> vertices,
            std::vector<GLfloat> uvs,
            std::vector<GLfloat> colors)
 {
+
+	m_indices = indices;
+	m_vertices = vertices;
     const float size = 1.0f;
     mode = GL_TRIANGLES;
     triangleCount = indices.size();
