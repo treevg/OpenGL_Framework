@@ -475,7 +475,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	// Initial camera position...
 	g_CameraPosition.x = 0.0f;
 	g_CameraPosition.y = 0.0f;
-	g_CameraPosition.z = 0.0f;
+	g_CameraPosition.z = 1.0f;
 
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetWindowSizeCallback(window, WindowSizeCallback);

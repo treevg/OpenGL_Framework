@@ -43,7 +43,7 @@ void TelepresenceSession::init()
 	m_leapHandler = new LeapHandler();
 	m_kinectHandler->initializeDefaultSensor();
 	m_pointCloud = new PointCloud( m_kinectHandler);
-	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room_tris.obj")
+	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room2_tris.obj")
 		->printLog();
 	initShaderPrograms();
 	initRenderPasses();
@@ -66,10 +66,11 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 
 	m_pointCloud->updatePointCloud();
 	renderBillboards(cameraPosition);
+	renderPanels();
 	renderRoom(cameraPosition);
 	renderTestCube();
 	renderLeap(cameraPosition);
-	renderPointCloud();
+	//renderPointCloud();
 
 }
 
@@ -97,6 +98,7 @@ void TelepresenceSession::initShaderPrograms()
 	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
 	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 }
 
 void TelepresenceSession::initRenderPasses()
@@ -105,9 +107,11 @@ void TelepresenceSession::initRenderPasses()
 	Cube* directionCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
 	Sphere* sphere = new Sphere(10.0f);
 	m_textPane = new TextPane(glm::vec3(-2.0f, 0.0f, -3.0f), 2.0f, 1.0f, "Herzlich Willkommen");
+	m_textPanel = new TextPane(glm::vec3(-2.0f, 0.0f, -3.0f), 2.0f, 1.0f, "Wand");
 
 	m_cubePass = new RenderPass(testCube, m_cubeShaders);
 	m_billboardPass = new RenderPass(m_textPane, m_billboardShaders);
+	m_panelPass = new RenderPass(m_textPanel, m_panelShaders);
 	m_handPass = new RenderPass( sphere, m_handShaders);
 	m_roomPass = new RenderPass( m_assimpLoader->getMeshList()->at(0), m_roomShaders);
 	m_pointCloudPass = new RenderPass(m_pointCloud, m_pointCloudShaders);
@@ -119,6 +123,8 @@ void TelepresenceSession::initRenderPasses()
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_billboardPass
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+	m_panelPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_handPass
 		->update("lightPosition", lightPos)
@@ -141,6 +147,7 @@ void TelepresenceSession::deleteShaderPrograms()
 	delete m_handPass;
 	delete m_cubePass;
 	delete m_billboardPass;
+	delete m_panelPass;
 }
 
 void TelepresenceSession::updateProjectionMatrices(glm::mat4 projection)
@@ -148,6 +155,8 @@ void TelepresenceSession::updateProjectionMatrices(glm::mat4 projection)
 	m_cubePass
 		->update("projectionMatrix", projection);
 	m_billboardPass
+		->update("projectionMatrix", projection);
+	m_panelPass
 		->update("projectionMatrix", projection);
 	m_handPass
 		->update("projectionMatrix", projection);
@@ -164,6 +173,8 @@ void TelepresenceSession::updateViewMatrices(glm::mat4 view)
 	m_cubePass
 		->update("viewMatrix", view);
 	m_billboardPass
+		->update("viewMatrix", view);
+	m_panelPass
 		->update("viewMatrix", view);
 	m_handPass
 		->update("viewMatrix", view);
@@ -208,6 +219,7 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 			vector<glm::vec3> ray;
 			vector<glm::vec3> triangle;
 			glm::vec3 intersectionPoint;
+			glm::vec3 normal;
 
 			glm::vec4 rayDirection = glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmNormal()),0);
 			glm::mat4 leapWorldMatrixStart = getLeapWorldCoordinateMatrix(rightHand.palmPosition());
@@ -227,10 +239,19 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 			{       
 					if (i > 0 && i % 3 == 0)
 					{						
-						intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint);
+						intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint, &normal);
 						triangle.clear();
-						if (intersected != 0)	
-							printf("INTERSECTION: %d \n", intersected);
+						if (intersected == 1)
+						{
+							glm::quat rotationQuat = m_textPanel->rotationBetweenVectors(m_textPanel->getNormal(), normal);
+							glm::mat4 rotationMat = glm::toMat4(rotationQuat);
+							glm::mat4 model = glm::translate(glm::translate(glm::mat4(1.0f), intersectionPoint),normal*.1f) * rotationMat;
+							m_panelPass
+								->update("modelMatrix", model)
+								->texture("tex", m_textPanel->getTextureHandle())
+								->run();	
+						}
+	
 					}
 					int index = (indices->at(i) *3);
 					glm::vec3 vertex = glm::vec3(vertices->at(index), vertices->at(index + 1), vertices->at(index + 2));
@@ -264,6 +285,15 @@ void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
 		->run();
 
 }
+
+void TelepresenceSession::renderPanels()
+{
+	m_panelPass
+		->texture("tex", m_textPanel->getTextureHandle())
+		->run();
+
+}
+
 
 void TelepresenceSession::renderLeap(glm::vec3 cameraPosition)
 {
@@ -300,7 +330,7 @@ void TelepresenceSession::renderLeap(glm::vec3 cameraPosition)
 			glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(rightHandBasis, rightHandPalmPosition);
 			glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
 			m_directionPass
-				->update("modelMatrix", glm::translate(glm::scale(modelMatrix, glm::vec3(1.0, 100.0, 1.0)), glm::vec3(0.0, -2.0, 0.0)))
+				->update("modelMatrix", glm::translate(glm::scale(modelMatrix, glm::vec3(1.0, 500.0, 1.0)), glm::vec3(0.0, -2.0, 0.0)))
 				->run();
 		}
 	}
@@ -340,7 +370,7 @@ glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Matrix &
 //             0 =  disjoint (no intersect)
 //             1 =  intersect in unique point I1
 //             2 =  are in the same plane
-int TelepresenceSession::intersectionRayTriangle(std::vector<glm::vec3> ray, std::vector<glm::vec3> triangle, glm::vec3* intersectionPoint)
+int TelepresenceSession::intersectionRayTriangle(std::vector<glm::vec3> ray, std::vector<glm::vec3> triangle, glm::vec3* intersectionPoint, glm::vec3* normal)
 {
 	glm::vec3    u, v, n;              // triangle vectors
 	glm::vec3    dir, w0, w;           // ray vectors
@@ -351,6 +381,7 @@ int TelepresenceSession::intersectionRayTriangle(std::vector<glm::vec3> ray, std
 	v = triangle.at(2) - triangle.at(0);
 	n = glm::cross(u, v);              // cross product
 	n = glm::normalize(n);
+	*normal = n;
 	if (n == glm::vec3(0))             // triangle is degenerate
 		return -1;                  // do not deal with this case
 

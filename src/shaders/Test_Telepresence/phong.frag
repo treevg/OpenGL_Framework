@@ -19,9 +19,9 @@ void main(){
     //compute the normalized reflection vector using GLSL's built-in reflect() function:
     vec3 reflection = normalize(reflect(-lightVector, normalize(passNormal)));
 
-    //varables used in the phong lighting model:
-    float phi = max(dot(passNormal, lightVector), 0);
-    float psi = pow(max(dot(reflection, eye), 0), 25);
+    //variables used in the phong lighting model:
+    float phi = max(dot(passNormal, lightVector), 0.1);
+    float psi = pow(max(dot(reflection, eye), 0), 100);
 
     vec3 ambientColor = vec3(0.2, 0.2, 0.2);
 

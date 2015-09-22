@@ -34,9 +34,11 @@ private:
 	ShaderProgram* m_pointCloudShaders;
 	ShaderProgram* m_roomShaders;
 	ShaderProgram* m_billboardShaders;
+	ShaderProgram* m_panelShaders;
 
 	//TODO do not save this as member
 	TextPane* m_textPane;
+	TextPane* m_textPanel;
 	PointCloud* m_pointCloud;
 
 	RenderPass* m_roomPass;
@@ -45,6 +47,7 @@ private:
 	RenderPass* m_handPass;
 	RenderPass* m_cubePass;
 	RenderPass* m_billboardPass;
+	RenderPass* m_panelPass;
 
 	void renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view);
 
@@ -52,6 +55,7 @@ private:
 	void renderPointCloud();
 	void renderLeap(glm::vec3 cameraPosition);
 	void renderBillboards(glm::vec3 cameraPosition);
+	void renderPanels();
 	void renderTestCube();
 
 	void generateOculusWindow();
@@ -68,5 +72,5 @@ private:
 	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Vector &position) const;
 	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Matrix &basis, const Leap::Vector &position) const;
 
-	int intersectionRayTriangle(std::vector<glm::vec3> ray, std::vector<glm::vec3> triangle, glm::vec3* intersectionPoint);
+	int intersectionRayTriangle(std::vector<glm::vec3> ray, std::vector<glm::vec3> triangle, glm::vec3* intersectionPoint, glm::vec3* normal);
 };

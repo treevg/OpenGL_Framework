@@ -32,6 +32,11 @@ glm::vec3 TextPane::getCenter()
 	return m_center;
 }
 
+glm::vec3 TextPane::getNormal()
+{
+	return m_normal;
+}
+
 glm::mat4 TextPane::getBillboardModelMatrix()
 {
 	glm::mat4 modelMatrix(1.0f);
@@ -153,7 +158,7 @@ void TextPane::createGeometry( float width, float height)
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);
 
-
+	m_normal = glm::vec3(normals[0],normals[1],normals[2]);
 
 	GLfloat uvCoordinates[] = {
 		// Front face
