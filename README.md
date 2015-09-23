@@ -46,6 +46,12 @@ https://developer.leapmotion.com/downloads
 Systemumgebungsvariable anlegen:
 `Bsp: LEAPSDK_ROOT = C:\LeapSDK`
 
+Wenn die Leap.dll bei Projektstart nicht gefunden wird:
+C:\LeapSDK\lib\x86\leap.dll
+In
+C:\Windows\SysWOW64
+kopieren
+
 #### Kinect V2 SDK
 https://www.microsoft.com/en-us/download/details.aspx?id=44561
 
