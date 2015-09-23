@@ -55,7 +55,7 @@ HRESULT KinectHandler::initializeDefaultSensor()
 		if (SUCCEEDED(hr))
 		{
 			// open multiframereader for depth and color
-			hr = kinectSensor->OpenMultiSourceFrameReader(FrameSourceTypes_Depth | FrameSourceTypes_Body | FrameSourceTypes_Color | FrameSourceTypes_BodyIndex, &multiSourceFrameReader);
+			hr = kinectSensor->OpenMultiSourceFrameReader(FrameSourceTypes_Depth | FrameSourceTypes_Color | FrameSourceTypes_BodyIndex | FrameSourceTypes_Body, &multiSourceFrameReader);
 		}
 	}
 
@@ -68,131 +68,6 @@ HRESULT KinectHandler::initializeDefaultSensor()
 
 	return hr;
 }
-
-// Main processing function
-//void KinectHandler::updateKinect(GLfloat *data)
-//{
-//	IMultiSourceFrame* pMultiFrame = NULL;
-//	HRESULT hr = multiSourceFrameReader->AcquireLatestFrame(&pMultiFrame);
-//
-//	if (SUCCEEDED(hr))
-//	{
-//		int Width = 0;
-//		int Height = 0;
-//		int depthWidth = 0;
-//		int depthHeight = 0;
-//		int colorWidth = 0;
-//		int colorHeight = 0;
-//
-//		hr = pMultiFrame->get_DepthFrameReference(&depthReference);
-//		depthFrame = nullptr;
-//
-//		if (SUCCEEDED(hr))
-//		{
-//		
-//		hr = depthReference->AcquireFrame(&depthFrame);
-//
-//
-//		if (SUCCEEDED(hr))
-//		{
-//			hr = depthFrame->get_FrameDescription(&depthFrameDescription);
-//
-//			if (SUCCEEDED(hr))
-//			{
-//				hr = depthFrameDescription->get_Width(&depthWidth);
-//			}
-//
-//			if (SUCCEEDED(hr))
-//			{
-//				hr = depthFrameDescription->get_Height(&depthHeight);
-//			}
-//
-//			if (SUCCEEDED(hr))
-//			{
-//				depthBuffer = new UINT16[depthWidth * depthHeight];
-//				hr = depthFrame->CopyFrameDataToArray(depthWidth * depthHeight, &depthBuffer[0]);
-//				//depthBuffer = vector<UINT16>(depthWidth * depthHeight);
-//				//hr = pDepthFrame->CopyFrameDataToArray(depthBuffer.size(), &depthBuffer[0]);
-//
-//				if (SUCCEEDED(hr))
-//				{
-//
-//					SafeRelease(depthFrame);
-//
-//					hr = pMultiFrame->get_ColorFrameReference(&colorReference);
-//
-//					if (SUCCEEDED(hr))
-//					{
-//						SafeRelease(pMultiFrame);
-//						colorFrame = nullptr;
-//						hr = colorReference->AcquireFrame(&colorFrame);
-//
-//						if (SUCCEEDED(hr))
-//						{
-//							hr = colorFrame->get_FrameDescription(&colorFrameDescription);
-//
-//							if (SUCCEEDED(hr))
-//							{
-//								hr = colorFrameDescription->get_Width(&colorWidth);
-//							}
-//
-//							if (SUCCEEDED(hr))
-//							{
-//								hr = colorFrameDescription->get_Height(&colorHeight);
-//
-//							}
-//													 
-//
-//						 if (SUCCEEDED(hr))
-//						 {
-//							colorBuffer = new RGBQUAD[colorWidth * colorHeight];
-//							//colorBuffer = vector<RGBQUAD>(colorWidth * colorHeight);
-//
-//								if (SUCCEEDED(hr))
-//								{
-//									ColorImageFormat format;
-//									hr = colorFrame->get_RawColorImageFormat(&format);
-//
-//									if (SUCCEEDED(hr))
-//									{
-//										if (format == ColorImageFormat_Bgra)
-//											hr = colorFrame->CopyRawFrameDataToArray(colorWidth * colorHeight * sizeof(RGBQUAD), reinterpret_cast<BYTE*>(&colorBuffer[0]));
-//										else
-//											hr = colorFrame->CopyConvertedFrameDataToArray(colorWidth * colorHeight * sizeof(RGBQUAD), reinterpret_cast<BYTE*>(&colorBuffer[0]), ColorImageFormat_Bgra);
-//									}
-//									SafeRelease(colorFrame);
-//
-//						if (SUCCEEDED(hr))
-//						{
-//							//colorPoints = vector<ColorSpacePoint>(depthWidth * depthHeight);
-//							colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
-//							hr = coordinateMapper->MapDepthFrameToColorSpace(depthWidth * depthHeight, &depthBuffer[0], depthWidth * depthHeight, &colorPoints[0]);
-//						
-//							if (SUCCEEDED(hr))
-//							{
-//								fillColorBuffer(data, depthWidth, depthHeight, colorWidth, colorHeight);
-//							}//colorspacepoints
-//							delete[] colorPoints;
-//							}//converted color
-//							}//colorbuffer
-//
-//							delete[] colorBuffer;
-//						 }//framedescription color width u height
-//					}//colorframe
-//				}//colorreference
-//				}//depthbuffer
-//				
-//			delete[] depthBuffer;
-//			} // framedescription depth width u height
-//		} //dephtframe
-//		} //dephtframereference
-//
-//		SafeRelease(colorFrameDescription);
-//		SafeRelease(depthFrameDescription);
-//
-//	}  // multiframe
-//}
-
 
 void KinectHandler::getDepthFrameDescription(HRESULT& hr, int& depthWidth, int& depthHeight)
 {
@@ -271,8 +146,6 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 					if (SUCCEEDED(hr))
 					{
 						SafeRelease(depthFrame);
-
-
 
 						// ------------------------------ Get Color Data ------------------------------ //
 						hr = pMultiFrame->get_ColorFrameReference(&colorReference);
