@@ -335,9 +335,10 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 												hr = bodyIndexFrame->CopyFrameDataToArray(depthWidth * depthHeight, &bodyIndexBuffer[0]);
 											}
 
+											retrieveColorPoints(colorData, positionData, hr, depthWidth, depthHeight, colorWidth, colorHeight);
+											
 											SafeRelease(bodyIndexFrame);
 
-											retrieveColorPoints(colorData, positionData, hr, depthWidth, depthHeight, colorWidth, colorHeight);
 
 											//retrieveBoneData( pMultiFrame );
 
@@ -403,7 +404,7 @@ int KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction, IBo
 
 		const int jointCount = JointType::JointType_Count;
 		Joint joints[jointCount];
-		hr = bodies[i].GetJoints( jointCount, joints );
+		hr = bodies[currentBodyIndex].GetJoints(jointCount, joints);
 		if( FAILED( hr ) )
 		{
 			continue;
@@ -440,6 +441,7 @@ int KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction, IBo
 			hitBodyIndex = currentBodyIndex;
 		}
 	}
+	return hitBodyIndex;
 }
 
 void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionData, HRESULT& hr, int depthWidth, int depthHeight, int colorWidth, int colorHeight)
