@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include <vector>
 #include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 
 using namespace std;
 
@@ -370,10 +371,11 @@ void KinectHandler::retrieveBoneData(IMultiSourceFrame* multiSourceFrame)
 		hr = bodyFrameReference->AcquireFrame(&bodyFrame);
 
 		IBody* bodies[BODY_COUNT] = {0};
+		auto body = bodies[2];
 		hr = bodyFrame->GetAndRefreshBodyData(BODY_COUNT, bodies);
 		if( SUCCEEDED( hr ) )
 		{
-
+			
 		}
 
 		for (int i = 0; i < BODY_COUNT; ++i)
@@ -383,9 +385,61 @@ void KinectHandler::retrieveBoneData(IMultiSourceFrame* multiSourceFrame)
 	}
 }
 
-void KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction )
+int KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction, IBody* bodies )
 {
+	int hitBodyIndex = -1;
+	float minDistanceFromRay = FLT_MAX;
 
+	direction = glm::normalize( direction );
+
+	for( int currentBodyIndex = 0; currentBodyIndex < BODY_COUNT; ++currentBodyIndex )
+	{
+		BOOLEAN bTracked = false;
+		HRESULT hr = bodies[currentBodyIndex].get_IsTracked( &bTracked );
+		if( SUCCEEDED( hr ) && bTracked )
+		{
+			continue;
+		}
+
+		const int jointCount = JointType::JointType_Count;
+		Joint joints[jointCount];
+		hr = bodies[i].GetJoints( jointCount, joints );
+		if( FAILED( hr ) )
+		{
+			continue;
+		}
+
+		int evaluatedJointCount = 0;
+		glm::vec3 averageRayToJoint( 0.0f );
+		for( int type = 0; type < jointCount; ++type )
+		{
+			Joint currentJoint = joints[type];
+			if( currentJoint.TrackingState != TrackingState::TrackingState_NotTracked )
+			{
+				const CameraSpacePoint camSpacePoint = currentJoint.Position;
+				const glm::vec3 jointPosition( -camSpacePoint.X, camSpacePoint.Y, -camSpacePoint.Z );
+				const glm::vec3 startToJoint = jointPosition - start;
+				const float distanceToStart = glm::dot( startToJoint, direction );
+				if( distanceToStart < 0 )
+				{
+					continue;
+				}
+				const glm::vec3 closestPointOnRay = start + distanceToStart * direction;
+				const glm::vec3 rayToJoint = jointPosition - closestPointOnRay;
+				averageRayToJoint += rayToJoint;
+				++evaluatedJointCount;
+			}
+		}
+		averageRayToJoint /= evaluatedJointCount;
+		//use squared length to qvoid squareroot operation
+		float distance = glm::length2( averageRayToJoint );
+
+		if( distance < minDistanceFromRay )
+		{
+			minDistanceFromRay = distance;
+			hitBodyIndex = currentBodyIndex;
+		}
+	}
 }
 
 void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionData, HRESULT& hr, int depthWidth, int depthHeight, int colorWidth, int colorHeight)

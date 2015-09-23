@@ -19,7 +19,7 @@ public:
 	void retrieveColorPoints(GLfloat* colorData, GLfloat* positionData, HRESULT& hr, int depthWidth, int depthHeight, int colorWidth, int colorHeight);
 	void fillBuffers(GLfloat* colorData, GLfloat* positionData, int depthWidth, int depthHeight, int colorWidth, int colorHeight);
 	void retrieveBoneData(IMultiSourceFrame* multiSourceFrame);
-	void calculateCollision(glm::vec3 start, glm::vec3 direction);
+	int calculateCollision(glm::vec3 start, glm::vec3 direction, IBody* bodies);
 	// Main processing function
 	//void updateKinect(GLfloat *data);
 	bool updateKinect( GLfloat* colorData, GLfloat* positionData );
