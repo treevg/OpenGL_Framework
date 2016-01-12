@@ -10,7 +10,7 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 	glGenFramebuffers(1, &frameBufferObjectHandle);
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
-    std::vector<GLuint> drawBufferHandles(size);
+    // drawBuffers.resize(size);
 
     for (auto e : *outputMap) {
     	GLuint handle;
@@ -24,10 +24,10 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 	    glFramebufferTexture2D(GL_FRAMEBUFFER, currentAttachment, GL_TEXTURE_2D, handle, 0);
 
     	textureMap[e.first] = handle;
-	    drawBufferHandles[e.second.location] = currentAttachment;
+	    // drawBuffers[e.second.location] = currentAttachment;
     }
 
-    glDrawBuffers(size, &drawBufferHandles[0]);
+    // glDrawBuffers(size, &drawBuffers[0]);
 
     //TODO how to acces colorTexture from outside of this fbo???
 
@@ -47,6 +47,7 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 
 void FrameBufferObject::bind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
+	// glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
 }
 
 FrameBufferObject* FrameBufferObject::clear(float r, float g, float b, float a) {
@@ -54,15 +55,19 @@ FrameBufferObject* FrameBufferObject::clear(float r, float g, float b, float a) 
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(0, 0, 0, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	return this;
 }
 
 FrameBufferObject* FrameBufferObject::clear() {
+	bind();
 	clear(0, 0, 0, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	return this;
 }
 
 FrameBufferObject* FrameBufferObject::clearDepth() {
+	bind();
 	glClear(GL_DEPTH_BUFFER_BIT);
 	return this;
 }
