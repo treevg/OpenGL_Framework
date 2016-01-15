@@ -9,7 +9,7 @@ using namespace std;
 using namespace glm;
 
 int main(int argc, char *argv[]) {
-    GLFWwindow* window = generateWindow(1024, 1024);
+    GLFWwindow* window = generateWindow(512, 512);
 
     float rotX = 0.785f;
     float rotY = 0.0f;
