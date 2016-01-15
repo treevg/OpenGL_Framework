@@ -6,25 +6,43 @@ uniform sampler2D inputTex;
 uniform sampler2D pyramid_fragColor;
 uniform int pyramid_level;
 
-void main() {
-    fragColor = texelFetch(pyramid_fragColor, ivec2(gl_FragCoord.xy), pyramid_level);
+
+float sum = 0;
+
+void addTexel(int offxetX, int offsetY, float factor) {
+    vec4 c = texelFetch(pyramid_fragColor, ivec2(offxetX,  offsetY) + ivec2(gl_FragCoord.xy) / 2, pyramid_level + 1);
     
-    if (fragColor.a < 1) {
-        fragColor = vec4(0,0,0,0);
-        int count = 0;
-        for (int x = 0; x <= 1; x++) {
-            for (int y = 0; y <= 1; y++) {
-                vec4 color = texelFetch(pyramid_fragColor, ivec2(x, y) + ivec2(gl_FragCoord.xy * 0.5), pyramid_level + 1);
-                if (color.a == 1) {
-                    count++;
-                    fragColor += color;
-                }
-            }
+    if (c.a == 0) { // if texel is undefined
+        fragColor += c * factor;
+        sum += factor;
+    }
+}
+
+void main() {
+    fragColor = vec4(0,0,0,0);
+
+    addTexel(0, 0, 9.0);
+
+    if (int(gl_FragCoord.x) % 2 == 0) {
+        if (int(gl_FragCoord.y) % 2 == 0) {
+            addTexel(-1,  0, 3.0);
+            addTexel( 0, -1, 3.0);
+            addTexel(-1, -1, 1.0);
+        } else {
+            addTexel(-1,  0, 3.0);
+            addTexel( 0, +1, 3.0);
+            addTexel(-1, +1, 1.0);
         }
-        if (count > 0) {
-            fragColor = vec4(fragColor.rgb / count, 1);
+    } else {
+        if (int(gl_FragCoord.y) % 2 == 0) {
+            addTexel(+1,  0, 3.0);
+            addTexel( 0, -1, 3.0);
+            addTexel(+1, -1, 1.0);
+        } else {
+            addTexel(+1,  0, 3.0);
+            addTexel( 0, +1, 3.0);
+            addTexel(+1, +1, 1.0);
         }
     }
-    // fragColor = colorThis.a * colorThis + (1 - colorThis.a) * colorPull;
-
+    fragColor /= sum;
 }
