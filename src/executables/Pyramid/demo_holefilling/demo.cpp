@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
             ->clear()
             ->pull();
 
-        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        if (glfwGetKey(window, GLFW_KEY_SPACE) != GLFW_PRESS) {
             holefilling->push();
         }
 
