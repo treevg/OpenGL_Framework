@@ -2,7 +2,6 @@
 
 out vec4 fragColor;
 
-uniform sampler2D inputTex;
 uniform sampler2D pyramid_fragColor;
 uniform int pyramid_level;
 
