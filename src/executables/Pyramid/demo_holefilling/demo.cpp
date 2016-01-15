@@ -9,12 +9,14 @@ using namespace std;
 using namespace glm;
 
 int main(int argc, char *argv[]) {
-    GLFWwindow* window = generateWindow();
+    GLFWwindow* window = generateWindow(1024, 1024);
 
     float rotX = 0.785f;
     float rotY = 0.0f;
+    int level = 0;
+    int maskRadius = 3;
+    bool toggleBigPoints = false;
     int numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
-    auto quad = new Quad();
 
     auto sparse = (new RenderPass(
         new Grid(200, 200), 
@@ -26,10 +28,10 @@ int main(int argc, char *argv[]) {
             ->update("resolution", getResolution(window));
 
     auto holefilling = (new Pyramid(getWidth(window), getHeight(window), 
-        "/RenderTechniques/Pyramid/pushSimple.frag", 
-        "/RenderTechniques/Pyramid/hhfFill.frag"))
-            ->texture("input_image", sparse->get("fragColor"))
-            ->update("resolution", getResolution(window));
+        "/RenderTechniques/Pyramid/pullHolefilling.frag",
+        "/RenderTechniques/Pyramid/pushHolefilling.frag"))
+            ->texture("inputTex", sparse->get("fragColor"))
+            ->update("maskRadius", maskRadius);
 
     auto tonemapping = (new RenderPass(
         new Quad(), 
@@ -37,19 +39,23 @@ int main(int argc, char *argv[]) {
             ->texture("tex", holefilling->get("fragColor"))
             ->update("resolution", getResolution(window));
 
-    int level = 0;
-    bool toggleInOut = true;
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
             switch (key) {
-            case GLFW_KEY_PERIOD:
-                tonemapping->update("level", (level < holefilling->getMipmapNumber()-1)? ++level : level);
-                break;
             case GLFW_KEY_COMMA:
+                tonemapping->update("level", (level < holefilling->getMipmapNumber())? ++level : level);
+                break;
+            case GLFW_KEY_PERIOD:
                 tonemapping->update("level", (level > 0)? --level : level);
                 break;
-            case GLFW_KEY_SPACE:
-                (toggleInOut ^= 1)? tonemapping->texture("tex", holefilling->get("fragColor")) : tonemapping->texture("tex", holefilling->get("fragPosition"));
+            case GLFW_KEY_M:
+                holefilling->update("maskRadius", (maskRadius < 10)? ++maskRadius : maskRadius);
+                break;
+            case GLFW_KEY_N:
+                holefilling->update("maskRadius", (maskRadius > 0)? --maskRadius : maskRadius);
+                break;
+            case GLFW_KEY_P:
+                (toggleBigPoints ^= 1)? glEnable(GL_POINT_SMOOTH) : glDisable(GL_POINT_SMOOTH);
                 break;
             } 
         }
@@ -67,9 +73,12 @@ int main(int argc, char *argv[]) {
             ->run();
 
         holefilling
-            ->push()
-            // ->pull()
-            ;
+            ->clear()
+            ->pull();
+
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+            holefilling->push();
+        }
 
         tonemapping
             ->clear()

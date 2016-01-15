@@ -22,7 +22,7 @@ HierarchicalHoleFilling::HierarchicalHoleFilling(
     glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    auto mipmapFBOHandles = new GLuint[mipmapNumber];
+    GLuint* mipmapFBOHandles = new GLuint[mipmapNumber];
     glGenFramebuffers(mipmapNumber, mipmapFBOHandles);
 
     for (int i = 0; i < mipmapNumber; i++) {

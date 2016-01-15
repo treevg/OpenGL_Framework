@@ -9,4 +9,5 @@ public:
 	void draw();
 };
 
+
 #endif // QUAD_H

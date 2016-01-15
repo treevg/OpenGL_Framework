@@ -10,6 +10,7 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 	glGenFramebuffers(1, &frameBufferObjectHandle);
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
+    // std::vector<GLuint> drawBuffers(size);
     // drawBuffers.resize(size);
 
     for (auto e : *outputMap) {

@@ -26,6 +26,13 @@ GLuint Texture::load(std::string path) {
     ilBindImage(iid);
     ilLoadImage(path.c_str());
 
+    ILinfo ImageInfo;
+    iluGetImageInfo(&ImageInfo);
+    if( ImageInfo.Origin == IL_ORIGIN_UPPER_LEFT )
+    {
+       iluFlipImage();
+    }
+
     int w = ilGetInteger(IL_IMAGE_WIDTH);
     int h = ilGetInteger(IL_IMAGE_HEIGHT);
     const int byteCount = sizeof(float) * 3 * w * h;
