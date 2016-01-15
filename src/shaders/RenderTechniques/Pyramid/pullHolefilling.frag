@@ -2,13 +2,13 @@
 
 out vec4 fragColor;
 
-uniform sampler2D inputTex;
+uniform sampler2D tex;
 uniform sampler2D pyramid_fragColor;
 uniform int pyramid_level;
 
 void main() {
     if (pyramid_level == 0) {
-        fragColor = texelFetch(inputTex, ivec2(gl_FragCoord.xy), 0);
+        fragColor = texelFetch(tex, ivec2(gl_FragCoord.xy), 0);
     } else {     
         fragColor = vec4(0,0,0,0);
         int count = 0;

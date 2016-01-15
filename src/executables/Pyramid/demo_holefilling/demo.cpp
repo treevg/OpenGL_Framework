@@ -30,14 +30,12 @@ int main(int argc, char *argv[]) {
     auto holefilling = (new Pyramid(getWidth(window), getHeight(window), 
         "/RenderTechniques/Pyramid/pullHolefilling.frag",
         "/RenderTechniques/Pyramid/pushHolefilling.frag"))
-            ->texture("inputTex", sparse->get("fragColor"))
-            ->update("maskRadius", maskRadius);
+            ->texture("tex", sparse->get("fragColor"));
 
     auto tonemapping = (new RenderPass(
         new Quad(), 
         new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag")))
-            ->texture("tex", holefilling->get("fragColor"))
-            ->update("resolution", getResolution(window));
+            ->texture("tex", holefilling->get("fragColor"));
 
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
         if (action == GLFW_PRESS || action == GLFW_REPEAT) {
@@ -47,12 +45,6 @@ int main(int argc, char *argv[]) {
                 break;
             case GLFW_KEY_PERIOD:
                 tonemapping->update("level", (level > 0)? --level : level);
-                break;
-            case GLFW_KEY_M:
-                holefilling->update("maskRadius", (maskRadius < 10)? ++maskRadius : maskRadius);
-                break;
-            case GLFW_KEY_N:
-                holefilling->update("maskRadius", (maskRadius > 0)? --maskRadius : maskRadius);
                 break;
             case GLFW_KEY_P:
                 (toggleBigPoints ^= 1)? glEnable(GL_POINT_SMOOTH) : glDisable(GL_POINT_SMOOTH);

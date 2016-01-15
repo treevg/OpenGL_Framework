@@ -85,7 +85,7 @@ Pyramid* Pyramid::push() {
 	}
 
 	pushShaderProgram->use();
-	for (int level = glm::min(getMipmapNumber() - 1, limit); level >= 0; level--) {
+	for (int level = glm::min(getMipmapNumber(), limit); level >= 0; level--) {
 		glBindFramebuffer(GL_FRAMEBUFFER, fboHandles[level]);
 
 		pushShaderProgram->update("pyramid_level", level);
