@@ -11,7 +11,7 @@ float sum = 0;
 void addTexel(int offxetX, int offsetY, float factor) {
     vec4 c = texelFetch(pyramid_fragColor, ivec2(offxetX,  offsetY) + ivec2(gl_FragCoord.xy) / 2, pyramid_level + 1);
     
-    if (c.a == 0) { // if texel is undefined
+    if (c.a != 0) { // if texel is defined
         fragColor += c * factor;
         sum += factor;
     }
