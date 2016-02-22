@@ -14,12 +14,10 @@ int main(int argc, char *argv[]) {
     float rotX = 0.785f;
     float rotY = 0.0f;
     int level = 0;
-    int maskRadius = 3;
     bool toggleBigPoints = false;
-    int numMipmaps = glm::log2(glm::max<float>(getWidth(window), getHeight(window)));
 
     auto sparse = (new RenderPass(
-        new Grid(200, 200), 
+        new Grid(200, 200),
         new ShaderProgram("/3DObject/modelViewProjection.vert","/Filters/toneMapperLinear.frag"),
         getWidth(window), getHeight(window)))
             ->texture("tex", Texture::load(RESOURCES_PATH "/jpg/bambus.jpg"))
@@ -27,13 +25,13 @@ int main(int argc, char *argv[]) {
             ->update("projection", perspective(45.0f, getRatio(window), 0.1f, 100.0f))
             ->update("resolution", getResolution(window));
 
-    auto holefilling = (new Pyramid(getWidth(window), getHeight(window), 
+    auto holefilling = (new Pyramid(getWidth(window), getHeight(window),
         "/RenderTechniques/Pyramid/pullHolefilling.frag",
         "/RenderTechniques/Pyramid/pushHolefilling.frag"))
             ->texture("tex", sparse->get("fragColor"));
 
     auto tonemapping = (new RenderPass(
-        new Quad(), 
+        new Quad(),
         new ShaderProgram("/Filters/fullscreen.vert","/Filters/toneMapperLinear.frag")))
             ->texture("tex", holefilling->get("fragColor"));
 
@@ -49,7 +47,7 @@ int main(int argc, char *argv[]) {
             case GLFW_KEY_P:
                 (toggleBigPoints ^= 1)? glEnable(GL_POINT_SMOOTH) : glDisable(GL_POINT_SMOOTH);
                 break;
-            } 
+            }
         }
     });
 

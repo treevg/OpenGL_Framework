@@ -6,7 +6,7 @@
  *
  * @brief  		Manages a render pass
  *
- * The RenderPass class manages a single render pass. 
+ * The RenderPass class manages a single render pass.
  */
 
 #ifndef RENDER_PASS_H
@@ -31,7 +31,7 @@ class RenderPass
 		/**
 		 * @brief [brief description]
 		 * @details [long description]
-		 * 
+		 *
 		 * @param width [description]
 		 * @param height [description]
 		 */
@@ -48,7 +48,7 @@ class RenderPass
 		/**
 		 * @brief Clears the framebuffer and the depth buffer of the render pass
 		 *        with a given RGBA color value
-		 * 
+		 *
 		 * @param r Red value of the clear color
 		 * @param g Green value of the clear color
 		 * @param b Blue value of the clear color
@@ -70,7 +70,7 @@ class RenderPass
 	// private:
 		// Shader program to use within a render pass
 		ShaderProgram* shaderProgram;
-		// Vertex array object to render within a render pass 
+		// Vertex array object to render within a render pass
 		VertexArrayObject* vertexArrayObject;
 		// Framebuffer object to render to within a render pass
 		FrameBufferObject* frameBufferObject;

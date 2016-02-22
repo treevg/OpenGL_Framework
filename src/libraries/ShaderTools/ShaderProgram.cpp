@@ -127,7 +127,7 @@ ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GL
 
 ShaderProgram* ShaderProgram::update(string name, bool value) {
 	Info* updateInfo = checkUpdate(name, "bool");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform1i(updateInfo->location, value);
 	}
@@ -136,7 +136,7 @@ ShaderProgram* ShaderProgram::update(string name, bool value) {
 
 ShaderProgram* ShaderProgram::update(string name, int value) {
 	Info* updateInfo = checkUpdate(name, "int");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform1i(updateInfo->location, value);
 	}
@@ -145,7 +145,7 @@ ShaderProgram* ShaderProgram::update(string name, int value) {
 
 ShaderProgram* ShaderProgram::update(string name, float value) {
 	Info* updateInfo = checkUpdate(name, "float");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform1f(updateInfo->location, value);
 	}
@@ -154,7 +154,7 @@ ShaderProgram* ShaderProgram::update(string name, float value) {
 
 ShaderProgram* ShaderProgram::update(string name, double value) {
 	Info* updateInfo = checkUpdate(name, "double");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform1f(updateInfo->location, value);
 	}
@@ -163,7 +163,7 @@ ShaderProgram* ShaderProgram::update(string name, double value) {
 
 ShaderProgram* ShaderProgram::update(string name, ivec2 vector) {
 	Info* updateInfo = checkUpdate(name, "ivec2");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform2iv(updateInfo->location, 1, glm::value_ptr(vector));
 	}
@@ -172,7 +172,7 @@ ShaderProgram* ShaderProgram::update(string name, ivec2 vector) {
 
 ShaderProgram* ShaderProgram::update(string name, ivec3 vector) {
 	Info* updateInfo = checkUpdate(name, "ivec3");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform3iv(updateInfo->location, 1, glm::value_ptr(vector));
 	}
@@ -181,7 +181,7 @@ ShaderProgram* ShaderProgram::update(string name, ivec3 vector) {
 
 ShaderProgram* ShaderProgram::update(string name, ivec4 vector) {
 	Info* updateInfo = checkUpdate(name, "ivec4");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform4iv(updateInfo->location, 1, glm::value_ptr(vector));
 	}
@@ -190,7 +190,7 @@ ShaderProgram* ShaderProgram::update(string name, ivec4 vector) {
 
 ShaderProgram* ShaderProgram::update(string name, vec2 vector) {
 	Info* updateInfo = checkUpdate(name, "vec2");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform2fv(updateInfo->location, 1, glm::value_ptr(vector));
 	}
@@ -199,7 +199,7 @@ ShaderProgram* ShaderProgram::update(string name, vec2 vector) {
 
 ShaderProgram* ShaderProgram::update(string name, vec3 vector) {
 	Info* updateInfo = checkUpdate(name, "vec3");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform3fv(updateInfo->location, 1, glm::value_ptr(vector));
 	}
@@ -208,7 +208,7 @@ ShaderProgram* ShaderProgram::update(string name, vec3 vector) {
 
 ShaderProgram* ShaderProgram::update(string name, vec4 vector) {
 	Info* updateInfo = checkUpdate(name, "vec4");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniform4fv(updateInfo->location, 1, glm::value_ptr(vector));
 	}
@@ -217,7 +217,7 @@ ShaderProgram* ShaderProgram::update(string name, vec4 vector) {
 
 ShaderProgram* ShaderProgram::update(string name, mat2 matrix) {
 	Info* updateInfo = checkUpdate(name, "mat2");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniformMatrix2fv(updateInfo->location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
@@ -226,7 +226,7 @@ ShaderProgram* ShaderProgram::update(string name, mat2 matrix) {
 
 ShaderProgram* ShaderProgram::update(string name, mat3 matrix) {
 	Info* updateInfo = checkUpdate(name, "mat3");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniformMatrix3fv(updateInfo->location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
@@ -235,7 +235,7 @@ ShaderProgram* ShaderProgram::update(string name, mat3 matrix) {
 
 ShaderProgram* ShaderProgram::update(string name, mat4 matrix) {
 	Info* updateInfo = checkUpdate(name, "mat4");
-	if (updateInfo != NULL) {	
+	if (updateInfo != NULL) {
 		glUseProgram(shaderProgramHandle);
 		glUniformMatrix4fv(updateInfo->location, 1, GL_FALSE, glm::value_ptr(matrix));
 	}
@@ -300,7 +300,7 @@ void ShaderProgram::printOutputInfo() {
 bool ShaderProgram::hasValidType(string filename, string typeLine) {
 	std::string delimiter = " ";
 	char invalidChars[] = "*.";
-	
+
 	for (unsigned int i = 0; i < strlen(invalidChars); ++i) {
 	  typeLine.erase (std::remove(typeLine.begin(), typeLine.end(), invalidChars[i]), typeLine.end());
 	}
@@ -434,7 +434,7 @@ void ShaderProgram::mapShaderProperties(GLenum interf, std::map<std::string, Inf
 
         if (values[3] == -1) //invalid uniform name
             continue;
-		
+
 		Info info;
 		info.type = values[1];
 		info.location = values[3];
@@ -464,39 +464,37 @@ GLuint ShaderProgram::getProgramHandle(){
 
 string ShaderProgram::getTypeString(GLenum type) {
 	switch (type) {
-	case 35670: 
+	case 35670:
 		return "bool";
-	case 5124: 
+	case 5124:
 		return "int";
-	case 5126: 
+	case 5126:
 		return "float";
-	case 35667: 
+	case 35667:
 		return "ivec2";
-	case 35668: 
+	case 35668:
 		return "ivec3";
-	case 35669: 
+	case 35669:
 		return "ivec4";
-	case 35664: 
+	case 35664:
 		return "vec2";
-	case 35665: 
+	case 35665:
 		return "vec3";
-	case 35666: 
+	case 35666:
 		return "vec4";
-	case 35674: 
+	case 35674:
 		return "mat2";
-	case 35675: 
+	case 35675:
 		return "mat3";
-	case 35676: 
+	case 35676:
 		return "mat4";
-	case 35677: 
+	case 35677:
 		return "sampler1D";
-	case 35678: 
+	case 35678:
 		return "sampler2D";
-	case 35679: 
+	case 35679:
 		return "sampler3D";
 	}
 	return "unknown";
 	//std::to_string(type);
 }
-
-

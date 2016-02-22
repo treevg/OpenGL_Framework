@@ -37,7 +37,7 @@ public:
 
 	/**
 	 * @brief Creates a shader program from a given list of shader code files
-	 * 
+	 *
 	 * @param attachShaders List of GLSL source code files
 	 */
 	// ShaderProgram(std::vector<std::string> attachShaders);
@@ -49,7 +49,7 @@ public:
 
 	/**
 	 * @brief Creates a shader program from a given shader code file
-	 * 
+	 *
 	 * @param type Type of the shader
 	 * @param path Filepath to the shader source code file
 	 */
@@ -67,149 +67,149 @@ public:
 
 	/**
 	 * @brief Updates a boolean uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, bool value);
 	/**
 	 * @brief Updates an integer uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, int value);
 	/**
 	 * @brief Updates a float uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, float value);
 	/**
 	 * @brief Updates a double uniform variable
-	 * 
+	 *
 	 * @param name  Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, double value);
 	/**
 	 * @brief Updates a 2D integer vector uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::ivec2 vector);
 	/**
 	 * @brief Updates a 3D integer vector uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::ivec3 vector);
 	/**
 	 * @brief Updates a 4D integer vector uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::ivec4 vector);
 	/**
 	 * @brief Updates a 2D float vector uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::vec2 vector);
 	/**
 	 * @brief Updates a 3D float vector uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::vec3 vector);
 	/**
 	 * @brief Updates a 4D float vector uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::vec4 vector);
 	/**
 	 * @brief Updates a 2x2 matrix uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::mat2 matrix);
 	/**
 	 * @brief Updates a 3x3 matrix uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::mat3 matrix);
 	/**
 	 * @brief Updates a 4x4 matrix uniform variable
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The value to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, glm::mat4 matrix);
 	/**
 	 * @brief Updates a list of 2D vector uniform variables
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The vector witch stores the values to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, std::vector<glm::vec2> vector);
 	/**
 	 * @brief Updates a list of 3D vector uniform variables
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The vector witch stores the values to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, std::vector<glm::vec3> vector);
 	/**
 	 * @brief Updates a list of 4D vector uniform variables
-	 * 
+	 *
 	 * @param name 	Name of the uniform variable in GLSL
 	 * @param value The vector witch stores the values to update the unform with
-	 * 
+	 *
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, std::vector<glm::vec4> vector);
-	
+
 	/**
 	 * @brief Logs all active bound uniforms to the console
 	 */
@@ -270,20 +270,20 @@ protected:
 	/**
 	 * @brief Looks for uniform variables to update in the corresponding uniform
 	 *        map
-	 * 
+	 *
 	 * @param name Uniform variables name
 	 * @param type Uniform variables type
-	 * 
+	 *
 	 * @return Info pointer
 	 */
 	Info* checkUpdate(std::string name, std::string type);
 	/**
 	 * @brief Checks for a shader code filepath to have valid shader code file
 	 *        ending
-	 * 
+	 *
 	 * @param filename Filename of the shader code file
 	 * @param typeLine Fileending to compare against
-	 * 
+	 *
 	 * @return Boolean if the file compares with the given type
 	 */
 	bool hasValidType(std::string filename, std::string typeLine);
@@ -292,7 +292,7 @@ protected:
 	void attachShader(GLenum shaderType, std::string filename);
 	/**
 	 * @brief Loads a shader source code file from disk
-	 * 
+	 *
 	 * @param filename Filepath to the shader code file
 	 * @return A sring containing the shader code
 	 */
