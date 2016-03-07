@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
 
-    auto texture = new Texture(RESOURCES_PATH "/equirectangular/plaza.png");
+    auto texture = new Texture(RESOURCES_PATH "/textures/equirectangular/plaza.png");
 
     RenderPass* sky = (new RenderPass(
         new Quad(), 
@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
             ->update("projection", projection);
 
     RenderPass* object = (new RenderPass(
-        new Mesh(RESOURCES_PATH "/obj/cv-logo.obj", aiProcess_GenSmoothNormals | aiProcess_Triangulate), 
+        new Mesh(RESOURCES_PATH "/meshes/cv-logo.obj", aiProcess_GenSmoothNormals | aiProcess_Triangulate), 
         new ShaderProgram("/3DObject/modelViewProjection.vert","/3DObject/environmentMapping.frag")))
             ->texture("tex", texture->getHandle())
             ->update("resolution", getResolution(window))

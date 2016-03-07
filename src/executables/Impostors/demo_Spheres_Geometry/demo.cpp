@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
 
-//    auto texture = new Texture(RESOURCES_PATH "/equirectangular/plaza.png");
+//    auto texture = new Texture(RESOURCES_PATH "/textures/equirectangular/plaza.png");
 
 //    RenderPass* sky = (new RenderPass(
 //        new Quad(),
@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
 //            ->update("resolution", getResolution(window))
 //            ->update("projection", projection);
 
-    InstancedMeshExample *sphere = new InstancedMeshExample(RESOURCES_PATH "/obj/Sphere.obj", aiProcess_GenSmoothNormals | aiProcess_Triangulate);
+    InstancedMeshExample *sphere = new InstancedMeshExample(RESOURCES_PATH "/meshes/Sphere.obj", aiProcess_GenSmoothNormals | aiProcess_Triangulate);
 
     RenderPass* renderBalls = (new RenderPass(
         sphere,

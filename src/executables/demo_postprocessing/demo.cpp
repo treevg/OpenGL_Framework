@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
         new ShaderProgram("/Filters/fullscreen.vert","/Filters/boxBlur.frag"), 
         getWidth(window), 
         getHeight(window)))
-            ->texture("tex", Texture::load(RESOURCES_PATH "/jpg/bambus.jpg"))
+            ->texture("tex", Texture::load(RESOURCES_PATH "/textures/bambus.jpg"))
             ->update("resolution", getResolution(window));
 
     auto tonemapping = (new RenderPass(
