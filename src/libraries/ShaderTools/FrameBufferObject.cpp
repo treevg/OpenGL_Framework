@@ -10,8 +10,8 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 	glGenFramebuffers(1, &frameBufferObjectHandle);
 
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
-    // std::vector<GLuint> drawBuffers(size);
-    // drawBuffers.resize(size);
+    std::vector<GLuint> drawBuffers(size);
+    drawBuffers.resize(size);
 
     for (auto e : *outputMap) {
     	GLuint handle;
@@ -25,10 +25,10 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 	    glFramebufferTexture2D(GL_FRAMEBUFFER, currentAttachment, GL_TEXTURE_2D, handle, 0);
 
     	textureMap[e.first] = handle;
-	    // drawBuffers[e.second.location] = currentAttachment;
+	    drawBuffers[e.second.location] = currentAttachment;
     }
 
-    // glDrawBuffers(size, &drawBuffers[0]);
+    glDrawBuffers(size, &drawBuffers[0]);
 
     //TODO how to acces colorTexture from outside of this fbo???
 
@@ -90,4 +90,3 @@ void FrameBufferObject::setFrameBufferObjectHandle(
 GLuint FrameBufferObject::getHandle(){
 	return frameBufferObjectHandle;
 }
-

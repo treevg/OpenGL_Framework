@@ -1,5 +1,22 @@
 #include "RenderPass.h"
 
+RenderPass::RenderPass(ShaderProgram* shaderProgram)
+	: shaderProgram(shaderProgram), frameBufferObject(0), vertexArrayObject(NULL)
+{
+	frameBufferObject = new FrameBufferObject();
+}
+
+RenderPass::RenderPass(ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject)
+: vertexArrayObject(NULL), shaderProgram(shaderProgram), frameBufferObject(frameBufferObject)
+{
+}
+
+RenderPass::RenderPass(ShaderProgram* shaderProgram, int width, int height)
+: vertexArrayObject(NULL), shaderProgram(shaderProgram), frameBufferObject(0)
+{
+	autoGenerateFrameBufferObject(width, height);
+}
+
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram)
 	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0)
 {
@@ -21,6 +38,24 @@ RenderPass* RenderPass::run() {
 	frameBufferObject->bind();
 	shaderProgram->use();
 	vertexArrayObject->draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return this;
+}
+
+RenderPass* RenderPass::run(VertexArrayObject* vao) {
+	frameBufferObject->bind();
+	shaderProgram->use();
+	vao->draw();
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	return this;
+}
+
+RenderPass* RenderPass::run(std::vector<VertexArrayObject*> renderQueue) {
+	frameBufferObject->bind();
+	shaderProgram->use();
+	for (auto e : renderQueue) {
+		e->draw();
+	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	return this;
 }

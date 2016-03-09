@@ -1,5 +1,5 @@
 #version 430
- 
+
 layout(location = 0) in vec4 positionAttribute;
 layout(location = 1) in vec2 uvCoordAttribute;
 layout(location = 2) in vec4 normalAttribute;
@@ -15,12 +15,12 @@ out vec3 passWorldNormal;
 out vec3 passNormal;
 
 void main(){
-    passUVCoord = uvCoordAttribute;
+  passUVCoord = uvCoordAttribute;
 
-    passWorldPosition = model * positionAttribute;
-    passPosition = view * passWorldPosition;
-    gl_Position =  projection * view * model * positionAttribute;
+  passWorldPosition = model * positionAttribute;
+  passPosition = view * passWorldPosition;
+  gl_Position =  projection * view * model * positionAttribute;
 
-    passWorldNormal = ( transpose( inverse( model ) ) * normalAttribute).xyz;
+  passWorldNormal = ( transpose( inverse( model ) ) * normalAttribute).xyz;
 	passNormal = ( transpose( inverse( view * model ) ) * normalAttribute ).xyz;
 }

@@ -14,13 +14,14 @@
 class Mesh : public VertexArrayObject
 {
 public:
+	Mesh(aiMesh* mesh);
 	Mesh(std::string path);
 	Mesh(std::string path, int aiPostProcessSteps);
 	~Mesh();
 
 	int count;
 	void draw();
-	
+
 private:
 	void dumpSceneToVAO(const aiScene *scene);
 };

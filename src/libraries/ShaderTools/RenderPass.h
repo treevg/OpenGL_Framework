@@ -14,11 +14,16 @@
 
 #include "VertexArrayObject.h"
 #include "FrameBufferObject.h"
+#include <list>
 
 class RenderPass
 {
     public:
-        RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
+
+    RenderPass(ShaderProgram* shaderProgram);
+    RenderPass(ShaderProgram* shaderProgram, int width, int height);
+    RenderPass(ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
+    RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
 		RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
 		RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 
@@ -28,7 +33,23 @@ class RenderPass
 		 */
 		RenderPass* run();
 
-		/**
+    /**
+    * @brief Executes the whole render pass
+    *
+    * @param vao a VAO to render
+    * @return The RenderPass instance for method chaining
+    */
+    RenderPass* run(VertexArrayObject* vao);
+
+    /**
+		 * @brief Executes the whole render pass
+		 *
+		 * @param renderQueue a collection to render multiple VAOs at once
+     * @return The RenderPass instance for method chaining
+     */
+    RenderPass* run(std::vector<VertexArrayObject*> renderQueue);
+
+    /**
 		 * @brief [brief description]
 		 * @details [long description]
 		 *
