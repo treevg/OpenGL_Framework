@@ -73,14 +73,14 @@ int main(int argc, char *argv[]) {
             ->clearDepth();
 
         for (auto m : scene->meshes) {
-        objects
-            ->update("model", glm::mat4(1))
-            ->update("view", view)
-            ->run(m);
+            objects
+                ->update("model", glm::mat4(1))
+                ->update("view", view)
+                ->run(m);
         }
 
-      tonemapping
-        ->clear()
-        ->run();
+        tonemapping
+            ->clear()
+            ->run();
     });
 }
