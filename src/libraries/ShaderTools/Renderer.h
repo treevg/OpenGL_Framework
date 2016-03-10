@@ -6,7 +6,7 @@
  *
  * @brief  		Default renderer
  *
- * The Renderer class creates a default renderer by providing window creation, 
+ * The Renderer class creates a default renderer by providing window creation,
  * keyboard callbacks and a default render loop function.
  */
 #ifndef DEFAULT_RENDER_LOOP_H
@@ -25,7 +25,7 @@
  * @brief Creates a window using GLFW library
  * @details Creates a window registered with the window manager of the operating
  *          system, an also creates an OpenGL context mapped to it.
- * 
+ *
  * @param width	 Width of the window
  * @param height Height of the window
  * @param posX 	 Position of the window on the x axis
@@ -43,7 +43,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720, int posX = 100, i
 	glewInit();
 
 	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_DEPTH_TEST);	
+	glEnable(GL_DEPTH_TEST);
 
 	return window;
 }
@@ -53,7 +53,7 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720, int posX = 100, i
  * @details Runs the default render loop function. Waits for closeing window
  *          events from GLFW. Also calculates a delta time variable for measure
  *          time between render loop calls
- * 
+ *
  * @param window Thw window to render to
  * @param loop   Function pointer of an extern function called from within the
  *               render loop.
@@ -78,7 +78,7 @@ void render(GLFWwindow* window, std::function<void (double)> loop) {
  * @details Pass a function pointer to your keyboard button callback function
  *          and it will be registered with the given window. The keyboard
  *          function gets called, when a button of the keyboard gets pressed.
- * 
+ *
  * @param window The window to register the callback to
  * @param func The function pointer of the callback function to register
  */
@@ -94,7 +94,7 @@ void setKeyCallback(GLFWwindow* window, std::function<void (int, int, int, int)>
  * @details Pass a function pointer to your mouse button callback function
  *          and it will be registered with the given window. The mouse button
  *          function gets called, when a button of the mouse gets pressed.
- * 
+ *
  * @param window The window to register the callback to
  * @param func The function pointer of the callback function to register
  */
@@ -110,7 +110,7 @@ void setMouseButtonCallback(GLFWwindow* window, std::function<void (int, int, in
  * @details Pass a function pointer to your character callback function and it
  *          will be registered with the given window. The character function
  *          gets called, when a single unicode character is input.
- * 
+ *
  * @param window The window to register the callback to
  * @param func The function pointer of the callback function to register
  */
@@ -127,7 +127,7 @@ void setCharCallback(GLFWwindow* window, std::function<void (unsigned int)> func
  *          and it will be registered with the given window. The cursor position
  *          function gets called, when the cursor gets moved on an active
  *          window.
- * 
+ *
  * @param window The window to register the callback to
  * @param func The function pointer of the callback function to register
  */
@@ -143,7 +143,7 @@ void setCursorPosCallback(GLFWwindow* window, std::function<void (double, double
  * @details Pass a function pointer to your scroll callback function and it will
  *          be registered with the given window. The scroll function gets called
  *          when the mouse scroll wheel is used on an active window.
- * 
+ *
  * @param window The window to register the callback to
  * @param func The function pointer of the callback function to register
  */
@@ -159,7 +159,7 @@ void setScrollCallback(GLFWwindow* window, std::function<void (double, double)> 
  * @details Pass a function pointer to your cursor enter callback function and
  *          it will be registered with the given window. The cursor enter
  *          function gets called when entering the window area with the mouse.
- * 
+ *
  * @param window The window to register the callback to
  * @param func The function pointer of the callback function to register
  */
@@ -172,7 +172,7 @@ void setCursorEnterCallback(GLFWwindow* window, std::function<void (int)> func) 
 
 /**
  * @brief Returns the windows width
- * 
+ *
  * @param window Window to get the width of
  * @return The width of the given window
  */
@@ -184,7 +184,7 @@ int getWidth(GLFWwindow* window) {
 
 /**
  * @brief Returns the windows height
- * 
+ *
  * @param window Window to get the height of
  * @return The height of the given window
  */
@@ -196,7 +196,7 @@ int getHeight(GLFWwindow* window) {
 
 /**
  * @brief Returns the windows aspect ratio
- * 
+ *
  * @param window Window to get the ratio of
  * @return The ratio of the given window
  */
@@ -208,7 +208,7 @@ glm::vec2 getResolution(GLFWwindow* window) {
 
 /**
  * @brief Returns the windows aspect ratio
- * 
+ *
  * @param window Window to get the ratio of
  * @return The ratio of the given window
  */
