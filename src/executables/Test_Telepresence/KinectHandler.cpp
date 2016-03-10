@@ -264,11 +264,13 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 					if (SUCCEEDED(hr))
 					{
 						hr = depthFrame->get_DepthMinReliableDistance(&minReliableDistance);
+						//std::cout << "Min reliable depth: " << minReliableDistance << std::endl;
 					}
 						
 					if (SUCCEEDED(hr))	
 					{
 						hr = depthFrame->get_DepthMaxReliableDistance(&maxReliableDistance);
+						//std::cout << "Max reliable depth" << maxReliableDistance << std::endl;
 					}
 
 					if (SUCCEEDED(hr))
@@ -413,6 +415,14 @@ void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionDat
 				fillBuffers(colorData, positionData, depthWidth, depthHeight, colorWidth, colorHeight);
 			}//colorspacepoints
 		}//cameraspacepoints
+		size_t counter = 0;
+		for (size_t i = 0; i < depthWidth*depthHeight; i++){
+			if (depthBuffer[i] == 0){
+				counter++;
+			}
+		}
+		std::cout << "Counter: " << counter << std::endl;
+		
 		delete[] colorPoints;
 		delete[] cameraPoints;
 	}
@@ -423,37 +433,25 @@ void KinectHandler::retrieveCameraIntrinsics() {
 	std::cout << "Test retrieve" << std::endl;
 	CameraIntrinsics cI = {};
 
-	// OH MEIN GOTT
-	// Diese funktion wartet darauf dass die intrinischen parameter
-	// propagiert werden. warum steht so ein Dreck nicht in der API?
-	// SCHEISS KINECT....
+	// waiting for intrinsic parameter propagation
 	while (cI.FocalLengthX == 0){
-	coordinateMapper->GetDepthCameraIntrinsics(&cI);
-	// "wait function"
-	for (int i = 0; i < 1000; i++){};
-	}
-	//HRESULT hr = coordinateMapper->GetDepthCameraIntrinsics(cameraIntrinsics);
-	//if (SUCCEEDED(hr)){
-		
-		printCameraIntrinsics(&cI);
-	//}
-
+		coordinateMapper->GetDepthCameraIntrinsics(&cI);
+	}	
+	printCameraIntrinsics(&cI);
 }
 
 
 void KinectHandler::printCameraIntrinsics(CameraIntrinsics* cI){
-	//cameraIntrinsics = new CameraIntrinsics();
-	//CameraIntrinsics* cI = new CameraIntrinsics();
-	
+
 	std::cout << "Test set and print" << std::endl;
-	//std::cout << cameraIntrinsics << std::endl;
-	//cI->FocalLengthX = 5.0;
-	
 
 	std::cout << "Value FocLenX: " << cI->FocalLengthX << std::endl;
 	std::cout << "Value FocLenY: " << cI->FocalLengthY << std::endl;
 	std::cout << "Value PrincPointX: " << cI->PrincipalPointX << std::endl;
 	std::cout << "Value PrincPointY: " << cI->PrincipalPointY << std::endl;
+	std::cout << "Value Rad Dis Second: " << cI->RadialDistortionSecondOrder << std::endl;
+	std::cout << "Value Rad Dis Fourth: " << cI->RadialDistortionFourthOrder << std::endl;
+	std::cout << "Value Rad Dis Sixth: " << cI->RadialDistortionSixthOrder << std::endl;
 }
 
 

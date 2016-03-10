@@ -52,6 +52,14 @@ private:
 	RenderPass* m_hhfExpandPass;
 	RenderPass* m_hhfFillPass;
 
+	VertexArrayObject* vertexArrayObject;
+
+
+	GLuint hhf_texture;
+	GLuint mipmapNumber;
+	GLuint inputTexture;
+	std::vector<FrameBufferObject*> mipmapFBOs;
+
 	void renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view);
 
 	void renderRoom();
@@ -59,6 +67,7 @@ private:
 	void renderLeap();
 	void renderBillboards(glm::vec3 cameraPosition);
 	void renderTestCube();
+	void renderHHF();
 
 	void generateOculusWindow();
 	void initOpenGL();
@@ -68,6 +77,8 @@ private:
 
 	void updateProjectionMatrices(glm::mat4 projection);
 	void updateViewMatrices(glm::mat4 view);
+
+	void generateHoleFillingAssets();
 
 	glm::vec3 extractCameraPosition(glm::mat4 viewMatrix) const;
 	glm::mat4 getLeapToOculusTransformationMatrix() const;

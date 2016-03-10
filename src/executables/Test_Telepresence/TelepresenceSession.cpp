@@ -7,7 +7,7 @@
 #include "AssimpLoader/AssimpLoader.h"
 #include "TextPane.h"
 #include "PointCloud.h"
-
+#include "ShaderTools/VertexArrayObjects/Quad.h"
 
 //transform due to head mounted Leap Motion
 const static glm::mat4 oculusToLeap(
@@ -92,16 +92,17 @@ void TelepresenceSession::initOpenGL()
 
 void TelepresenceSession::initShaderPrograms()
 {
-	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
-	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
-	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
-	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	//m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
+	//m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
+	//m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
+	//m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 	m_cubeShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_directionShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
 	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
 	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	m_hhfReduceShaders = new ShaderProgram({ "/Test_Telepresence/reduce.vert", "/Test_Telepresence/reduce.frag" });
 }
 
 void TelepresenceSession::initRenderPasses()
@@ -117,6 +118,7 @@ void TelepresenceSession::initRenderPasses()
 	m_roomPass = new RenderPass( m_assimpLoader->getMeshList()->at(0), m_roomShaders);
 	m_pointCloudPass = new RenderPass(m_pointCloud, m_pointCloudShaders);
 	m_directionPass = new RenderPass( directionCube, m_directionShaders);
+	//m_hhfReducePass = new RenderPass(m_pointCloud, m_hhfReduceShaders);
 
 	glm::vec3 lightPos = glm::vec3(2.0f, 10.0f, 2.0f);
 
@@ -135,6 +137,12 @@ void TelepresenceSession::initRenderPasses()
 	m_directionPass
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+/*	m_hhfReducePass
+		->texture("colorTexMipmap", hhf_texture)
+		->update("resolution", resolution)
+		->upda
+		->getFrameBufferObject()
+*/
 }
 
 void TelepresenceSession::deleteShaderPrograms()
@@ -251,6 +259,10 @@ void TelepresenceSession::renderLeap()
 	}
 }
 
+void TelepresenceSession::renderHHF(){
+	//m_hhfReducePass = (n)
+}
+
 glm::mat4 TelepresenceSession::getLeapToOculusTransformationMatrix() const
 {
 	//transform world coordinates into Oculus coordinates (for attached Leap Motion)
@@ -276,4 +288,44 @@ glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Matrix &
 
 	//Pipeline for transforming Leap Motion bones
 	return leapWorldCoordinates;
+}
+
+
+void TelepresenceSession::generateHoleFillingAssets(){
+
+
+	glm::vec2 resolution{ 512, 512 };
+
+	if (vertexArrayObject == NULL) this->vertexArrayObject = new Quad();
+	mipmapNumber = 4;
+
+	glGenTextures(1, &hhf_texture);
+	glBindTexture(GL_TEXTURE_2D, hhf_texture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, resolution.x, resolution.y, 0, GL_RGBA, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	auto mipmapFBOHandles = new GLuint[mipmapNumber];
+	glGenFramebuffers(mipmapNumber, mipmapFBOHandles);
+
+	for (int i = 0; i < mipmapNumber; i++) {
+		glBindFramebuffer(GL_FRAMEBUFFER, (mipmapFBOHandles)[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, hhf_texture, i);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+		auto fbo = new FrameBufferObject();
+		fbo->setFrameBufferObjectHandle(mipmapFBOHandles[i]);
+		mipmapFBOs.push_back(fbo);
+	}
+
+
+	m_hhfReducePass = new RenderPass(m_pointCloud, m_hhfReduceShaders);
+
+	m_hhfReducePass
+		->texture("colorTexMipmap", hhf_texture)
+		->update("resolution", resolution)
+		->getFrameBufferObject()
 }

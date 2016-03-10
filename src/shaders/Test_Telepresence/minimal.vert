@@ -11,6 +11,7 @@ out vec3 passColor;
 
 void main(){
 	passPosition = viewMatrix * vec4(positionAttribute, 1.0);
-	passColor = colorAttribute;
+	//passColor = colorAttribute;
+	passColor = vec3(positionAttribute.x,positionAttribute.y,positionAttribute.z);
 	gl_Position =  projectionMatrix * viewMatrix * vec4(positionAttribute, 1.0);
 }
