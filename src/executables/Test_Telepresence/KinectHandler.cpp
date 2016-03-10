@@ -17,7 +17,9 @@ colorReference(NULL),
 bodyIndexReference(NULL),
 depthFrameDescription(NULL),
 colorFrameDescription(NULL),
-coordinateMapper(NULL),
+m_coordinateMappingChangedEvent(NULL),
+coordinateMapper(nullptr),
+cameraIntrinsics(NULL),
 colorPoints(NULL),
 cameraPoints(NULL),
 depthBuffer(NULL),
@@ -50,6 +52,8 @@ HRESULT KinectHandler::initializeDefaultSensor()
 		hr = kinectSensor->Open();
 
 		kinectSensor->get_CoordinateMapper(&coordinateMapper);
+		coordinateMapper->SubscribeCoordinateMappingChanged(&m_coordinateMappingChangedEvent);
+		//CameraIntrinsics* cameraIntrinsics = new CameraIntrinsics();
 
 		if (SUCCEEDED(hr))
 		{
@@ -262,7 +266,7 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 						hr = depthFrame->get_DepthMinReliableDistance(&minReliableDistance);
 					}
 						
-					if (SUCCEEDED(hr))
+					if (SUCCEEDED(hr))	
 					{
 						hr = depthFrame->get_DepthMaxReliableDistance(&maxReliableDistance);
 					}
@@ -333,6 +337,9 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 												// Update the body index data
 												hr = bodyIndexFrame->CopyFrameDataToArray(depthWidth * depthHeight, &bodyIndexBuffer[0]);
 											}
+
+											
+
 
 											SafeRelease(bodyIndexFrame);
 
@@ -410,6 +417,45 @@ void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionDat
 		delete[] cameraPoints;
 	}
 }
+
+void KinectHandler::retrieveCameraIntrinsics() {
+
+	std::cout << "Test retrieve" << std::endl;
+	CameraIntrinsics cI = {};
+
+	// OH MEIN GOTT
+	// Diese funktion wartet darauf dass die intrinischen parameter
+	// propagiert werden. warum steht so ein Dreck nicht in der API?
+	// SCHEISS KINECT....
+	while (cI.FocalLengthX == 0){
+	coordinateMapper->GetDepthCameraIntrinsics(&cI);
+	// "wait function"
+	for (int i = 0; i < 1000; i++){};
+	}
+	//HRESULT hr = coordinateMapper->GetDepthCameraIntrinsics(cameraIntrinsics);
+	//if (SUCCEEDED(hr)){
+		
+		printCameraIntrinsics(&cI);
+	//}
+
+}
+
+
+void KinectHandler::printCameraIntrinsics(CameraIntrinsics* cI){
+	//cameraIntrinsics = new CameraIntrinsics();
+	//CameraIntrinsics* cI = new CameraIntrinsics();
+	
+	std::cout << "Test set and print" << std::endl;
+	//std::cout << cameraIntrinsics << std::endl;
+	//cI->FocalLengthX = 5.0;
+	
+
+	std::cout << "Value FocLenX: " << cI->FocalLengthX << std::endl;
+	std::cout << "Value FocLenY: " << cI->FocalLengthY << std::endl;
+	std::cout << "Value PrincPointX: " << cI->PrincipalPointX << std::endl;
+	std::cout << "Value PrincPointY: " << cI->PrincipalPointY << std::endl;
+}
+
 
 
 void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int depthWidth, int depthHeight, int colorWidth, int colorHeight)

@@ -36,6 +36,7 @@ TelepresenceSession::~TelepresenceSession()
 
 void TelepresenceSession::init()
 {
+	std::cout << "Init Session" << std::endl;
 	generateOculusWindow();
 	initOpenGL();
 	m_assimpLoader = new AssimpLoader();
@@ -43,17 +44,21 @@ void TelepresenceSession::init()
 	m_leapHandler = new LeapHandler();
 	m_kinectHandler->initializeDefaultSensor();
 	m_pointCloud = new PointCloud( m_kinectHandler);
+	m_kinectHandler->retrieveCameraIntrinsics();
 	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room.obj")
 		->printLog();
 	initShaderPrograms();
 	initRenderPasses();
+	
 }
 
 void TelepresenceSession::run()
 {
 	render(m_window, [&]( double delta, glm::mat4 projection, glm::mat4 view)
 	{
+		//m_kinectHandler->retrieveCameraIntrinsics();
 		renderLoop(delta, projection, view);
+		
 	});
 }
 
@@ -87,10 +92,10 @@ void TelepresenceSession::initOpenGL()
 
 void TelepresenceSession::initShaderPrograms()
 {
-	//m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
-	//m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
-	//m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
-	//m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
+	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
+	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
+	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 	m_cubeShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_directionShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });

@@ -34,6 +34,9 @@ private:
 	ShaderProgram* m_pointCloudShaders;
 	ShaderProgram* m_roomShaders;
 	ShaderProgram* m_billboardShaders;
+	ShaderProgram* m_hhfReduceShaders;
+	ShaderProgram* m_hhfFillShaders;
+	ShaderProgram* m_hhfExpandShaders;
 
 	//TODO do not save this as member
 	TextPane* m_textPane;
@@ -45,6 +48,9 @@ private:
 	RenderPass* m_handPass;
 	RenderPass* m_cubePass;
 	RenderPass* m_billboardPass;
+	RenderPass* m_hhfReducePass;
+	RenderPass* m_hhfExpandPass;
+	RenderPass* m_hhfFillPass;
 
 	void renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view);
 

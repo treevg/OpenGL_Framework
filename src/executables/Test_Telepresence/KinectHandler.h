@@ -24,6 +24,8 @@ public:
 	//void updateKinect(GLfloat *data);
 	bool updateKinect( GLfloat* colorData, GLfloat* positionData );
 
+	void retrieveCameraIntrinsics();
+	void printCameraIntrinsics(CameraIntrinsics* cI);
 	void clearBuffer(GLfloat *buffer, int size);
 
 private:
@@ -40,6 +42,9 @@ private:
 	IFrameDescription* depthFrameDescription;
 	IFrameDescription* colorFrameDescription;
 	ICoordinateMapper* coordinateMapper; // Coordinate mapper to map one type of point to another
+	
+	CameraIntrinsics* cameraIntrinsics;
+	WAITABLE_HANDLE m_coordinateMappingChangedEvent;
 
 	// Intermediate storage for the depth to color mapping
 	ColorSpacePoint* colorPoints;
