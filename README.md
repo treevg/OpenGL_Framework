@@ -31,11 +31,11 @@ LibFreenect: https://github.com/OpenKinect/libfreenect
 
 ### Details zum Setup:
 
-#### Oculus Runtime
-https://developer.oculus.com/downloads/pc/0.7.0.0-beta/Oculus_Runtime_for_Windows/
+#### Oculus Runtime (IMPORTANT!)
+https://developer.oculus.com/downloads/pc/0.4.4-beta/Oculus_Runtime_for_Windows/
 
-#### Oculus SDK
-https://developer.oculus.com/downloads/pc/0.7.0.0-beta/Oculus_SDK_for_Windows/
+#### Oculus SDK (IMPORTANT!)
+https://developer.oculus.com/downloads/pc/0.4.4-beta/Oculus_SDK_for_Windows/
 
 Systemumgebungsvariable anlegen:
 `Bsp: OCULUSSDK_ROOT = C:\Program Files (x86)\OculusSDK`
