@@ -60,6 +60,7 @@ private:
 
 	void generateOculusWindow();
 	void initOpenGL();
+	void initMouseAndKeyboardMovement();
 	void initShaderPrograms();
 	void initRenderPasses();
 	void deleteShaderPrograms();

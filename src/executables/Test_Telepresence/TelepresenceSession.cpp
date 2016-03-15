@@ -8,6 +8,7 @@
 #include "TextPane.h"
 #include "PointCloud.h"
 #include "CameraObjectRelations.h"
+#include "controls.hpp"
 
 
 //transform due to head mounted Leap Motion
@@ -39,11 +40,12 @@ void TelepresenceSession::init()
 {
 	generateOculusWindow();
 	initOpenGL();
+	initMouseAndKeyboardMovement();
 	m_assimpLoader = new AssimpLoader();
 	m_kinectHandler = new KinectHandler();
 	m_leapHandler = new LeapHandler();
 	m_kinectHandler->initializeDefaultSensor();
-	m_pointCloud = new PointCloud( m_kinectHandler);
+	m_pointCloud = new PointCloud(m_kinectHandler);
 	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room2_tris.obj")
 		->printLog();
 	initShaderPrograms();
@@ -52,7 +54,7 @@ void TelepresenceSession::init()
 
 void TelepresenceSession::run()
 {
-	render(m_window, [&]( double delta, glm::mat4 projection, glm::mat4 view)
+	render(m_window, [&](double delta, glm::mat4 projection, glm::mat4 view)
 	{
 		renderLoop(delta, projection, view);
 	});
@@ -60,6 +62,12 @@ void TelepresenceSession::run()
 
 void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view)
 {
+
+	computeMatricesFromInputs(m_window);
+	projection = getProjectionMatrix();
+	view = getViewMatrix();
+
+
 	updateProjectionMatrices(projection);
 	updateViewMatrices(view);
 
@@ -69,7 +77,7 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	renderBillboards(cameraPosition);
 	renderPanels();
 	renderRoom(cameraPosition);
-	renderTestCube();
+	//renderTestCube();
 	renderLeap(cameraPosition);
 	renderPointCloud();
 
@@ -78,6 +86,26 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 void TelepresenceSession::generateOculusWindow()
 {
 	m_window = generateWindow();
+}
+
+void TelepresenceSession::initMouseAndKeyboardMovement()
+{
+	// Hide the mouse and enable unlimited movement
+	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	// Keyboard Callback Method
+	//glfwSetKeyCallback(m_window, keyboardInputs);
+
+	// Set the mouse at the center of the screen
+	glfwPollEvents();
+	int width, height;
+
+	glfwGetWindowSize(m_window, &width, &height);
+
+	/*int width, height;
+	glfwGetFramebufferSize(m_window, &width, &height);*/
+
+	glfwSetCursorPos(m_window, width / 2, height / 2);
 }
 
 void TelepresenceSession::initOpenGL()
@@ -107,16 +135,16 @@ void TelepresenceSession::initRenderPasses()
 	Cube* testCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), .1f);
 	Cube* directionCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
 	Sphere* sphere = new Sphere(10.0f);
-	m_textPane = new TextPane( 0.8f, .4f, "Herzlich Willkommen");
-	m_textPanel = new TextPane( 2.0f, 1.0f, "Wand");
+	m_textPane = new TextPane(0.8f, .4f, "Matthias");
+	m_textPanel = new TextPane(2.0f, 1.0f, "Wand");
 
 	m_cubePass = new RenderPass(testCube, m_cubeShaders);
 	m_billboardPass = new RenderPass(m_textPane, m_billboardShaders);
 	m_panelPass = new RenderPass(m_textPanel, m_panelShaders);
-	m_handPass = new RenderPass( sphere, m_handShaders);
-	m_roomPass = new RenderPass( m_assimpLoader->getMeshList()->at(0), m_roomShaders);
+	m_handPass = new RenderPass(sphere, m_handShaders);
+	m_roomPass = new RenderPass(m_assimpLoader->getMeshList()->at(0), m_roomShaders);
 	m_pointCloudPass = new RenderPass(m_pointCloud, m_pointCloudShaders);
-	m_directionPass = new RenderPass( directionCube, m_directionShaders);
+	m_directionPass = new RenderPass(directionCube, m_directionShaders);
 
 	glm::vec3 lightPos = glm::vec3(0.0f, 4.0f, 2.0f);
 
@@ -222,42 +250,42 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 			glm::vec3 intersectionPoint;
 			glm::vec3 normal;
 
-			glm::vec4 rayDirection = glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmNormal()),0);
+			glm::vec4 rayDirection = glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmNormal()), 0);
 			glm::mat4 leapWorldMatrixStart = getLeapWorldCoordinateMatrix(rightHand.palmPosition());
 			glm::mat4 leapWorldMatrixDirection = getLeapWorldCoordinateMatrix(rightHand.palmNormal());
 
 			glm::mat4 modelMatrixRay = leapToOculusTransformation * leapWorldMatrixStart;
 			glm::mat4 modelMatrixRayDirection = leapToOculusTransformation * leapWorldMatrixDirection;
-			glm::vec4 rayStart = modelMatrixRay * glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmPosition()),0);
+			glm::vec4 rayStart = modelMatrixRay * glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmPosition()), 0);
 			rayDirection = modelMatrixRayDirection * rayDirection;
-			ray.push_back(glm::vec3(rayStart.x,rayStart.y,rayStart.z));
+			ray.push_back(glm::vec3(rayStart.x, rayStart.y, rayStart.z));
 			ray.push_back(glm::vec3(rayDirection.x, rayDirection.y, rayDirection.z));
 
 			std::vector<GLfloat>* vertices = mesh->getVertexList();
 			std::vector<GLint>* indices = mesh->getIndexList();
 
 			for (int i = 0; i < indices->size(); i++)
-			{       
-					if (i > 0 && i % 3 == 0)
-					{						
-						intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint, &normal);
-						triangle.clear();
-						if (intersected == 1)
-						{
-							glm::quat rotationQuat = CameraObjectRelations::rotationBetweenVectors(m_textPanel->getNormal(), normal);
-							glm::mat4 rotationMat = glm::toMat4(rotationQuat);
-							glm::mat4 model = glm::translate(glm::translate(glm::mat4(1.0f), intersectionPoint),normal*.1f) * rotationMat;
-							m_panelPass
-								->update("modelMatrix", model)
-								->texture("tex", m_textPanel->getTextureHandle())
-								->run();	
-						}
-	
+			{
+				if (i > 0 && i % 3 == 0)
+				{
+					intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint, &normal);
+					triangle.clear();
+					if (intersected == 1)
+					{
+						glm::quat rotationQuat = CameraObjectRelations::rotationBetweenVectors(m_textPanel->getNormal(), normal);
+						glm::mat4 rotationMat = glm::toMat4(rotationQuat);
+						glm::mat4 model = glm::translate(glm::translate(glm::mat4(1.0f), intersectionPoint), normal*.1f) * rotationMat;
+						m_panelPass
+							->update("modelMatrix", model)
+							->texture("tex", m_textPanel->getTextureHandle())
+							->run();
 					}
-					int index = (indices->at(i) *3);
-					glm::vec3 vertex = glm::vec3(vertices->at(index), vertices->at(index + 1), vertices->at(index + 2));
-					triangle.push_back(vertex);
-				
+
+				}
+				int index = (indices->at(i) * 3);
+				glm::vec3 vertex = glm::vec3(vertices->at(index), vertices->at(index + 1), vertices->at(index + 2));
+				triangle.push_back(vertex);
+
 			}
 		}
 	}
@@ -334,7 +362,7 @@ void TelepresenceSession::renderLeap(glm::vec3 cameraPosition)
 				->update("modelMatrix", modelMatrix)
 				->run();
 		}
-		for ( auto palmPosition : m_leapHandler->getPalmPositions())
+		for (auto palmPosition : m_leapHandler->getPalmPositions())
 		{
 			glm::mat4 leapWorldMatrix = getLeapWorldCoordinateMatrix(palmPosition);
 			glm::mat4 modelMatrix = leapToOculusTransformation * leapWorldMatrix;
