@@ -7,24 +7,23 @@ class TextTexture;
 class TextPane : public VertexArrayObject
 {
 public: 
-	TextPane(glm::vec3 position, float width, float height, std::string title);
+	TextPane( float width, float height, std::string title, int fontSize = 70);
 	~TextPane();
 
 	void draw();
+	void updateText(std::string title);
 	std::vector<glm::vec3> getVertices();
 
 	GLuint getTextureHandle();
 
 	glm::vec3 getCenter();
-	glm::mat4 getBillboardModelMatrix();
-	glm::mat4 getBillboardModelMatrix(glm::vec3 cameraPosition);
+	glm::vec3 getNormal();
 
 private:
 	TextTexture* m_textTexture;
 	std::vector<glm::vec3> m_vertices;
 	glm::vec3 m_center;
-
-	glm::quat rotationBetweenVectors(glm::vec3 start, glm::vec3 dest);
+	glm::vec3 m_normal;
 
 	void createGeometry(float width, float height);
 };

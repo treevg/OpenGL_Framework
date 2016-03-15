@@ -6,6 +6,8 @@
 class Mesh : public VertexArrayObject
 {
     private:
+		std::vector<GLfloat> m_vertices;
+		std::vector<GLint> m_indices;
         unsigned int triangleCount;
         unsigned int materialIndex = -1;
         void createElementArrayBuffer(std::vector<GLint> values);
@@ -19,6 +21,8 @@ class Mesh : public VertexArrayObject
              std::vector<GLfloat> uvs      = std::vector<GLfloat>(),
              std::vector<GLfloat> colors   = std::vector<GLfloat>());
         void draw();
+		inline std::vector<GLfloat>* getVertexList() { return &m_vertices; };
+		inline std::vector<GLint>* getIndexList() { return &m_indices; };
         inline void setMaterialIndex(unsigned int index){ materialIndex = index; };
         inline int getMaterialIndex(){ return materialIndex; };
 };

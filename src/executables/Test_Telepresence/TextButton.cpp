@@ -9,7 +9,7 @@ TextButton::TextButton( glm::vec3 position, float size, std::string title)
 	GdkRGBA color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GdkRGBA background = { 0.0f, 0.0f, 0.0f, 0.0f };
 	
-	m_textTexture = new TextTexture(256, 256, title.c_str(), color, background);
+	m_textTexture = new TextTexture(256, 256, title.c_str(), color, background, 30);
 }
 
 TextButton::~TextButton()

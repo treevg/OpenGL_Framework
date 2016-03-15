@@ -18,11 +18,13 @@ public:
 	void getDepthFrameDescription(HRESULT& hr, int& depthWidth, int& depthHeight);
 	void retrieveColorPoints(GLfloat* colorData, GLfloat* positionData, HRESULT& hr, int depthWidth, int depthHeight, int colorWidth, int colorHeight);
 	void fillBuffers(GLfloat* colorData, GLfloat* positionData, int depthWidth, int depthHeight, int colorWidth, int colorHeight);
-	void retrieveBoneData(IMultiSourceFrame* multiSourceFrame);
-	void calculateCollision(glm::vec3 start, glm::vec3 direction);
+	std::vector<std::vector<Joint>> getBodyData(IMultiSourceFrame* multiSourceFrame) const;
+	int calculateCollision(glm::vec3 start, glm::vec3 direction, IBody* bodies);
 	// Main processing function
 	//void updateKinect(GLfloat *data);
 	bool updateKinect( GLfloat* colorData, GLfloat* positionData );
+	
+	std::vector<std::vector<Joint>> getBodyJoints();
 
 	void clearBuffer(GLfloat *buffer, int size);
 
@@ -51,6 +53,9 @@ private:
 	RGBQUAD* colorBuffer;
 	// To Reserve Body Index Frame Buffer
 	byte* bodyIndexBuffer;
+
+	// joint data (max size is BODY_COUNT (6))
+	std::vector<std::vector<Joint>> m_jointPositions;
 
 	TIMESPAN m_latestTimeStamp = 0;
 };

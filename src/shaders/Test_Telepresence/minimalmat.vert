@@ -12,15 +12,15 @@ out vec4 passNormal;
 out vec3 passColor;
 
 uniform float scale;
-uniform mat4 model;
+uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
 void main()
 {
-    passPosition = viewMatrix * model * vec4(pos, 1.0);
+    passPosition = viewMatrix * modelMatrix * vec4(pos, 1.0);
     passUV       = uv;
-    passNormal   = transpose(inverse(viewMatrix * model)) * vec4(normalize(normal), 0.0);
+    passNormal   = transpose(inverse(viewMatrix * modelMatrix)) * vec4(normalize(normal), 0.0);
     passColor    = color;
-    gl_Position  = projectionMatrix * viewMatrix * model * vec4(pos, 1);
+    gl_Position  = projectionMatrix * viewMatrix * modelMatrix * vec4(pos, 1);
 }

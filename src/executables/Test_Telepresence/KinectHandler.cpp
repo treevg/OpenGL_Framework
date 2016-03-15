@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include <vector>
 #include <glm/glm.hpp>
+#include <glm/gtx/norm.hpp>
 
 using namespace std;
 
@@ -54,7 +55,7 @@ HRESULT KinectHandler::initializeDefaultSensor()
 		if (SUCCEEDED(hr))
 		{
 			// open multiframereader for depth and color
-			hr = kinectSensor->OpenMultiSourceFrameReader(FrameSourceTypes_Depth | FrameSourceTypes_Body | FrameSourceTypes_Color | FrameSourceTypes_BodyIndex, &multiSourceFrameReader);
+			hr = kinectSensor->OpenMultiSourceFrameReader(FrameSourceTypes_Depth | FrameSourceTypes_Color | FrameSourceTypes_BodyIndex | FrameSourceTypes_Body, &multiSourceFrameReader);
 		}
 	}
 
@@ -67,131 +68,6 @@ HRESULT KinectHandler::initializeDefaultSensor()
 
 	return hr;
 }
-
-// Main processing function
-//void KinectHandler::updateKinect(GLfloat *data)
-//{
-//	IMultiSourceFrame* pMultiFrame = NULL;
-//	HRESULT hr = multiSourceFrameReader->AcquireLatestFrame(&pMultiFrame);
-//
-//	if (SUCCEEDED(hr))
-//	{
-//		int Width = 0;
-//		int Height = 0;
-//		int depthWidth = 0;
-//		int depthHeight = 0;
-//		int colorWidth = 0;
-//		int colorHeight = 0;
-//
-//		hr = pMultiFrame->get_DepthFrameReference(&depthReference);
-//		depthFrame = nullptr;
-//
-//		if (SUCCEEDED(hr))
-//		{
-//		
-//		hr = depthReference->AcquireFrame(&depthFrame);
-//
-//
-//		if (SUCCEEDED(hr))
-//		{
-//			hr = depthFrame->get_FrameDescription(&depthFrameDescription);
-//
-//			if (SUCCEEDED(hr))
-//			{
-//				hr = depthFrameDescription->get_Width(&depthWidth);
-//			}
-//
-//			if (SUCCEEDED(hr))
-//			{
-//				hr = depthFrameDescription->get_Height(&depthHeight);
-//			}
-//
-//			if (SUCCEEDED(hr))
-//			{
-//				depthBuffer = new UINT16[depthWidth * depthHeight];
-//				hr = depthFrame->CopyFrameDataToArray(depthWidth * depthHeight, &depthBuffer[0]);
-//				//depthBuffer = vector<UINT16>(depthWidth * depthHeight);
-//				//hr = pDepthFrame->CopyFrameDataToArray(depthBuffer.size(), &depthBuffer[0]);
-//
-//				if (SUCCEEDED(hr))
-//				{
-//
-//					SafeRelease(depthFrame);
-//
-//					hr = pMultiFrame->get_ColorFrameReference(&colorReference);
-//
-//					if (SUCCEEDED(hr))
-//					{
-//						SafeRelease(pMultiFrame);
-//						colorFrame = nullptr;
-//						hr = colorReference->AcquireFrame(&colorFrame);
-//
-//						if (SUCCEEDED(hr))
-//						{
-//							hr = colorFrame->get_FrameDescription(&colorFrameDescription);
-//
-//							if (SUCCEEDED(hr))
-//							{
-//								hr = colorFrameDescription->get_Width(&colorWidth);
-//							}
-//
-//							if (SUCCEEDED(hr))
-//							{
-//								hr = colorFrameDescription->get_Height(&colorHeight);
-//
-//							}
-//													 
-//
-//						 if (SUCCEEDED(hr))
-//						 {
-//							colorBuffer = new RGBQUAD[colorWidth * colorHeight];
-//							//colorBuffer = vector<RGBQUAD>(colorWidth * colorHeight);
-//
-//								if (SUCCEEDED(hr))
-//								{
-//									ColorImageFormat format;
-//									hr = colorFrame->get_RawColorImageFormat(&format);
-//
-//									if (SUCCEEDED(hr))
-//									{
-//										if (format == ColorImageFormat_Bgra)
-//											hr = colorFrame->CopyRawFrameDataToArray(colorWidth * colorHeight * sizeof(RGBQUAD), reinterpret_cast<BYTE*>(&colorBuffer[0]));
-//										else
-//											hr = colorFrame->CopyConvertedFrameDataToArray(colorWidth * colorHeight * sizeof(RGBQUAD), reinterpret_cast<BYTE*>(&colorBuffer[0]), ColorImageFormat_Bgra);
-//									}
-//									SafeRelease(colorFrame);
-//
-//						if (SUCCEEDED(hr))
-//						{
-//							//colorPoints = vector<ColorSpacePoint>(depthWidth * depthHeight);
-//							colorPoints = new ColorSpacePoint[depthWidth * depthHeight];
-//							hr = coordinateMapper->MapDepthFrameToColorSpace(depthWidth * depthHeight, &depthBuffer[0], depthWidth * depthHeight, &colorPoints[0]);
-//						
-//							if (SUCCEEDED(hr))
-//							{
-//								fillColorBuffer(data, depthWidth, depthHeight, colorWidth, colorHeight);
-//							}//colorspacepoints
-//							delete[] colorPoints;
-//							}//converted color
-//							}//colorbuffer
-//
-//							delete[] colorBuffer;
-//						 }//framedescription color width u height
-//					}//colorframe
-//				}//colorreference
-//				}//depthbuffer
-//				
-//			delete[] depthBuffer;
-//			} // framedescription depth width u height
-//		} //dephtframe
-//		} //dephtframereference
-//
-//		SafeRelease(colorFrameDescription);
-//		SafeRelease(depthFrameDescription);
-//
-//	}  // multiframe
-//}
-
 
 void KinectHandler::getDepthFrameDescription(HRESULT& hr, int& depthWidth, int& depthHeight)
 {
@@ -271,8 +147,6 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 					{
 						SafeRelease(depthFrame);
 
-
-
 						// ------------------------------ Get Color Data ------------------------------ //
 						hr = pMultiFrame->get_ColorFrameReference(&colorReference);
 
@@ -334,11 +208,11 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 												hr = bodyIndexFrame->CopyFrameDataToArray(depthWidth * depthHeight, &bodyIndexBuffer[0]);
 											}
 
+											retrieveColorPoints(colorData, positionData, hr, depthWidth, depthHeight, colorWidth, colorHeight);
+											
 											SafeRelease(bodyIndexFrame);
 
-											retrieveColorPoints(colorData, positionData, hr, depthWidth, depthHeight, colorWidth, colorHeight);
-
-											//retrieveBoneData( pMultiFrame );
+											m_jointPositions = getBodyData(pMultiFrame);
 
 											//converted color
 											delete[] bodyIndexBuffer;
@@ -360,32 +234,107 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 	return true;
 }
 
-void KinectHandler::retrieveBoneData(IMultiSourceFrame* multiSourceFrame)
+std::vector<std::vector<Joint>> KinectHandler::getBodyData(IMultiSourceFrame* frame) const
 {
-	HRESULT hr = multiSourceFrame->get_BodyFrameReference(&bodyFrameReference);
+	// Body tracking variables
+	BOOLEAN tracked;                            // Whether we see a body
+	Joint joints[JointType_Count];              // List of joints in the tracked body
 
-	bodyFrame = nullptr;
-	if (SUCCEEDED(hr))
-	{
-		hr = bodyFrameReference->AcquireFrame(&bodyFrame);
+	std::vector<std::vector<Joint>> jointsVector;
 
-		IBody* bodies[BODY_COUNT] = {0};
-		hr = bodyFrame->GetAndRefreshBodyData(BODY_COUNT, bodies);
-		if( SUCCEEDED( hr ) )
-		{
 
-		}
+	IBodyFrame* bodyframe;
+	IBodyFrameReference* frameref = NULL;
+	frame->get_BodyFrameReference(&frameref);
+	frameref->AcquireFrame(&bodyframe);
+	if (frameref) frameref->Release();
 
-		for (int i = 0; i < BODY_COUNT; ++i)
-		{
-			SafeRelease( bodies[i]);
+	if (!bodyframe) return std::vector<std::vector<Joint>>();
+
+	// ------ NEW CODE ------
+	IBody* body[BODY_COUNT] = {nullptr};
+	bodyframe->GetAndRefreshBodyData(BODY_COUNT, body);
+	for (int i = 0; i < BODY_COUNT; i++) {
+		body[i]->get_IsTracked(&tracked);
+		if (tracked) {
+			body[i]->GetJoints(JointType_Count, joints);
+			std::vector<Joint> tempJoints;
+			for (auto joint : joints)
+			{
+				joint.Position.Z = -joint.Position.Z;
+				tempJoints.push_back(joint);
+			}
+			jointsVector.push_back(tempJoints);
+			break;
 		}
 	}
+	// ------ END NEW CODE ------
+
+	if (bodyframe) bodyframe->Release();
+	return jointsVector;
 }
 
-void KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction )
+std::vector<std::vector<Joint>> KinectHandler::getBodyJoints()
 {
+	return m_jointPositions;
+}
 
+int KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction, IBody* bodies )
+{
+	int hitBodyIndex = -1;
+	float minDistanceFromRay = FLT_MAX;
+
+	direction = glm::normalize( direction );
+
+	for( int currentBodyIndex = 0; currentBodyIndex < BODY_COUNT; ++currentBodyIndex )
+	{
+		BOOLEAN bTracked = false;
+		HRESULT hr = bodies[currentBodyIndex].get_IsTracked( &bTracked );
+		if( SUCCEEDED( hr ) && bTracked )
+		{
+			continue;
+		}
+
+		const int jointCount = JointType::JointType_Count;
+		Joint joints[jointCount];
+		hr = bodies[currentBodyIndex].GetJoints(jointCount, joints);
+		if( FAILED( hr ) )
+		{
+			continue;
+		}
+
+		int evaluatedJointCount = 0;
+		glm::vec3 averageRayToJoint( 0.0f );
+		for( int type = 0; type < jointCount; ++type )
+		{
+			Joint currentJoint = joints[type];
+			if( currentJoint.TrackingState != TrackingState::TrackingState_NotTracked )
+			{
+				const CameraSpacePoint camSpacePoint = currentJoint.Position;
+				const glm::vec3 jointPosition( -camSpacePoint.X, camSpacePoint.Y, -camSpacePoint.Z );
+				const glm::vec3 startToJoint = jointPosition - start;
+				const float distanceToStart = glm::dot( startToJoint, direction );
+				if( distanceToStart < 0 )
+				{
+					continue;
+				}
+				const glm::vec3 closestPointOnRay = start + distanceToStart * direction;
+				const glm::vec3 rayToJoint = jointPosition - closestPointOnRay;
+				averageRayToJoint += rayToJoint;
+				++evaluatedJointCount;
+			}
+		}
+		averageRayToJoint /= evaluatedJointCount;
+		//use squared length to qvoid squareroot operation
+		float distance = glm::length2( averageRayToJoint );
+
+		if( distance < minDistanceFromRay )
+		{
+			minDistanceFromRay = distance;
+			hitBodyIndex = currentBodyIndex;
+		}
+	}
+	return hitBodyIndex;
 }
 
 void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionData, HRESULT& hr, int depthWidth, int depthHeight, int colorWidth, int colorHeight)
@@ -411,10 +360,11 @@ void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionDat
 	}
 }
 
-
+// filter body points from background points and write them in color and position Buffers
 void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int depthWidth, int depthHeight, int colorWidth, int colorHeight)
 {
 	int count = 0;
+	// all background points will be drawn on position 1 with color white.
 	clearBuffer(positionData, depthWidth * depthHeight * 3);
 	clearBuffer(colorData, depthWidth * depthHeight * 3);
 
@@ -423,7 +373,6 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 	for (int y = depthHeight - 1; y >= 0; y--){
 		for (int x = 0; x < depthWidth; x++){
 
-			// calculate index into depth array
 			int depthIndex = (y * depthWidth) + x;
 
 			byte body = bodyIndexBuffer[depthIndex];
@@ -447,13 +396,7 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 					colorData[count + 1] = color.rgbGreen / 255.0f;
 					colorData[count + 2] = color.rgbBlue / 255.0f;
 
-					//if (cameraPoint.X != -INFINITY && cameraPoint.Y != -INFINITY && cameraPoint.Z != -INFINITY)
-					//{
-					//depthData[count] = (float)x / (float)depthWidth;
-					//depthData[count + 1] = (float)(-y) / (float)depthHeight;
-					//depthData[count + 2] = -(float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance);
-
-					positionData[count] = -cameraPoint.X;
+					positionData[count] = cameraPoint.X;
 					positionData[count + 1] = cameraPoint.Y;
 					positionData[count + 2] = -cameraPoint.Z;
 
@@ -466,7 +409,7 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 }
 
 
-
+// 
 void KinectHandler::clearBuffer(GLfloat *buffer, int size){
 	for (int i = 0; i < size; i++)
 		buffer[i] = 1.0f; 

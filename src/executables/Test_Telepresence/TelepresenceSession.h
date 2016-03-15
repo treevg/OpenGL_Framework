@@ -34,9 +34,13 @@ private:
 	ShaderProgram* m_pointCloudShaders;
 	ShaderProgram* m_roomShaders;
 	ShaderProgram* m_billboardShaders;
+	ShaderProgram* m_hudShaders;
+	ShaderProgram* m_panelShaders;
 
 	//TODO do not save this as member
 	TextPane* m_textPane;
+	TextPane* m_hud;
+	TextPane* m_textPanel;
 	PointCloud* m_pointCloud;
 
 	RenderPass* m_roomPass;
@@ -45,17 +49,25 @@ private:
 	RenderPass* m_handPass;
 	RenderPass* m_cubePass;
 	RenderPass* m_billboardPass;
+	RenderPass* m_hudPass;
+	RenderPass* m_panelPass;
+
+	double lastTime;
+	int nbFrames;
 
 	void renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view);
 
-	void renderRoom();
+	void renderRoom(glm::vec3 cameraPosition);
 	void renderPointCloud();
-	void renderLeap();
+	void renderLeap(glm::vec3 cameraPosition);
 	void renderBillboards(glm::vec3 cameraPosition);
+	void renderHud(glm::vec3 cameraPosition);
+	void renderPanels();
 	void renderTestCube();
 
 	void generateOculusWindow();
 	void initOpenGL();
+	void initMouseAndKeyboardMovement();
 	void initShaderPrograms();
 	void initRenderPasses();
 	void deleteShaderPrograms();
@@ -63,8 +75,13 @@ private:
 	void updateProjectionMatrices(glm::mat4 projection);
 	void updateViewMatrices(glm::mat4 view);
 
+	void initFramesCounter();
+	void measureSpeedOfApplication();
+
 	glm::vec3 extractCameraPosition(glm::mat4 viewMatrix) const;
-	glm::mat4 getLeapToOculusTransformationMatrix() const;
+	glm::mat4 getLeapToOculusTransformationMatrix(glm::vec3 cameraPosition) const;
 	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Vector &position) const;
 	glm::mat4 getLeapWorldCoordinateMatrix(const Leap::Matrix &basis, const Leap::Vector &position) const;
+
+	int intersectionRayTriangle(std::vector<glm::vec3> ray, std::vector<glm::vec3> triangle, glm::vec3* intersectionPoint, glm::vec3* normal);
 };

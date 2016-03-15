@@ -1,5 +1,6 @@
 #pragma once
 #include "../../libraries/ShaderTools/VertexArrayObject.h"
+#include <Kinect.h>
 
 class KinectHandler;
 
@@ -8,6 +9,7 @@ public:
 	PointCloud( KinectHandler* kinectHandler);
 	void draw();
 	void updatePointCloud();
+	std::vector<std::vector<Joint>> getAllBodyJoints();
 
 private:
 	static const int depthWidth = 512;
