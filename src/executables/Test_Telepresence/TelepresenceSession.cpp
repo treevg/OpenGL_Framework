@@ -281,7 +281,7 @@ void TelepresenceSession::renderHHF(){
 	// set texture
 	m_hhfReducePass->texture("m_pcOutputTex", m_hhfTexture);
 
-	// reduce pass over all mipmap level
+	//// reduce pass over all mipmap level
 	for (m_hhfMipmapLevel = 0; m_hhfMipmapLevel < m_hhfMipmapNumber; m_hhfMipmapLevel++){
 		m_hhfReducePass
 			->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
@@ -304,15 +304,13 @@ void TelepresenceSession::renderHHF(){
 	//}
 	//glBindFramebuffer(GL_FRAMEBUFFER, 2);
 
-	// minimal fill pass
-	//for (m_hhfMipmapLevel = m_hhfMipmapNumber - 1; m_hhfMipmapLevel >= 0; m_hhfMipmapLevel--){
+	// minimal fill pass for mipmap level 0 only - testing purpose
+
 	m_hhfFillPass
 		->texture("m_hhfTexture", m_hhfTexture)
-		->update("m_hhfMipmapLevel", 0)->run();
-		//->setFrameBufferObject(m_hhfMipmapFBO)
-	//m_hhfFillPass->getShaderProgram()->use();
-	//m_hhfFillPass->getVertexArrayObject()->draw();
-	//}
+		->update("m_hhfMipmapLevel", 0)
+		
+		->run();
 }
 
 glm::mat4 TelepresenceSession::getLeapToOculusTransformationMatrix() const
@@ -374,7 +372,7 @@ void TelepresenceSession::generateHoleFillingAssets(){
 		//if (i == 0){
 		//	// depth buffer for fbos
 		//	// is this needed for point cloud stuff?
-		// if activated texture m_hhfTexture is empty
+		//  // if activated texture m_hhfTexture is empty
 		//	glGenRenderbuffers(1, &m_hhfMipmapDepthHandle);
 		//	glBindRenderbuffer(GL_RENDERBUFFER, m_hhfMipmapDepthHandle);
 		//	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, g_RenderTargetSize.w, g_RenderTargetSize.h);
