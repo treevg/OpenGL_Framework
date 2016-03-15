@@ -33,4 +33,15 @@ void PointCloud::updatePointCloud(){
 		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(5);
 	}
+	/*else{
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);
+		glBufferData(GL_ARRAY_BUFFER, depthWidth * depthHeight * 3 * sizeof(float), m_positionData, GL_DYNAMIC_DRAW);
+		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(4);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[1]);
+		glBufferData(GL_ARRAY_BUFFER, depthWidth * depthHeight * 3 * sizeof(float), m_colorData, GL_DYNAMIC_DRAW);
+		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+		glEnableVertexAttribArray(5);
+	}*/
 }

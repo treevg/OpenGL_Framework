@@ -1,5 +1,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <Leap.h>
+#include "ShaderTools\RenderPass.h"
 
 class LeapHandler;
 class GLFWwindow;
@@ -52,13 +53,31 @@ private:
 	RenderPass* m_hhfExpandPass;
 	RenderPass* m_hhfFillPass;
 
-	VertexArrayObject* vertexArrayObject;
+	// Screen quad to render hhf image into
+	VertexArrayObject* m_hhfVao;
 
+	glm::vec2 m_hhfResolution;
 
-	GLuint hhf_texture;
-	GLuint mipmapNumber;
-	GLuint inputTexture;
-	std::vector<FrameBufferObject*> mipmapFBOs;
+	// hhf texture
+	GLuint m_hhfTexture;
+	// number of mipmaps
+	GLuint m_hhfMipmapNumber;
+	// mipmap fbo handle
+	GLuint* m_hhfMipmapFBOHandles;
+	// mipmap texture frame buffer
+	std::vector<FrameBufferObject*> m_hhfMipmapFBOs;
+	// current mipmap level
+	int m_hhfMipmapLevel;
+	// gaussian radius (shader)
+	int m_hhfGaussianRadius;
+
+	GLuint m_hhfMipmapDepthHandle;
+
+	// Testkram
+	GLfloat* texdata;
+	GLuint ttex;
+
+	//
 
 	void renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view);
 

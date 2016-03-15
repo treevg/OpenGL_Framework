@@ -185,11 +185,12 @@ inline void render(GLFWwindow* window, std::function<void(double, glm::mat4 proj
 		ovrHmd_GetEyePoses(g_Hmd, l_FrameIndex, g_EyeOffsets, g_EyePoses, NULL);
 
 		// Bind the FBO...
+		//glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 
 		// Clear...
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++)
 		{
 			ovrEyeType l_Eye = g_Hmd->EyeRenderOrder[l_EyeIndex];
