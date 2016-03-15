@@ -41,6 +41,7 @@ void TelepresenceSession::init()
 	generateOculusWindow();
 	initOpenGL();
 	initMouseAndKeyboardMovement();
+	initFramesCounter();
 	m_assimpLoader = new AssimpLoader();
 	m_kinectHandler = new KinectHandler();
 	m_leapHandler = new LeapHandler();
@@ -62,11 +63,11 @@ void TelepresenceSession::run()
 
 void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view)
 {
+	measureSpeedOfApplication();
 
 	computeMatricesFromInputs(m_window);
-	projection = getProjectionMatrix();
+	//projection = getProjectionMatrix();
 	view = getViewMatrix();
-
 
 	updateProjectionMatrices(projection);
 	updateViewMatrices(view);
@@ -75,10 +76,17 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 
 	m_pointCloud->updatePointCloud();
 	renderBillboards(cameraPosition);
+
 	renderPanels();
 	renderRoom(cameraPosition);
 	//renderTestCube();
 	renderLeap(cameraPosition);
+
+
+	glDepthFunc(GL_ALWAYS);
+	renderHud(cameraPosition);
+	glDepthFunc(GL_LESS);
+
 	renderPointCloud();
 
 }
@@ -115,18 +123,35 @@ void TelepresenceSession::initOpenGL()
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
+void TelepresenceSession::initFramesCounter()
+{
+	lastTime = glfwGetTime();
+	nbFrames = 0;
+}
+
+void TelepresenceSession::measureSpeedOfApplication()
+{
+	// Measure speed
+	double currentTime = glfwGetTime();
+	nbFrames++;
+
+	if (currentTime - lastTime >= 1.0){ // If last prinf() was more than 1 sec ago
+		// printf and reset timer
+		printf("%f ms/frame\n", 1000.0 / double(nbFrames));
+		nbFrames = 0;
+		lastTime += 1.0;
+	}
+}
+
 void TelepresenceSession::initShaderPrograms()
 {
-	//m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
-	//m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
-	//m_roomShaders = new ShaderProgram({ "/Test_Telepresence/minimalmat.vert", "/Test_Telepresence/minimalmat.frag" });
-	//m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 	m_cubeShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_directionShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
 	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	m_hudShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 }
 
@@ -136,10 +161,13 @@ void TelepresenceSession::initRenderPasses()
 	Cube* directionCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
 	Sphere* sphere = new Sphere(10.0f);
 	m_textPane = new TextPane(0.8f, .4f, "Matthias");
+	m_hud = new TextPane(0.8f, .4f, "", 20);
+
 	m_textPanel = new TextPane(2.0f, 1.0f, "Wand");
 
 	m_cubePass = new RenderPass(testCube, m_cubeShaders);
 	m_billboardPass = new RenderPass(m_textPane, m_billboardShaders);
+	m_hudPass = new RenderPass(m_hud, m_hudShaders);
 	m_panelPass = new RenderPass(m_textPanel, m_panelShaders);
 	m_handPass = new RenderPass(sphere, m_handShaders);
 	m_roomPass = new RenderPass(m_assimpLoader->getMeshList()->at(0), m_roomShaders);
@@ -152,6 +180,8 @@ void TelepresenceSession::initRenderPasses()
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_billboardPass
+		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+	m_hudPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_panelPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
@@ -176,6 +206,7 @@ void TelepresenceSession::deleteShaderPrograms()
 	delete m_handPass;
 	delete m_cubePass;
 	delete m_billboardPass;
+	delete m_hudPass;
 	delete m_panelPass;
 }
 
@@ -184,6 +215,8 @@ void TelepresenceSession::updateProjectionMatrices(glm::mat4 projection)
 	m_cubePass
 		->update("projectionMatrix", projection);
 	m_billboardPass
+		->update("projectionMatrix", projection);
+	m_hudPass
 		->update("projectionMatrix", projection);
 	m_panelPass
 		->update("projectionMatrix", projection);
@@ -203,6 +236,8 @@ void TelepresenceSession::updateViewMatrices(glm::mat4 view)
 		->update("viewMatrix", view);
 	m_billboardPass
 		->update("viewMatrix", view);
+	m_hudPass
+		->update("viewMatrix", glm::mat4(1.0f));
 	m_panelPass
 		->update("viewMatrix", view);
 	m_handPass
@@ -293,7 +328,7 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 
 void TelepresenceSession::renderPointCloud()
 {
-	m_pointCloud->updatePointCloud();
+	//m_pointCloud->updatePointCloud();
 	m_pointCloudPass->run();
 }
 
@@ -311,8 +346,39 @@ void TelepresenceSession::renderTestCube()
 		->run();
 }
 
+void TelepresenceSession::renderHud(glm::vec3 cameraPosition)
+{
+	// Measure speed
+	double currentTime = glfwGetTime();
+	nbFrames++;
+
+	if (currentTime - lastTime >= 1.0){ // If last prinf() was more than 1 sec ago
+		// printf and reset timer
+		//string erg = std::to_string(1000.0 / double(nbFrames)) + "ms / frame\n";
+		string erg = "FPS:" + std::to_string(double(nbFrames)/ 1000.0f) + "\n lolo";
+		m_hud->updateText(erg);
+		nbFrames = 0;
+		lastTime += 1.0;
+	}
+
+	/*int width, height;
+	glfwGetWindowSize(m_window, &width, &height);
+
+	printf("width: %d", width);
+	printf("height: %d", height);*/
+
+	m_hudPass
+		->update("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(1,1,-1)))
+		->texture("tex", m_hud->getTextureHandle())
+		->run();
+
+}
+
 void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
 {
+	m_textPane->updateText("Ll L l");
+
+
 	glm::vec3 headPosition(0);
 	for (auto body : m_pointCloud->getAllBodyJoints())
 	{

@@ -7,10 +7,11 @@ class TextTexture;
 class TextPane : public VertexArrayObject
 {
 public: 
-	TextPane( float width, float height, std::string title);
+	TextPane( float width, float height, std::string title, int fontSize = 70);
 	~TextPane();
 
 	void draw();
+	void updateText(std::string title);
 	std::vector<glm::vec3> getVertices();
 
 	GLuint getTextureHandle();

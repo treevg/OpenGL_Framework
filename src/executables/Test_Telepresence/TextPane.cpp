@@ -4,7 +4,7 @@
 #include <glm/gtx/norm.hpp>
 
 
-TextPane::TextPane(float width, float height, std::string title)
+TextPane::TextPane(float width, float height, std::string title, int fontSize)
 {
 	printf("Constructing TextButton!");
 	GdkRGBA color = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -12,7 +12,7 @@ TextPane::TextPane(float width, float height, std::string title)
 
 	//m_center = glm::vec3(position);
 	
-	m_textTexture = new TextTexture(256, 256, title.c_str(), color, background);
+	m_textTexture = new TextTexture(256, 256, title.c_str(), color, background, fontSize);
 	createGeometry(width, height);
 }
 
@@ -91,6 +91,8 @@ void TextPane::createGeometry( float width, float height)
 	glBufferData(GL_ARRAY_BUFFER, sizeof(uvCoordinates), uvCoordinates, GL_STATIC_DRAW);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(2);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 
@@ -99,6 +101,12 @@ void TextPane::draw() {
 	glDrawArrays(mode, 0, 2 * 3);
 }
 
+void TextPane::updateText(std::string title)
+{
+	GdkRGBA color = { 1.0f, 1.0f, 1.0f, 1.0f };
+	GdkRGBA background = { 0.5f, 0.5f, 0.0f, 0.0f };
+	m_textTexture = new TextTexture(256, 256, title.c_str(), color, background, 20);
+}
 
 std::vector<glm::vec3> TextPane::getVertices(){
 	return m_vertices;

@@ -12,7 +12,7 @@
 class TextTexture
 {
 public:
-	TextTexture(int textureWidth, int textureHeight, const char *string, const GdkRGBA& textColor, const GdkRGBA& background);
+	TextTexture(int textureWidth, int textureHeight, const char *string, const GdkRGBA& textColor, const GdkRGBA& background, int fontSize);
 	virtual ~TextTexture();
 	GLuint getTextureHandle();
 
@@ -20,6 +20,7 @@ private:
 	GLuint			m_textureId;
 	int				m_width;
 	int				m_height;
+	int				m_fontSize;
 	std::string		m_string;
 	GdkRGBA			m_textColor;
 	GdkRGBA			m_backgroundColor;
