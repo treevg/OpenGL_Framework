@@ -212,8 +212,7 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 											
 											SafeRelease(bodyIndexFrame);
 
-
-											//retrieveBoneData( pMultiFrame );
+											m_jointPositions = getBodyData(pMultiFrame);
 
 											//converted color
 											delete[] bodyIndexBuffer;
@@ -235,28 +234,49 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 	return true;
 }
 
-void KinectHandler::retrieveBoneData(IMultiSourceFrame* multiSourceFrame)
+std::vector<std::vector<Joint>> KinectHandler::getBodyData(IMultiSourceFrame* frame) const
 {
-	HRESULT hr = multiSourceFrame->get_BodyFrameReference(&bodyFrameReference);
+	// Body tracking variables
+	BOOLEAN tracked;                            // Whether we see a body
+	Joint joints[JointType_Count];              // List of joints in the tracked body
 
-	bodyFrame = nullptr;
-	if (SUCCEEDED(hr))
-	{
-		hr = bodyFrameReference->AcquireFrame(&bodyFrame);
+	std::vector<std::vector<Joint>> jointsVector;
 
-		IBody* bodies[BODY_COUNT] = {0};
-		auto body = bodies[2];
-		hr = bodyFrame->GetAndRefreshBodyData(BODY_COUNT, bodies);
-		if( SUCCEEDED( hr ) )
-		{
-			
-		}
 
-		for (int i = 0; i < BODY_COUNT; ++i)
-		{
-			SafeRelease( bodies[i]);
+	IBodyFrame* bodyframe;
+	IBodyFrameReference* frameref = NULL;
+	frame->get_BodyFrameReference(&frameref);
+	frameref->AcquireFrame(&bodyframe);
+	if (frameref) frameref->Release();
+
+	if (!bodyframe) return std::vector<std::vector<Joint>>();
+
+	// ------ NEW CODE ------
+	IBody* body[BODY_COUNT] = {nullptr};
+	bodyframe->GetAndRefreshBodyData(BODY_COUNT, body);
+	for (int i = 0; i < BODY_COUNT; i++) {
+		body[i]->get_IsTracked(&tracked);
+		if (tracked) {
+			body[i]->GetJoints(JointType_Count, joints);
+			std::vector<Joint> tempJoints;
+			for (auto joint : joints)
+			{
+				joint.Position.Z = -joint.Position.Z;
+				tempJoints.push_back(joint);
+			}
+			jointsVector.push_back(tempJoints);
+			break;
 		}
 	}
+	// ------ END NEW CODE ------
+
+	if (bodyframe) bodyframe->Release();
+	return jointsVector;
+}
+
+std::vector<std::vector<Joint>> KinectHandler::getBodyJoints()
+{
+	return m_jointPositions;
 }
 
 int KinectHandler::calculateCollision( glm::vec3 start, glm::vec3 direction, IBody* bodies )
@@ -340,10 +360,11 @@ void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionDat
 	}
 }
 
-
+// filter body points from background points and write them in color and position Buffers
 void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int depthWidth, int depthHeight, int colorWidth, int colorHeight)
 {
 	int count = 0;
+	// all background points will be drawn on position 1 with color white.
 	clearBuffer(positionData, depthWidth * depthHeight * 3);
 	clearBuffer(colorData, depthWidth * depthHeight * 3);
 
@@ -352,7 +373,6 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 	for (int y = depthHeight - 1; y >= 0; y--){
 		for (int x = 0; x < depthWidth; x++){
 
-			// calculate index into depth array
 			int depthIndex = (y * depthWidth) + x;
 
 			byte body = bodyIndexBuffer[depthIndex];
@@ -376,13 +396,7 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 					colorData[count + 1] = color.rgbGreen / 255.0f;
 					colorData[count + 2] = color.rgbBlue / 255.0f;
 
-					//if (cameraPoint.X != -INFINITY && cameraPoint.Y != -INFINITY && cameraPoint.Z != -INFINITY)
-					//{
-					//depthData[count] = (float)x / (float)depthWidth;
-					//depthData[count + 1] = (float)(-y) / (float)depthHeight;
-					//depthData[count + 2] = -(float)(depthBuffer[depthIndex] - minReliableDistance) / (float)(maxReliableDistance - minReliableDistance);
-
-					positionData[count] = -cameraPoint.X;
+					positionData[count] = cameraPoint.X;
 					positionData[count + 1] = cameraPoint.Y;
 					positionData[count + 2] = -cameraPoint.Z;
 
@@ -395,7 +409,7 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 }
 
 
-
+// 
 void KinectHandler::clearBuffer(GLfloat *buffer, int size){
 	for (int i = 0; i < size; i++)
 		buffer[i] = 1.0f; 

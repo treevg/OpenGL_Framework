@@ -34,3 +34,8 @@ void PointCloud::updatePointCloud(){
 		glEnableVertexAttribArray(5);
 	}
 }
+
+std::vector<std::vector<Joint>> PointCloud::getAllBodyJoints()
+{
+	return m_kinectHandler->getBodyJoints();
+}

@@ -7,6 +7,7 @@
 #include "AssimpLoader/AssimpLoader.h"
 #include "TextPane.h"
 #include "PointCloud.h"
+#include "CameraObjectRelations.h"
 
 
 //transform due to head mounted Leap Motion
@@ -70,7 +71,7 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	renderRoom(cameraPosition);
 	renderTestCube();
 	renderLeap(cameraPosition);
-	//renderPointCloud();
+	renderPointCloud();
 
 }
 
@@ -103,11 +104,11 @@ void TelepresenceSession::initShaderPrograms()
 
 void TelepresenceSession::initRenderPasses()
 {
-	Cube* testCube = new Cube(glm::vec3(1.0f, 0.0f, -4.0f), .5f);
+	Cube* testCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), .1f);
 	Cube* directionCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
 	Sphere* sphere = new Sphere(10.0f);
-	m_textPane = new TextPane(glm::vec3(-2.0f, 0.0f, -3.0f), 2.0f, 1.0f, "Herzlich Willkommen");
-	m_textPanel = new TextPane(glm::vec3(-2.0f, 0.0f, -3.0f), 2.0f, 1.0f, "Wand");
+	m_textPane = new TextPane( 0.8f, .4f, "Herzlich Willkommen");
+	m_textPanel = new TextPane( 2.0f, 1.0f, "Wand");
 
 	m_cubePass = new RenderPass(testCube, m_cubeShaders);
 	m_billboardPass = new RenderPass(m_textPane, m_billboardShaders);
@@ -243,7 +244,7 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 						triangle.clear();
 						if (intersected == 1)
 						{
-							glm::quat rotationQuat = m_textPanel->rotationBetweenVectors(m_textPanel->getNormal(), normal);
+							glm::quat rotationQuat = CameraObjectRelations::rotationBetweenVectors(m_textPanel->getNormal(), normal);
 							glm::mat4 rotationMat = glm::toMat4(rotationQuat);
 							glm::mat4 model = glm::translate(glm::translate(glm::mat4(1.0f), intersectionPoint),normal*.1f) * rotationMat;
 							m_panelPass
@@ -264,23 +265,42 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 
 void TelepresenceSession::renderPointCloud()
 {
-	//m_pointCloud->updatePointCloud();
+	m_pointCloud->updatePointCloud();
 	m_pointCloudPass->run();
 }
 
 void TelepresenceSession::renderTestCube()
 {
+	glm::vec3 headPosition(0);
+	for (auto body : m_pointCloud->getAllBodyJoints())
+	{
+		headPosition = glm::vec3(body[JointType_Head].Position.X, body[JointType_Head].Position.Y, body[JointType_Head].Position.Z);
+	}
+
 	m_cubePass
 		->update("diffuseColor", glm::vec3(.0, 1.0, .0))
-		->update("modelMatrix", glm::mat4(1.0f))
+		->update("modelMatrix", glm::translate(glm::mat4(1.0f), headPosition))
 		->run();
 }
 
 void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
 {
-	glm::mat4 met = m_textPane->getBillboardModelMatrix(cameraPosition);
+	glm::vec3 headPosition(0);
+	for (auto body : m_pointCloud->getAllBodyJoints())
+	{
+		headPosition = glm::vec3(body[JointType_Head].Position.X, body[JointType_Head].Position.Y, body[JointType_Head].Position.Z);
+	}
+	glm::vec3 billboardPosition = headPosition;
+	billboardPosition.x = headPosition.x + 0.6f;
+
+
+	glm::mat4 modelMatrix = glm::mat4(1.0f);
+	modelMatrix = glm::translate(modelMatrix, billboardPosition);
+	glm::mat4 billboardRotation = CameraObjectRelations::getBillboardRotationMatrix(cameraPosition, billboardPosition);
+	modelMatrix = billboardRotation * modelMatrix;
+
 	m_billboardPass
-		->update("modelMatrix", met)
+		->update("modelMatrix", billboardRotation)
 		->texture("tex", m_textPane->getTextureHandle())
 		->run();
 
