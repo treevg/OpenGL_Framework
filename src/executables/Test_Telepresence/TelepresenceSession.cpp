@@ -278,51 +278,51 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 		m_assimpLoader->getMeshList()->at(m)->draw();
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		if (leftHand.isValid() && rightHand.isValid() && m_leapHandler->isPinched(leftHand))
-		{
-			vector<glm::vec3> ray;
-			vector<glm::vec3> triangle;
-			glm::vec3 intersectionPoint;
-			glm::vec3 normal;
+		//if (leftHand.isValid() && rightHand.isValid() && m_leapHandler->isPinched(leftHand))
+		//{
+		//	vector<glm::vec3> ray;
+		//	vector<glm::vec3> triangle;
+		//	glm::vec3 intersectionPoint;
+		//	glm::vec3 normal;
 
-			glm::vec4 rayDirection = glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmNormal()), 0);
-			glm::mat4 leapWorldMatrixStart = getLeapWorldCoordinateMatrix(rightHand.palmPosition());
-			glm::mat4 leapWorldMatrixDirection = getLeapWorldCoordinateMatrix(rightHand.palmNormal());
+		//	glm::vec4 rayDirection = glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmNormal()), 0);
+		//	glm::mat4 leapWorldMatrixStart = getLeapWorldCoordinateMatrix(rightHand.palmPosition());
+		//	glm::mat4 leapWorldMatrixDirection = getLeapWorldCoordinateMatrix(rightHand.palmNormal());
 
-			glm::mat4 modelMatrixRay = leapToOculusTransformation * leapWorldMatrixStart;
-			glm::mat4 modelMatrixRayDirection = leapToOculusTransformation * leapWorldMatrixDirection;
-			glm::vec4 rayStart = modelMatrixRay * glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmPosition()), 0);
-			rayDirection = modelMatrixRayDirection * rayDirection;
-			ray.push_back(glm::vec3(rayStart.x, rayStart.y, rayStart.z));
-			ray.push_back(glm::vec3(rayDirection.x, rayDirection.y, rayDirection.z));
+		//	glm::mat4 modelMatrixRay = leapToOculusTransformation * leapWorldMatrixStart;
+		//	glm::mat4 modelMatrixRayDirection = leapToOculusTransformation * leapWorldMatrixDirection;
+		//	glm::vec4 rayStart = modelMatrixRay * glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmPosition()), 0);
+		//	rayDirection = modelMatrixRayDirection * rayDirection;
+		//	ray.push_back(glm::vec3(rayStart.x, rayStart.y, rayStart.z));
+		//	ray.push_back(glm::vec3(rayDirection.x, rayDirection.y, rayDirection.z));
 
-			std::vector<GLfloat>* vertices = mesh->getVertexList();
-			std::vector<GLint>* indices = mesh->getIndexList();
+		//	std::vector<GLfloat>* vertices = mesh->getVertexList();
+		//	std::vector<GLint>* indices = mesh->getIndexList();
 
-			for (int i = 0; i < indices->size(); i++)
-			{
-				if (i > 0 && i % 3 == 0)
-				{
-					intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint, &normal);
-					triangle.clear();
-					if (intersected == 1)
-					{
-						glm::quat rotationQuat = CameraObjectRelations::rotationBetweenVectors(m_textPanel->getNormal(), normal);
-						glm::mat4 rotationMat = glm::toMat4(rotationQuat);
-						glm::mat4 model = glm::translate(glm::translate(glm::mat4(1.0f), intersectionPoint), normal*.1f) * rotationMat;
-						m_panelPass
-							->update("modelMatrix", model)
-							->texture("tex", m_textPanel->getTextureHandle())
-							->run();
-					}
+		//	for (int i = 0; i < indices->size(); i++)
+		//	{
+		//		if (i > 0 && i % 3 == 0)
+		//		{
+		//			intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint, &normal);
+		//			triangle.clear();
+		//			if (intersected == 1)
+		//			{
+		//				glm::quat rotationQuat = CameraObjectRelations::rotationBetweenVectors(m_textPanel->getNormal(), normal);
+		//				glm::mat4 rotationMat = glm::toMat4(rotationQuat);
+		//				glm::mat4 model = glm::translate(glm::translate(glm::mat4(1.0f), intersectionPoint), normal*.1f) * rotationMat;
+		//				m_panelPass
+		//					->update("modelMatrix", model)
+		//					->texture("tex", m_textPanel->getTextureHandle())
+		//					->run();
+		//			}
 
-				}
-				int index = (indices->at(i) * 3);
-				glm::vec3 vertex = glm::vec3(vertices->at(index), vertices->at(index + 1), vertices->at(index + 2));
-				triangle.push_back(vertex);
+		//		}
+		//		int index = (indices->at(i) * 3);
+		//		glm::vec3 vertex = glm::vec3(vertices->at(index), vertices->at(index + 1), vertices->at(index + 2));
+		//		triangle.push_back(vertex);
 
-			}
-		}
+		//	}
+		//}
 	}
 }
 
