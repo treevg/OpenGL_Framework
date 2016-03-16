@@ -8,8 +8,10 @@ TextTexture::TextTexture(int textureWidth, int textureHeight, const char *string
 	m_width = textureWidth;
 	m_height = textureHeight;
 	m_fontSize = fontSize;
+	initTexture();
 
-	drawText();
+	// draw Method call in constructor?
+	//drawText();
 }
 
 TextTexture::~TextTexture()
@@ -23,6 +25,25 @@ GLuint TextTexture::getTextureHandle()
 	return m_textureId;
 }
 
+
+void TextTexture::initTexture(){
+
+	// generate texture
+	glGenTextures(1, &m_textureId);
+	glBindTexture(GL_TEXTURE_2D, m_textureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+}
+
+void TextTexture::updateTextureData(unsigned char* data){
+	// set texture data
+	glBindTexture(GL_TEXTURE_2D, m_textureId);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, &data);
+}
 
 cairo_t* TextTexture::createCairoContext(int width, int height, int channels, cairo_surface_t** surf, unsigned char** buffer)
 {
@@ -62,7 +83,6 @@ int TextTexture::drawText()
 	cairo_t* cr;
 	unsigned char* surfData;
 
-
 	surface = cairo_image_surface_create_from_png("..\..\..\FP14\src\executables\Test_Telepresence\test.png");
 
 	/* create cairo-surface/context to act as OpenGL-texture source */
@@ -81,16 +101,14 @@ int TextTexture::drawText()
 	cairo_set_source_rgb(cr, m_textColor.red, m_textColor.green, m_textColor.blue);
 	cairo_show_text(cr, m_string.c_str());
 
-	glGenTextures(1, &m_textureId);
-	glBindTexture(GL_TEXTURE_2D, m_textureId);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, surfData);
+
+	updateTextureData(surfData);
 
 	free(surfData);
 	cairo_destroy(cr);
+
+	// Do we need to revert bound texture?
+	//glBindTexture(GL_TEXTURE_2D, 0);
 
 	return m_textureId;
 }

@@ -14,7 +14,9 @@ class TextTexture
 public:
 	TextTexture(int textureWidth, int textureHeight, const char *string, const GdkRGBA& textColor, const GdkRGBA& background, int fontSize);
 	virtual ~TextTexture();
+	
 	GLuint getTextureHandle();
+
 
 private:
 	GLuint			m_textureId;
@@ -25,7 +27,10 @@ private:
 	GdkRGBA			m_textColor;
 	GdkRGBA			m_backgroundColor;
 
+	void initTexture();
+	void updateTextureData(unsigned char* data);
 	cairo_t* createCairoContext(int textureWidth, int textureHeight, int channels, cairo_surface_t** surf, unsigned char** buffer);
 	int drawText();
+	
 };
 
