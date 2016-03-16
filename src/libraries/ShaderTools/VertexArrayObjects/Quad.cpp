@@ -9,7 +9,7 @@ Quad::Quad() {
     GLuint positionBuffer;
     glGenBuffers(1, &positionBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, positionBuffer);
- /*   float positions[] = {
+  /*float positions[] = {
         -1.0f, -1.0f,
 		-1.0f, 1.0f,
 		1.0f, -1.0f,

@@ -8,12 +8,12 @@ uniform vec3 diffuseColor;
 
 out vec4 fragmentColor;
 
-void main(){
-    //compute the light vector as the normalized vector between 
-    //the vertex position and the light position:
+void main()
+{
+	// normalized vector from fragment to light
     vec3 lightVector = normalize(lightPosition - passPosition.xyz);
 
-    //compute the eye vector as the normalized negative vertex position in camera coordinates:
+    // normalized vector from fragment to camera
     vec3 eye = normalize(-passPosition.xyz);
     
     //compute the normalized reflection vector using GLSL's built-in reflect() function:
@@ -21,14 +21,15 @@ void main(){
 
     //variables used in the phong lighting model:
     float phi = max(dot(passNormal, lightVector), 0.1);
-    float psi = pow(max(dot(reflection, eye), 0), 100);
+    float psi = pow(max(dot(reflection, eye), 0), 20);
 
     vec3 ambientColor = vec3(0.2, 0.2, 0.2);
 
+	// set alpha to zero to indicate it is not the point cloud
     fragmentColor = vec4(
        ambientColor +
        phi * diffuseColor + 
        psi,
-        1);
+        0);
        
 }

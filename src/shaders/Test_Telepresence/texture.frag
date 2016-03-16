@@ -7,4 +7,7 @@ out vec4 fragColor;
 
 void main() {
 	fragColor = texture(tex, passUv.xy);
+	
+	// set alpha to zero to indicate this is not the point cloud
+	fragColor.a = 0;
 }

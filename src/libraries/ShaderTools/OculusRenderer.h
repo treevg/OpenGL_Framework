@@ -133,10 +133,10 @@ static void SetOpenGLState(void)
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_DEPTH_TEST);
 	glShadeModel(GL_SMOOTH);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	//glEnable(GL_BLEND);
+	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	if (l_MultiSampling) glEnable(GL_MULTISAMPLE); else glDisable(GL_MULTISAMPLE);
-	glClearColor(0.2f, 0.3f, 0.4f, 1.0f);
+	glClearColor(0.2f, 0.3f, 0.4f, 0.0f);
 }
 
 glm::vec2 getResolution(GLFWwindow* window) {

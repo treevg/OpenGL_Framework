@@ -79,43 +79,45 @@ void TelepresenceSession::run()
 
 void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view)
 {
-	measureSpeedOfApplication();
-	if (m_toggle_mouseAsCamera) {
-		computeMatricesFromInputs(m_window);
-		//projection = getProjectionMatrix();
-		view = getViewMatrix();
-	}
-	updateProjectionMatrices(projection);
-	updateViewMatrices(view);
+		measureSpeedOfApplication();
+		if (m_toggle_mouseAsCamera) {
+			computeMatricesFromInputs(m_window);
+			//projection = getProjectionMatrix();
+			view = getViewMatrix();
+		}
+		updateProjectionMatrices(projection);
+		updateViewMatrices(view);
 
-	glm::vec3 cameraPosition = extractCameraPosition(view);
+		glm::vec3 cameraPosition = extractCameraPosition(view);
 
-	if (m_toggle_userInfo) {
-		renderBillboards(cameraPosition);
-	}
-	//renderPanels();
-	renderRoom(cameraPosition);
-	renderTestCube();
+		if (m_toggle_userInfo) {
+			//renderBillboards(cameraPosition);
+		}
+		//renderPanels();
+		renderRoom(cameraPosition);
+		renderTestCube();
 
-if (m_toggle_leapMotion) {
-		renderLeap(cameraPosition);
-	}
+		if (m_toggle_leapMotion) {
+				renderLeap(cameraPosition);
+		}
 
-	if (m_toggle_pointcloud) {
-		renderPointCloud();
-	}
+		if (m_toggle_pointcloud) {
+			renderPointCloud();
+		}
 
-	if (m_toggle_hud) {
-		glDepthFunc(GL_ALWAYS);
-		renderHud(cameraPosition);
-		glDepthFunc(GL_LESS);
-	}
-	//renderResult();
+		if (m_toggle_hud) {
+			//glDepthFunc(GL_ALWAYS);
+			///renderHud(cameraPosition);
+			//glDepthFunc(GL_LESS);
+		}
+		//renderResult();
 }
 
 void TelepresenceSession::performHHF(){
 	renderHHF();
 	renderResult();
+	glBindFramebuffer(GL_FRAMEBUFFER, m_hhfMipmapFBOHandles[0]);
+	glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void TelepresenceSession::generateOculusWindow()
@@ -221,17 +223,24 @@ void TelepresenceSession::measureSpeedOfApplication()
 
 void TelepresenceSession::initShaderPrograms()
 {
+	// Phong Shaders
 	m_cubeShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_directionShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
-	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
 	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
+
+	// Texture Shaders
 	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	m_hudShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+
+	// Point Cloud Shaders 
+	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/pointcloud.vert", "/Test_Telepresence/pointcloud.frag" });
+
+	// HoleFilling Shaders
 	m_hhfReduceShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/reduce.frag" });
 	m_hhfFillShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/fill.frag" });
 	m_resultShaders = new ShaderProgram({ "/Test_Telepresence/result.vert", "/Test_Telepresence/result.frag" });
-	m_hudShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
-	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 }
 
 void TelepresenceSession::initRenderPasses()
@@ -265,9 +274,9 @@ void TelepresenceSession::initRenderPasses()
 	m_billboardPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_hudPass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_panelPass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_handPass
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
@@ -620,13 +629,11 @@ glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Matrix &
 
 
 void TelepresenceSession::generateHoleFillingAssets(){
-
 	m_hhfResolution = glm::vec2{ g_RenderTargetSize.w, g_RenderTargetSize.h };
 
 	m_hhfVao = new Quad();
 	m_hhfMipmapNumber = 4;
 
-	
 	glGenTextures(1, &m_hhfTexture);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_hhfTexture);
@@ -686,8 +693,6 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-
-
 	// texture with random data stuff
 	/*texdata = (GLfloat *)malloc(g_RenderTargetSize.w*g_RenderTargetSize.h * 4 * sizeof(float));
 	for (size_t i = 0; i<g_RenderTargetSize.w*g_RenderTargetSize.h * 4; i += 4){
@@ -711,9 +716,8 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
-
-
 }
+
 // intersect3D_RayTriangle(): find the 3D intersection of a ray with a triangle
 //    Input:  a ray R, and a triangle T
 //    Output: *I = intersection point (when it exists)
