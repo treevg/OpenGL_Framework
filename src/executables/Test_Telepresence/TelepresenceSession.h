@@ -90,6 +90,8 @@ private:
 	void renderHHF();
 	void renderResult();
 
+	void performHHF();
+
 	void generateOculusWindow();
 	void initOpenGL();
 	void initShaderPrograms();

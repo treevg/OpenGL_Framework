@@ -23,6 +23,8 @@ void PointCloud::updatePointCloud(){
 
 	if (m_kinectHandler->updateKinect(m_colorData, m_positionData) )
 	{
+		glBindVertexArray(vertexArrayObjectHandle);
+
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);
 		glBufferData(GL_ARRAY_BUFFER, depthWidth * depthHeight * 3 * sizeof(float), m_positionData, GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -32,8 +34,10 @@ void PointCloud::updatePointCloud(){
 		glBufferData(GL_ARRAY_BUFFER, depthWidth * depthHeight * 3 * sizeof(float), m_colorData, GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glEnableVertexAttribArray(5);
-	}
-	/*else{
+
+		glBindVertexArray(0);
+	}/*
+	else{
 		glBindBuffer(GL_ARRAY_BUFFER, vertexBufferHandles[0]);
 		glBufferData(GL_ARRAY_BUFFER, depthWidth * depthHeight * 3 * sizeof(float), m_positionData, GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 0, nullptr);

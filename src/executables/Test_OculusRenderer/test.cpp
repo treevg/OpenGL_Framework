@@ -37,6 +37,11 @@ int main(int argc, char *argv[]) {
 			->update("viewMatrix", view)
 			->update("lightPosition", lightPos)
 			->run();
+	},
+		[&]()
+	{
+
+		//performHHF();
 	});
 
 	return 0;

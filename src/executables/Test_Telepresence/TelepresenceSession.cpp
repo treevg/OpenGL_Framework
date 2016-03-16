@@ -58,28 +58,33 @@ void TelepresenceSession::init()
 
 void TelepresenceSession::run()
 {
-	render(m_window, [&]( double delta, glm::mat4 projection, glm::mat4 view)
-	{
-		//m_kinectHandler->retrieveCameraIntrinsics();
-		renderLoop(delta, projection, view);
-		
-	});
+	render(m_window, [&](double delta, glm::mat4 projection, glm::mat4 view)
+		{
+			//m_kinectHandler->retrieveCameraIntrinsics();
+			renderLoop(delta, projection, view);
+
+		}, 
+		[&]()
+		{
+			performHHF();
+		}
+	);
 }
 
 void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view)
 {
 	
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	for (int i = 0; i < m_hhfMipmapNumber; i++) {
-		glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[i]);
+	//for (int i = 0; i < m_hhfMipmapNumber; i++) {
+		//glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[i]);
 		//glBindRenderbuffer(GL_RENDERBUFFER, (m_hhfMipmapDepthHandles)[i]);
 		//glClear(GL_COLOR_BUFFER_BIT);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//}
+	//glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
 	//glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[0]);
 	//glBindRenderbuffer(GL_RENDERBUFFER, (m_hhfMipmapDepthHandles)[0]);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	updateProjectionMatrices(projection);
 	updateViewMatrices(view);
 
@@ -93,8 +98,12 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	// if point cloud AND hhf are activated point cloud can not be seen in hhf texture
 	// strange
 	renderPointCloud();
-	renderHHF();
 	//renderResult();
+}
+
+void TelepresenceSession::performHHF(){
+	renderHHF();
+	renderResult();
 }
 
 void TelepresenceSession::generateOculusWindow()
@@ -123,7 +132,7 @@ void TelepresenceSession::initShaderPrograms()
 	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 	m_hhfReduceShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/reduce.frag" });
 	m_hhfFillShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/fill.frag" });
-	m_resultShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/fill.frag" });
+	m_resultShaders = new ShaderProgram({ "/Test_Telepresence/result.vert", "/Test_Telepresence/result.frag" });
 }
 
 void TelepresenceSession::initRenderPasses()
@@ -143,7 +152,7 @@ void TelepresenceSession::initRenderPasses()
 	m_directionPass = new RenderPass( directionCube, m_directionShaders);
 	m_hhfReducePass = new RenderPass(m_hhfVao, m_hhfReduceShaders);
 	m_hhfFillPass = new RenderPass(m_hhfVao, m_hhfFillShaders);
-	m_resultPass = = new RenderPass(m_hhfVao, m_resultShaders);
+	m_resultPass = new RenderPass(m_hhfVao, m_resultShaders);
 
 	glm::vec3 lightPos = glm::vec3(2.0f, 10.0f, 2.0f);
 
@@ -182,6 +191,7 @@ void TelepresenceSession::deleteShaderPrograms()
 	delete m_billboardPass;
 	delete m_hhfReducePass;
 	delete m_hhfFillPass;
+	delete m_resultPass;
 }
 
 void TelepresenceSession::updateProjectionMatrices(glm::mat4 projection)
@@ -295,7 +305,7 @@ void TelepresenceSession::renderHHF(){
 	// set texture
 	m_hhfReducePass->texture("m_pcOutputTex", m_hhfTexture);
 
-	//// reduce pass over all mipmap level
+	// reduce pass over all mipmap level
 	for (m_hhfMipmapLevel = 0; m_hhfMipmapLevel < m_hhfMipmapNumber; m_hhfMipmapLevel++){
 		m_hhfReducePass
 			->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
@@ -307,32 +317,19 @@ void TelepresenceSession::renderHHF(){
 				->texture("m_pcOutputTex", m_hhfTexture);
 		}*/
 	}
+
 	m_hhfFillPass
 		->texture("m_hhfTexture", m_hhfTexture);
+	
 	// fill pass over all mipmap level
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	for (m_hhfMipmapLevel = m_hhfMipmapNumber - 2; m_hhfMipmapLevel >= 0; m_hhfMipmapLevel--){
-		//glBindRenderbuffer(GL_RENDERBUFFER, (m_hhfMipmapDepthHandles)[m_hhfMipmapLevel]);
-		if (m_hhfMipmapLevel > 0){
-			m_hhfFillPass
-				->setFrameBufferObject(m_hhfMipmapFBOs[m_hhfMipmapLevel]);
-			m_hhfFillPass
-				//->texture("m_hhfTexture", m_hhfTexture)
-				->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
-				->run();
-		}
-		else if (m_hhfMipmapLevel == 0){
-			m_hhfFillPass
-				->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
-
-			m_hhfFillPass
-				//->texture("m_hhfTexture", m_hhfTexture)
-				->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
-				->run();
-		}
+					
+		m_hhfFillPass
+			->texture("m_hhfTexture", m_hhfTexture)
+			->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
+			->setFrameBufferObject(m_hhfMipmapFBOs[m_hhfMipmapLevel])		
+			->run();	
 	}
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, 2);
 
 	// minimal fill pass for mipmap level 0 only - testing purpose
 /*
@@ -345,7 +342,7 @@ void TelepresenceSession::renderHHF(){
 void TelepresenceSession::renderResult(){
 
 	m_resultPass
-		->texture("m_ResultTex", m_hhfTexture)
+		->texture("m_resultTex", m_hhfTexture)
 		->run();
 }
 
