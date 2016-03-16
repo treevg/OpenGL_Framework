@@ -354,7 +354,9 @@ void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionDat
 			{
 				fillBuffers(colorData, positionData, depthWidth, depthHeight, colorWidth, colorHeight);
 			}//colorspacepoints
+
 		}//cameraspacepoints
+
 		delete[] colorPoints;
 		delete[] cameraPoints;
 	}
@@ -367,9 +369,9 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 	// all background points will be drawn on position 1 with color white.
 	clearBuffer(positionData, depthWidth * depthHeight * 3);
 	clearBuffer(colorData, depthWidth * depthHeight * 3);
-
+	int deb = 0;
+	bool bodySeen = false;
 	// loop over each row and column of the depth
-
 	for (int y = depthHeight - 1; y >= 0; y--){
 		for (int x = 0; x < depthWidth; x++){
 
@@ -379,7 +381,7 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 
 			// Check whether this pixel belong to a human
 			if (body != 0xff){
-
+				bodySeen = true;
 				CameraSpacePoint cameraPoint = cameraPoints[depthIndex];
 				// retrieve the depth to color mapping for the current depth pixel
 				ColorSpacePoint colorPoint = colorPoints[depthIndex];
@@ -399,10 +401,9 @@ void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int d
 					positionData[count] = cameraPoint.X;
 					positionData[count + 1] = cameraPoint.Y;
 					positionData[count + 2] = -cameraPoint.Z;
-
-					//}
 				}
 			}
+			++deb;
 			count += 3;
 		}
 	}

@@ -477,6 +477,11 @@ GLFWwindow* generateWindow(int width = 1280, int height = 720) {
 	g_CameraPosition.y = 0.0f;
 	g_CameraPosition.z = 1.0f;
 
+	// Remove HSW on every key...
+	ovrHSWDisplayState l_HasWarningState;
+	ovrHmd_GetHSWDisplayState(g_Hmd, &l_HasWarningState);
+	if (l_HasWarningState.Displayed) ovrHmd_DismissHSWDisplay(g_Hmd);
+
 	glfwSetKeyCallback(window, KeyCallback);
 	glfwSetWindowSizeCallback(window, WindowSizeCallback);
 

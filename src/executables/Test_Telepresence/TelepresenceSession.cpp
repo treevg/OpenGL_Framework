@@ -74,20 +74,18 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 
 	glm::vec3 cameraPosition = extractCameraPosition(view);
 
-	m_pointCloud->updatePointCloud();
 	renderBillboards(cameraPosition);
-
-	renderPanels();
+	//renderPanels();
 	renderRoom(cameraPosition);
-	//renderTestCube();
-	renderLeap(cameraPosition);
+	renderTestCube();
+	//renderLeap(cameraPosition);
 
+	renderPointCloud();
 
 	glDepthFunc(GL_ALWAYS);
 	renderHud(cameraPosition);
 	glDepthFunc(GL_LESS);
 
-	renderPointCloud();
 
 }
 
@@ -328,7 +326,7 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 
 void TelepresenceSession::renderPointCloud()
 {
-	//m_pointCloud->updatePointCloud();
+	m_pointCloud->updatePointCloud();
 	m_pointCloudPass->run();
 }
 
