@@ -1,5 +1,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <Leap.h>
+#include <map>
 
 class LeapHandler;
 class GLFWwindow;
@@ -33,12 +34,11 @@ private:
 	ShaderProgram* m_cubeShaders;
 	ShaderProgram* m_pointCloudShaders;
 	ShaderProgram* m_roomShaders;
-	ShaderProgram* m_billboardShaders;
-	ShaderProgram* m_hudShaders;
 	ShaderProgram* m_panelShaders;
 
 	//TODO do not save this as member
-	TextPane* m_textPane;
+	//TextPane* m_textPane;
+
 	TextPane* m_hud;
 	TextPane* m_textPanel;
 	PointCloud* m_pointCloud;
@@ -48,7 +48,7 @@ private:
 	RenderPass* m_directionPass;
 	RenderPass* m_handPass;
 	RenderPass* m_cubePass;
-	RenderPass* m_billboardPass;
+	std::vector< std::pair<RenderPass*, TextPane*>> m_billboardPasses;
 	RenderPass* m_hudPass;
 	RenderPass* m_panelPass;
 

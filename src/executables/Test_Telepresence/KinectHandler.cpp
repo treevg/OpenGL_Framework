@@ -237,10 +237,7 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 std::vector<std::vector<Joint>> KinectHandler::getBodyData(IMultiSourceFrame* frame) const
 {
 	// Body tracking variables
-	BOOLEAN tracked;                            // Whether we see a body
 	Joint joints[JointType_Count];              // List of joints in the tracked body
-
-	std::vector<std::vector<Joint>> jointsVector;
 
 
 	IBodyFrame* bodyframe;
@@ -251,12 +248,16 @@ std::vector<std::vector<Joint>> KinectHandler::getBodyData(IMultiSourceFrame* fr
 
 	if (!bodyframe) return std::vector<std::vector<Joint>>();
 
-	// ------ NEW CODE ------
-	IBody* body[BODY_COUNT] = {nullptr};
+	std::vector<std::vector<Joint>> jointsVector;
+	IBody* body[BODY_COUNT] = { nullptr };
+	
 	bodyframe->GetAndRefreshBodyData(BODY_COUNT, body);
+	int count = 0;
 	for (int i = 0; i < BODY_COUNT; i++) {
+		boolean tracked;
 		body[i]->get_IsTracked(&tracked);
 		if (tracked) {
+			++count;
 			body[i]->GetJoints(JointType_Count, joints);
 			std::vector<Joint> tempJoints;
 			for (auto joint : joints)
@@ -268,7 +269,7 @@ std::vector<std::vector<Joint>> KinectHandler::getBodyData(IMultiSourceFrame* fr
 			break;
 		}
 	}
-	// ------ END NEW CODE ------
+	printf("Number of Heads: %d\n", count);
 
 	if (bodyframe) bodyframe->Release();
 	return jointsVector;

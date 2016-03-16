@@ -148,8 +148,6 @@ void TelepresenceSession::initShaderPrograms()
 	m_handShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
 	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
-	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
-	m_hudShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 }
 
@@ -158,14 +156,20 @@ void TelepresenceSession::initRenderPasses()
 	Cube* testCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), .1f);
 	Cube* directionCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
 	Sphere* sphere = new Sphere(10.0f);
-	m_textPane = new TextPane(0.8f, .4f, "Matthias");
+	/*m_textPane = new TextPane(0.8f, .4f, "Matthias");*/
 	m_hud = new TextPane(0.8f, .4f, "", 20);
-
 	m_textPanel = new TextPane(2.0f, 1.0f, "Wand");
-
 	m_cubePass = new RenderPass(testCube, m_cubeShaders);
-	m_billboardPass = new RenderPass(m_textPane, m_billboardShaders);
-	m_hudPass = new RenderPass(m_hud, m_hudShaders);
+	
+	for (int i = 0; i < 6; ++i)
+	{
+		std::string text = "Person" + (i+1);
+		TextPane* textPane = new TextPane(0.8f, .4f + (i * 20.0f), text, 30);
+		RenderPass* billboardPass = new RenderPass(textPane, new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" }));
+		m_billboardPasses.push_back(std::make_pair(billboardPass, textPane));
+	}
+
+	m_hudPass = new RenderPass(m_hud, new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" }));
 	m_panelPass = new RenderPass(m_textPanel, m_panelShaders);
 	m_handPass = new RenderPass(sphere, m_handShaders);
 	m_roomPass = new RenderPass(m_assimpLoader->getMeshList()->at(0), m_roomShaders);
@@ -177,8 +181,13 @@ void TelepresenceSession::initRenderPasses()
 	m_cubePass
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
-	m_billboardPass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+	for (auto pass : m_billboardPasses)
+	{
+		pass.first
+			->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+	}
+	//m_billboardPass
+	//	->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_hudPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_panelPass
@@ -203,7 +212,11 @@ void TelepresenceSession::deleteShaderPrograms()
 	delete m_directionPass;
 	delete m_handPass;
 	delete m_cubePass;
-	delete m_billboardPass;
+	for ( auto pass : m_billboardPasses )
+	{
+		delete pass.first;
+	}
+	//delete m_billboardPass;
 	delete m_hudPass;
 	delete m_panelPass;
 }
@@ -212,8 +225,13 @@ void TelepresenceSession::updateProjectionMatrices(glm::mat4 projection)
 {
 	m_cubePass
 		->update("projectionMatrix", projection);
-	m_billboardPass
-		->update("projectionMatrix", projection);
+	for (auto pass : m_billboardPasses)
+	{
+		pass.first
+			->update("projectionMatrix", projection);
+	}
+	//m_billboardPass
+	//	->update("projectionMatrix", projection);
 	m_hudPass
 		->update("projectionMatrix", projection);
 	m_panelPass
@@ -232,8 +250,13 @@ void TelepresenceSession::updateViewMatrices(glm::mat4 view)
 {
 	m_cubePass
 		->update("viewMatrix", view);
-	m_billboardPass
+	for (auto pass : m_billboardPasses)
+	{
+		pass.first
 		->update("viewMatrix", view);
+	}
+	//m_billboardPass
+	//	->update("viewMatrix", view);
 	m_hudPass
 		->update("viewMatrix", glm::mat4(1.0f));
 	m_panelPass
@@ -374,28 +397,28 @@ void TelepresenceSession::renderHud(glm::vec3 cameraPosition)
 
 void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
 {
-	m_textPane->updateText("Ll L l");
-
-
 	glm::vec3 headPosition(0);
+	std::vector< glm::vec3 > billboardPositions;
 	for (auto body : m_pointCloud->getAllBodyJoints())
 	{
 		headPosition = glm::vec3(body[JointType_Head].Position.X, body[JointType_Head].Position.Y, body[JointType_Head].Position.Z);
+		glm::vec3 boardPosition = headPosition;
+		boardPosition.x = boardPosition.x + 0.6f;
+		billboardPositions.push_back(boardPosition);
 	}
-	glm::vec3 billboardPosition = headPosition;
-	billboardPosition.x = headPosition.x + 0.6f;
 
+	int count = 0;
+	for (auto billboardPosition : billboardPositions)
+	{
+		glm::mat4 billboardRotation = CameraObjectRelations::getBillboardRotationMatrix(cameraPosition, billboardPosition);
 
-	glm::mat4 modelMatrix = glm::mat4(1.0f);
-	modelMatrix = glm::translate(modelMatrix, billboardPosition);
-	glm::mat4 billboardRotation = CameraObjectRelations::getBillboardRotationMatrix(cameraPosition, billboardPosition);
-	modelMatrix = billboardRotation * modelMatrix;
-
-	m_billboardPass
-		->update("modelMatrix", billboardRotation)
-		->texture("tex", m_textPane->getTextureHandle())
-		->run();
-
+		auto passAndPane = m_billboardPasses[count];
+		passAndPane.first
+			->update("modelMatrix", billboardRotation)
+			->texture("tex", passAndPane.second->getTextureHandle())
+			->run();
+		++count;
+	}
 }
 
 void TelepresenceSession::renderPanels()
