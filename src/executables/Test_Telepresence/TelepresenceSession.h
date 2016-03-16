@@ -1,6 +1,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <Leap.h>
 #include "KeyCallbackWrapper.h"
+#include "ShaderTools\RenderPass.h"
 
 class LeapHandler;
 class GLFWwindow;
@@ -43,6 +44,10 @@ private:
 	ShaderProgram* m_billboardShaders;
 	ShaderProgram* m_hudShaders;
 	ShaderProgram* m_panelShaders;
+	ShaderProgram* m_hhfReduceShaders;
+	ShaderProgram* m_hhfFillShaders;
+	ShaderProgram* m_hhfExpandShaders;
+	ShaderProgram* m_resultShaders;
 
 	//TODO do not save this as member
 	TextPane* m_textPane;
@@ -58,6 +63,10 @@ private:
 	RenderPass* m_billboardPass;
 	RenderPass* m_hudPass;
 	RenderPass* m_panelPass;
+	RenderPass* m_hhfReducePass;
+	RenderPass* m_hhfExpandPass;
+	RenderPass* m_hhfFillPass;
+	RenderPass* m_resultPass;
 
 	// Keyboard Input Controls
 	bool m_toggle_hud = true;
@@ -71,6 +80,31 @@ private:
 	double lastTime;
 	int nbFrames;
 
+
+	// Screen quad to render hhf image into
+	VertexArrayObject* m_hhfVao;
+
+	glm::vec2 m_hhfResolution;
+
+	// hhf texture
+	GLuint m_hhfTexture;
+	// number of mipmaps
+	GLuint m_hhfMipmapNumber;
+	// mipmap fbo handle
+	GLuint* m_hhfMipmapFBOHandles;
+	// mipmap texture frame buffer
+	std::vector<FrameBufferObject*> m_hhfMipmapFBOs;
+	// current mipmap level
+	int m_hhfMipmapLevel;
+	// gaussian radius (shader)
+	int m_hhfGaussianRadius;
+
+	GLuint* m_hhfMipmapDepthHandles;
+
+	// Testkram
+	GLfloat* texdata;
+	GLuint ttex;
+
 	void renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view);
 
 	void renderRoom(glm::vec3 cameraPosition);
@@ -80,6 +114,10 @@ private:
 	void renderHud(glm::vec3 cameraPosition);
 	void renderPanels();
 	void renderTestCube();
+	void renderHHF();
+	void renderResult();
+
+	void performHHF();
 
 	void generateOculusWindow();
 	void initOpenGL();
@@ -94,6 +132,8 @@ private:
 	void initFramesCounter();
 	void measureSpeedOfApplication();
 
+
+	void generateHoleFillingAssets();
 
 	glm::vec3 extractCameraPosition(glm::mat4 viewMatrix) const;
 	glm::mat4 getLeapToOculusTransformationMatrix(glm::vec3 cameraPosition) const;

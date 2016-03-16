@@ -9,7 +9,7 @@
 #include "PointCloud.h"
 #include "CameraObjectRelations.h"
 #include "controls.hpp"
-
+#include "ShaderTools/VertexArrayObjects/Quad.h"
 
 //transform due to head mounted Leap Motion
 const static glm::mat4 oculusToLeap(
@@ -38,6 +38,7 @@ TelepresenceSession::~TelepresenceSession()
 
 void TelepresenceSession::init()
 {
+	std::cout << "Init Session" << std::endl;
 	generateOculusWindow();
 	initOpenGL();
 	initMouseAndKeyboardMovement();
@@ -48,17 +49,32 @@ void TelepresenceSession::init()
 	m_kinectHandler->initializeDefaultSensor();
 	m_pointCloud = new PointCloud(m_kinectHandler);
 	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room2_tris.obj")
+	m_kinectHandler->retrieveCameraIntrinsics();
+	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room.obj")
 		->printLog();
+	m_hhfVao == NULL;
+
+	generateHoleFillingAssets();
+
 	initShaderPrograms();
 	initRenderPasses();
+	
 }
 
 void TelepresenceSession::run()
 {
+
 	render(m_window, [&](double delta, glm::mat4 projection, glm::mat4 view)
-	{
-		renderLoop(delta, projection, view);
-	});
+		{
+			//m_kinectHandler->retrieveCameraIntrinsics();
+			renderLoop(delta, projection, view);
+
+		}, 
+		[&]()
+		{
+			performHHF();
+		}
+	);
 }
 
 void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view)
@@ -69,7 +85,6 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 		//projection = getProjectionMatrix();
 		view = getViewMatrix();
 	}
-
 	updateProjectionMatrices(projection);
 	updateViewMatrices(view);
 
@@ -82,7 +97,7 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	renderRoom(cameraPosition);
 	renderTestCube();
 
-	if (m_toggle_leapMotion) {
+if (m_toggle_leapMotion) {
 		renderLeap(cameraPosition);
 	}
 
@@ -95,8 +110,13 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 		renderHud(cameraPosition);
 		glDepthFunc(GL_LESS);
 	}
-
+	//renderResult();
 }
+
+void TelepresenceSession::performHHF(){
+	renderHHF();
+	renderResult();
+}}
 
 void TelepresenceSession::generateOculusWindow()
 {
@@ -207,6 +227,9 @@ void TelepresenceSession::initShaderPrograms()
 	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/minimal.vert", "/Test_Telepresence/minimal.frag" });
 	m_roomShaders = new ShaderProgram({ "/Test_Telepresence/phong.vert", "/Test_Telepresence/phong.frag" });
 	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
+	m_hhfReduceShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/reduce.frag" });
+	m_hhfFillShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/fill.frag" });
+	m_resultShaders = new ShaderProgram({ "/Test_Telepresence/result.vert", "/Test_Telepresence/result.frag" });
 	m_hudShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 }
@@ -216,6 +239,7 @@ void TelepresenceSession::initRenderPasses()
 	Cube* testCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), .1f);
 	Cube* directionCube = new Cube(glm::vec3(0.0f, 0.0f, 0.0f), 2.0f);
 	Sphere* sphere = new Sphere(10.0f);
+	Quad* quad = new Quad();
 	m_textPane = new TextPane(0.8f, .4f, "Matthias");
 	m_hud = new TextPane(0.8f, .4f, "", 20);
 
@@ -229,28 +253,39 @@ void TelepresenceSession::initRenderPasses()
 	m_roomPass = new RenderPass(m_assimpLoader->getMeshList()->at(0), m_roomShaders);
 	m_pointCloudPass = new RenderPass(m_pointCloud, m_pointCloudShaders);
 	m_directionPass = new RenderPass(directionCube, m_directionShaders);
+	m_hhfReducePass = new RenderPass(m_hhfVao, m_hhfReduceShaders);
+	m_hhfFillPass = new RenderPass(m_hhfVao, m_hhfFillShaders);
+	m_resultPass = new RenderPass(m_hhfVao, m_resultShaders);
 
 	glm::vec3 lightPos = glm::vec3(0.0f, 4.0f, 2.0f);
 
 	m_cubePass
 		->update("lightPosition", lightPos)
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_billboardPass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_hudPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_panelPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_handPass
 		->update("lightPosition", lightPos)
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_roomPass
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 		->update("lightPosition", lightPos)
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 	m_pointCloudPass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_directionPass
 		->update("lightPosition", lightPos)
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
+	m_hhfReducePass
+		->update("m_hhfResolution", m_hhfResolution)
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
+	m_hhfFillPass
+		->update("m_hhfResolution", m_hhfResolution)
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
+	m_resultPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
 }
 
@@ -262,6 +297,9 @@ void TelepresenceSession::deleteShaderPrograms()
 	delete m_handPass;
 	delete m_cubePass;
 	delete m_billboardPass;
+	delete m_hhfReducePass;
+	delete m_hhfFillPass;
+	delete m_resultPass;
 	delete m_hudPass;
 	delete m_panelPass;
 }
@@ -332,7 +370,8 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 		m_roomPass->getFrameBufferObject()->bind();
 		m_roomPass->getShaderProgram()->use();
 		m_assimpLoader->getMeshList()->at(m)->draw();
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		// any purpose?!
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		//if (leftHand.isValid() && rightHand.isValid() && m_leapHandler->isPinched(leftHand))
 		//{
@@ -506,6 +545,52 @@ void TelepresenceSession::renderLeap(glm::vec3 cameraPosition)
 	}
 }
 
+void TelepresenceSession::renderHHF(){
+	
+	// set texture
+	m_hhfReducePass->texture("m_pcOutputTex", m_hhfTexture);
+
+	// reduce pass over all mipmap level
+	for (m_hhfMipmapLevel = 0; m_hhfMipmapLevel < m_hhfMipmapNumber; m_hhfMipmapLevel++){
+		m_hhfReducePass
+			->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
+			->setFrameBufferObject(m_hhfMipmapFBOs[m_hhfMipmapLevel])
+			->run();
+
+		/*if (m_hhfMipmapLevel == 0){
+			m_hhfReducePass
+				->texture("m_pcOutputTex", m_hhfTexture);
+		}*/
+	}
+
+	m_hhfFillPass
+		->texture("m_hhfTexture", m_hhfTexture);
+	
+	// fill pass over all mipmap level
+	for (m_hhfMipmapLevel = m_hhfMipmapNumber - 2; m_hhfMipmapLevel >= 0; m_hhfMipmapLevel--){
+					
+		m_hhfFillPass
+			->texture("m_hhfTexture", m_hhfTexture)
+			->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
+			->setFrameBufferObject(m_hhfMipmapFBOs[m_hhfMipmapLevel])		
+			->run();	
+	}
+
+	// minimal fill pass for mipmap level 0 only - testing purpose
+/*
+	m_hhfFillPass
+		->texture("m_hhfTexture", m_hhfTexture)
+		->update("m_hhfMipmapLevel", 0)	
+		->run();*/
+}
+
+void TelepresenceSession::renderResult(){
+
+	m_resultPass
+		->texture("m_resultTex", m_hhfTexture)
+		->run();
+}
+
 glm::mat4 TelepresenceSession::getLeapToOculusTransformationMatrix(glm::vec3 cameraPosition) const
 {
 	//transform world coordinates into Oculus coordinates (for attached Leap Motion)
@@ -533,6 +618,102 @@ glm::mat4 TelepresenceSession::getLeapWorldCoordinateMatrix(const Leap::Matrix &
 	return leapWorldCoordinates;
 }
 
+
+void TelepresenceSession::generateHoleFillingAssets(){
+
+	m_hhfResolution = glm::vec2{ g_RenderTargetSize.w, g_RenderTargetSize.h };
+
+	m_hhfVao = new Quad();
+	m_hhfMipmapNumber = 4;
+
+	
+	glGenTextures(1, &m_hhfTexture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_hhfTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_hhfResolution.x, m_hhfResolution.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, m_hhfMipmapNumber-1);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
+	m_hhfMipmapFBOHandles = new GLuint[m_hhfMipmapNumber];
+	m_hhfMipmapDepthHandles = new GLuint[m_hhfMipmapNumber];
+	glGenFramebuffers(m_hhfMipmapNumber, m_hhfMipmapFBOHandles);
+	glGenRenderbuffers(m_hhfMipmapNumber, m_hhfMipmapDepthHandles);
+	for (int i = 0; i < m_hhfMipmapNumber; i++) {
+		glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[i]);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_hhfTexture, i);
+		glDrawBuffer(GL_COLOR_ATTACHMENT0);
+
+		// depth buffer for fbos
+		// is this needed for point cloud stuff?
+		// if activated texture m_hhfTexture is empty	
+		/*glBindRenderbuffer(GL_RENDERBUFFER, (m_hhfMipmapDepthHandles)[i]);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, g_RenderTargetSize.w, g_RenderTargetSize.h);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_hhfMipmapDepthHandles[i]);
+		*/
+		FrameBufferObject* m_hhfFBO = new FrameBufferObject();
+		m_hhfFBO->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[i]);
+		m_hhfMipmapFBOs.push_back(m_hhfFBO);
+			
+		GLenum l_Check = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (l_Check != GL_FRAMEBUFFER_COMPLETE)
+		{
+			printf("There is a problem with the FBO %i.\n", i);
+			exit(EXIT_FAILURE);
+		}
+		else {
+			printf("HHF FBO %i is complete.\n", i);
+		}
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	}
+	/*glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[0]);
+	GLenum l_Check = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+	if (l_Check != GL_FRAMEBUFFER_COMPLETE)
+	{
+		printf("There is a problem with the FBO.\n");
+		exit(EXIT_FAILURE);
+	}
+	else {
+		printf("HHF FBO is complete.\n");
+	}*/
+
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	//glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+
+
+	// texture with random data stuff
+	/*texdata = (GLfloat *)malloc(g_RenderTargetSize.w*g_RenderTargetSize.h * 4 * sizeof(float));
+	for (size_t i = 0; i<g_RenderTargetSize.w*g_RenderTargetSize.h * 4; i += 4){
+	
+		texdata[i] = ((float)rand() / (RAND_MAX)); // rand()%255;
+		texdata[i + 1] = ((float)rand() / (RAND_MAX));
+		texdata[i + 2] = ((float)rand() / (RAND_MAX));
+		texdata[i + 3] = 1.0;
+	}
+	glGenTextures(1, &ttex);
+	//glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, ttex);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, m_hhfMipmapNumber-1);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, g_RenderTargetSize.w, g_RenderTargetSize.h, 0, GL_RGBA, GL_FLOAT, texdata);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);*/
+
+
+}
 // intersect3D_RayTriangle(): find the 3D intersection of a ray with a triangle
 //    Input:  a ray R, and a triangle T
 //    Output: *I = intersection point (when it exists)

@@ -175,7 +175,7 @@ glm::mat4 toGlm(const ovrPosef & op) {
 	return translation * orientation;
 }
 
-inline void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection, glm::mat4 view)> loop){
+inline void render(GLFWwindow* window, std::function<void(double, glm::mat4 projection, glm::mat4 view)> loop, std::function<void()> performHHF){
 	float lastTime = 0.0;
 	unsigned int l_FrameIndex = 0;
 
@@ -194,7 +194,7 @@ inline void render(GLFWwindow* window, std::function<void(double, glm::mat4 proj
 
 		// Clear...
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		//glClear(GL_COLOR_BUFFER_BIT);
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++)
 		{
 			ovrEyeType l_Eye = g_Hmd->EyeRenderOrder[l_EyeIndex];
@@ -224,6 +224,9 @@ inline void render(GLFWwindow* window, std::function<void(double, glm::mat4 proj
 			loop(currentTime - lastTime, projection, view);
 
 		}
+		glViewport(0,0, g_RenderTargetSize.w, g_RenderTargetSize.h);
+		// performs hhf and writes to oculus texture
+		performHHF();
 
 		// Back to the default framebuffer...
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

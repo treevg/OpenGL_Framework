@@ -18,7 +18,9 @@ colorReference(NULL),
 bodyIndexReference(NULL),
 depthFrameDescription(NULL),
 colorFrameDescription(NULL),
-coordinateMapper(NULL),
+m_coordinateMappingChangedEvent(NULL),
+coordinateMapper(nullptr),
+cameraIntrinsics(NULL),
 colorPoints(NULL),
 cameraPoints(NULL),
 depthBuffer(NULL),
@@ -51,6 +53,8 @@ HRESULT KinectHandler::initializeDefaultSensor()
 		hr = kinectSensor->Open();
 
 		kinectSensor->get_CoordinateMapper(&coordinateMapper);
+		coordinateMapper->SubscribeCoordinateMappingChanged(&m_coordinateMappingChangedEvent);
+		//CameraIntrinsics* cameraIntrinsics = new CameraIntrinsics();
 
 		if (SUCCEEDED(hr))
 		{
@@ -136,11 +140,13 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 					if (SUCCEEDED(hr))
 					{
 						hr = depthFrame->get_DepthMinReliableDistance(&minReliableDistance);
+						//std::cout << "Min reliable depth: " << minReliableDistance << std::endl;
 					}
 						
-					if (SUCCEEDED(hr))
+					if (SUCCEEDED(hr))	
 					{
 						hr = depthFrame->get_DepthMaxReliableDistance(&maxReliableDistance);
+						//std::cout << "Max reliable depth" << maxReliableDistance << std::endl;
 					}
 
 					if (SUCCEEDED(hr))
@@ -362,7 +368,34 @@ void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionDat
 	}
 }
 
-// filter body points from background points and write them in color and position Buffers
+void KinectHandler::retrieveCameraIntrinsics() {
+
+	std::cout << "Test retrieve" << std::endl;
+	CameraIntrinsics cI = {};
+
+	// waiting for intrinsic parameter propagation
+	while (cI.FocalLengthX == 0){
+		coordinateMapper->GetDepthCameraIntrinsics(&cI);
+	}	
+	printCameraIntrinsics(&cI);
+}
+
+
+void KinectHandler::printCameraIntrinsics(CameraIntrinsics* cI){
+
+	std::cout << "Test set and print" << std::endl;
+
+	std::cout << "Value FocLenX: " << cI->FocalLengthX << std::endl;
+	std::cout << "Value FocLenY: " << cI->FocalLengthY << std::endl;
+	std::cout << "Value PrincPointX: " << cI->PrincipalPointX << std::endl;
+	std::cout << "Value PrincPointY: " << cI->PrincipalPointY << std::endl;
+	std::cout << "Value Rad Dis Second: " << cI->RadialDistortionSecondOrder << std::endl;
+	std::cout << "Value Rad Dis Fourth: " << cI->RadialDistortionFourthOrder << std::endl;
+	std::cout << "Value Rad Dis Sixth: " << cI->RadialDistortionSixthOrder << std::endl;
+}
+
+
+
 void KinectHandler::fillBuffers(GLfloat* colorData, GLfloat* positionData, int depthWidth, int depthHeight, int colorWidth, int colorHeight)
 {
 	int count = 0;
