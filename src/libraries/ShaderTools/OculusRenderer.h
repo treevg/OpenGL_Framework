@@ -57,6 +57,11 @@ static void ErrorCallback(int p_Error, const char* p_Description)
 	fputs(p_Description, stderr);
 }
 
+static void RecenterPose()
+{
+	ovrHmd_RecenterPose(g_Hmd);
+}
+
 static void KeyCallback(GLFWwindow* p_Window, int p_Key, int p_Scancode, int p_Action, int p_Mods)
 {
 	//printf("Press Action: %d", p_Action);

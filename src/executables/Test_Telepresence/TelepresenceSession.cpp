@@ -64,10 +64,11 @@ void TelepresenceSession::run()
 void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view)
 {
 	measureSpeedOfApplication();
-
-	computeMatricesFromInputs(m_window);
-	//projection = getProjectionMatrix();
-	view = getViewMatrix();
+	if (m_toggle_mouseAsCamera) {
+		computeMatricesFromInputs(m_window);
+		//projection = getProjectionMatrix();
+		view = getViewMatrix();
+	}
 
 	updateProjectionMatrices(projection);
 	updateViewMatrices(view);
@@ -94,13 +95,56 @@ void TelepresenceSession::generateOculusWindow()
 	m_window = generateWindow();
 }
 
+void TelepresenceSession::keycallback(GLFWwindow* p_Window, int p_Key, int scancode, int p_Action, int mods)
+{
+	if (p_Action == GLFW_PRESS || p_Action == GLFW_REPEAT)
+	{
+		switch (p_Key)
+		{
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(p_Window, GL_TRUE);
+			break;
+		case GLFW_KEY_R:
+			RecenterPose();
+			break;
+		case GLFW_KEY_H:
+			// TODO: ENABLE/DISABLE HUD
+			break;
+		case GLFW_KEY_U:
+			// TODO: ENABLE/DISABLE USER_POINTCLOUD
+			break;
+		case GLFW_KEY_I:
+			// TODO: ENABLE/DISABLE USER_INFO
+			break;
+		case GLFW_KEY_C:
+			// TODO: ENABLE/DISABLE PRESENTATION BILLBOARD CANVAS
+			break;
+		case GLFW_KEY_L:
+			// TODO: ENABLE/DISABLE LEAP MOTION
+			break;
+		case GLFW_KEY_K:
+			// TODO: ENABLE/DISABLE MOUSE MOVEMENT (CAMERA AS MOUSE)
+			m_toggle_mouseAsCamera = !m_toggle_mouseAsCamera;
+			break;
+		case GLFW_KEY_M:
+			// TODO: ENABLE/DISABLE MOUSE CURSOR
+			break;
+		}
+	}
+}
+
+//void keyBoardInputs2(GLFWwindow* p_Window, int p_Key, int scancode, int p_Action, int mods)
+//{
+//	keyBoardInputs(p_Window, p_Key, scancode, p_Action, mods);
+//}
+
 void TelepresenceSession::initMouseAndKeyboardMovement()
 {
 	// Hide the mouse and enable unlimited movement
 	glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	// Keyboard Callback Method
-	//glfwSetKeyCallback(m_window, keyboardInputs);
+	glfwSetKeyCallback(m_window, keycallback_dispatch);
 
 	// Set the mouse at the center of the screen
 	glfwPollEvents();
@@ -353,7 +397,7 @@ void TelepresenceSession::renderHud(glm::vec3 cameraPosition)
 	if (currentTime - lastTime >= 1.0){ // If last prinf() was more than 1 sec ago
 		// printf and reset timer
 		//string erg = std::to_string(1000.0 / double(nbFrames)) + "ms / frame\n";
-		string erg = "FPS:" + std::to_string(double(nbFrames)/ 1000.0f) + "\n lolo";
+		string erg = "FPS:" + std::to_string(double(nbFrames) / 1000.0f) + "\n lolo";
 		m_hud->updateText(erg);
 		nbFrames = 0;
 		lastTime += 1.0;
@@ -366,7 +410,7 @@ void TelepresenceSession::renderHud(glm::vec3 cameraPosition)
 	printf("height: %d", height);*/
 
 	m_hudPass
-		->update("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(1,1,-1)))
+		->update("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(1, 1, -1)))
 		->texture("tex", m_hud->getTextureHandle())
 		->run();
 

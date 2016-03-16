@@ -1,5 +1,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <Leap.h>
+#include "KeyCallbackWrapper.h"
 
 class LeapHandler;
 class GLFWwindow;
@@ -12,7 +13,7 @@ class PointCloud;
 
 #pragma once
 
-class TelepresenceSession
+class TelepresenceSession : public KeyCallbackWrapper
 {
 public:
 	TelepresenceSession();
@@ -21,7 +22,13 @@ public:
 	void init();
 	void run();
 	void stop();
-
+	//void keyBoardInputs(GLFWwindow* p_Window, int p_Key, int scancode, int p_Action, int mods);
+	virtual void keycallback(
+		GLFWwindow *window,
+		int key,
+		int scancode,
+		int action,
+		int mods);
 private:
 	GLFWwindow* m_window;
 	LeapHandler* m_leapHandler;
@@ -52,6 +59,15 @@ private:
 	RenderPass* m_hudPass;
 	RenderPass* m_panelPass;
 
+	// Keyboard Input Controls
+	bool m_toggle_hud = true;
+	bool m_toggle_pointcloud = true;
+	bool m_toggle_userInfo = true;
+	bool m_toggle_presentationCanvas = true;
+	bool m_toggle_leapMotion = true;
+	bool m_toggle_mouseAsCamera = true;
+	bool m_toggle_mouseCursor = true;
+
 	double lastTime;
 	int nbFrames;
 
@@ -77,6 +93,7 @@ private:
 
 	void initFramesCounter();
 	void measureSpeedOfApplication();
+
 
 	glm::vec3 extractCameraPosition(glm::mat4 viewMatrix) const;
 	glm::mat4 getLeapToOculusTransformationMatrix(glm::vec3 cameraPosition) const;
