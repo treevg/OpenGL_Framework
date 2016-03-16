@@ -69,14 +69,24 @@ void TelepresenceSession::run()
 void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view)
 {
 	
-	
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	for (int i = 0; i < m_hhfMipmapNumber; i++) {
+		glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[i]);
+		//glBindRenderbuffer(GL_RENDERBUFFER, (m_hhfMipmapDepthHandles)[i]);
+		//glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[0]);
+	//glBindRenderbuffer(GL_RENDERBUFFER, (m_hhfMipmapDepthHandles)[0]);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	updateProjectionMatrices(projection);
 	updateViewMatrices(view);
 
 	glm::vec3 cameraPosition = extractCameraPosition(view);
 
 	m_pointCloud->updatePointCloud();
-	//renderBillboards(cameraPosition);
+	renderBillboards(cameraPosition);
 	renderRoom();
 	renderTestCube();
 	//renderLeap();
@@ -84,6 +94,7 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 	// strange
 	renderPointCloud();
 	renderHHF();
+	//renderResult();
 }
 
 void TelepresenceSession::generateOculusWindow()
@@ -112,6 +123,7 @@ void TelepresenceSession::initShaderPrograms()
 	m_billboardShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 	m_hhfReduceShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/reduce.frag" });
 	m_hhfFillShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/fill.frag" });
+	m_resultShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/fill.frag" });
 }
 
 void TelepresenceSession::initRenderPasses()
@@ -131,6 +143,7 @@ void TelepresenceSession::initRenderPasses()
 	m_directionPass = new RenderPass( directionCube, m_directionShaders);
 	m_hhfReducePass = new RenderPass(m_hhfVao, m_hhfReduceShaders);
 	m_hhfFillPass = new RenderPass(m_hhfVao, m_hhfFillShaders);
+	m_resultPass = = new RenderPass(m_hhfVao, m_resultShaders);
 
 	glm::vec3 lightPos = glm::vec3(2.0f, 10.0f, 2.0f);
 
@@ -138,24 +151,25 @@ void TelepresenceSession::initRenderPasses()
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_billboardPass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_handPass
 		->update("lightPosition", lightPos)
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_roomPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_pointCloudPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_directionPass
 		->update("lightPosition", lightPos)
-		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_hhfReducePass
 		->update("m_hhfResolution", m_hhfResolution)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_hhfFillPass
 		->update("m_hhfResolution", m_hhfResolution)
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
+	m_resultPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
-
 }
 
 void TelepresenceSession::deleteShaderPrograms()
@@ -221,7 +235,7 @@ void TelepresenceSession::renderRoom()
 		m_roomPass->getShaderProgram()->use();
 		m_assimpLoader->getMeshList()->at(m)->draw();
 		// any purpose?!
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 }
 
@@ -293,23 +307,45 @@ void TelepresenceSession::renderHHF(){
 				->texture("m_pcOutputTex", m_hhfTexture);
 		}*/
 	}
-
+	m_hhfFillPass
+		->texture("m_hhfTexture", m_hhfTexture);
 	// fill pass over all mipmap level
 	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//for (m_hhfMipmapLevel = m_hhfMipmapNumber - 1; m_hhfMipmapLevel >= 0; m_hhfMipmapLevel--){
-	//	m_hhfFillPass
-	//		->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
-	//		//->setFrameBufferObject(m_hhfMipmapFBO)
-	//		->run();
-	//}
+	for (m_hhfMipmapLevel = m_hhfMipmapNumber - 2; m_hhfMipmapLevel >= 0; m_hhfMipmapLevel--){
+		//glBindRenderbuffer(GL_RENDERBUFFER, (m_hhfMipmapDepthHandles)[m_hhfMipmapLevel]);
+		if (m_hhfMipmapLevel > 0){
+			m_hhfFillPass
+				->setFrameBufferObject(m_hhfMipmapFBOs[m_hhfMipmapLevel]);
+			m_hhfFillPass
+				//->texture("m_hhfTexture", m_hhfTexture)
+				->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
+				->run();
+		}
+		else if (m_hhfMipmapLevel == 0){
+			m_hhfFillPass
+				->getFrameBufferObject()->setFrameBufferObjectHandle(l_FBOId);
+
+			m_hhfFillPass
+				//->texture("m_hhfTexture", m_hhfTexture)
+				->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
+				->run();
+		}
+	}
+
 	//glBindFramebuffer(GL_FRAMEBUFFER, 2);
 
 	// minimal fill pass for mipmap level 0 only - testing purpose
-
+/*
 	m_hhfFillPass
 		->texture("m_hhfTexture", m_hhfTexture)
-		->update("m_hhfMipmapLevel", 0)
-		
+		->update("m_hhfMipmapLevel", 0)	
+		->run();*/
+}
+
+void TelepresenceSession::renderResult(){
+
+	m_resultPass
+		->texture("m_ResultTex", m_hhfTexture)
 		->run();
 }
 
@@ -350,7 +386,7 @@ void TelepresenceSession::generateHoleFillingAssets(){
 
 	
 	glGenTextures(1, &m_hhfTexture);
-	//glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_hhfTexture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_hhfResolution.x, m_hhfResolution.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -361,30 +397,38 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	m_hhfMipmapFBOHandles = new GLuint[m_hhfMipmapNumber];
-
+	m_hhfMipmapDepthHandles = new GLuint[m_hhfMipmapNumber];
 	glGenFramebuffers(m_hhfMipmapNumber, m_hhfMipmapFBOHandles);
-
+	glGenRenderbuffers(m_hhfMipmapNumber, m_hhfMipmapDepthHandles);
 	for (int i = 0; i < m_hhfMipmapNumber; i++) {
 		glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[i]);
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_hhfTexture, i);
 		glDrawBuffer(GL_COLOR_ATTACHMENT0);
 
-		//if (i == 0){
-		//	// depth buffer for fbos
-		//	// is this needed for point cloud stuff?
-		//  // if activated texture m_hhfTexture is empty
-		//	glGenRenderbuffers(1, &m_hhfMipmapDepthHandle);
-		//	glBindRenderbuffer(GL_RENDERBUFFER, m_hhfMipmapDepthHandle);
-		//	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, g_RenderTargetSize.w, g_RenderTargetSize.h);
-		//	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_hhfMipmapDepthHandle);
-
-		//}
-
+		// depth buffer for fbos
+		// is this needed for point cloud stuff?
+		// if activated texture m_hhfTexture is empty	
+		/*glBindRenderbuffer(GL_RENDERBUFFER, (m_hhfMipmapDepthHandles)[i]);
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, g_RenderTargetSize.w, g_RenderTargetSize.h);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_hhfMipmapDepthHandles[i]);
+		*/
 		FrameBufferObject* m_hhfFBO = new FrameBufferObject();
 		m_hhfFBO->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[i]);
 		m_hhfMipmapFBOs.push_back(m_hhfFBO);
-	}
+			
+		GLenum l_Check = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+		if (l_Check != GL_FRAMEBUFFER_COMPLETE)
+		{
+			printf("There is a problem with the FBO %i.\n", i);
+			exit(EXIT_FAILURE);
+		}
+		else {
+			printf("HHF FBO %i is complete.\n", i);
+		}
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	}
+	/*glBindFramebuffer(GL_FRAMEBUFFER, (m_hhfMipmapFBOHandles)[0]);
 	GLenum l_Check = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (l_Check != GL_FRAMEBUFFER_COMPLETE)
 	{
@@ -393,8 +437,9 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	}
 	else {
 		printf("HHF FBO is complete.\n");
-	}
+	}*/
 
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindTexture(GL_TEXTURE_2D, 0);
 	//glBindRenderbuffer(GL_RENDERBUFFER, 0);

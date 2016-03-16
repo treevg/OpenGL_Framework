@@ -38,6 +38,7 @@ private:
 	ShaderProgram* m_hhfReduceShaders;
 	ShaderProgram* m_hhfFillShaders;
 	ShaderProgram* m_hhfExpandShaders;
+	ShaderProgram* m_resultShaders;
 
 	//TODO do not save this as member
 	TextPane* m_textPane;
@@ -52,6 +53,8 @@ private:
 	RenderPass* m_hhfReducePass;
 	RenderPass* m_hhfExpandPass;
 	RenderPass* m_hhfFillPass;
+	RenderPass* m_resultPass;
+
 
 	// Screen quad to render hhf image into
 	VertexArrayObject* m_hhfVao;
@@ -71,13 +74,11 @@ private:
 	// gaussian radius (shader)
 	int m_hhfGaussianRadius;
 
-	GLuint m_hhfMipmapDepthHandle;
+	GLuint* m_hhfMipmapDepthHandles;
 
 	// Testkram
 	GLfloat* texdata;
 	GLuint ttex;
-
-	//
 
 	void renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view);
 
@@ -87,6 +88,7 @@ private:
 	void renderBillboards(glm::vec3 cameraPosition);
 	void renderTestCube();
 	void renderHHF();
+	void renderResult();
 
 	void generateOculusWindow();
 	void initOpenGL();
