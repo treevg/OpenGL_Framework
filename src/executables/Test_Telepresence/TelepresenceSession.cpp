@@ -48,7 +48,7 @@ void TelepresenceSession::init()
 	m_leapHandler = new LeapHandler();
 	m_kinectHandler->initializeDefaultSensor();
 	m_pointCloud = new PointCloud(m_kinectHandler);
-	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room2_tris.obj")
+	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room2_tris.obj");
 	m_kinectHandler->retrieveCameraIntrinsics();
 	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room.obj")
 		->printLog();
@@ -116,7 +116,7 @@ if (m_toggle_leapMotion) {
 void TelepresenceSession::performHHF(){
 	renderHHF();
 	renderResult();
-}}
+}
 
 void TelepresenceSession::generateOculusWindow()
 {
@@ -272,8 +272,8 @@ void TelepresenceSession::initRenderPasses()
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_roomPass
-		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 		->update("lightPosition", lightPos)
+		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_pointCloudPass
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_directionPass

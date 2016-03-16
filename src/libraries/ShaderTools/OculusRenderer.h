@@ -189,11 +189,9 @@ inline void render(GLFWwindow* window, std::function<void(double, glm::mat4 proj
 		// the IPD in the form of the input variable g_EyeOffsets.
 		ovrHmd_GetEyePoses(g_Hmd, l_FrameIndex, g_EyeOffsets, g_EyePoses, NULL);
 
-		// Bind the FBO...
 		glBindFramebuffer(GL_FRAMEBUFFER, l_FBOId);
-
-		// Clear...
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		//glClear(GL_COLOR_BUFFER_BIT);
 		for (int l_EyeIndex = 0; l_EyeIndex<ovrEye_Count; l_EyeIndex++)
 		{
@@ -230,6 +228,7 @@ inline void render(GLFWwindow* window, std::function<void(double, glm::mat4 proj
 
 		// Back to the default framebuffer...
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		// Do everything, distortion, front/back buffer swap...
 		ovrHmd_EndFrame(g_Hmd, g_EyePoses, g_EyeTextures);
