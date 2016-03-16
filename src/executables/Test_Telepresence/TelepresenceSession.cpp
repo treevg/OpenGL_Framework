@@ -75,18 +75,26 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 
 	glm::vec3 cameraPosition = extractCameraPosition(view);
 
-	renderBillboards(cameraPosition);
+	if (m_toggle_userInfo) {
+		renderBillboards(cameraPosition);
+	}
 	//renderPanels();
 	renderRoom(cameraPosition);
 	renderTestCube();
-	//renderLeap(cameraPosition);
 
-	renderPointCloud();
+	if (m_toggle_leapMotion) {
+		renderLeap(cameraPosition);
+	}
 
-	glDepthFunc(GL_ALWAYS);
-	renderHud(cameraPosition);
-	glDepthFunc(GL_LESS);
+	if (m_toggle_pointcloud) {
+		renderPointCloud();
+	}
 
+	if (m_toggle_hud) {
+		glDepthFunc(GL_ALWAYS);
+		renderHud(cameraPosition);
+		glDepthFunc(GL_LESS);
+	}
 
 }
 
@@ -108,26 +116,32 @@ void TelepresenceSession::keycallback(GLFWwindow* p_Window, int p_Key, int scanc
 			RecenterPose();
 			break;
 		case GLFW_KEY_H:
-			// TODO: ENABLE/DISABLE HUD
+			// ENABLE/DISABLE HUD
+			m_toggle_hud = !m_toggle_hud;
 			break;
 		case GLFW_KEY_U:
-			// TODO: ENABLE/DISABLE USER_POINTCLOUD
+			// ENABLE/DISABLE USER_POINTCLOUD
+			m_toggle_pointcloud = !m_toggle_pointcloud;
 			break;
 		case GLFW_KEY_I:
-			// TODO: ENABLE/DISABLE USER_INFO
+			// ENABLE/DISABLE USER_INFO
+			m_toggle_userInfo = !m_toggle_userInfo;
 			break;
 		case GLFW_KEY_C:
-			// TODO: ENABLE/DISABLE PRESENTATION BILLBOARD CANVAS
+			// ENABLE/DISABLE PRESENTATION BILLBOARD CANVAS
+			m_toggle_presentationCanvas = !m_toggle_presentationCanvas;
 			break;
 		case GLFW_KEY_L:
-			// TODO: ENABLE/DISABLE LEAP MOTION
+			// ENABLE/DISABLE LEAP MOTION
+			m_toggle_leapMotion = !m_toggle_leapMotion;
 			break;
 		case GLFW_KEY_K:
-			// TODO: ENABLE/DISABLE MOUSE MOVEMENT (CAMERA AS MOUSE)
+			// ENABLE/DISABLE MOUSE MOVEMENT (CAMERA AS MOUSE)
 			m_toggle_mouseAsCamera = !m_toggle_mouseAsCamera;
 			break;
 		case GLFW_KEY_M:
-			// TODO: ENABLE/DISABLE MOUSE CURSOR
+			// ENABLE/DISABLE MOUSE CURSOR
+			m_toggle_mouseCursor = !m_toggle_mouseCursor;
 			break;
 		}
 	}
