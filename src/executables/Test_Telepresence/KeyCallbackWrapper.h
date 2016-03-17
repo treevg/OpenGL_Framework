@@ -13,7 +13,7 @@ protected:
         int key,
         int scancode,
         int action,
-        int mods) = 0; /* purely abstract function */
+        int mods) = 0;
 
 	static KeyCallbackWrapper *event_handling_instance;
 

@@ -74,7 +74,7 @@ private:
 	bool m_toggle_userInfo = true;
 	bool m_toggle_presentationCanvas = true;
 	bool m_toggle_leapMotion = true;
-	bool m_toggle_mouseAsCamera = true;
+	bool m_toggle_mouseAsCamera = false;
 	bool m_toggle_mouseCursor = true;
 
 	double lastTime;
@@ -131,6 +131,8 @@ private:
 
 	void initFramesCounter();
 	void measureSpeedOfApplication();
+	void reComputeMatricesFromInputsAfterOculus(GLFWwindow*, glm::mat4);
+	void handleOculusKeyInput(GLFWwindow*);
 
 
 	void generateHoleFillingAssets();

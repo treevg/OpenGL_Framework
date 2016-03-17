@@ -8,8 +8,8 @@
 #include "TextPane.h"
 #include "PointCloud.h"
 #include "CameraObjectRelations.h"
-#include "controls.hpp"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
+#include "controls.hpp"
 
 //transform due to head mounted Leap Motion
 const static glm::mat4 oculusToLeap(
@@ -24,6 +24,8 @@ const static glm::mat4 normalizeMat(
 	0.0, 0.001f, 0.0, 0.0,
 	0.0, 0.0, 0.001f, 0.0,
 	0.0, 0.0, 0.0, 1.0);
+
+glm::mat4 viewMatrixMouse;
 
 TelepresenceSession::TelepresenceSession()
 {
@@ -67,9 +69,7 @@ void TelepresenceSession::run()
 
 	render(m_window, [&](double delta, glm::mat4 projection, glm::mat4 view)
 	{
-		//m_kinectHandler->retrieveCameraIntrinsics();
 		renderLoop(delta, projection, view);
-
 	},
 		[&]()
 	{
@@ -82,34 +82,38 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 {
 	measureSpeedOfApplication();
 	if (m_toggle_mouseAsCamera) {
-		computeMatricesFromInputs(m_window);
-		//projection = getProjectionMatrix();
-		view = getViewMatrix();
+		//computeMatricesFromInputs(m_window);
+		reComputeMatricesFromInputsAfterOculus(m_window, view);
+		//view = getViewMatrix();
+		view = viewMatrixMouse;
+	} else
+	{
+		handleOculusKeyInput(m_window);
 	}
 	updateProjectionMatrices(projection);
 	updateViewMatrices(view);
 
 	glm::vec3 cameraPosition = extractCameraPosition(view);
 
+	if (m_toggle_pointcloud) {
+		renderPointCloud();
+	}
+
 	if (m_toggle_userInfo) {
 		//renderBillboards(cameraPosition);
 	}
 	//renderPanels();
 	renderRoom(cameraPosition);
-	renderTestCube();
+	//renderTestCube();
 
 	if (m_toggle_leapMotion) {
 		renderLeap(cameraPosition);
 	}
 
-	if (m_toggle_pointcloud) {
-		renderPointCloud();
-	}
-
 	if (m_toggle_hud) {
-		//glDepthFunc(GL_ALWAYS);
-		///renderHud(cameraPosition);
-		//glDepthFunc(GL_LESS);
+		glDepthFunc(GL_ALWAYS);
+		renderHud(cameraPosition);
+		glDepthFunc(GL_LESS);
 	}
 	//renderResult();
 }
@@ -124,6 +128,152 @@ void TelepresenceSession::performHHF(){
 void TelepresenceSession::generateOculusWindow()
 {
 	m_window = generateWindow();
+}
+
+// Initial horizontal angle : toward -Z
+float horizontalAngle1 = 3.14f;
+// Initial vertical angle : none
+float verticalAngle1 = 0.0f;
+
+float speed1 = 3.0f; // 3 units / second
+float mouseSpeed1 = 0.001f;
+glm::vec3 position1 = glm::vec3(0, 0, 0);
+
+void TelepresenceSession::reComputeMatricesFromInputsAfterOculus(GLFWwindow* window, glm::mat4 view){
+	// glfwGetTime is called only once, the first time this function is called
+	static double lastTime = glfwGetTime();
+
+	// Compute time difference between current and last frame
+	double currentTime = glfwGetTime();
+	float deltaTime = float(currentTime - lastTime);
+
+	// Get mouse position
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos);
+
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
+
+	// Reset mouse position for next frame
+	glfwSetCursorPos(window, width / 2, height / 2);
+
+	// Compute new orientation
+	horizontalAngle1 += mouseSpeed1 * float(width / 2 - xpos);
+	verticalAngle1 += mouseSpeed1 * float(height / 2 - ypos);
+
+	// Direction : Spherical coordinates to Cartesian coordinates conversion
+	glm::vec3 direction(
+		cos(verticalAngle1) * sin(horizontalAngle1),
+		sin(verticalAngle1),
+		cos(verticalAngle1) * cos(horizontalAngle1)
+		);
+
+	// Right vector
+	glm::vec3 right = glm::vec3(
+		sin(horizontalAngle1 - 3.14f / 2.0f),
+		0,
+		cos(horizontalAngle1 - 3.14f / 2.0f)
+		);
+
+	// Up vector
+	glm::vec3 up = glm::cross(right, direction);
+
+	if (false)
+	{
+		// Move forward
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+			g_CameraPosition.x += direction.x * deltaTime * speed1;
+			g_CameraPosition.y += direction.y * deltaTime * speed1;
+			g_CameraPosition.z += direction.z * deltaTime * speed1;
+		}
+		// Move backward
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+			g_CameraPosition.x -= direction.x * deltaTime * speed1;
+			g_CameraPosition.y -= direction.y * deltaTime * speed1;
+			g_CameraPosition.z -= direction.z * deltaTime * speed1;
+		}
+		// Strafe right
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+			g_CameraPosition.x += right.x * deltaTime * speed1;
+			g_CameraPosition.y += right.y * deltaTime * speed1;
+			g_CameraPosition.z += right.z * deltaTime * speed1;
+		}
+		// Strafe left
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+			g_CameraPosition.x -= right.x * deltaTime * speed1;
+			g_CameraPosition.y -= right.y * deltaTime * speed1;
+			g_CameraPosition.z -= right.z * deltaTime * speed1;
+		}
+	}
+	else
+	{
+		// Move forward
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+			g_CameraPosition.x -= direction.x * deltaTime * speed1;
+			g_CameraPosition.y -= direction.y * deltaTime * speed1;
+			g_CameraPosition.z -= direction.z * deltaTime * speed1;
+		}
+		// Move backward
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+			g_CameraPosition.x += direction.x * deltaTime * speed1;
+			g_CameraPosition.y += direction.y * deltaTime * speed1;
+			g_CameraPosition.z += direction.z * deltaTime * speed1;
+		}
+		// Strafe right
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+			g_CameraPosition.x -= right.x * deltaTime * speed1;
+			g_CameraPosition.y -= right.y * deltaTime * speed1;
+			g_CameraPosition.z -= right.z * deltaTime * speed1;
+		}
+		// Strafe left
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+			g_CameraPosition.x += right.x * deltaTime * speed1;
+			g_CameraPosition.y += right.y * deltaTime * speed1;
+			g_CameraPosition.z += right.z * deltaTime * speed1;
+		}
+	}
+
+	//glm::vec4 newDirection = glm::transpose(view) * glm::vec4(direction, 0); 
+
+	viewMatrixMouse = glm::lookAt(
+		glm::vec3(-g_CameraPosition.x, -g_CameraPosition.y, -g_CameraPosition.z),           // Camera is here
+		glm::vec3(-g_CameraPosition.x, -g_CameraPosition.y, -g_CameraPosition.z) + glm::vec3(direction), // and looks here : at the same position, plus "direction"
+		up                  // Head is up (set to 0,-1,0 to look upside-down)
+		);
+
+
+	// For the next frame, the "last time" will be "now"
+	lastTime = currentTime;
+}
+
+void TelepresenceSession::handleOculusKeyInput(GLFWwindow* window){
+	// glfwGetTime is called only once, the first time this function is called
+	static double lastTime = glfwGetTime();
+
+	// Compute time difference between current and last frame
+	double currentTime = glfwGetTime();
+	float deltaTime = float(currentTime - lastTime);
+
+	
+		// Move forward
+		if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+			g_CameraPosition.z += deltaTime * speed1;
+		}
+		// Move backward
+		if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+			g_CameraPosition.z -= deltaTime * speed1;
+		}
+		// Strafe right
+		if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+			g_CameraPosition.x -= deltaTime * speed1;
+		}
+		// Strafe left
+		if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+			g_CameraPosition.x += deltaTime * speed1;
+		}
+
+	// For the next frame, the "last time" will be "now"
+	lastTime = currentTime;
 }
 
 void TelepresenceSession::keycallback(GLFWwindow* p_Window, int p_Key, int scancode, int p_Action, int mods)
@@ -166,23 +316,12 @@ void TelepresenceSession::keycallback(GLFWwindow* p_Window, int p_Key, int scanc
 			// ENABLE/DISABLE MOUSE CURSOR
 			m_toggle_mouseCursor = !m_toggle_mouseCursor;
 			break;
-		case GLFW_KEY_UP:
+
+		case GLFW_KEY_W:
 			g_CameraPosition.z += 0.1f;
 			break;
-		case GLFW_KEY_DOWN:
-			g_CameraPosition.z -= 0.1f;
-			break;
-		case GLFW_KEY_LEFT:
-			g_CameraPosition.x += 0.1f;
-			break;
-		case GLFW_KEY_RIGHT:
-			g_CameraPosition.x -= 0.1f;
-			break;
-		case GLFW_KEY_W:
-			g_CameraPosition.y -= 0.1f;
-			break;
 		case GLFW_KEY_S:
-			g_CameraPosition.y += 0.1f;
+			g_CameraPosition.z -= 0.1f;
 			break;
 		case GLFW_KEY_A:
 			g_CameraPosition.x += 0.1f;
@@ -275,7 +414,7 @@ void TelepresenceSession::initRenderPasses()
 	Sphere* sphere = new Sphere(10.0f);
 	Quad* quad = new Quad();
 	m_textPane = new TextPane(0.8f, .4f, "Matthias");
-	m_hud = new TextPane(0.8f, .4f, "", 20);
+	m_hud = new TextPane(0.5f, .2f, "", 20);
 
 	m_textPanel = new TextPane(2.0f, 1.0f, "Wand");
 
@@ -497,7 +636,7 @@ void TelepresenceSession::renderHud(glm::vec3 cameraPosition)
 	printf("height: %d", height);*/
 
 	m_hudPass
-		->update("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(1, 1, -1)))
+		->update("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(0.5, 0.5, -1)))
 		->texture("tex", m_hud->getTextureHandle())
 		->run();
 
