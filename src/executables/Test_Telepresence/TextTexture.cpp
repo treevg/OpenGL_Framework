@@ -13,7 +13,7 @@ TextTexture::TextTexture(int textureWidth, int textureHeight, const char *string
 
 TextTexture::~TextTexture()
 {
-
+	// test Comment
 }
 
 
@@ -30,7 +30,9 @@ void TextTexture::initTexture(){
 	glBindTexture(GL_TEXTURE_2D, m_textureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 }
