@@ -49,7 +49,7 @@ void TelepresenceSession::init()
 	m_kinectHandler->initializeDefaultSensor();
 	m_pointCloud = new PointCloud(m_kinectHandler);
 	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room2_tris.obj");
-	m_kinectHandler->retrieveCameraIntrinsics();
+	//m_kinectHandler->retrieveCameraIntrinsics();
 	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room.obj")
 		->printLog();
 	m_hhfVao == NULL;

@@ -77,7 +77,16 @@ vec4 LookUpSurroundingColors()
 	return weighColor( pcCount, pcColor, bgCount, bgColor);
 }
 
+vec4 simpleReduce()
+{
+	// texture coordinate of mipmap level above
+	ivec2 ulcoord = ivec2(gl_FragCoord.xy)*2;
+	vec4 texelInfo =  texelFetch(m_pcOutputTex, ulcoord , m_hhfMipmapLevel-1);
+	return texelInfo;
+}
+
 void main()
 {
 	fragColor = LookUpSurroundingColors();
+	//fragColor = simpleReduce();
 }
