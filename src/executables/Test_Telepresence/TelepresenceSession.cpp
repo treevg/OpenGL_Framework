@@ -110,14 +110,14 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 			///renderHud(cameraPosition);
 			//glDepthFunc(GL_LESS);
 		}
-		//renderResult();
+		renderResult();
 }
 
 void TelepresenceSession::performHHF(){
-	renderHHF();
-	renderResult();
-	glBindFramebuffer(GL_FRAMEBUFFER, m_hhfMipmapFBOHandles[0]);
-	glClear(GL_COLOR_BUFFER_BIT);
+	//renderHHF();
+	//renderResult();
+	//glBindFramebuffer(GL_FRAMEBUFFER, m_hhfMipmapFBOHandles[0]);
+	//glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void TelepresenceSession::generateOculusWindow()
@@ -235,7 +235,7 @@ void TelepresenceSession::initShaderPrograms()
 	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 
 	// Point Cloud Shaders 
-	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/pointcloudNoGeo.vert", "/Test_Telepresence/pointcloudNoGeo.frag" });
+	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/pointcloud.vert", "/Test_Telepresence/pointcloud.geom", "/Test_Telepresence/pointcloud.frag" });
 
 	// HoleFilling Shaders
 	m_hhfReduceShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/reduce.frag" });
@@ -433,7 +433,15 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 void TelepresenceSession::renderPointCloud()
 {
 	m_pointCloud->updatePointCloud();
-	m_pointCloudPass->run();
+	float fovy = 120; // degrees
+	int viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	float heightOfNearPlane = (float)abs(viewport[3] - viewport[1]) /
+		(2 * tan(0.5*fovy*3.1415 / 180.0));
+	heightOfNearPlane = 100;
+	m_pointCloudPass
+		->update("heightOfNearPlane", heightOfNearPlane)
+		->run();
 }
 
 void TelepresenceSession::renderTestCube()

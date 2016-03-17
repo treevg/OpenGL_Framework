@@ -26,7 +26,7 @@ const float m_maskArray[m_regionSize] =
 float accessMask(int x, int y)
 {
 	int index = y * m_side + x;
-	return m_regionArray[index];
+	return m_maskArray[index];
 }
 
 vec4 weighColor( float pcCount, vec4 pcColor, float bgCount, vec4 bgColor)
