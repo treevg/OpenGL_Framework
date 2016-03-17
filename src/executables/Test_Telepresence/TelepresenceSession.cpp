@@ -235,7 +235,7 @@ void TelepresenceSession::initShaderPrograms()
 	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 
 	// Point Cloud Shaders 
-	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/pointcloud.vert", "/Test_Telepresence/pointcloud.frag" });
+	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/pointcloudNoGeo.vert", "/Test_Telepresence/pointcloudNoGeo.frag" });
 
 	// HoleFilling Shaders
 	m_hhfReduceShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/reduce.frag" });
