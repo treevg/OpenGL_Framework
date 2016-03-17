@@ -9,9 +9,6 @@ TextTexture::TextTexture(int textureWidth, int textureHeight, const char *string
 	m_height = textureHeight;
 	m_fontSize = fontSize;
 	initTexture();
-
-	// draw Method call in constructor?
-	//drawText();
 }
 
 TextTexture::~TextTexture()
@@ -33,8 +30,7 @@ void TextTexture::initTexture(){
 	glBindTexture(GL_TEXTURE_2D, m_textureId);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_width, m_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 }
@@ -88,7 +84,6 @@ int TextTexture::drawText()
 	/* create cairo-surface/context to act as OpenGL-texture source */
 	cr = createCairoContext(m_width, m_height, 4, &surface, &surfData);
 
-
 	/* clear background */
 	//cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 	//cairo_set_source_rgb(cr, m_backgroundColor.red, m_backgroundColor.green, m_backgroundColor.blue);
@@ -101,7 +96,7 @@ int TextTexture::drawText()
 	cairo_set_source_rgb(cr, m_textColor.red, m_textColor.green, m_textColor.blue);
 	cairo_show_text(cr, m_string.c_str());
 
-
+	// is this data still present in the texture after free(...)?
 	updateTextureData(surfData);
 
 	free(surfData);
