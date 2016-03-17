@@ -6,11 +6,21 @@ layout(location = 5) in vec3 colorAttribute;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 
-out vec4 passPosition;
-out vec3 passColor;
+out VertexData
+{
+	vec4 vertexPosition;
+	vec3 vertexColor;
+}  vertex;
 
 void main(){
-	passPosition = viewMatrix * vec4(positionAttribute, 1.0);
-	passColor = colorAttribute;
-	gl_Position =  projectionMatrix * viewMatrix * vec4(positionAttribute, 1.0);
+	if( positionAttribute == vec3(1.0))
+	{
+		gl_Position =  vec4(0.0);
+	}
+	else
+	{
+		vertex.vertexPosition = viewMatrix * vec4(positionAttribute, 1.0);
+		vertex.vertexColor = colorAttribute;
+		gl_Position =  projectionMatrix * viewMatrix * vec4(positionAttribute, 1.0);
+	}
 }
