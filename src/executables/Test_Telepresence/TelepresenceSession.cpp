@@ -95,19 +95,19 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 
 	glm::vec3 cameraPosition = extractCameraPosition(view);
 
-	if (m_toggle_pointcloud) {
-		renderPointCloud();
-	}
-
-	if (m_toggle_userInfo) {
-		//renderBillboards(cameraPosition);
-	}
 	//renderPanels();
 	renderRoom(cameraPosition);
-	//renderTestCube();
+	renderTestCube();
+
+	if (m_toggle_userInfo) {
+		renderBillboards(cameraPosition);
+	}
 
 	if (m_toggle_leapMotion) {
 		renderLeap(cameraPosition);
+	}
+	if (m_toggle_pointcloud) {
+		renderPointCloud();
 	}
 
 	if (m_toggle_hud) {
@@ -546,51 +546,51 @@ void TelepresenceSession::renderRoom(glm::vec3 cameraPosition)
 		// any purpose?!
 		//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		//if (leftHand.isValid() && rightHand.isValid() && m_leapHandler->isPinched(leftHand))
-		//{
-		//	vector<glm::vec3> ray;
-		//	vector<glm::vec3> triangle;
-		//	glm::vec3 intersectionPoint;
-		//	glm::vec3 normal;
+		if (leftHand.isValid() && rightHand.isValid() && m_leapHandler->isPinched(leftHand))
+		{
+			vector<glm::vec3> ray;
+			vector<glm::vec3> triangle;
+			glm::vec3 intersectionPoint;
+			glm::vec3 normal;
 
-		//	glm::vec4 rayDirection = glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmNormal()), 0);
-		//	glm::mat4 leapWorldMatrixStart = getLeapWorldCoordinateMatrix(rightHand.palmPosition());
-		//	glm::mat4 leapWorldMatrixDirection = getLeapWorldCoordinateMatrix(rightHand.palmNormal());
+			glm::vec4 rayDirection = glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmNormal()), 0);
+			glm::mat4 leapWorldMatrixStart = getLeapWorldCoordinateMatrix(rightHand.palmPosition());
+			glm::mat4 leapWorldMatrixDirection = getLeapWorldCoordinateMatrix(rightHand.palmNormal());
 
-		//	glm::mat4 modelMatrixRay = leapToOculusTransformation * leapWorldMatrixStart;
-		//	glm::mat4 modelMatrixRayDirection = leapToOculusTransformation * leapWorldMatrixDirection;
-		//	glm::vec4 rayStart = modelMatrixRay * glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmPosition()), 0);
-		//	rayDirection = modelMatrixRayDirection * rayDirection;
-		//	ray.push_back(glm::vec3(rayStart.x, rayStart.y, rayStart.z));
-		//	ray.push_back(glm::vec3(rayDirection.x, rayDirection.y, rayDirection.z));
+			glm::mat4 modelMatrixRay = leapToOculusTransformation * leapWorldMatrixStart;
+			glm::mat4 modelMatrixRayDirection = leapToOculusTransformation * leapWorldMatrixDirection;
+			glm::vec4 rayStart = modelMatrixRay * glm::vec4(m_leapHandler->convertLeapVecToGlm(rightHand.palmPosition()), 0);
+			rayDirection = modelMatrixRayDirection * rayDirection;
+			ray.push_back(glm::vec3(rayStart.x, rayStart.y, rayStart.z));
+			ray.push_back(glm::vec3(rayDirection.x, rayDirection.y, rayDirection.z));
 
-		//	std::vector<GLfloat>* vertices = mesh->getVertexList();
-		//	std::vector<GLint>* indices = mesh->getIndexList();
+			std::vector<GLfloat>* vertices = mesh->getVertexList();
+			std::vector<GLint>* indices = mesh->getIndexList();
 
-		//	for (int i = 0; i < indices->size(); i++)
-		//	{
-		//		if (i > 0 && i % 3 == 0)
-		//		{
-		//			intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint, &normal);
-		//			triangle.clear();
-		//			if (intersected == 1)
-		//			{
-		//				glm::quat rotationQuat = CameraObjectRelations::rotationBetweenVectors(m_textPanel->getNormal(), normal);
-		//				glm::mat4 rotationMat = glm::toMat4(rotationQuat);
-		//				glm::mat4 model = glm::translate(glm::translate(glm::mat4(1.0f), intersectionPoint), normal*.1f) * rotationMat;
-		//				m_panelPass
-		//					->update("modelMatrix", model)
-		//					->texture("tex", m_textPanel->getTextureHandle())
-		//					->run();
-		//			}
+			for (int i = 0; i < indices->size(); i++)
+			{
+				if (i > 0 && i % 3 == 0)
+				{
+					intersected = intersectionRayTriangle(ray, triangle, &intersectionPoint, &normal);
+					triangle.clear();
+					if (intersected == 1)
+					{
+						glm::quat rotationQuat = CameraObjectRelations::rotationBetweenVectors(m_textPanel->getNormal(), normal);
+						glm::mat4 rotationMat = glm::toMat4(rotationQuat);
+						glm::mat4 model = glm::translate(glm::translate(glm::mat4(1.0f), intersectionPoint), normal*.1f) * rotationMat;
+						m_panelPass
+							->update("modelMatrix", model)
+							->texture("tex", m_textPanel->getTextureHandle())
+							->run();
+					}
 
-		//		}
-		//		int index = (indices->at(i) * 3);
-		//		glm::vec3 vertex = glm::vec3(vertices->at(index), vertices->at(index + 1), vertices->at(index + 2));
-		//		triangle.push_back(vertex);
+				}
+				int index = (indices->at(i) * 3);
+				glm::vec3 vertex = glm::vec3(vertices->at(index), vertices->at(index + 1), vertices->at(index + 2));
+				triangle.push_back(vertex);
 
-		//	}
-		//}
+			}
+		}
 	}
 }
 
@@ -620,10 +620,13 @@ void TelepresenceSession::renderHud(glm::vec3 cameraPosition)
 	double currentTime = glfwGetTime();
 	nbFrames++;
 
+	//  Calculate time passed
+	int timeInterval = currentTime - lastTime;
+
 	if (currentTime - lastTime >= 1.0){ // If last prinf() was more than 1 sec ago
 		// printf and reset timer
-		//string erg = std::to_string(1000.0 / double(nbFrames)) + "ms / frame\n";
-		string erg = "FPS:" + std::to_string(double(nbFrames) / 1000.0f) + "\n lolo";
+		string erg = std::to_string((int)(floor(1000.0 / double(nbFrames) * 100.0) / 100.0)) + "ms/f";
+		//string erg = "FPS:" + std::to_string(double(nbFrames) / (timeInterval / 1000.0f));
 		m_hud->updateText(erg);
 		nbFrames = 0;
 		lastTime += 1.0;
@@ -636,7 +639,7 @@ void TelepresenceSession::renderHud(glm::vec3 cameraPosition)
 	printf("height: %d", height);*/
 
 	m_hudPass
-		->update("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(0.5, 0.5, -1)))
+		->update("modelMatrix", glm::translate(glm::mat4(1.0f), glm::vec3(0.3, 0.3, -1)))
 		->texture("tex", m_hud->getTextureHandle())
 		->run();
 
@@ -644,7 +647,7 @@ void TelepresenceSession::renderHud(glm::vec3 cameraPosition)
 
 void TelepresenceSession::renderBillboards(glm::vec3 cameraPosition)
 {
-	m_textPane->updateText("Ll L l");
+	m_textPane->updateText("Max");
 
 
 	glm::vec3 headPosition(0);

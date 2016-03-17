@@ -105,7 +105,7 @@ void TextPane::updateText(std::string title)
 {
 	GdkRGBA color = { 1.0f, 1.0f, 1.0f, 1.0f };
 	GdkRGBA background = { 0.5f, 0.5f, 0.0f, 0.0f };
-	m_textTexture = new TextTexture(256, 256, title.c_str(), color, background, 20);
+	m_textTexture = new TextTexture(256, 256, title.c_str(), color, background, 60);
 }
 
 std::vector<glm::vec3> TextPane::getVertices(){
