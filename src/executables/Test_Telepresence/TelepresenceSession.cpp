@@ -49,68 +49,69 @@ void TelepresenceSession::init()
 	m_kinectHandler->initializeDefaultSensor();
 	m_pointCloud = new PointCloud(m_kinectHandler);
 	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room2_tris.obj");
-	m_kinectHandler->retrieveCameraIntrinsics();
-	m_assimpLoader->loadFile(RESOURCES_PATH "/obj/room.obj")
-		->printLog();
+	if (m_kinectHandler->isKinectAvailable())
+	{
+		m_kinectHandler->retrieveCameraIntrinsics();
+	}
 	m_hhfVao == NULL;
 
 	generateHoleFillingAssets();
 
 	initShaderPrograms();
 	initRenderPasses();
-	
+
 }
 
 void TelepresenceSession::run()
 {
 
 	render(m_window, [&](double delta, glm::mat4 projection, glm::mat4 view)
-		{
-			//m_kinectHandler->retrieveCameraIntrinsics();
-			renderLoop(delta, projection, view);
+	{
+		//m_kinectHandler->retrieveCameraIntrinsics();
+		renderLoop(delta, projection, view);
 
-		}, 
+	},
 		[&]()
-		{
-			performHHF();
-		}
+	{
+		performHHF();
+	}
 	);
 }
 
 void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm::mat4 view)
 {
-		measureSpeedOfApplication();
-		if (m_toggle_mouseAsCamera) {
-			computeMatricesFromInputs(m_window);
-			//projection = getProjectionMatrix();
-			view = getViewMatrix();
-		}
-		updateProjectionMatrices(projection);
-		updateViewMatrices(view);
+	measureSpeedOfApplication();
+	if (m_toggle_mouseAsCamera) {
+		computeMatricesFromInputs(m_window);
+		//projection = getProjectionMatrix();
+		view = getViewMatrix();
+	}
+	updateProjectionMatrices(projection);
+	updateViewMatrices(view);
 
-		glm::vec3 cameraPosition = extractCameraPosition(view);
+	glm::vec3 cameraPosition = extractCameraPosition(view);
 
-		if (m_toggle_userInfo) {
-			//renderBillboards(cameraPosition);
-		}
-		//renderPanels();
-		renderRoom(cameraPosition);
-		renderTestCube();
+	if (m_toggle_userInfo) {
+		//renderBillboards(cameraPosition);
+	}
+	//renderPanels();
+	renderRoom(cameraPosition);
+	renderTestCube();
 
-		if (m_toggle_leapMotion) {
-				renderLeap(cameraPosition);
-		}
+	if (m_toggle_leapMotion) {
+		renderLeap(cameraPosition);
+	}
 
-		if (m_toggle_pointcloud) {
-			renderPointCloud();
-		}
+	if (m_toggle_pointcloud) {
+		renderPointCloud();
+	}
 
-		if (m_toggle_hud) {
-			//glDepthFunc(GL_ALWAYS);
-			///renderHud(cameraPosition);
-			//glDepthFunc(GL_LESS);
-		}
-		//renderResult();
+	if (m_toggle_hud) {
+		//glDepthFunc(GL_ALWAYS);
+		///renderHud(cameraPosition);
+		//glDepthFunc(GL_LESS);
+	}
+	//renderResult();
 }
 
 void TelepresenceSession::performHHF(){
@@ -164,6 +165,30 @@ void TelepresenceSession::keycallback(GLFWwindow* p_Window, int p_Key, int scanc
 		case GLFW_KEY_M:
 			// ENABLE/DISABLE MOUSE CURSOR
 			m_toggle_mouseCursor = !m_toggle_mouseCursor;
+			break;
+		case GLFW_KEY_UP:
+			g_CameraPosition.z += 0.1f;
+			break;
+		case GLFW_KEY_DOWN:
+			g_CameraPosition.z -= 0.1f;
+			break;
+		case GLFW_KEY_LEFT:
+			g_CameraPosition.x += 0.1f;
+			break;
+		case GLFW_KEY_RIGHT:
+			g_CameraPosition.x -= 0.1f;
+			break;
+		case GLFW_KEY_W:
+			g_CameraPosition.y -= 0.1f;
+			break;
+		case GLFW_KEY_S:
+			g_CameraPosition.y += 0.1f;
+			break;
+		case GLFW_KEY_A:
+			g_CameraPosition.x += 0.1f;
+			break;
+		case GLFW_KEY_D:
+			g_CameraPosition.x -= 0.1f;
 			break;
 		}
 	}
@@ -555,7 +580,7 @@ void TelepresenceSession::renderLeap(glm::vec3 cameraPosition)
 }
 
 void TelepresenceSession::renderHHF(){
-	
+
 	// set texture
 	m_hhfReducePass->texture("m_pcOutputTex", m_hhfTexture);
 
@@ -568,28 +593,28 @@ void TelepresenceSession::renderHHF(){
 
 		/*if (m_hhfMipmapLevel == 0){
 			m_hhfReducePass
-				->texture("m_pcOutputTex", m_hhfTexture);
-		}*/
+			->texture("m_pcOutputTex", m_hhfTexture);
+			}*/
 	}
 
 	m_hhfFillPass
 		->texture("m_hhfTexture", m_hhfTexture);
-	
+
 	// fill pass over all mipmap level
 	for (m_hhfMipmapLevel = m_hhfMipmapNumber - 2; m_hhfMipmapLevel >= 0; m_hhfMipmapLevel--){
-					
+
 		m_hhfFillPass
 			->texture("m_hhfTexture", m_hhfTexture)
 			->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
-			->setFrameBufferObject(m_hhfMipmapFBOs[m_hhfMipmapLevel])		
-			->run();	
+			->setFrameBufferObject(m_hhfMipmapFBOs[m_hhfMipmapLevel])
+			->run();
 	}
 
 	// minimal fill pass for mipmap level 0 only - testing purpose
-/*
-	m_hhfFillPass
+	/*
+		m_hhfFillPass
 		->texture("m_hhfTexture", m_hhfTexture)
-		->update("m_hhfMipmapLevel", 0)	
+		->update("m_hhfMipmapLevel", 0)
 		->run();*/
 }
 
@@ -641,7 +666,7 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, m_hhfMipmapNumber-1);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, m_hhfMipmapNumber - 1);
 	glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 	glGenerateMipmap(GL_TEXTURE_2D);
 
@@ -664,7 +689,7 @@ void TelepresenceSession::generateHoleFillingAssets(){
 		FrameBufferObject* m_hhfFBO = new FrameBufferObject();
 		m_hhfFBO->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[i]);
 		m_hhfMipmapFBOs.push_back(m_hhfFBO);
-			
+
 		GLenum l_Check = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		if (l_Check != GL_FRAMEBUFFER_COMPLETE)
 		{
@@ -681,11 +706,11 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	GLenum l_Check = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 	if (l_Check != GL_FRAMEBUFFER_COMPLETE)
 	{
-		printf("There is a problem with the FBO.\n");
-		exit(EXIT_FAILURE);
+	printf("There is a problem with the FBO.\n");
+	exit(EXIT_FAILURE);
 	}
 	else {
-		printf("HHF FBO is complete.\n");
+	printf("HHF FBO is complete.\n");
 	}*/
 
 	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -696,11 +721,11 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	// texture with random data stuff
 	/*texdata = (GLfloat *)malloc(g_RenderTargetSize.w*g_RenderTargetSize.h * 4 * sizeof(float));
 	for (size_t i = 0; i<g_RenderTargetSize.w*g_RenderTargetSize.h * 4; i += 4){
-	
-		texdata[i] = ((float)rand() / (RAND_MAX)); // rand()%255;
-		texdata[i + 1] = ((float)rand() / (RAND_MAX));
-		texdata[i + 2] = ((float)rand() / (RAND_MAX));
-		texdata[i + 3] = 1.0;
+
+	texdata[i] = ((float)rand() / (RAND_MAX)); // rand()%255;
+	texdata[i + 1] = ((float)rand() / (RAND_MAX));
+	texdata[i + 2] = ((float)rand() / (RAND_MAX));
+	texdata[i + 3] = 1.0;
 	}
 	glGenTextures(1, &ttex);
 	//glActiveTexture(GL_TEXTURE0);

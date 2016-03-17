@@ -15,6 +15,7 @@ public:
 
 	// Initializes the default Kinect sensor
 	HRESULT	initializeDefaultSensor();
+	bool	isKinectAvailable();
 	void getDepthFrameDescription(HRESULT& hr, int& depthWidth, int& depthHeight);
 	void retrieveColorPoints(GLfloat* colorData, GLfloat* positionData, HRESULT& hr, int depthWidth, int depthHeight, int colorWidth, int colorHeight);
 	void fillBuffers(GLfloat* colorData, GLfloat* positionData, int depthWidth, int depthHeight, int colorWidth, int colorHeight);
@@ -63,4 +64,5 @@ private:
 	std::vector<std::vector<Joint>> m_jointPositions;
 
 	TIMESPAN m_latestTimeStamp = 0;
+	boolean isAvailable = false;
 };

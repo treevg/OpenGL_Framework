@@ -36,6 +36,11 @@ KinectHandler::~KinectHandler()
 
 }
 
+bool KinectHandler::isKinectAvailable()
+{
+	return isAvailable;
+}
+
 HRESULT KinectHandler::initializeDefaultSensor()
 {
 	// returns S_OK on success, otherwise failure code
@@ -47,6 +52,7 @@ HRESULT KinectHandler::initializeDefaultSensor()
 		return hr;
 	}
 	cout << "kinectSensor " << kinectSensor << endl;
+	
 	if (kinectSensor)
 	{
 		// Initialize the Kinect
@@ -63,7 +69,12 @@ HRESULT KinectHandler::initializeDefaultSensor()
 		}
 	}
 
-	if (!kinectSensor || FAILED(hr))
+	// Some Machines will only be detected after some sleep time: known kinect issue
+	Sleep(1000);
+	kinectSensor->get_IsAvailable(&isAvailable);
+
+
+	if (!kinectSensor || FAILED(hr) || !isAvailable)
 	{
 		//SetStatusMessage(L"No ready Kinect found!", 10000, true);
 		cout << "No ready Kinect found!" << endl;
@@ -99,6 +110,8 @@ bool KinectHandler::updateKinect(GLfloat* colorData, GLfloat* positionData)
 	IMultiSourceFrame* pMultiFrame = NULL;
 	HRESULT hr = multiSourceFrameReader->AcquireLatestFrame(&pMultiFrame);
 
+	// check if kinect is available
+	kinectSensor->get_IsAvailable(&isAvailable);
 	if (SUCCEEDED(hr))
 	{
 		int Width = 0;
@@ -370,7 +383,7 @@ void KinectHandler::retrieveColorPoints(GLfloat* colorData, GLfloat* positionDat
 
 void KinectHandler::retrieveCameraIntrinsics() {
 
-	std::cout << "Test retrieve" << std::endl;
+	std::cout << "Test retriseve" << std::endl;
 	CameraIntrinsics cI = {};
 
 	// waiting for intrinsic parameter propagation
