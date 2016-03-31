@@ -640,12 +640,12 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	m_hhfResolution = glm::vec2{ g_RenderTargetSize.w, g_RenderTargetSize.h };
 
 	m_hhfVao = new Quad();
-	m_hhfMipmapNumber = 4;
+	m_hhfMipmapNumber =  6; // glm::clamp(m_hhfMipmapNumber, 1, (int)glm::log2(glm::max<float>(m_hhfResolution.x, m_hhfResolution.y)));
 
 	glGenTextures(1, &m_hhfTexture);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_hhfTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_hhfResolution.x, m_hhfResolution.y, 0, GL_RGBA, GL_FLOAT, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA16F, m_hhfResolution.x, m_hhfResolution.y, 0, GL_RGBA, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);

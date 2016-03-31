@@ -53,8 +53,8 @@ void fillShading()
 		}
 		else
 		{
-			fragColor = centerColor;
-			//fragColor = vec4(0.0, 1.0, 0.0, 1.0);
+			//fragColor = centerColor;
+			fragColor = vec4(0.0, 1.0, 0.0, 1.0);
 		}
     }
 	else
@@ -65,8 +65,8 @@ void fillShading()
 
 void main()
 {
-	// fillShading();
-	getColorFromMipMap( 1 );
+	fillShading();
+	//getColorFromMipMap( 5 );
 }
 
  //   int a[3];
