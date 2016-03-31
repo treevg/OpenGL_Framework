@@ -104,20 +104,20 @@ void TelepresenceSession::renderLoop(double deltaTime, glm::mat4 projection, glm
 		if (m_toggle_pointcloud) {
 			renderPointCloud();
 		}
-
+		
 		if (m_toggle_hud) {
 			//glDepthFunc(GL_ALWAYS);
 			///renderHud(cameraPosition);
 			//glDepthFunc(GL_LESS);
 		}
-		renderResult();
+		//renderResult();
 }
 
 void TelepresenceSession::performHHF(){
-	//renderHHF();
-	//renderResult();
-	//glBindFramebuffer(GL_FRAMEBUFFER, m_hhfMipmapFBOHandles[0]);
-	//glClear(GL_COLOR_BUFFER_BIT);
+	renderHHF();
+	renderResult();
+	glBindFramebuffer(GL_FRAMEBUFFER, m_hhfMipmapFBOHandles[0]);
+	glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT);
 }
 
 void TelepresenceSession::generateOculusWindow()
@@ -235,8 +235,8 @@ void TelepresenceSession::initShaderPrograms()
 	m_panelShaders = new ShaderProgram({ "/Test_Telepresence/texture.vert", "/Test_Telepresence/texture.frag" });
 
 	// Point Cloud Shaders 
-	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/pointcloud.vert", "/Test_Telepresence/pointcloud.geom", "/Test_Telepresence/pointcloud.frag" });
-
+	//m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/pointcloud.vert", "/Test_Telepresence/pointcloud.geom", "/Test_Telepresence/pointcloud.frag" });
+	m_pointCloudShaders = new ShaderProgram({ "/Test_Telepresence/pointcloudNoGeo.vert", "/Test_Telepresence/pointcloudNoGeo.frag" });
 	// HoleFilling Shaders
 	m_hhfReduceShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/reduce.frag" });
 	m_hhfFillShaders = new ShaderProgram({ "/Test_Telepresence/hhf.vert", "/Test_Telepresence/fill.frag" });
@@ -289,7 +289,7 @@ void TelepresenceSession::initRenderPasses()
 		->update("lightPosition", lightPos)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_hhfReducePass
-		->update("m_hhfResolution", m_hhfResolution)
+		//->update("m_hhfResolution", m_hhfResolution)
 		->getFrameBufferObject()->setFrameBufferObjectHandle(m_hhfMipmapFBOHandles[0]);
 	m_hhfFillPass
 		->update("m_hhfResolution", m_hhfResolution)
@@ -440,7 +440,7 @@ void TelepresenceSession::renderPointCloud()
 		(2 * tan(0.5*fovy*3.1415 / 180.0));
 	heightOfNearPlane = 100;
 	m_pointCloudPass
-		->update("heightOfNearPlane", heightOfNearPlane)
+		//->update("heightOfNearPlane", heightOfNearPlane)
 		->run();
 }
 
@@ -568,7 +568,7 @@ void TelepresenceSession::renderHHF(){
 	m_hhfReducePass->texture("m_pcOutputTex", m_hhfTexture);
 
 	// reduce pass over all mipmap level
-	for (m_hhfMipmapLevel = 0; m_hhfMipmapLevel < m_hhfMipmapNumber; m_hhfMipmapLevel++){
+	for (m_hhfMipmapLevel = 1; m_hhfMipmapLevel < m_hhfMipmapNumber; m_hhfMipmapLevel++){
 		m_hhfReducePass
 			->update("m_hhfMipmapLevel", m_hhfMipmapLevel)
 			->setFrameBufferObject(m_hhfMipmapFBOs[m_hhfMipmapLevel])
@@ -645,7 +645,7 @@ void TelepresenceSession::generateHoleFillingAssets(){
 	glGenTextures(1, &m_hhfTexture);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_hhfTexture);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_hhfResolution.x, m_hhfResolution.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, m_hhfResolution.x, m_hhfResolution.y, 0, GL_RGBA, GL_FLOAT, 0);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);

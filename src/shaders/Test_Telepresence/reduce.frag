@@ -6,9 +6,9 @@ out vec4 fragColor;
 uniform sampler2D m_pcOutputTex;
 
 uniform int m_hhfMipmapLevel;
-uniform int m_hhfResolution;
+//uniform vec2 m_hhfResolution;
 
-ivec2 m_hhfNewRes = ivec2(m_hhfResolution * pow(0.5, m_hhfMipmapLevel+1));
+//ivec2 m_hhfNewRes = ivec2(m_hhfResolution * pow(0.5, m_hhfMipmapLevel+1));
 
 const int m_r = 2;
 const int m_side = 5;
@@ -36,6 +36,7 @@ vec4 weighColor( float pcCount, vec4 pcColor, float bgCount, vec4 bgColor)
 		return pcColor / pcCount;
 	}
 	return bgColor/bgCount;
+	//return vec4(1.0, 1.0, 0.0, 0.0);
 }
 
 vec4 LookUpSurroundingColors()
@@ -89,4 +90,5 @@ void main()
 {
 	fragColor = LookUpSurroundingColors();
 	//fragColor = simpleReduce();
+	
 }
