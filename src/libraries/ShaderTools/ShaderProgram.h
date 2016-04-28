@@ -22,6 +22,7 @@
 #include <fstream>
 #include <glm/ext.hpp>
 #include <map>
+#include "ShaderTools/ShaderStorageBufferObject.h"
 
 
 /**
@@ -209,6 +210,13 @@ public:
 	 * @return The shader program
 	 */
 	ShaderProgram* update(std::string name, std::vector<glm::vec4> vector);
+	/**
+ 	* @brief Updates the binding of a Shader Storage Block
+ 	* @param name Name of the Shader Storage Block
+ 	* @param ssbo The Shader Storage Buffer Object to be bound
+ 	* @return
+ 	*/
+	ShaderProgram* update(std::string name, ShaderStorageBufferObject *ssbo);
 
 	/**
 	 * @brief Logs all active bound uniforms to the console

@@ -125,6 +125,12 @@ ShaderProgram* ShaderProgram::texture(std::string name, GLuint textureHandle, GL
 	return this;
 }
 
+ShaderProgram *ShaderProgram::update(std::string name, ShaderStorageBufferObject* ssbo)
+{
+    ssbo->bindToShaderProgramBlock(shaderProgramHandle, name);
+    return this;
+}
+
 ShaderProgram* ShaderProgram::update(string name, bool value) {
 	Info* updateInfo = checkUpdate(name, "bool");
 	if (updateInfo != NULL) {
