@@ -59,9 +59,6 @@ Pyramid::Pyramid(int width, int height, std::string pullFragmentShaderPath, std:
 
 
 Pyramid::~Pyramid() {
-	delete vertexArrayObject;
-	delete pullShaderProgram;
-	delete pushShaderProgram;
 }
 
 

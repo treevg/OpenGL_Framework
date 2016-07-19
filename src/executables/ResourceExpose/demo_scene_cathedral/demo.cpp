@@ -13,8 +13,6 @@ int main(int argc, char *argv[]) {
     float rotX = 0.0f;
     float rotY = 0.0f;
     float distance = 1.0;
-    float turn = 0;
-    float speed = 1.0f;
 
     mat4 projection = perspective(45.0f, getRatio(window), 0.1f, 100.0f);
 
