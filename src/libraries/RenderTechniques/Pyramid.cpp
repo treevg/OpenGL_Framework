@@ -1,7 +1,7 @@
 #include "Pyramid.h"
 #include "ShaderTools/VertexArrayObjects/Quad.h"
 
-Pyramid::Pyramid(int width, int height, std::string pullFragmentShaderPath, std::string pushFragmentShaderPath) 
+Pyramid::Pyramid(int width, int height, std::string pullFragmentShaderPath, std::string pushFragmentShaderPath)
 : limit(999)
 {
 	pullShaderProgram = new ShaderProgram("/Filters/fullscreen.vert", pullFragmentShaderPath);
@@ -11,7 +11,7 @@ Pyramid::Pyramid(int width, int height, std::string pullFragmentShaderPath, std:
 	} else {
 		pushShaderProgram = new ShaderProgram("/Filters/fullscreen.vert", pushFragmentShaderPath);
 	}
-	vertexArrayObject = new Quad(); 
+	vertexArrayObject = new Quad();
 
 	int numTextures = pullShaderProgram->outputMap.size();
 	std::vector<GLuint> textures(numTextures);
@@ -32,7 +32,7 @@ Pyramid::Pyramid(int width, int height, std::string pullFragmentShaderPath, std:
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		drawBuffers[e.second.location] = GL_COLOR_ATTACHMENT0 + e.second.location;
-		
+
 		pullShaderProgram->texture("pyramid_" + e.first, handle);
 		if (pushShaderProgram != NULL) {
 			pushShaderProgram->texture("pyramid_" + e.first, handle);
@@ -59,7 +59,9 @@ Pyramid::Pyramid(int width, int height, std::string pullFragmentShaderPath, std:
 
 
 Pyramid::~Pyramid() {
-
+	delete vertexArrayObject;
+	delete pullShaderProgram;
+	delete pushShaderProgram;
 }
 
 
@@ -126,13 +128,13 @@ Pyramid* Pyramid::texture(std::string name, GLuint textureHandle) {
 
 Pyramid* Pyramid::clear(float r, float g, float b, float a, int level) {
 	glClearColor(r, g, b, a);
-	
+
 	if (level == -1) {
 		for (auto f : fboHandles) {
 			glBindFramebuffer(GL_FRAMEBUFFER, f);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		}
-	} else {	
+	} else {
 		glBindFramebuffer(GL_FRAMEBUFFER, fboHandles[level]);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
