@@ -14,6 +14,7 @@
 
 #include "VertexArrayObject.h"
 #include "FrameBufferObject.h"
+#include "AssetTools/Texture.h"
 #include <list>
 
 class RenderPass
@@ -24,14 +25,17 @@ class RenderPass
     RenderPass(ShaderProgram* shaderProgram, int width, int height);
     RenderPass(ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
     RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram);
-		RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
-		RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
+	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height);
+	RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject);
 
-		/**
-		 * @brief Executes the whole render pass
-		 * @return The RenderPass instance
-		 */
-		RenderPass* run();
+    void preDraw();
+    void postDraw();
+
+	/**
+	 * @brief Executes the whole render pass
+	 * @return The RenderPass instance
+	 */
+	RenderPass* run();
 
     /**
     * @brief Executes the whole render pass
@@ -79,7 +83,9 @@ class RenderPass
 		RenderPass* clear(float r, float g, float b, float a);
 		RenderPass* clear();
 		RenderPass* clearDepth();
+        RenderPass* depthTest(bool toggle);
 		RenderPass* texture(std::string name, GLuint textureID);
+        RenderPass* texture(std::string name, Texture* texture);
 		RenderPass* texture(std::string name, GLuint textureID, GLuint samplerID);
 
 		template <class T>
@@ -95,6 +101,8 @@ class RenderPass
 		VertexArrayObject* vertexArrayObject;
 		// Framebuffer object to render to within a render pass
 		FrameBufferObject* frameBufferObject;
+
+        bool zTest;
 };
 
 #endif // RENDER_PASS_H

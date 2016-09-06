@@ -17,7 +17,7 @@ int main(int argc, char *argv[]) {
     mat4 projection = perspective(0.4f * 3.142f, getRatio(window), 0.1f, 100.0f);
 
     auto skyTex = new Texture(RESOURCES_PATH "/textures/equirectangular/park.jpg");
-    auto scene = new Scene(RESOURCES_PATH "/meshes/sibenik.obj");
+    auto scene = new Scene(RESOURCES_PATH "/scenes/sibenik");
 
     auto objects = (new RenderPass(
         new ShaderProgram("/3DObject/modelViewProjection.vert","/3DObject/gBuffer.frag"),

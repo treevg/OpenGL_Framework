@@ -15,7 +15,7 @@ out vec3 passWorldNormal;
 out vec3 passNormal;
 
 void main(){
-  passUVCoord = uvCoordAttribute;
+  passUVCoord = uvCoordAttribute.xy;
 
   passWorldPosition = model * positionAttribute;
   passPosition = view * passWorldPosition;

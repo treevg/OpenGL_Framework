@@ -20,6 +20,8 @@ public:
 
 
 	GLuint getHandle();
+	GLuint width;
+	GLuint height;
 
 protected:
 	GLuint colorAttachment;

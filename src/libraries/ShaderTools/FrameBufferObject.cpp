@@ -4,7 +4,8 @@ FrameBufferObject::FrameBufferObject() {
 	frameBufferObjectHandle = 0;
 }
 
-FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>* outputMap, int width, int height) {
+FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>* outputMap, int width, int height)
+	: width(width), height(height) {
 	int size = outputMap->size();
 
 	glGenFramebuffers(1, &frameBufferObjectHandle);
@@ -48,6 +49,7 @@ FrameBufferObject::FrameBufferObject(std::map<std::string, ShaderProgram::Info>*
 
 void FrameBufferObject::bind() {
 	glBindFramebuffer(GL_FRAMEBUFFER, frameBufferObjectHandle);
+	glViewport(0, 0, width, height);
 	// glDrawBuffers(drawBuffers.size(), &drawBuffers[0]);
 }
 

@@ -7,56 +7,63 @@ RenderPass::RenderPass(ShaderProgram* shaderProgram)
 }
 
 RenderPass::RenderPass(ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject)
-: vertexArrayObject(NULL), shaderProgram(shaderProgram), frameBufferObject(frameBufferObject)
+: vertexArrayObject(NULL), shaderProgram(shaderProgram), frameBufferObject(frameBufferObject), zTest(true)
 {
 }
 
 RenderPass::RenderPass(ShaderProgram* shaderProgram, int width, int height)
-: vertexArrayObject(NULL), shaderProgram(shaderProgram), frameBufferObject(0)
+: vertexArrayObject(NULL), shaderProgram(shaderProgram), frameBufferObject(0), zTest(true)
 {
 	autoGenerateFrameBufferObject(width, height);
 }
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram)
-	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0)
+	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0), zTest(true)
 {
 	frameBufferObject = new FrameBufferObject();
 }
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, int width, int height)
-	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0)
+	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(0), zTest(true)
 {
 	autoGenerateFrameBufferObject(width, height);
 }
 
 RenderPass::RenderPass(VertexArrayObject* vertexArrayObject, ShaderProgram* shaderProgram, FrameBufferObject* frameBufferObject)
-	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(frameBufferObject)
+	: vertexArrayObject(vertexArrayObject), shaderProgram(shaderProgram), frameBufferObject(frameBufferObject), zTest(true)
 {
 }
 
-RenderPass* RenderPass::run() {
+void RenderPass::preDraw() {
+	zTest? glEnable(GL_DEPTH_TEST) : glDisable(GL_DEPTH_TEST);
 	frameBufferObject->bind();
 	shaderProgram->use();
-	vertexArrayObject->draw();
+}
+
+void RenderPass::postDraw() {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+RenderPass* RenderPass::run() {
+	preDraw();
+	vertexArrayObject->draw();
+	postDraw();
 	return this;
 }
 
 RenderPass* RenderPass::run(VertexArrayObject* vao) {
-	frameBufferObject->bind();
-	shaderProgram->use();
+	preDraw();
 	vao->draw();
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	postDraw();
 	return this;
 }
 
 RenderPass* RenderPass::run(std::vector<VertexArrayObject*> renderQueue) {
-	frameBufferObject->bind();
-	shaderProgram->use();
+	preDraw();
 	for (auto e : renderQueue) {
 		e->draw();
 	}
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	postDraw();
 	return this;
 }
 
@@ -65,8 +72,18 @@ void RenderPass::autoGenerateFrameBufferObject(int width, int height) {
 	frameBufferObject = new FrameBufferObject(&(shaderProgram->outputMap), width, height);
 }
 
+RenderPass* RenderPass::depthTest(bool toggle) {
+	zTest = toggle;
+	return this;
+}
+
 RenderPass* RenderPass::texture(std::string name, GLuint textureHandle) {
     shaderProgram->texture(name, textureHandle);
+	return this;
+}
+
+RenderPass* RenderPass::texture(std::string name, Texture* texture) {
+    shaderProgram->texture(name, texture->getHandle());
 	return this;
 }
 

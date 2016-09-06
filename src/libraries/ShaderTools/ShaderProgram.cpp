@@ -281,8 +281,8 @@ ShaderProgram::Info* ShaderProgram::checkUpdate(std::string name, std::string ty
 		return NULL;
 	}
 	if (it == uniformMap.end()) {
-		std::cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
-		<< "\"uniform " << type << " " << name << "\" is not set or has been removed by the GLSL compiler" << std::endl << std::endl;
+		// std::cerr << "INVALID UNIFORM UPDATE IN SHADER PROGRAM " << shaderProgramHandle << std::endl
+		// << "\"uniform " << type << " " << name << "\" is not set or has been removed by the GLSL compiler" << std::endl << std::endl;
 		return NULL;
 	}
 	return &(it->second);
