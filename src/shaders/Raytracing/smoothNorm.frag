@@ -42,6 +42,7 @@ void main()
 		tc += horizLeft * weight[i];
 	}
     }
-  fragColor = vec4(bl, 1.0);
+  //fragColor = vec4(bl, 1.0);
   //fragColor = vec4(max(tc,0.0), 1.0);
+  fragColor = texture(tex, uv);
 }

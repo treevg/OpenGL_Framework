@@ -34,7 +34,7 @@ bool Objectloader::loadOBJ(
 
 	while( 1 ){
 
-	    char lineHeader[128];
+	    char lineHeader[300];
 	    // read the first word of the line
 	    int res = fscanf(file, "%s", lineHeader);
 	    if (res == EOF)

@@ -263,6 +263,7 @@ void main(void) {
 		  		hitTriangle = t;
 		  		currentDepth = hitDepth;
 		  	}
+		
 		}
 
 		//============================//

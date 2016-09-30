@@ -20,9 +20,16 @@ using namespace glm;
 //TODO smooth normals
 //TODO divide scene into patches for raytracing-> increase performance
 
+// usage:
+// b: raytrace
+// c,v: gd-steps
+// x: original viw
+// z: novel view
+
+
 int main(int argc, char *argv[]) {
 
-    GLFWwindow* window = generateWindow();
+    GLFWwindow* window = generateWindow(1024, 1024);
 
     // glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 
@@ -38,12 +45,12 @@ int main(int argc, char *argv[]) {
 
     //normal adjustment
     float factor = 0.5;
-    float zoom = 0.0;
+    float zoom = -24.0;
 
     int gradientDescentSteps = 20;
 
     // latency stuff
-    int latencyFrameNumber = 10000;
+    int latencyFrameNumber = 2;
     queue<mat4> latencyQueue;
 
     auto quadVAO = new Quad();
@@ -51,14 +58,24 @@ int main(int argc, char *argv[]) {
 
 
     //Load mesh: parameter is resources path
-    auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
-   // auto ssbo2 = new ShaderStorageBuffer("/Objects/twoplanes.obj", false);
+    //auto ssbo2 = new ShaderStorageBuffer("/Objects/smallBunnyScene.obj", false);
+    //auto ssbo2 = new ShaderStorageBuffer("/Objects/twoplanes.obj", false);
+    auto ssbo2 = new ShaderStorageBuffer("/Objects/bunny1k.obj", false);
 
     // Normal Raytracing
     auto raytracePassNormal = (new RenderPass(quadVAO,
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytraceNormal.frag"}),
         getWidth(window), getHeight(window)))
-        ->update("sphereVec[0]", sphereVec)
+        //->update("sphereVec[0]", sphereVec)
+        ->update("resolution", glm::vec3(getWidth(window), getHeight(window), 1));
+
+    // Normal Raytracing
+    auto smoothNormal = (new RenderPass(quadVAO,
+        new ShaderProgram({"/Filters/fullscreen.vert", "/Filters/boxBlur.frag"}),
+        getWidth(window), getHeight(window)))
+        //->update("sphereVec[0]", sphereVec)
+		->texture("tex", raytracePassNormal->get("normal"))
+		->update("strength", 10)
         ->update("resolution", glm::vec3(getWidth(window), getHeight(window), 1));
 
     // Raytracing
@@ -66,10 +83,12 @@ int main(int argc, char *argv[]) {
         new ShaderProgram({"/Raytracing/raytrace.vert", "/Raytracing/raytrace.frag"}),
         getWidth(window), getHeight(window)))
         ->texture("environmentTexture", TextureTools::loadTexture(RESOURCES_PATH "/equirectangular/park.jpg"))
-        ->texture("normalTexture", raytracePassNormal->get("normal"))
-		->update("sphereVec[0]", sphereVec)
-        ->update("colorSphere[0]", colorSphere)
+        //->texture("normalTexture", raytracePassNormal->get("normal"))
+		->texture("normalTexture", smoothNormal->get("fragColor"))
+		//->update("sphereVec[0]", sphereVec)
+        //->update("colorSphere[0]", colorSphere)
         ->update("resolution", glm::vec3(getWidth(window), getHeight(window), 1));
+    ssbo2->bind(11);
 
 
     // Diffuse Warping
@@ -147,6 +166,13 @@ int main(int argc, char *argv[]) {
 		->texture("gatherRefColTexture", raytracePass->get("reflectiveColor"))
 		->texture("warpDiffColTexture",  raytracePass->get("diffuseColor"))
 		;
+
+    float rotX = -0.3f;
+    float rotY = -0.6f;
+    float rotSpeed = 0.15f;
+
+    mat4 view = translate(mat4(1), vec3(0,0,-4)) * eulerAngleXY(-rotX, -rotY);
+    mat4 refMatrix = view;
 
     int mode = 0;
     setKeyCallback(window, [&] (int key, int scancode, int action, int mods) {
@@ -229,6 +255,7 @@ int main(int argc, char *argv[]) {
                 break;
             case GLFW_KEY_Z:
                 tonemapping->texture("tex", compositing->get("fragColor"));
+                tonemapping->texture("tex", smoothNormal->get("fragColor"));
                 break;
             case GLFW_KEY_C:
                 gatherRefPass->update("gradientDescentSteps", gradientDescentSteps-=10);
@@ -238,14 +265,45 @@ int main(int argc, char *argv[]) {
                 gatherRefPass->update("gradientDescentSteps", gradientDescentSteps+=10);
                 std::cout << "gradientDescentSteps " << gradientDescentSteps << std::endl;
                 break;
+            case GLFW_KEY_B:
+            	refMatrix = view;
+
+                mat4 view_old = refMatrix; //latencyQueue.front();
+//                mat4 invView = inverse(view);
+                mat4 invView_old = inverse(view_old);
+
+                mat4 projection = perspective(45.0f + zoom, float(getWidth(window))/float(getHeight(window)), 0.001f, 100.0f);
+//                mat4 invViewProjection = inverse(projection * view);
+                mat4 invViewProjection_old = inverse(projection * view_old);
+//                mat4 vp_old = projection * view_old;
+
+                //bind mesh
+              //  ssbo2->bind(11);
+
+                raytracePassNormal
+                ->clear(0, 0, 0, 0)
+                ->update("view", view_old)
+                ->update("projection", projection)
+                ->update("invView",invView_old)
+                ->run();
+
+                smoothNormal
+                ->clear(0, 0, 0, 0)
+                ->run();
+
+                raytracePass
+                ->clear(0, 0, 0, 0)
+                ->update("view", view_old)
+                ->update("projection", projection)
+                ->update("invViewProjection", invViewProjection_old)
+                ->update("invView",invView_old)
+                ->run();
+
+                break;
             }
         }
     });
 
-
-    float rotX = -0.3f;
-    float rotY = -0.6f;
-    float rotSpeed = 0.15f;
 
     render(window, [&] (float deltaTime) {
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) (rotY - deltaTime * rotSpeed < 0)? rotY -= deltaTime * rotSpeed + 6.283 : rotY -= deltaTime * rotSpeed;
@@ -253,41 +311,41 @@ int main(int argc, char *argv[]) {
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) (rotX - deltaTime * rotSpeed < 0)? rotX -= deltaTime * rotSpeed + 6.283 : rotX -= deltaTime * rotSpeed;
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) (rotX + deltaTime * rotSpeed > 6.283)? rotX += deltaTime * rotSpeed - 6.283 : rotX += deltaTime * rotSpeed;
 
-        mat4 view = translate(mat4(1), vec3(0,0,-4)) * eulerAngleXY(-rotX, -rotY);
+        view = translate(mat4(1), vec3(0.1,-0.25,-4)) * eulerAngleXY(-rotX, -rotY);
 
-        // Latency simulation
-        latencyQueue.push(view);
-        while (latencyQueue.size() > latencyFrameNumber) {
-            latencyQueue.pop();
-        }
+//        // Latency simulation
+//        latencyQueue.push(view);
+//        while (latencyQueue.size() > latencyFrameNumber) {
+//            latencyQueue.pop();
+//        }
 
 
-        mat4 view_old = latencyQueue.front();
-        mat4 invView = inverse(view);
-        mat4 invView_old = inverse(view_old);
-
+//        mat4 view_old = refMatrix; //latencyQueue.front();
+//        mat4 invView = inverse(view);
+//        mat4 invView_old = inverse(view_old);
+//
         mat4 projection = perspective(45.0f + zoom, float(getWidth(window))/float(getHeight(window)), 0.001f, 100.0f);
-        mat4 invViewProjection = inverse(projection * view);
-        mat4 invViewProjection_old = inverse(projection * view_old);
-        mat4 vp_old = projection * view_old;
+//        mat4 invViewProjection = inverse(projection * view);
+//        mat4 invViewProjection_old = inverse(projection * view_old);
+//        mat4 vp_old = projection * view_old;
 
         //bind mesh
-        ssbo2->bind(11);
+      //  ssbo2->bind(11);
 
-        raytracePass
-        ->clear(0, 0, 0, 0)
-        ->update("view", view_old)
-        ->update("projection", projection)
-        ->update("invViewProjection", invViewProjection_old)
-        ->update("invView",invView_old)
-        ->run();
-
-        raytracePassNormal
-        ->clear(0, 0, 0, 0)
-        ->update("view", view_old)
-        ->update("projection", projection)
-        ->update("invView",invView_old)
-        ->run();
+//        raytracePass
+//        ->clear(0, 0, 0, 0)
+//        ->update("view", view_old)
+//        ->update("projection", projection)
+//        ->update("invViewProjection", invViewProjection_old)
+//        ->update("invView",invView_old)
+//        ->run();
+//
+//        raytracePassNormal
+//        ->clear(0, 0, 0, 0)
+//        ->update("view", view_old)
+//        ->update("projection", projection)
+//        ->update("invView",invView_old)
+//        ->run();
 
         diffWarp
         ->clear()
